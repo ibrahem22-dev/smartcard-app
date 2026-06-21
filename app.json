@@ -1,0 +1,22 @@
+{
+  "expo": {
+    "name": "SmartCard",
+    "slug": "smartcard",
+    "scheme": "smartcard",
+    "version": "0.1.0",
+    "orientation": "portrait",
+    "userInterfaceStyle": "light",
+    "ios": {
+      "supportsTablet": false
+    },
+    "android": {
+      "package": "com.smartcard.app"
+    },
+    "extra": {
+      "rtl": true
+    },
+    "plugins": [
+      "expo-asset"
+    ]
+  }
+}
