@@ -1,0 +1,12 @@
+﻿node_modules/
+.expo/
+.expo-shared/
+dist/
+*.log
+.env
+.env.local
+*.p12
+*.keystore
+*.jks
+ios/
+android/
