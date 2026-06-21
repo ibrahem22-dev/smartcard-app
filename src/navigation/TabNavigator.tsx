@@ -14,11 +14,11 @@ import {
   type BottomTabNavigationOptions,
 } from '@react-navigation/bottom-tabs';
 
-import { CalendarScreen } from '../screens/CalendarScreen';
-import { CardsScreen } from '../screens/CardsScreen';
-import { HomeScreen } from '../screens/HomeScreen';
-import { PurchaseGateScreen } from '../screens/PurchaseGateScreen';
-import { SettingsScreen } from '../screens/SettingsScreen';
+import { CalendarStack } from './stacks/CalendarStack';
+import { CardsStack } from './stacks/CardsStack';
+import { HomeStack } from './stacks/HomeStack';
+import { PurchaseGateStack } from './stacks/PurchaseGateStack';
+import { SettingsStack } from './stacks/SettingsStack';
 import type { TabParamList } from './types';
 
 const Tab = createBottomTabNavigator<TabParamList>();
@@ -55,11 +55,11 @@ export function TabNavigator(): React.ReactElement {
         ),
       })}
     >
-      <Tab.Screen name="Home" component={HomeScreen} />
-      <Tab.Screen name="PurchaseGate" component={PurchaseGateScreen} />
-      <Tab.Screen name="Cards" component={CardsScreen} />
-      <Tab.Screen name="Calendar" component={CalendarScreen} />
-      <Tab.Screen name="Settings" component={SettingsScreen} />
+      <Tab.Screen name="Home" component={HomeStack} />
+      <Tab.Screen name="PurchaseGate" component={PurchaseGateStack} />
+      <Tab.Screen name="Cards" component={CardsStack} />
+      <Tab.Screen name="Calendar" component={CalendarStack} />
+      <Tab.Screen name="Settings" component={SettingsStack} />
     </Tab.Navigator>
   );
 }

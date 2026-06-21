@@ -6,14 +6,47 @@
 
 import type { NavigatorScreenParams } from '@react-navigation/native';
 
-/** Bottom tabs — the 5 financial screens. All mount only inside Authenticated. */
-export type TabParamList = {
-  Home: undefined;
+// --- Per-tab stacks -----------------------------------------------------------
+// Each of the 5 tabs owns its own stack so future detail/modal sub-screens
+// (e.g. CardDetail under Cards) have a navigation path without restructuring.
+// For now every stack holds only its English-named root placeholder screen.
+
+/** Home tab stack. */
+export type HomeStackParamList = {
+  HomeRoot: undefined;
+};
+
+/** Purchase Gate tab stack. */
+export type PurchaseGateStackParamList = {
   // Supports deep link: smartcard://purchase?amount=500&category=grocery
-  PurchaseGate: { amount?: number; category?: string } | undefined;
-  Cards: undefined;
-  Calendar: undefined;
-  Settings: undefined;
+  PurchaseGateRoot: { amount?: number; category?: string } | undefined;
+};
+
+/** Cards tab stack. Future: CardDetail: { cardId: string }. */
+export type CardsStackParamList = {
+  CardsRoot: undefined;
+};
+
+/** Calendar tab stack. */
+export type CalendarStackParamList = {
+  CalendarRoot: undefined;
+};
+
+/** Settings tab stack. */
+export type SettingsStackParamList = {
+  SettingsRoot: undefined;
+};
+
+/**
+ * Bottom tabs — the 5 financial screens. All mount only inside Authenticated.
+ * Each tab is itself a stack navigator (see *StackParamList above).
+ */
+export type TabParamList = {
+  Home: NavigatorScreenParams<HomeStackParamList> | undefined;
+  PurchaseGate: NavigatorScreenParams<PurchaseGateStackParamList> | undefined;
+  Cards: NavigatorScreenParams<CardsStackParamList> | undefined;
+  Calendar: NavigatorScreenParams<CalendarStackParamList> | undefined;
+  Settings: NavigatorScreenParams<SettingsStackParamList> | undefined;
 };
 
 /**

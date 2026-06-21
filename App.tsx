@@ -57,11 +57,13 @@ const linking: LinkingOptions<RootStackParamList> = {
         screens: {
           Tabs: {
             screens: {
-              Home: 'home',
-              PurchaseGate: 'purchase',
-              Cards: 'cards',
-              Calendar: 'calendar',
-              Settings: 'settings',
+              // Each tab is its own stack; map the path to the stack's root so
+              // params (e.g. purchase?amount=...) land on the root screen.
+              Home: { screens: { HomeRoot: 'home' } },
+              PurchaseGate: { screens: { PurchaseGateRoot: 'purchase' } },
+              Cards: { screens: { CardsRoot: 'cards' } },
+              Calendar: { screens: { CalendarRoot: 'calendar' } },
+              Settings: { screens: { SettingsRoot: 'settings' } },
             },
           },
         },
