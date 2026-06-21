@@ -16,7 +16,8 @@
       "rtl": true
     },
     "plugins": [
-      "expo-asset"
+      "expo-asset",
+      "expo-font"
     ]
   }
 }
