@@ -46,3 +46,24 @@ export interface PurchaseDecision {
   readonly savingsAmount: number;
   readonly currency: Currency;
 }
+
+// ── الـ imports المُصحَّحة ──────────────────────────────────────────
+// UserCard      -> CardInput   (aliased to keep usage sites untouched)
+// PurchaseInput -> Purchase    (aliased likewise)
+// CardRecommendation: لا يوجد نوع مقابل — تم توجيه alternatives للنوع المحلي RecommendedCard (الخيار A)
+import type { CardInput as UserCard } from './card.types';
+import type { Purchase as PurchaseInput } from './purchase.types';
+import type { Benefit } from './benefit.types';
+
+export interface DecisionContext {
+  readonly purchaseInput: PurchaseInput;
+  readonly availableCards: readonly UserCard[];
+  readonly activeBenefits: readonly Benefit[];
+}
+
+export interface DecisionSummary {
+  readonly primary: PurchaseDecision;
+  readonly alternatives: readonly RecommendedCard[]; // ⚠️ كان CardRecommendation (غير موجود) — راجع الخيار B
+  readonly context: DecisionContext;
+  readonly timestamp: number;
+}

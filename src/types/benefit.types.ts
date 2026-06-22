@@ -55,6 +55,10 @@ export interface Benefit {
   readonly validTo: string | null;
   /** Soft-disable flag so the pipeline can retire a benefit without deleting it. */
   readonly isActive: boolean;
+
+  // M4 — shape only, no logic implemented yet.
+  readonly isValidForInternational?: boolean;
+  readonly exchangeFeePercent?: number;
 }
 
 /** The full benefits dataset, loaded from JSON and passed to benefitsMatcher. */
