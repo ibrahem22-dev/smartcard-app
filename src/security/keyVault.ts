@@ -284,17 +284,18 @@ async function activeLockout(): Promise<
     await readLockout();
   // HIGH-01 fix: the backoff duration comes from the persisted *count*, not from
   // a stored "unlock at" wall-clock deadline an attacker could outrun by setting
-  // the clock forward. Elapsed time is the MAX of the monotonic and wall-clock
-  // deltas: a forward wall-clock jump is bounded by the (un-jumpable) monotonic
-  // delta, and a frozen/reset monotonic clock (e.g. across a restart) is covered
-  // by the wall-clock delta. Either way the window cannot be suppressed.
+  // the clock forward. Elapsed time is the MIN of the monotonic and wall-clock
+  // deltas, clamped to >= 0: for lockout we must UNDERESTIMATE elapsed (err toward
+  // staying locked). min() means a forward wall-clock jump cannot outrun the
+  // (un-jumpable) monotonic delta to skip the window; max(0, ...) clamps the
+  // negative delta a monotonic reset (e.g. across a restart) would produce.
   const requiredDelayMs = delayForFailures(failures);
   if (requiredDelayMs <= 0) {
     return null;
   }
   const monotonicDelta = monotonicNow() - lastFailureMonotonicMs;
   const wallClockDelta = Date.now() - lastFailureWallMs;
-  const elapsed = Math.max(monotonicDelta, wallClockDelta);
+  const elapsed = Math.max(0, Math.min(monotonicDelta, wallClockDelta));
   const remaining = requiredDelayMs - elapsed;
   if (remaining > 0) {
     return { ok: false, reason: 'locked_out', retryAfterMs: remaining };
