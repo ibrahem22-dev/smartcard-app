@@ -21,6 +21,7 @@ import React, {
   useState,
 } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
+import { MMKV } from 'react-native-mmkv';
 
 import { keyVault, type AuthStatus } from '../security/keyVault';
 
@@ -28,15 +29,18 @@ export interface AuthContextValue {
   readonly status: AuthStatus;
   /** True ONLY when status is the explicit 'UNLOCKED'. */
   readonly isUnlocked: boolean;
+  readonly isOnboardingComplete: boolean;
   /** Re-evaluate auth state via the key vault (defaults to LOCKED on failure). */
   readonly evaluate: () => Promise<void>;
   /** TEMP: debug-only unlock used by the LockScreen button until AUTH-01. */
   readonly debugUnlock: () => Promise<void>;
   /** Force lock (background, timeout, sign-out). */
   readonly lock: () => Promise<void>;
+  readonly completeOnboarding: () => void;
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
+const onboardingStorage = new MMKV();
 
 export function AuthProvider({
   children,
@@ -45,6 +49,9 @@ export function AuthProvider({
 }): React.ReactElement {
   // Cold start defaults to LOCKED via 'UNKNOWN' (never 'UNLOCKED').
   const [status, setStatus] = useState<AuthStatus>('UNKNOWN');
+  const [isOnboardingComplete, setIsOnboardingComplete] = useState<boolean>(
+    () => onboardingStorage.getBoolean('onboarding_complete') ?? false,
+  );
 
   const evaluate = useCallback(async (): Promise<void> => {
     try {
@@ -56,14 +63,37 @@ export function AuthProvider({
     }
   }, []);
 
-  const debugUnlock = useCallback(async (): Promise<void> => {
-    await keyVault.unlock();
+const debugUnlock = useCallback(async (): Promise<void> => {
+    console.log('[debugUnlock] start');
+    const result = await keyVault.unlockWithBiometric();
+    console.log('[debugUnlock] unlock result:', JSON.stringify(result));
     await evaluate();
-  }, [evaluate]);
 
+    // Migrate onboarding data if pending
+    try {
+      const onboardingStorage = new MMKV({ id: 'onboarding-temp' });
+      const pending = onboardingStorage.getString('pending_profile');
+      if (pending !== undefined) {
+        const { useUserStore } = require('../store/useUserStore') as typeof import('../store/useUserStore');
+        useUserStore.getState().setProfile(JSON.parse(pending));
+        onboardingStorage.delete('pending_profile');
+        console.log('[debugUnlock] pending_profile migrated to encrypted storage');
+      }
+    } catch (e) {
+      console.log('[debugUnlock] migration failed:', String(e));
+    }
+
+    console.log('[debugUnlock] done');
+  }, [evaluate]);
+  
   const lock = useCallback(async (): Promise<void> => {
     await keyVault.lock();
     setStatus('LOCKED');
+  }, []);
+
+  const completeOnboarding = useCallback((): void => {
+    onboardingStorage.set('onboarding_complete', true);
+    setIsOnboardingComplete(true);
   }, []);
 
   // Evaluate on mount (cold start / deep link entry / restoration).
@@ -91,11 +121,20 @@ export function AuthProvider({
     () => ({
       status,
       isUnlocked: status === 'UNLOCKED',
+      isOnboardingComplete,
       evaluate,
       debugUnlock,
       lock,
+      completeOnboarding,
     }),
-    [status, evaluate, debugUnlock, lock],
+    [
+      status,
+      isOnboardingComplete,
+      evaluate,
+      debugUnlock,
+      lock,
+      completeOnboarding,
+    ],
   );
 
   return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
@@ -108,3 +147,4 @@ export function useAuth(): AuthContextValue {
   }
   return ctx;
 }
+

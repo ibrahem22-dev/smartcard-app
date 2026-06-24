@@ -9,10 +9,12 @@
 // Auth state itself lives in ./authContext (separate module) so that LockScreen
 // can consume it without importing AuthGate (avoids a require cycle).
 
+// /src/navigation/AuthGate.tsx
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { LockScreen } from '../screens/LockScreen';
+import OnboardingScreen from '../screens/onboarding/OnboardingScreen';
 import { AuthenticatedNavigator } from './AuthenticatedNavigator';
 import { useAuth } from './authContext';
 import type { RootStackParamList } from './types';
@@ -23,16 +25,17 @@ const RootStack = createNativeStackNavigator<RootStackParamList>();
  * Renders the root navigator with exactly one branch based on auth state.
  * LOCKED/UNKNOWN -> only LockScreen exists. UNLOCKED -> only Authenticated exists.
  */
+
+
 export function AuthGate(): React.ReactElement {
-  const { isUnlocked } = useAuth();
+  const { isUnlocked, isOnboardingComplete } = useAuth();
 
   return (
     <RootStack.Navigator screenOptions={{ headerShown: false }}>
-      {isUnlocked ? (
-        <RootStack.Screen
-          name="Authenticated"
-          component={AuthenticatedNavigator}
-        />
+      {!isOnboardingComplete ? (
+        <RootStack.Screen name="Onboarding" component={OnboardingScreen} />
+      ) : isUnlocked ? (
+        <RootStack.Screen name="Authenticated" component={AuthenticatedNavigator} />
       ) : (
         <RootStack.Screen name="Lock" component={LockScreen} />
       )}

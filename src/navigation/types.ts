@@ -64,6 +64,7 @@ export type AuthenticatedStackParamList = {
  */
 export type RootStackParamList = {
   Lock: undefined;
+  Onboarding: undefined;
   Authenticated: NavigatorScreenParams<AuthenticatedStackParamList> | undefined;
 };
 
