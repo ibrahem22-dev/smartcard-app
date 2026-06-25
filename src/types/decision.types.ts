@@ -1,14 +1,14 @@
 // /src/types/decision.types.ts
 
 import type { CardIssuer } from './card.types';
-import type { Currency } from './purchase.types';
+import type { Currency, PurchaseInput } from './purchase.types';
 
 /** Final purchase verdict rendered by DecisionScreen. */
-export enum DecisionVerdict {
-  Approve = 'approve',
-  Warn = 'warn',
-  Block = 'block',
-}
+export type DecisionVerdict =
+  | 'approved'
+  | 'warning'
+  | 'blocked'
+  | 'wait_24h';
 
 /**
  * The card the engine recommends for this purchase. Carries the minimum the
@@ -30,8 +30,9 @@ export interface PurchaseDecision {
   readonly verdict: DecisionVerdict;
 
   /** Reasoning shown to the user, one field per language. */
-  readonly reasonHe: string; // Hebrew
+  readonly reason: string; // Hebrew
   readonly reasonAr: string; // Arabic
+  readonly exchangeFeeWarning?: string;
 
   /**
    * Card the engine recommends paying with. null when no better card applies
@@ -52,7 +53,6 @@ export interface PurchaseDecision {
 // PurchaseInput -> Purchase    (aliased likewise)
 // CardRecommendation: لا يوجد نوع مقابل — تم توجيه alternatives للنوع المحلي RecommendedCard (الخيار A)
 import type { CardInput as UserCard } from './card.types';
-import type { Purchase as PurchaseInput } from './purchase.types';
 import type { Benefit } from './benefit.types';
 
 export interface DecisionContext {

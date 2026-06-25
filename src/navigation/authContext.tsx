@@ -21,7 +21,7 @@ import React, {
   useState,
 } from 'react';
 import { AppState, type AppStateStatus } from 'react-native';
-import { MMKV } from 'react-native-mmkv';
+import { MMKV as MmkvStorage } from 'react-native-mmkv';
 
 import { keyVault, type AuthStatus } from '../security/keyVault';
 
@@ -40,7 +40,7 @@ export interface AuthContextValue {
 }
 
 const AuthContext = createContext<AuthContextValue | undefined>(undefined);
-const onboardingStorage = new MMKV();
+const onboardingStorage = new MmkvStorage({ id: 'onboarding-temp' });
 
 export function AuthProvider({
   children,
@@ -63,27 +63,9 @@ export function AuthProvider({
     }
   }, []);
 
-const debugUnlock = useCallback(async (): Promise<void> => {
-    console.log('[debugUnlock] start');
-    const result = await keyVault.unlockWithBiometric();
-    console.log('[debugUnlock] unlock result:', JSON.stringify(result));
+  const debugUnlock = useCallback(async (): Promise<void> => {
+    await keyVault.unlockWithBiometric();
     await evaluate();
-
-    // Migrate onboarding data if pending
-    try {
-      const onboardingStorage = new MMKV({ id: 'onboarding-temp' });
-      const pending = onboardingStorage.getString('pending_profile');
-      if (pending !== undefined) {
-        const { useUserStore } = require('../store/useUserStore') as typeof import('../store/useUserStore');
-        useUserStore.getState().setProfile(JSON.parse(pending));
-        onboardingStorage.delete('pending_profile');
-        console.log('[debugUnlock] pending_profile migrated to encrypted storage');
-      }
-    } catch (e) {
-      console.log('[debugUnlock] migration failed:', String(e));
-    }
-
-    console.log('[debugUnlock] done');
   }, [evaluate]);
   
   const lock = useCallback(async (): Promise<void> => {
@@ -147,4 +129,3 @@ export function useAuth(): AuthContextValue {
   }
   return ctx;
 }
-

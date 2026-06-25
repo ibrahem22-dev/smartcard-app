@@ -1,5 +1,6 @@
 // /src/types/cashflow.types.ts
 
+import type { CardInput } from './card.types';
 import type { Currency, PurchaseCategory } from './purchase.types';
 
 /** Risk band derived from a 0-100 score. */
@@ -112,4 +113,16 @@ export interface ChargeReturnRisk {
   readonly billingDate: string;
   readonly reason: string;    // Hebrew
   readonly reasonAr: string;  // Arabic
+}
+
+/** Snapshot consumed by purchaseGate.evaluatePurchase. */
+export interface CashflowSnapshot {
+  /** ISO 8601 timestamp/date when this snapshot was produced. */
+  readonly snapshotDate: string;
+  /** Projected balance remaining after known cashflow obligations (₪). */
+  readonly remainingBalance: number;
+  /** ISO 8601 timestamp/date of the previous purchase. null when unknown. */
+  readonly lastPurchaseDate: string | null;
+  /** Cards available to the decision engine for metadata such as FX fee. */
+  readonly availableCards: readonly CardInput[];
 }

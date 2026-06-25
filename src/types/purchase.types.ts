@@ -45,6 +45,8 @@ interface BasePurchase {
   readonly merchantName: string;
   /** Drives purchaseGate `wait_24h` logic (non-essential + tight buffer). */
   readonly isEssential: boolean;
+  /** True when the purchase is made outside Israel or charged by a foreign merchant. */
+  readonly isInternational: boolean;
 }
 
 /** A standard single-charge purchase (no תשלומים). */
@@ -65,3 +67,4 @@ export interface InstallmentPurchase extends BasePurchase {
  * monthly payment directly with no null check and no `!` assertion.
  */
 export type Purchase = OneTimePurchase | InstallmentPurchase;
+export type PurchaseInput = Purchase;

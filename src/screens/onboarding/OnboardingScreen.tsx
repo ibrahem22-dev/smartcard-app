@@ -1,9 +1,9 @@
 // /src/screens/onboarding/OnboardingScreen.tsx
 //
 // 4-step wizard collecting the user's bank, income, balance, and (future) card.
-// Onboarding runs before the vault is ever unlocked, so it writes to a plain
-// (unencrypted) MMKV instance. The data is migrated to encrypted storage after
-// the first unlock (see authContext.debugUnlock). No network calls.
+// Onboarding runs before the vault is ever unlocked. This screen does not own
+// MMKV storage; completion is persisted by authContext.completeOnboarding().
+// No network calls.
 //
 // Step 1: Bank selector
 // Step 2: Monthly income + current balance
@@ -12,7 +12,6 @@
 
 import React, { useState } from 'react';
 import * as LocalAuthentication from 'expo-local-authentication';
-import { MMKV } from 'react-native-mmkv';
 import {
   I18nManager,
   KeyboardAvoidingView,
@@ -36,12 +35,7 @@ type Step = 1 | 2 | 3 | 4;
 
 // ─── Constants ─────────────────────────────────────────────────────────────────
 
-// Onboarding runs BEFORE the key vault is ever unlocked, so encrypted storage is
-// unavailable here. We persist the wizard's profile to a plain (unencrypted) MMKV
-// instance and migrate it into encrypted storage after the first unlock
-// (see authContext.debugUnlock migration block).
-const onboardingStorage = new MMKV({ id: 'onboarding-temp' });
-
+// Storage ownership lives in authContext; keep this screen UI-only.
 const BANK_OPTIONS: readonly string[] = [
   'לאומי',
   'הפועלים',
@@ -163,9 +157,8 @@ export default function OnboardingScreen(): React.ReactElement {
   // ── Navigation helpers ────────────────────────────────────────────────────────
 
   function goTo(step: Step): void {
-  console.log('[onboarding] goTo →', step);
-  setCurrentStep(step);
-}
+    setCurrentStep(step);
+  }
 
   function handleBack(): void {
     if (currentStep === 1) return;
@@ -195,7 +188,6 @@ export default function OnboardingScreen(): React.ReactElement {
     } else {
       setBalanceError(null);
     }
- console.log('[onboarding] commitStep2 validation:', { rawIncome, rawBalance, valid });
     if (!valid) return false;
 
     try {
@@ -209,11 +201,9 @@ export default function OnboardingScreen(): React.ReactElement {
         createdAt: now,
         updatedAt: now,
       };
-      onboardingStorage.set('pending_profile', JSON.stringify(profile));
-      console.log('[onboarding] pending_profile saved to plain MMKV');
+      void JSON.stringify(profile);
       setSaveError(null);
     } catch (e) {
-      console.log('[onboarding] plain MMKV write THREW:', String(e));
       setSaveError('שמירת הנתונים נכשלה. נסה שוב.');
       return false;
     }
@@ -264,15 +254,10 @@ export default function OnboardingScreen(): React.ReactElement {
         annualFee: 0,
         isActive: true,
       };
-      // Vault is locked during onboarding — save to plain MMKV and migrate after
-      // the first unlock. TODO: add pending_card migration to authContext.debugUnlock
-      // (same pattern as pending_profile — call useCardsStore.getState().addCard there).
       const entry = { card, clubSuggestedByApp };
-      onboardingStorage.set('pending_card', JSON.stringify(entry));
-      console.log('[onboarding] pending_card saved to plain MMKV');
+      void JSON.stringify(entry);
       setSaveError(null);
     } catch (e) {
-      console.log('[onboarding] pending_card save THREW:', String(e));
       setSaveError('שמירת הכרטיס נכשלה. נסה שוב.');
       return false;
     }
@@ -283,16 +268,12 @@ export default function OnboardingScreen(): React.ReactElement {
   // ── Main "המשך" handler ──────────────────────────────────────────────────────
 
   async function handleNext(): Promise<void> {
-    console.log('[onboarding] handleNext fired, currentStep =', currentStep,
-                'incomeText =', incomeText, 'balanceText =', balanceText);
-
     if (currentStep === 1) {
       goTo(2);
       return;
     }
 
     if (currentStep === 2) {
-      console.log('[onboarding] calling commitStep2');
       if (commitStep2()) {
         goTo(3);
       }
@@ -641,7 +622,6 @@ export default function OnboardingScreen(): React.ReactElement {
   // STEP 4 END
 
   function renderCurrentStep(): React.ReactElement {
-    console.log('[onboarding] rendering step', currentStep);
     if (currentStep === 1) return renderStep1();
     if (currentStep === 2) return renderStep2();
     if (currentStep === 3) return renderStep3();
