@@ -1,0 +1,115 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<coverage generated="1782409541619" clover="3.2.0">
+  <project timestamp="1782409541619" name="All files">
+    <metrics statements="103" coveredstatements="103" conditionals="57" coveredconditionals="54" methods="12" coveredmethods="12" elements="172" coveredelements="169" complexity="0" loc="103" ncloc="103" packages="1" files="2" classes="2"/>
+    <file name="cardRoleEngine.ts" path="C:\Users\ebrah\SmartCard\src\engines\cardRoleEngine.ts">
+      <metrics statements="65" coveredstatements="65" conditionals="31" coveredconditionals="30" methods="7" coveredmethods="7"/>
+      <line num="1" count="1" type="stmt"/>
+      <line num="6" count="1" type="stmt"/>
+      <line num="9" count="1" type="stmt"/>
+      <line num="10" count="1" type="stmt"/>
+      <line num="11" count="1" type="stmt"/>
+      <line num="12" count="1" type="stmt"/>
+      <line num="15" count="12" type="stmt"/>
+      <line num="19" count="16" type="cond" truecount="1" falsecount="0"/>
+      <line num="20" count="6" type="stmt"/>
+      <line num="23" count="10" type="stmt"/>
+      <line num="24" count="10" type="cond" truecount="1" falsecount="1"/>
+      <line num="27" count="1" type="stmt"/>
+      <line num="28" count="20" type="cond" truecount="1" falsecount="0"/>
+      <line num="29" count="4" type="stmt"/>
+      <line num="32" count="16" type="stmt"/>
+      <line num="33" count="16" type="cond" truecount="1" falsecount="0"/>
+      <line num="34" count="10" type="stmt"/>
+      <line num="37" count="6" type="cond" truecount="1" falsecount="0"/>
+      <line num="41" count="1" type="stmt"/>
+      <line num="44" count="5" type="cond" truecount="1" falsecount="0"/>
+      <line num="45" count="1" type="stmt"/>
+      <line num="48" count="4" type="cond" truecount="1" falsecount="0"/>
+      <line num="49" count="1" type="stmt"/>
+      <line num="52" count="3" type="cond" truecount="3" falsecount="0"/>
+      <line num="53" count="1" type="stmt"/>
+      <line num="56" count="2" type="cond" truecount="1" falsecount="0"/>
+      <line num="57" count="1" type="stmt"/>
+      <line num="60" count="1" type="stmt"/>
+      <line num="69" count="12" type="stmt"/>
+      <line num="70" count="12" type="stmt"/>
+      <line num="71" count="12" type="stmt"/>
+      <line num="73" count="12" type="cond" truecount="1" falsecount="0"/>
+      <line num="74" count="1" type="stmt"/>
+      <line num="75" count="1" type="stmt"/>
+      <line num="76" count="1" type="stmt"/>
+      <line num="79" count="12" type="cond" truecount="1" falsecount="0"/>
+      <line num="80" count="9" type="stmt"/>
+      <line num="81" count="9" type="stmt"/>
+      <line num="82" count="9" type="stmt"/>
+      <line num="85" count="12" type="stmt"/>
+      <line num="87" count="12" type="cond" truecount="1" falsecount="0"/>
+      <line num="88" count="3" type="cond" truecount="1" falsecount="0"/>
+      <line num="89" count="2" type="stmt"/>
+      <line num="90" count="2" type="stmt"/>
+      <line num="91" count="2" type="stmt"/>
+      <line num="94" count="3" type="stmt"/>
+      <line num="95" count="3" type="stmt"/>
+      <line num="97" count="3" type="cond" truecount="1" falsecount="0"/>
+      <line num="98" count="1" type="stmt"/>
+      <line num="99" count="1" type="stmt"/>
+      <line num="103" count="12" type="cond" truecount="1" falsecount="0"/>
+      <line num="108" count="2" type="stmt"/>
+      <line num="109" count="2" type="stmt"/>
+      <line num="110" count="2" type="stmt"/>
+      <line num="113" count="12" type="stmt"/>
+      <line num="115" count="12" type="stmt"/>
+      <line num="123" count="1" type="stmt"/>
+      <line num="129" count="13" type="stmt"/>
+      <line num="131" count="8" type="cond" truecount="1" falsecount="0"/>
+      <line num="132" count="1" type="stmt"/>
+      <line num="135" count="7" type="stmt"/>
+      <line num="137" count="12" type="stmt"/>
+      <line num="139" count="12" type="cond" truecount="3" falsecount="0"/>
+      <line num="140" count="11" type="stmt"/>
+      <line num="143" count="1" type="stmt"/>
+    </file>
+    <file name="purchaseGate.ts" path="C:\Users\ebrah\SmartCard\src\engines\purchaseGate.ts">
+      <metrics statements="38" coveredstatements="38" conditionals="26" coveredconditionals="24" methods="5" coveredmethods="5"/>
+      <line num="4" count="1" type="stmt"/>
+      <line num="5" count="1" type="stmt"/>
+      <line num="7" count="1" type="stmt"/>
+      <line num="8" count="1" type="stmt"/>
+      <line num="9" count="1" type="stmt"/>
+      <line num="12" count="11" type="cond" truecount="1" falsecount="0"/>
+      <line num="13" count="9" type="stmt"/>
+      <line num="16" count="2" type="stmt"/>
+      <line num="17" count="2" type="stmt"/>
+      <line num="19" count="2" type="cond" truecount="3" falsecount="0"/>
+      <line num="20" count="1" type="stmt"/>
+      <line num="23" count="1" type="stmt"/>
+      <line num="25" count="1" type="cond" truecount="2" falsecount="0"/>
+      <line num="32" count="11" type="cond" truecount="1" falsecount="0"/>
+      <line num="33" count="8" type="stmt"/>
+      <line num="36" count="3" type="stmt"/>
+      <line num="37" count="2" type="stmt"/>
+      <line num="40" count="3" type="cond" truecount="3" falsecount="0"/>
+      <line num="41" count="1" type="stmt"/>
+      <line num="44" count="2" type="stmt"/>
+      <line num="46" count="2" type="stmt"/>
+      <line num="50" count="4" type="stmt"/>
+      <line num="60" count="1" type="stmt"/>
+      <line num="64" count="15" type="cond" truecount="1" falsecount="0"/>
+      <line num="65" count="4" type="stmt"/>
+      <line num="69" count="11" type="cond" truecount="2" falsecount="0"/>
+      <line num="70" count="11" type="stmt"/>
+      <line num="72" count="11" type="cond" truecount="1" falsecount="0"/>
+      <line num="76" count="1" type="stmt"/>
+      <line num="85" count="1" type="cond" truecount="1" falsecount="1"/>
+      <line num="90" count="10" type="cond" truecount="1" falsecount="0"/>
+      <line num="91" count="7" type="stmt"/>
+      <line num="100" count="7" type="cond" truecount="2" falsecount="0"/>
+      <line num="105" count="3" type="cond" truecount="1" falsecount="0"/>
+      <line num="106" count="1" type="stmt"/>
+      <line num="115" count="1" type="cond" truecount="1" falsecount="1"/>
+      <line num="120" count="2" type="stmt"/>
+      <line num="129" count="2" type="cond" truecount="2" falsecount="0"/>
+    </file>
+  </project>
+</coverage>

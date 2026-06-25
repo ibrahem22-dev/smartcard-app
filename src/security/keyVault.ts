@@ -107,7 +107,6 @@ const DEK_BYTES = 32; // 256-bit (KGEN-1)
 const GCM_NONCE_BYTES = 12;
 
 const SESSION_TIMEOUT_MS = 5 * 60 * 1000; // SESS-1
-const EXTENDED_LOCK_MS = 24 * 60 * 60 * 1000; // 24 hours — extended lock window
 const TERMINAL_FAILURE_COUNT = 10; // PIN-6
 const MMKV_ID = 'smartcard.secure';
 const PROFILE_KEY = 'user.profile';
@@ -389,30 +388,15 @@ async function activeLockout(caller: LockoutCaller): Promise<
   const lockoutState = await readLockout();
 
   if (lockoutState.isTerminalLock) {
-    // [HIGH-REC-01 FIX] Terminal expiry lives in SecureStore alongside the lockout record; biometric remains the recovery path.
+    // PIN-6 terminal action (ratified AGENTS.md §9 / §11): indefinite PIN lockout at
+    // tier 10 with biometric as the recovery path. PIN stays blocked until
+    // wipeVault() or a successful biometric unlock (resetFailures). No wall-clock
+    // self-release — extended lock is recoverable via biometric only.
     if (caller === 'biometric') {
       return null;
     }
 
-    const lockedUntilMs = lockoutState.lockedUntilMs;
-    const elapsedMs = Math.max(
-      0,
-      Math.min(
-        monotonicNow() - lockoutState.lastFailureMonotonicMs,
-        Date.now() - lockoutState.lastFailureWallMs,
-      ),
-    );
-    const remaining = lockedUntilMs - (lockoutState.lastFailureWallMs + elapsedMs);
-
-    if (remaining > 0) {
-      return {
-        ok: false,
-        reason: 'locked_out',
-        retryAfterMs: remaining,
-      };
-    }
-
-    return null;
+    return { ok: false, reason: 'locked_out' };
   }
 
   const { failures, lastFailureMonotonicMs, lastFailureWallMs } = lockoutState;
@@ -443,13 +427,12 @@ async function recordFailure(): Promise<Extract<UnlockResult, { ok: false }>> {
   const failures = prev.failures + 1;
 
   if (failures >= TERMINAL_FAILURE_COUNT) {
-    const lockedUntilMs = Date.now() + EXTENDED_LOCK_MS;
     await writeLockout({
       tier: 'terminal',
       failures,
       lastFailureMonotonicMs: monotonicNow(),
       lastFailureWallMs: Date.now(),
-      lockedUntilMs,
+      lockedUntilMs: 0,
       isTerminalLock: true,
     });
     return { ok: false, reason: 'locked_out' };

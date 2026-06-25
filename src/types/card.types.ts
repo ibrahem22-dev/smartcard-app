@@ -73,4 +73,18 @@ export interface CardInput {
   readonly supportsInstallments: boolean;
   readonly annualFee: number; // ₪
   readonly isActive: boolean;
+
+  /** Issuer/bank association used for the +5 bank-match bonus in recommendCard. */
+  readonly bankName?: string;
+  /** True when the user could not identify their מועדון at onboarding. */
+  readonly unknownClub?: boolean;
+}
+
+/** Ranked card pick returned by cardRoleEngine.recommendCard. */
+export interface CardRecommendation {
+  readonly card: CardInput;
+  /** 0–100 suitability score for the purchase context. */
+  readonly score: number;
+  readonly scoreReason: string;
+  readonly scoreReasonAr: string;
 }

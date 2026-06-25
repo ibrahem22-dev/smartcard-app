@@ -2,6 +2,7 @@ import type { CashflowSnapshot } from '../types/cashflow.types';
 import type { PurchaseDecision } from '../types/decision.types';
 import type { PurchaseInput } from '../types/purchase.types';
 import { Currency } from '../types/purchase.types';
+import { isValidMonetaryAmount } from '../utils/monetary';
 
 const DAY_IN_MS = 24 * 60 * 60 * 1000;
 const WAIT_24H_AMOUNT_THRESHOLD_ILS = 500;
@@ -45,10 +46,25 @@ function getExchangeFeeWarning(
   return `רכישה בינלאומית: בכרטיס זה עשויה לחול עמלת המרה של ${feePercent}%.`;
 }
 
+function invalidAmountDecision(currency: Currency): PurchaseDecision {
+  return {
+    verdict: 'blocked',
+    reason: 'סכום הרכישה אינו תקין. הזן סכום בין ₪0.01 ל-₪999,999.',
+    reasonAr: 'مبلغ الشراء غير صالح. أدخل مبلغًا بين ₪0.01 و₪999,999.',
+    recommendedCard: null,
+    savingsAmount: 0,
+    currency,
+  };
+}
+
 export function evaluatePurchase(
   input: PurchaseInput,
   cashflow: CashflowSnapshot,
 ): PurchaseDecision {
+  if (!isValidMonetaryAmount(input.amount)) {
+    return invalidAmountDecision(input.currency);
+  }
+
   const isLargeIlsPurchase =
     input.currency === Currency.ILS && input.amount > WAIT_24H_AMOUNT_THRESHOLD_ILS;
   const exchangeFeeWarning = getExchangeFeeWarning(input, cashflow);

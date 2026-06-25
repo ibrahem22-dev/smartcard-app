@@ -32,8 +32,8 @@ export interface AuthContextValue {
   readonly isOnboardingComplete: boolean;
   /** Re-evaluate auth state via the key vault (defaults to LOCKED on failure). */
   readonly evaluate: () => Promise<void>;
-  /** TEMP: debug-only unlock used by the LockScreen button until AUTH-01. */
-  readonly debugUnlock: () => Promise<void>;
+  /** TEMP: debug-only unlock — stripped from production builds. */
+  readonly debugUnlock?: () => Promise<void>;
   /** Force lock (background, timeout, sign-out). */
   readonly lock: () => Promise<void>;
   readonly completeOnboarding: () => void;
@@ -64,6 +64,9 @@ export function AuthProvider({
   }, []);
 
   const debugUnlock = useCallback(async (): Promise<void> => {
+    if (!__DEV__) {
+      return;
+    }
     await keyVault.unlockWithBiometric();
     await evaluate();
   }, [evaluate]);
@@ -105,7 +108,7 @@ export function AuthProvider({
       isUnlocked: status === 'UNLOCKED',
       isOnboardingComplete,
       evaluate,
-      debugUnlock,
+      ...(__DEV__ ? { debugUnlock } : {}),
       lock,
       completeOnboarding,
     }),

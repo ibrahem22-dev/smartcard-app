@@ -15,22 +15,23 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { useAuth } from '../navigation/authContext';
 
 export function LockScreen(): React.ReactElement {
-  const { debugUnlock } = useAuth();
+  const auth = useAuth();
 
   return (
     <View style={styles.container}>
       <Text style={styles.title}>Authenticate to continue</Text>
 
-      {/* TEMP: remove in AUTH-01 once biometric / PIN flow exists. */}
-      <Pressable
-        accessibilityRole="button"
-        style={styles.debugButton}
-        onPress={() => {
-          void debugUnlock();
-        }}
-      >
-        <Text style={styles.debugButtonText}>DEBUG: Unlock</Text>
-      </Pressable>
+      {__DEV__ && auth.debugUnlock !== undefined ? (
+        <Pressable
+          accessibilityRole="button"
+          style={styles.debugButton}
+          onPress={() => {
+            void auth.debugUnlock?.();
+          }}
+        >
+          <Text style={styles.debugButtonText}>DEBUG: Unlock</Text>
+        </Pressable>
+      ) : null}
     </View>
   );
 }
