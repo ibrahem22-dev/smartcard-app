@@ -10,6 +10,7 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import { ContactScreen } from '../../screens/ContactScreen';
 import { SettingsScreen } from '../../screens/SettingsScreen';
 import type { SettingsStackParamList } from '../types';
 
@@ -22,6 +23,11 @@ export function SettingsStack(): React.ReactElement {
         name="SettingsRoot"
         component={SettingsScreen}
         options={{ title: 'Settings' }}
+      />
+      <Stack.Screen
+        name="Contact"
+        component={ContactScreen}
+        options={{ title: 'Contact' }}
       />
     </Stack.Navigator>
   );

@@ -38,6 +38,7 @@ export type CalendarStackParamList = {
 /** Settings tab stack. */
 export type SettingsStackParamList = {
   SettingsRoot: undefined;
+  Contact: undefined;
 };
 
 /**

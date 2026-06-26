@@ -27,5 +27,6 @@ export const INITIAL_FEATURE_STATUS = {
   SavingsTracker: { status: 'soon', label: 'חיסכון', availableInPhase: 3 },
   ScoreSection: { status: 'soon', label: 'ניקוד', availableInPhase: 3 },
   InternationalMode: { status: 'soon', label: 'חו"ל', availableInPhase: 3 },
+  InternationalTravel: { status: 'soon', label: 'נסיעות לחו"ל', availableInPhase: 3 },
   ProUpgrade: { status: 'pro_only', label: 'Pro', availableInPhase: 5 },
 } as const satisfies FeatureFlags;

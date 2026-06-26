@@ -11,21 +11,12 @@
 import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
-import { ScreenPlaceholder } from '../../components/common/ScreenPlaceholder';
+import { ContactScreen } from '../../screens/ContactScreen';
 import { DecisionScreen } from '../../screens/DecisionScreen';
 import { PurchaseGateScreen } from '../../screens/PurchaseGateScreen';
 import type { PurchaseGateStackParamList } from '../types';
 
 const Stack = createNativeStackNavigator<PurchaseGateStackParamList>();
-
-function ContactPlaceholderScreen(): React.ReactElement {
-  return (
-    <ScreenPlaceholder
-      title="Contact"
-      subtitle="UI-05 will replace this placeholder."
-    />
-  );
-}
 
 export function PurchaseGateStack(): React.ReactElement {
   return (
@@ -42,7 +33,7 @@ export function PurchaseGateStack(): React.ReactElement {
       />
       <Stack.Screen
         name="Contact"
-        component={ContactPlaceholderScreen}
+        component={ContactScreen}
         options={{ title: 'Contact' }}
       />
     </Stack.Navigator>
