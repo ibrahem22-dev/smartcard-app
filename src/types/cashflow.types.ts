@@ -115,6 +115,14 @@ export interface ChargeReturnRisk {
   readonly reasonAr: string;  // Arabic
 }
 
+/** Row consumed by CalendarScreen for the flat upcoming-charge view. */
+export interface CashflowCalendarCharge {
+  readonly date: string;
+  readonly cardName: string;
+  readonly amount: number;
+  readonly riskLevel: number;
+}
+
 /** Snapshot consumed by purchaseGate.evaluatePurchase. */
 export interface CashflowSnapshot {
   /** ISO 8601 timestamp/date when this snapshot was produced. */

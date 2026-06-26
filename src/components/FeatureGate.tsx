@@ -1,8 +1,9 @@
 import React, { type ReactNode } from 'react';
-import { I18nManager, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 
+import { useFeatureFlag } from '../hooks/useFeatureFlag';
 import { INITIAL_FEATURE_STATUS } from '../types/feature.types';
-import { useFeatureFlag, type FeatureStatus } from '../hooks/useFeatureFlag';
+import { rtl } from '../utils/rtlStyles';
 
 export type FeatureGateProps = {
   feature: keyof typeof INITIAL_FEATURE_STATUS;
@@ -25,14 +26,12 @@ export function FeatureGate({ feature, children }: FeatureGateProps): React.Reac
   return (
     <View style={styles.wrapper}>
       <View style={styles.badge}>
-        <Text style={styles.badgeText}>{badgeLabel}</Text>
+        <Text style={[rtl.text, styles.badgeText]}>{badgeLabel}</Text>
       </View>
       {children}
     </View>
   );
 }
-
-const writingDirection = I18nManager.isRTL ? 'rtl' : 'ltr';
 
 const styles = StyleSheet.create({
   wrapper: {
@@ -52,7 +51,5 @@ const styles = StyleSheet.create({
     color: '#FFFFFF',
     fontSize: 12,
     fontWeight: '700',
-    textAlign: 'center',
-    writingDirection,
   },
 });

@@ -50,6 +50,7 @@ export function TabNavigator(): React.ReactElement {
         tabBarActiveTintColor: '#2563EB',
         tabBarInactiveTintColor: '#94A3B8',
         tabBarLabel: LABELS[route.name],
+        tabBarStyle: { flexDirection: 'row-reverse' },
         tabBarIcon: ({ color, size }) => (
           <Ionicons name={ICONS[route.name]} size={size} color={color} />
         ),

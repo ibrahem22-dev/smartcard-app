@@ -1,13 +1,7 @@
 import React, { useState } from 'react';
-import {
-  I18nManager,
-  Linking,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
+
+import { rtl } from '../utils/rtlStyles';
 
 type ProblemType =
   | 'wrong_charge'
@@ -46,7 +40,7 @@ const SCRIPTS: Record<ProblemType, readonly [string, string]> = {
     'אפשר להסביר לי מה נדרש כדי לפתוח את הבקשה?',
   ],
   charge_return: [
-    'שלום, קיבלתי התראה או חשש לחזרת חיוב בכרטיס.',
+    'שלום, קיבלתי התרעה או חשש לחזרת חיוב בכרטיס.',
     'אפשר לבדוק את מצב החיוב ומה אפשר לעשות עכשיו?',
   ],
   general_question: [
@@ -60,171 +54,115 @@ function getTelUrl(phone: string): string {
 }
 
 export function ContactScreen(): React.ReactElement {
-  const [selectedProblem, setSelectedProblem] = useState<ProblemType>('wrong_charge');
+  const [selectedProblem, setSelectedProblem] =
+    useState<ProblemType>('wrong_charge');
   const script = SCRIPTS[selectedProblem];
 
   return (
-    <ScrollView contentContainerStyle={styles.content}>
-      <Text style={styles.title}>צור קשר עם חברת האשראי</Text>
+    <View style={[rtl.screen, { backgroundColor: '#F8FAFC' }]}>
+      <ScrollView
+        contentContainerStyle={rtl.scrollInner}
+        style={rtl.scrollOuter}
+      >
+      <View className="min-h-full w-full p-5 dark:bg-neutral-950">
+        <Text
+          className="mb-[18px] text-right text-[26px] font-extrabold text-slate-900 dark:text-white"
+          style={rtl.text}
+        >
+          צור קשר עם חברת האשראי
+        </Text>
 
-      <View style={styles.selector}>
-        {PROBLEM_OPTIONS.map(option => {
-          const isSelected = option.id === selectedProblem;
+        <View
+          className="mb-[18px] w-full flex-row-reverse flex-wrap gap-2 rtl:flex-row-reverse"
+          style={rtl.row}
+        >
+          {PROBLEM_OPTIONS.map(option => {
+            const isSelected = option.id === selectedProblem;
 
-          return (
-            <Pressable
-              accessibilityRole="button"
-              accessibilityState={{ selected: isSelected }}
-              key={option.id}
-              onPress={(): void => setSelectedProblem(option.id)}
-              style={[
-                styles.problemButton,
-                isSelected ? styles.problemButtonSelected : null,
-              ]}
+            return (
+              <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ selected: isSelected }}
+                className={`min-h-10 justify-center rounded-lg border px-3 ${
+                  isSelected
+                    ? 'border-blue-600 bg-blue-100 dark:border-blue-400 dark:bg-blue-950'
+                    : 'border-slate-300 bg-white dark:border-neutral-700 dark:bg-neutral-900'
+                }`}
+                key={option.id}
+                onPress={(): void => setSelectedProblem(option.id)}
+              >
+                <Text
+                  className={`text-center text-sm font-bold ${
+                    isSelected
+                      ? 'text-blue-700 dark:text-blue-200'
+                      : 'text-slate-600 dark:text-slate-200'
+                  }`}
+                  style={rtl.text}
+                >
+                  {option.label}
+                </Text>
+              </Pressable>
+            );
+          })}
+        </View>
+
+        <View className="w-full gap-3">
+          {ISSUER_CONTACTS.map((issuer: IssuerContact): React.ReactElement => (
+            <View
+              className="w-full rounded-lg border border-slate-300 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900"
+              key={issuer.name}
             >
               <Text
-                style={[
-                  styles.problemButtonText,
-                  isSelected ? styles.problemButtonTextSelected : null,
-                ]}
+                className="text-right text-xl font-extrabold text-slate-900 dark:text-white"
+                style={rtl.text}
               >
-                {option.label}
+                {issuer.name}
               </Text>
-            </Pressable>
-          );
-        })}
-      </View>
+              <Text
+                className="mt-1 text-right text-[17px] font-extrabold text-blue-600 dark:text-blue-300"
+                style={rtl.text}
+              >
+                {issuer.phone}
+              </Text>
 
-      <View style={styles.issuerList}>
-        {ISSUER_CONTACTS.map((issuer: IssuerContact): React.ReactElement => (
-          <View key={issuer.name} style={styles.issuerBlock}>
-            <Text style={styles.issuerName}>{issuer.name}</Text>
-            <Text style={styles.phone}>{issuer.phone}</Text>
+              <View className="mt-3 rounded-lg bg-slate-100 p-3 dark:bg-neutral-800">
+                <Text
+                  className="mb-1.5 text-right text-sm font-extrabold text-slate-700 dark:text-slate-100"
+                  style={rtl.text}
+                >
+                  מה לומר
+                </Text>
+                <Text
+                  className="text-right text-[15px] leading-[22px] text-slate-700 dark:text-slate-200"
+                  style={rtl.text}
+                >
+                  {script[0]}
+                </Text>
+                <Text
+                  className="text-right text-[15px] leading-[22px] text-slate-700 dark:text-slate-200"
+                  style={rtl.text}
+                >
+                  {script[1]}
+                </Text>
+              </View>
 
-            <View style={styles.scriptBlock}>
-              <Text style={styles.scriptTitle}>מה לומר</Text>
-              <Text style={styles.scriptLine}>{script[0]}</Text>
-              <Text style={styles.scriptLine}>{script[1]}</Text>
+              <Pressable
+                accessibilityRole="button"
+                className="mt-3.5 min-h-11 items-center justify-center rounded-lg bg-slate-900 dark:bg-white"
+                onPress={(): Promise<void> => Linking.openURL(getTelUrl(issuer.phone))}
+              >
+                <Text
+                  className="text-center text-[15px] font-extrabold text-white dark:text-slate-900"
+                  style={rtl.text}
+                >
+                  התקשר עכשיו
+                </Text>
+              </Pressable>
             </View>
-
-            <Pressable
-              accessibilityRole="button"
-              onPress={(): Promise<void> => Linking.openURL(getTelUrl(issuer.phone))}
-              style={styles.callButton}
-            >
-              <Text style={styles.callButtonText}>התקשר עכשיו</Text>
-            </Pressable>
-          </View>
-        ))}
+          ))}
+        </View>
       </View>
-    </ScrollView>
+      </ScrollView>
+    </View>
   );
 }
-
-const writingDirection = I18nManager.isRTL ? 'rtl' : 'ltr';
-
-const styles = StyleSheet.create({
-  content: {
-    flexGrow: 1,
-    padding: 20,
-    backgroundColor: '#F8FAFC',
-  },
-  title: {
-    marginBottom: 18,
-    fontSize: 26,
-    fontWeight: '800',
-    color: '#0F172A',
-    textAlign: 'right',
-    writingDirection,
-  },
-  selector: {
-    flexDirection: 'row-reverse',
-    flexWrap: 'wrap',
-    gap: 8,
-    marginBottom: 18,
-  },
-  problemButton: {
-    minHeight: 40,
-    justifyContent: 'center',
-    paddingHorizontal: 12,
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-    borderRadius: 8,
-    backgroundColor: '#FFFFFF',
-  },
-  problemButtonSelected: {
-    borderColor: '#2563EB',
-    backgroundColor: '#DBEAFE',
-  },
-  problemButtonText: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: '#475569',
-    textAlign: 'center',
-    writingDirection,
-  },
-  problemButtonTextSelected: {
-    color: '#1D4ED8',
-  },
-  issuerList: {
-    gap: 12,
-  },
-  issuerBlock: {
-    padding: 16,
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-    borderRadius: 8,
-    backgroundColor: '#FFFFFF',
-  },
-  issuerName: {
-    fontSize: 20,
-    fontWeight: '800',
-    color: '#0F172A',
-    textAlign: 'right',
-    writingDirection,
-  },
-  phone: {
-    marginTop: 4,
-    fontSize: 17,
-    fontWeight: '800',
-    color: '#2563EB',
-    textAlign: 'right',
-    writingDirection,
-  },
-  scriptBlock: {
-    marginTop: 12,
-    padding: 12,
-    borderRadius: 8,
-    backgroundColor: '#F1F5F9',
-  },
-  scriptTitle: {
-    marginBottom: 6,
-    fontSize: 14,
-    fontWeight: '800',
-    color: '#334155',
-    textAlign: 'right',
-    writingDirection,
-  },
-  scriptLine: {
-    fontSize: 15,
-    lineHeight: 22,
-    color: '#334155',
-    textAlign: 'right',
-    writingDirection,
-  },
-  callButton: {
-    minHeight: 44,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: 14,
-    borderRadius: 8,
-    backgroundColor: '#0F172A',
-  },
-  callButtonText: {
-    fontSize: 15,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    writingDirection,
-  },
-});

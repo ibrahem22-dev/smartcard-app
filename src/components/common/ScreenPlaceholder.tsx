@@ -6,7 +6,9 @@
 // start and follows the global writing direction).
 
 import React from 'react';
-import { I18nManager, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
+
+import { rtl } from '../../utils/rtlStyles';
 
 interface ScreenPlaceholderProps {
   readonly title: string;
@@ -19,15 +21,13 @@ export function ScreenPlaceholder({
 }: ScreenPlaceholderProps): React.ReactElement {
   return (
     <View style={styles.container}>
-      <Text style={styles.title}>{title}</Text>
+      <Text style={[rtl.text, styles.title]}>{title}</Text>
       {subtitle !== undefined ? (
-        <Text style={styles.subtitle}>{subtitle}</Text>
+        <Text style={[rtl.text, styles.subtitle]}>{subtitle}</Text>
       ) : null}
     </View>
   );
 }
-
-const writingDirection = I18nManager.isRTL ? 'rtl' : 'ltr';
 
 const styles = StyleSheet.create({
   container: {
@@ -41,14 +41,10 @@ const styles = StyleSheet.create({
     fontSize: 22,
     fontWeight: '700',
     color: '#0F172A',
-    textAlign: 'center',
-    writingDirection,
   },
   subtitle: {
     marginTop: 8,
     fontSize: 15,
     color: '#64748B',
-    textAlign: 'center',
-    writingDirection,
   },
 });

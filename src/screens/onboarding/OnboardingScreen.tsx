@@ -1,41 +1,28 @@
 // /src/screens/onboarding/OnboardingScreen.tsx
 //
-// 4-step wizard collecting the user's bank, income, balance, and (future) card.
-// Onboarding runs before the vault is ever unlocked. This screen does not own
-// MMKV storage; completion is persisted by authContext.completeOnboarding().
-// No network calls.
-//
-// Step 1: Bank selector
-// Step 2: Monthly income + current balance
-// Step 3: Add first card (stub — M3)
-// Step 4: Phone number (stub — M3)
+// Four-step onboarding wizard. Storage ownership stays in authContext and the
+// encrypted stores; this screen only collects transient UI input.
 
 import React, { useState } from 'react';
 import * as LocalAuthentication from 'expo-local-authentication';
 import {
-  I18nManager,
   KeyboardAvoidingView,
   Platform,
   Pressable,
   ScrollView,
-  StyleSheet,
   Text,
   TextInput,
   View,
 } from 'react-native';
 
-import { CardIssuer, CardNetwork } from '../../types/card.types';
-import type { CardInput } from '../../types/card.types';
-import { Currency } from '../../types/purchase.types';
 import { useAuth } from '../../navigation/authContext';
-
-// ─── Types ─────────────────────────────────────────────────────────────────────
+import { CardIssuer } from '../../types/card.types';
+import { rtl } from '../../utils/rtlStyles';
 
 type Step = 1 | 2 | 3 | 4;
 
-// ─── Constants ─────────────────────────────────────────────────────────────────
+const STEPS: readonly Step[] = [1, 2, 3, 4];
 
-// Storage ownership lives in authContext; keep this screen UI-only.
 const BANK_OPTIONS: readonly string[] = [
   'לאומי',
   'הפועלים',
@@ -43,12 +30,6 @@ const BANK_OPTIONS: readonly string[] = [
   'מזרחי',
   'אחר',
 ];
-
-const STEPS: readonly Step[] = [1, 2, 3, 4];
-
-const TEXT_ALIGN: 'right' | 'left' = I18nManager.isRTL ? 'right' : 'left';
-
-// ─── Step 3 constants ──────────────────────────────────────────────────────────
 
 const COMPANY_OPTIONS: readonly CardIssuer[] = [
   CardIssuer.Max,
@@ -63,261 +44,162 @@ const COMPANY_LABELS: Record<CardIssuer, string> = {
 };
 
 const CLUBS: Record<CardIssuer, readonly string[]> = {
-  [CardIssuer.Max]: [
-    'מועדון מקס רגיל',
-    'לייף סטייל מקס',
-    'מקס פלטינום',
-    'זהב מקס',
-  ],
-  [CardIssuer.Isracard]: [
-    'ישראכרט רגיל',
-    'ישראכרט זהב',
-    'פלטינום ישראכרט',
-    'כרטיס אמריקן אקספרס',
-  ],
-  [CardIssuer.Cal]: [
-    'ויזה כל-בו',
-    'ויזה פלטינום',
-    'דיינרס CAL',
-    'ויזה גולד',
-  ],
+  [CardIssuer.Max]: ['מועדון מקס רגיל', 'Life Style Max', 'Max Platinum'],
+  [CardIssuer.Isracard]: ['ישראכרט רגיל', 'ישראכרט זהב', 'אמריקן אקספרס'],
+  [CardIssuer.Cal]: ['ויזה כאל', 'Diners CAL', 'ויזה פלטינום'],
 };
 
 const BASIC_CLUB: Record<CardIssuer, string> = {
   [CardIssuer.Max]: 'מועדון מקס רגיל',
   [CardIssuer.Isracard]: 'ישראכרט רגיל',
-  [CardIssuer.Cal]: 'ויזה כל-בו',
+  [CardIssuer.Cal]: 'ויזה כאל',
 };
 
-const TRAVEL_CLUB: Record<CardIssuer, string> = {
-  [CardIssuer.Max]: 'לייף סטייל מקס',
-  [CardIssuer.Isracard]: 'כרטיס אמריקן אקספרס',
-  [CardIssuer.Cal]: 'דיינרס CAL',
-};
+function parsePositiveNumber(value: string): number | null {
+  const normalized = value.trim().replace(/,/g, '');
+  const parsed = Number(normalized);
 
-const PREMIUM_CLUB: Record<CardIssuer, string> = {
-  [CardIssuer.Max]: 'מקס פלטינום',
-  [CardIssuer.Isracard]: 'פלטינום ישראכרט',
-  [CardIssuer.Cal]: 'ויזה פלטינום',
-};
+  if (normalized === '' || !Number.isFinite(parsed) || parsed <= 0) {
+    return null;
+  }
 
-const Q1_OPTIONS = ['לעיתים נדירות', 'כמה פעמים', 'יומיומי'] as const;
-const Q2_OPTIONS = ['קניות יומיומיות', 'מסעדות ובילויים', 'חו"ל', 'הכל'] as const;
-const Q3_OPTIONS = ['כן', 'לא', 'לא בטוח'] as const;
-
-// ─── Step 3 helpers ────────────────────────────────────────────────────────────
-
-function suggestClub(company: CardIssuer, q1: string, q2: string): string {
-  if (q2 === 'חו"ל') return TRAVEL_CLUB[company];
-  if (q1 === 'יומיומי') return PREMIUM_CLUB[company];
-  return BASIC_CLUB[company];
+  return parsed;
 }
 
-function inferNetwork(company: CardIssuer, clubName: string): CardNetwork {
-  if (clubName === 'כרטיס אמריקן אקספרס') return CardNetwork.Amex;
-  if (clubName === 'דיינרס CAL') return CardNetwork.Diners;
-  if (company === CardIssuer.Max) return CardNetwork.Mastercard;
-  return CardNetwork.Visa;
+function optionClassName(isSelected: boolean): string {
+  return `min-h-[52px] flex-1 basis-[45%] items-center justify-center rounded-lg border px-3 ${
+    isSelected
+      ? 'border-blue-600 bg-blue-100 dark:border-blue-400 dark:bg-blue-950'
+      : 'border-slate-300 bg-white dark:border-neutral-700 dark:bg-neutral-900'
+  }`;
 }
 
-// ─── Component ─────────────────────────────────────────────────────────────────
+function optionTextClassName(isSelected: boolean): string {
+  return `text-center text-base font-extrabold ${
+    isSelected
+      ? 'text-blue-700 dark:text-blue-200'
+      : 'text-slate-700 dark:text-slate-200'
+  }`;
+}
 
 export default function OnboardingScreen(): React.ReactElement {
   const { completeOnboarding } = useAuth();
 
-  // ── Wizard state ────────────────────────────────────────────────────────────
   const [currentStep, setCurrentStep] = useState<Step>(1);
-
-  // ── Step 1 state ─────────────────────────────────────────────────────────────
   const [selectedBank, setSelectedBank] = useState<string | null>(null);
-
-  // ── Step 2 state ─────────────────────────────────────────────────────────────
   const [incomeText, setIncomeText] = useState('');
   const [balanceText, setBalanceText] = useState('');
   const [incomeError, setIncomeError] = useState<string | null>(null);
   const [balanceError, setBalanceError] = useState<string | null>(null);
-  const [saveError, setSaveError] = useState<string | null>(null);
-
-  // ── Step 3 state ─────────────────────────────────────────────────────────────
   const [selectedCompany, setSelectedCompany] = useState<CardIssuer | null>(null);
   const [selectedClub, setSelectedClub] = useState<string | null>(null);
-  const [unknownClubMode, setUnknownClubMode] = useState(false);
-  const [q1Answer, setQ1Answer] = useState<string | null>(null);
-  const [q2Answer, setQ2Answer] = useState<string | null>(null);
-  const [q3Answer, setQ3Answer] = useState<string | null>(null);
-
-  // STEP 4 START
+  const [unknownClub, setUnknownClub] = useState(false);
   const [phoneText, setPhoneText] = useState('');
   const [finishError, setFinishError] = useState<string | null>(null);
-  // STEP 4 END
 
-  // Derived: unknown-club flow is complete once Q3 is answered
-  const unknownClubDone = q3Answer !== null;
-
-  // ── Navigation helpers ────────────────────────────────────────────────────────
-
-  function goTo(step: Step): void {
-    setCurrentStep(step);
-  }
-
-  function handleBack(): void {
-    if (currentStep === 1) return;
-    goTo((currentStep - 1) as Step);
-  }
-
-  // ── Step 2 validation + persistence ─────────────────────────────────────────
-
-  function commitStep2(): boolean {
-    const rawIncome = incomeText.trim().replace(/,/g, '');
-    const rawBalance = balanceText.trim().replace(/,/g, '');
-    const income = Number(rawIncome);
-    const balance = Number(rawBalance);
-
-    let valid = true;
-
-    if (rawIncome === '' || !Number.isFinite(income) || income <= 0) {
-      setIncomeError('נא להזין הכנסה חודשית תקינה (מספר חיובי)');
-      valid = false;
-    } else {
-      setIncomeError(null);
+  function goBack(): void {
+    if (currentStep === 1) {
+      return;
     }
 
-    if (rawBalance === '' || !Number.isFinite(balance) || balance <= 0) {
-      setBalanceError('נא להזין יתרה תקינה (מספר חיובי)');
-      valid = false;
-    } else {
-      setBalanceError(null);
-    }
-    if (!valid) return false;
-
-    try {
-      const now = Date.now();
-      const profile = {
-        id: `user_${now}`,
-        ...(selectedBank !== null ? { bankName: selectedBank } : {}),
-        monthlyIncome: income,
-        currentBalance: balance,
-        dangerThreshold: Math.round(income * 0.1),
-        createdAt: now,
-        updatedAt: now,
-      };
-      void JSON.stringify(profile);
-      setSaveError(null);
-    } catch (e) {
-      setSaveError('שמירת הנתונים נכשלה. נסה שוב.');
-      return false;
-    }
-
-    return true;
+    setCurrentStep((currentStep - 1) as Step);
   }
 
-  // ── Step 3 handlers + persistence ───────────────────────────────────────────
+  function validateStep2(): boolean {
+    const income = parsePositiveNumber(incomeText);
+    const balance = parsePositiveNumber(balanceText);
+
+    setIncomeError(income === null ? 'נא להזין הכנסה חודשית תקינה' : null);
+    setBalanceError(balance === null ? 'נא להזין יתרה תקינה' : null);
+
+    return income !== null && balance !== null;
+  }
 
   function handleCompanySelect(company: CardIssuer): void {
     setSelectedCompany(company);
     setSelectedClub(null);
-    setUnknownClubMode(false);
-    setQ1Answer(null);
-    setQ2Answer(null);
-    setQ3Answer(null);
+    setUnknownClub(false);
   }
 
-  function commitStep3(): boolean {
-    if (selectedCompany === null) return false;
+  function handleUnknownClub(): void {
+    if (selectedCompany === null) {
+      return;
+    }
 
-    const clubName =
-      unknownClubDone && q1Answer !== null && q2Answer !== null
-        ? suggestClub(selectedCompany, q1Answer, q2Answer)
-        : selectedClub;
+    setSelectedClub(BASIC_CLUB[selectedCompany]);
+    setUnknownClub(true);
+  }
 
-    if (clubName === null) return false;
+  function canContinue(): boolean {
+    if (currentStep === 1) {
+      return selectedBank !== null;
+    }
 
-    const clubSuggestedByApp = unknownClubDone;
-
-    try {
-      const now = Date.now();
-      const card: CardInput = {
-        cardId: `card_${now}`,
-        displayName: clubName,
-        last4: '0000',
-        issuer: selectedCompany,
-        network: inferNetwork(selectedCompany, clubName),
-        currency: Currency.ILS,
-        framework: { creditLimit: 0, currentBalance: 0 },
-        billingCycle: { statementClosingDay: 25, billingDayOfMonth: 10 },
-        roleTags: [],
-        primaryRole: null,
-        rewardCategories: [],
-        cashbackRate: 0,
-        foreignTransactionFee: 0,
-        supportsInstallments: true,
-        annualFee: 0,
-        isActive: true,
-      };
-      const entry = { card, clubSuggestedByApp };
-      void JSON.stringify(entry);
-      setSaveError(null);
-    } catch (e) {
-      setSaveError('שמירת הכרטיס נכשלה. נסה שוב.');
-      return false;
+    if (currentStep === 3) {
+      return selectedCompany !== null && selectedClub !== null;
     }
 
     return true;
   }
 
-  // ── Main "המשך" handler ──────────────────────────────────────────────────────
+  async function handleFinish(): Promise<void> {
+    setFinishError(null);
 
-  async function handleNext(): Promise<void> {
-    if (currentStep === 1) {
-      goTo(2);
-      return;
-    }
+    try {
+      const result = await LocalAuthentication.authenticateAsync({
+        promptMessage: 'אישור סיום',
+        fallbackLabel: 'השתמש בקוד',
+      });
 
-    if (currentStep === 2) {
-      if (commitStep2()) {
-        goTo(3);
+      if (!result.success) {
+        setFinishError('האימות לא הושלם. נסה שוב.');
+        return;
       }
-      return;
-    }
 
-    if (currentStep === 3) {
-      if (commitStep3()) {
-        goTo(4);
-      }
+      completeOnboarding();
+    } catch {
+      setFinishError('לא הצלחנו להשלים את האימות. נסה שוב.');
+    }
+  }
+
+  function handleNext(): void {
+    if (currentStep === 2 && !validateStep2()) {
       return;
     }
 
     if (currentStep === 4) {
-      const result = await LocalAuthentication.authenticateAsync();
-      if (result.success === false) {
-        return;
-      }
-      completeOnboarding();
+      void handleFinish();
       return;
     }
-  }
 
-  // ── Step renderers ───────────────────────────────────────────────────────────
+    setCurrentStep((currentStep + 1) as Step);
+  }
 
   function renderStep1(): React.ReactElement {
     return (
-      <View>
-        <Text style={styles.stepTitle}>באיזה בנק אתה מנהל את החשבון?</Text>
-        <View style={styles.bankGrid}>
-          {BANK_OPTIONS.map((bank) => {
+      <View className="w-full">
+        <Text
+          className="mb-5 text-right text-2xl font-black text-slate-900 dark:text-white"
+          style={rtl.text}
+        >
+          באיזה בנק אתה מנהל את החשבון?
+        </Text>
+        <View
+          className="w-full flex-row-reverse flex-wrap gap-3"
+          style={rtl.row}
+        >
+          {BANK_OPTIONS.map(bank => {
             const isSelected = selectedBank === bank;
+
             return (
               <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ selected: isSelected }}
+                className={optionClassName(isSelected)}
                 key={bank}
-                style={[styles.bankBox, isSelected && styles.bankBoxSelected]}
-                onPress={() => setSelectedBank(bank)}
-                accessibilityRole="radio"
-                accessibilityState={{ checked: isSelected }}
-                accessibilityLabel={bank}
+                onPress={(): void => setSelectedBank(bank)}
               >
-                <Text
-                  style={[styles.bankLabel, isSelected && styles.bankLabelSelected]}
-                >
+                <Text className={optionTextClassName(isSelected)} style={rtl.text}>
                   {bank}
                 </Text>
               </Pressable>
@@ -330,79 +212,99 @@ export default function OnboardingScreen(): React.ReactElement {
 
   function renderStep2(): React.ReactElement {
     return (
-      <View>
-        <Text style={styles.stepTitle}>פרטים פיננסיים</Text>
+      <View className="w-full">
+        <Text
+          className="mb-5 text-right text-2xl font-black text-slate-900 dark:text-white"
+          style={rtl.text}
+        >
+          פרטים פיננסיים
+        </Text>
 
-        <Text style={styles.inputLabel}>הכנסה חודשית (₪)</Text>
+        <Text
+          className="mb-2 text-right text-base font-extrabold text-slate-700 dark:text-slate-200"
+          style={rtl.text}
+        >
+          הכנסה חודשית (₪)
+        </Text>
         <TextInput
-          style={[styles.textInput, incomeError !== null && styles.textInputError]}
+          className="min-h-[52px] rounded-lg border border-slate-300 bg-white px-4 text-right text-lg text-slate-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
+          keyboardType="numeric"
+          onChangeText={setIncomeText}
+          placeholder="לדוגמה: 12000"
+          placeholderTextColor="#94A3B8"
+          style={rtl.input}
           value={incomeText}
-          onChangeText={(t) => {
-            setIncomeText(t);
-            if (incomeError !== null) setIncomeError(null);
-          }}
-          keyboardType="numeric"
-          placeholder="למשל: 8000"
-          placeholderTextColor="#9CA3AF"
-          textAlign={TEXT_ALIGN}
-          accessibilityLabel="הכנסה חודשית"
-          returnKeyType="next"
         />
-        {incomeError !== null && (
-          <Text style={styles.fieldError}>{incomeError}</Text>
-        )}
+        {incomeError !== null ? (
+          <Text
+            className="mt-1.5 text-right text-sm font-bold text-red-600 dark:text-red-300"
+            style={rtl.text}
+          >
+            {incomeError}
+          </Text>
+        ) : null}
 
-        <Text style={[styles.inputLabel, styles.inputLabelSpaced]}>יתרה נוכחית (₪)</Text>
+        <Text
+          className="mb-2 mt-5 text-right text-base font-extrabold text-slate-700 dark:text-slate-200"
+          style={rtl.text}
+        >
+          יתרה נוכחית (₪)
+        </Text>
         <TextInput
-          style={[styles.textInput, balanceError !== null && styles.textInputError]}
-          value={balanceText}
-          onChangeText={(t) => {
-            setBalanceText(t);
-            if (balanceError !== null) setBalanceError(null);
-          }}
+          className="min-h-[52px] rounded-lg border border-slate-300 bg-white px-4 text-right text-lg text-slate-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
           keyboardType="numeric"
-          placeholder="למשל: 5000"
-          placeholderTextColor="#9CA3AF"
-          textAlign={TEXT_ALIGN}
-          accessibilityLabel="יתרה נוכחית"
-          returnKeyType="done"
+          onChangeText={setBalanceText}
+          placeholder="לדוגמה: 3500"
+          placeholderTextColor="#94A3B8"
+          style={rtl.input}
+          value={balanceText}
         />
-        {balanceError !== null && (
-          <Text style={styles.fieldError}>{balanceError}</Text>
-        )}
-
-        {saveError !== null && (
-          <Text style={[styles.fieldError, styles.saveError]}>{saveError}</Text>
-        )}
+        {balanceError !== null ? (
+          <Text
+            className="mt-1.5 text-right text-sm font-bold text-red-600 dark:text-red-300"
+            style={rtl.text}
+          >
+            {balanceError}
+          </Text>
+        ) : null}
       </View>
     );
   }
 
   function renderStep3(): React.ReactElement {
-    const clubs =
-      selectedCompany !== null ? CLUBS[selectedCompany] : null;
+    const clubs = selectedCompany === null ? [] : CLUBS[selectedCompany];
 
     return (
-      <View>
-        <Text style={styles.stepTitle}>הוסף את הכרטיס הראשון שלך</Text>
+      <View className="w-full">
+        <Text
+          className="mb-5 text-right text-2xl font-black text-slate-900 dark:text-white"
+          style={rtl.text}
+        >
+          הוסף את הכרטיס הראשון שלך
+        </Text>
 
-        {/* ── Company selector ─────────────────────────────────────────────── */}
-        <Text style={styles.inputLabel}>חברת כרטיס האשראי</Text>
-        <View style={styles.bankGrid}>
-          {COMPANY_OPTIONS.map((company) => {
+        <Text
+          className="mb-2 text-right text-base font-extrabold text-slate-700 dark:text-slate-200"
+          style={rtl.text}
+        >
+          חברת כרטיס האשראי
+        </Text>
+        <View
+          className="w-full flex-row-reverse flex-wrap gap-3"
+          style={rtl.row}
+        >
+          {COMPANY_OPTIONS.map(company => {
             const isSelected = selectedCompany === company;
+
             return (
               <Pressable
+                accessibilityRole="button"
+                accessibilityState={{ selected: isSelected }}
+                className={optionClassName(isSelected)}
                 key={company}
-                style={[styles.bankBox, isSelected && styles.bankBoxSelected]}
-                onPress={() => handleCompanySelect(company)}
-                accessibilityRole="radio"
-                accessibilityState={{ checked: isSelected }}
-                accessibilityLabel={COMPANY_LABELS[company]}
+                onPress={(): void => handleCompanySelect(company)}
               >
-                <Text
-                  style={[styles.bankLabel, isSelected && styles.bankLabelSelected]}
-                >
+                <Text className={optionTextClassName(isSelected)} style={rtl.text}>
                   {COMPANY_LABELS[company]}
                 </Text>
               </Pressable>
@@ -410,580 +312,211 @@ export default function OnboardingScreen(): React.ReactElement {
           })}
         </View>
 
-        {/* ── Club list ────────────────────────────────────────────────────── */}
-        {clubs !== null && !unknownClubMode && (
-          <View style={styles.step3Section}>
-            <Text style={styles.inputLabel}>מועדון הכרטיס</Text>
-            <View style={styles.clubList}>
-              {clubs.map((club) => {
-                const isSelected = selectedClub === club;
+        {selectedCompany !== null ? (
+          <View className="mt-6 w-full">
+            <Text
+              className="mb-2 text-right text-base font-extrabold text-slate-700 dark:text-slate-200"
+              style={rtl.text}
+            >
+              מועדון הכרטיס
+            </Text>
+            <View className="gap-2">
+              {clubs.map(club => {
+                const isSelected = selectedClub === club && !unknownClub;
+
                 return (
                   <Pressable
+                    accessibilityRole="button"
+                    accessibilityState={{ selected: isSelected }}
+                    className={`min-h-[48px] justify-center rounded-lg border px-4 ${
+                      isSelected
+                        ? 'border-blue-600 bg-blue-100 dark:border-blue-400 dark:bg-blue-950'
+                        : 'border-slate-300 bg-white dark:border-neutral-700 dark:bg-neutral-900'
+                    }`}
                     key={club}
-                    style={[styles.clubItem, isSelected && styles.clubItemSelected]}
-                    onPress={() => setSelectedClub(club)}
-                    accessibilityRole="radio"
-                    accessibilityState={{ checked: isSelected }}
-                    accessibilityLabel={club}
+                    onPress={(): void => {
+                      setSelectedClub(club);
+                      setUnknownClub(false);
+                    }}
                   >
-                    <Text
-                      style={[
-                        styles.clubItemLabel,
-                        isSelected && styles.clubItemLabelSelected,
-                      ]}
-                    >
+                    <Text className={optionTextClassName(isSelected)} style={rtl.text}>
                       {club}
                     </Text>
                   </Pressable>
                 );
               })}
             </View>
+
+            <Pressable
+              accessibilityRole="button"
+              accessibilityState={{ selected: unknownClub }}
+              className={`mt-4 min-h-[48px] items-center justify-center rounded-lg border px-4 ${
+                unknownClub
+                  ? 'border-orange-500 bg-orange-100 dark:border-orange-300 dark:bg-orange-950'
+                  : 'border-orange-300 bg-orange-50 dark:border-orange-900 dark:bg-orange-950'
+              }`}
+              onPress={handleUnknownClub}
+            >
+              <Text
+                className="text-center text-base font-extrabold text-orange-800 dark:text-orange-200"
+                style={rtl.text}
+              >
+                אני לא יודע את המועדון 🔍
+              </Text>
+            </Pressable>
           </View>
-        )}
-
-        {/* ── Unknown-club guided flow ─────────────────────────────────────── */}
-        {unknownClubMode && (
-          <View style={styles.step3Section}>
-            {/* Q1 */}
-            <Text style={styles.qaQuestion}>
-              כמה פעמים בחודש אתה משתמש בה?
-            </Text>
-            <View style={styles.qaOptions}>
-              {Q1_OPTIONS.map((opt) => {
-                const isSelected = q1Answer === opt;
-                return (
-                  <Pressable
-                    key={opt}
-                    style={[styles.qaOption, isSelected && styles.qaOptionSelected]}
-                    onPress={() => {
-                      setQ1Answer(opt);
-                      setQ2Answer(null);
-                      setQ3Answer(null);
-                    }}
-                    accessibilityRole="radio"
-                    accessibilityState={{ checked: isSelected }}
-                  >
-                    <Text
-                      style={[
-                        styles.qaOptionLabel,
-                        isSelected && styles.qaOptionLabelSelected,
-                      ]}
-                    >
-                      {opt}
-                    </Text>
-                  </Pressable>
-                );
-              })}
-            </View>
-
-            {/* Q2 — shown after Q1 */}
-            {q1Answer !== null && (
-              <>
-                <Text style={[styles.qaQuestion, styles.qaQuestionSpaced]}>
-                  בעיקר לאיזה שימוש?
-                </Text>
-                <View style={styles.qaOptions}>
-                  {Q2_OPTIONS.map((opt) => {
-                    const isSelected = q2Answer === opt;
-                    return (
-                      <Pressable
-                        key={opt}
-                        style={[
-                          styles.qaOption,
-                          isSelected && styles.qaOptionSelected,
-                        ]}
-                        onPress={() => {
-                          setQ2Answer(opt);
-                          setQ3Answer(null);
-                        }}
-                        accessibilityRole="radio"
-                        accessibilityState={{ checked: isSelected }}
-                      >
-                        <Text
-                          style={[
-                            styles.qaOptionLabel,
-                            isSelected && styles.qaOptionLabelSelected,
-                          ]}
-                        >
-                          {opt}
-                        </Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              </>
-            )}
-
-            {/* Q3 — shown after Q2 */}
-            {q2Answer !== null && (
-              <>
-                <Text style={[styles.qaQuestion, styles.qaQuestionSpaced]}>
-                  יש לך הטבות מיוחדות שאתה יודע עליהן?
-                </Text>
-                <View style={styles.qaOptions}>
-                  {Q3_OPTIONS.map((opt) => {
-                    const isSelected = q3Answer === opt;
-                    return (
-                      <Pressable
-                        key={opt}
-                        style={[
-                          styles.qaOption,
-                          isSelected && styles.qaOptionSelected,
-                        ]}
-                        onPress={() => setQ3Answer(opt)}
-                        accessibilityRole="radio"
-                        accessibilityState={{ checked: isSelected }}
-                      >
-                        <Text
-                          style={[
-                            styles.qaOptionLabel,
-                            isSelected && styles.qaOptionLabelSelected,
-                          ]}
-                        >
-                          {opt}
-                        </Text>
-                      </Pressable>
-                    );
-                  })}
-                </View>
-              </>
-            )}
-
-            {/* Suggested club — shown after Q3 */}
-            {unknownClubDone &&
-              selectedCompany !== null &&
-              q1Answer !== null &&
-              q2Answer !== null && (
-                <View style={styles.suggestedClubBox}>
-                  <Text style={styles.suggestedClubLabel}>המועדון המומלץ עבורך:</Text>
-                  <Text style={styles.suggestedClubName}>
-                    {suggestClub(selectedCompany, q1Answer, q2Answer)}
-                  </Text>
-                </View>
-              )}
-          </View>
-        )}
-
-        {/* ── "אני לא יודע את המועדון" — always visible ───────────────────── */}
-        <Pressable
-          style={styles.unknownClubBtn}
-          onPress={() => {
-            setUnknownClubMode(true);
-            setSelectedClub(null);
-          }}
-          accessibilityRole="button"
-          accessibilityLabel="אני לא יודע את המועדון"
-        >
-          <Text style={styles.unknownClubBtnText}>אני לא יודע את המועדון</Text>
-        </Pressable>
+        ) : null}
       </View>
     );
   }
 
-  // STEP 4 START
   function renderStep4(): React.ReactElement {
     return (
-      <View>
-        <Text style={styles.stepTitle}>מספר טלפון</Text>
-
-        <Text style={styles.inputLabel}>מספר טלפון</Text>
+      <View className="w-full">
+        <Text
+          className="mb-5 text-right text-2xl font-black text-slate-900 dark:text-white"
+          style={rtl.text}
+        >
+          מספר טלפון
+        </Text>
+        <Text
+          className="mb-2 text-right text-base font-extrabold text-slate-700 dark:text-slate-200"
+          style={rtl.text}
+        >
+          מספר טלפון - לשחזור חשבון בעתיד (אופציונלי)
+        </Text>
         <TextInput
-          style={styles.textInput}
-          value={phoneText}
-          onChangeText={(text) => {
-            setPhoneText(text);
-            if (finishError !== null) setFinishError(null);
-          }}
+          className="min-h-[52px] rounded-lg border border-slate-300 bg-white px-4 text-right text-lg text-slate-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
           keyboardType="phone-pad"
-          placeholder="למשל: 0501234567"
-          placeholderTextColor="#9CA3AF"
-          textAlign={TEXT_ALIGN}
-          accessibilityLabel="מספר טלפון"
-          returnKeyType="done"
+          onChangeText={setPhoneText}
+          placeholder="050-0000000"
+          placeholderTextColor="#94A3B8"
+          style={rtl.input}
+          value={phoneText}
         />
 
-        {finishError !== null && (
-          <Text style={[styles.fieldError, styles.saveError]}>{finishError}</Text>
-        )}
-
         <Pressable
-          style={styles.finishButton}
-          onPress={() => {
-            void handleNext();
+          accessibilityRole="button"
+          className="mt-6 min-h-[52px] items-center justify-center rounded-lg bg-green-600"
+          onPress={(): void => {
+            void handleFinish();
           }}
-          accessibilityRole="button"
-          accessibilityLabel="סיום"
         >
-          <Text style={styles.finishButtonLabel}>סיום</Text>
-        </Pressable>
-      </View>
-    );
-  }
-  // STEP 4 END
-
-  function renderCurrentStep(): React.ReactElement {
-    if (currentStep === 1) return renderStep1();
-    if (currentStep === 2) return renderStep2();
-    if (currentStep === 3) return renderStep3();
-    return renderStep4();
-  }
-
-  // ── Render ───────────────────────────────────────────────────────────────────
-
-  const isBackDisabled = currentStep === 1;
-  const isNextDisabled =
-    currentStep === 3 &&
-    (selectedCompany === null ||
-      (selectedClub === null && !unknownClubDone));
-
-  return (
-    <KeyboardAvoidingView
-      style={styles.root}
-      behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-    >
-      {/* Step progress indicator */}
-      <View style={styles.progressRow}>
-        {STEPS.map((step) => (
-          <View
-            key={step}
-            style={[
-              styles.progressDot,
-              currentStep === step && styles.progressDotActive,
-              currentStep > step && styles.progressDotDone,
-            ]}
-          />
-        ))}
-      </View>
-
-      {/* Scrollable step content */}
-      <ScrollView
-        style={styles.scroll}
-        contentContainerStyle={styles.scrollContent}
-        keyboardShouldPersistTaps="handled"
-      >
-        {renderCurrentStep()}
-      </ScrollView>
-
-      {/* Fixed navigation bar — outside scroll area */}
-      <View style={styles.bottomBar}>
-        {/* "המשך" first → appears on the RIGHT in RTL layout (primary/forward action) */}
-        <Pressable
-          style={[styles.btnNext, isNextDisabled && styles.btnNextDisabled]}
-          onPress={handleNext}
-          disabled={isNextDisabled}
-          accessibilityRole="button"
-          accessibilityLabel="המשך"
-          accessibilityState={{ disabled: isNextDisabled }}
-        >
-          <Text style={[styles.btnNextLabel, isNextDisabled && styles.btnLabelMuted]}>
-            המשך
+          <Text className="text-center text-lg font-black text-white" style={rtl.text}>
+            סיום
           </Text>
         </Pressable>
 
-        {/* "חזור" second → appears on the LEFT in RTL layout (secondary/back action) */}
+        {finishError !== null ? (
+          <Text
+            className="mt-3 text-right text-sm font-bold text-red-600 dark:text-red-300"
+            style={rtl.text}
+          >
+            {finishError}
+          </Text>
+        ) : null}
+      </View>
+    );
+  }
+
+  function renderCurrentStep(): React.ReactElement {
+    if (currentStep === 1) {
+      return renderStep1();
+    }
+
+    if (currentStep === 2) {
+      return renderStep2();
+    }
+
+    if (currentStep === 3) {
+      return renderStep3();
+    }
+
+    return renderStep4();
+  }
+
+  const isContinueDisabled = !canContinue();
+
+  return (
+    /*
+      FIX: Removed className from KeyboardAvoidingView and ScrollView.
+      NativeWind's CSSInterop wraps these components and on Android can inject
+      layout props (alignItems, flexDirection) into the native `style` prop
+      instead of contentContainerStyle — causing Invariant Violation crash.
+      Solution: explicit style props only on KeyboardAvoidingView and ScrollView.
+      All child <View> and <Text> components keep className as normal.
+    */
+    <KeyboardAvoidingView
+      behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+      style={[rtl.screen, { backgroundColor: '#F8FAFC' }]}
+    >
+      <View
+        className="flex-row-reverse gap-2 border-b border-slate-200 bg-white px-5 py-4 dark:border-neutral-800 dark:bg-neutral-950"
+        style={rtl.row}
+      >
+        {STEPS.map(step => {
+          const isActive = step <= currentStep;
+
+          return (
+            <View
+              className={`h-1.5 flex-1 rounded-full ${
+                isActive ? 'bg-blue-600' : 'bg-slate-200 dark:bg-neutral-700'
+              }`}
+              key={step}
+            />
+          );
+        })}
+      </View>
+
+      <ScrollView
+        style={rtl.scrollOuter}
+        contentContainerStyle={rtl.scrollInner}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View className="min-h-full w-full px-5 py-6">{renderCurrentStep()}</View>
+      </ScrollView>
+
+      <View
+        className="flex-row-reverse gap-3 border-t border-slate-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
+        style={rtl.row}
+      >
         <Pressable
-          style={[styles.btnBack, isBackDisabled && styles.btnBackDisabled]}
-          onPress={handleBack}
-          disabled={isBackDisabled}
           accessibilityRole="button"
-          accessibilityLabel="חזור"
-          accessibilityState={{ disabled: isBackDisabled }}
+          className={`min-h-[50px] flex-1 items-center justify-center rounded-lg border ${
+            currentStep === 1
+              ? 'border-slate-200 bg-slate-100 dark:border-neutral-800 dark:bg-neutral-900'
+              : 'border-slate-300 bg-white dark:border-neutral-700 dark:bg-neutral-900'
+          }`}
+          disabled={currentStep === 1}
+          onPress={goBack}
         >
-          <Text style={[styles.btnBackLabel, isBackDisabled && styles.btnLabelMuted]}>
-            חזור
+          <Text
+            className={`text-center text-base font-extrabold ${
+              currentStep === 1
+                ? 'text-slate-400 dark:text-neutral-600'
+                : 'text-slate-700 dark:text-slate-100'
+            }`}
+            style={rtl.text}
+          >
+            חזרה
+          </Text>
+        </Pressable>
+
+        <Pressable
+          accessibilityRole="button"
+          className={`min-h-[50px] flex-[2] items-center justify-center rounded-lg ${
+            isContinueDisabled
+              ? 'bg-slate-300 dark:bg-neutral-700'
+              : 'bg-blue-600'
+          }`}
+          disabled={isContinueDisabled}
+          onPress={handleNext}
+        >
+          <Text className="text-center text-base font-extrabold text-white" style={rtl.text}>
+            {currentStep === 4 ? 'סיום' : 'המשך'}
           </Text>
         </Pressable>
       </View>
     </KeyboardAvoidingView>
   );
 }
-
-// ─── Styles ────────────────────────────────────────────────────────────────────
-
-const styles = StyleSheet.create({
-  root: {
-    flex: 1,
-    backgroundColor: '#F9FAFB',
-  },
-
-  // ── Progress dots ──────────────────────────────────────────────────────────
-  progressRow: {
-    flexDirection: 'row',
-    justifyContent: 'center',
-    alignItems: 'center',
-    paddingTop: 20,
-    paddingBottom: 12,
-    gap: 8,
-  },
-  progressDot: {
-    width: 8,
-    height: 8,
-    borderRadius: 4,
-    backgroundColor: '#D1D5DB',
-  },
-  progressDotActive: {
-    width: 24,
-    borderRadius: 4,
-    backgroundColor: '#2563EB',
-  },
-  progressDotDone: {
-    backgroundColor: '#93C5FD',
-  },
-
-  // ── Scroll area ────────────────────────────────────────────────────────────
-  scroll: {
-    flex: 1,
-  },
-  scrollContent: {
-    flexGrow: 1,
-    paddingHorizontal: 20,
-    paddingTop: 8,
-    paddingBottom: 24,
-  },
-
-  // ── Shared step typography ─────────────────────────────────────────────────
-  stepTitle: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#111827',
-    textAlign: TEXT_ALIGN,
-    marginBottom: 24,
-  },
-
-  // ── Step 1: Bank grid ──────────────────────────────────────────────────────
-  bankGrid: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 12,
-  },
-  bankBox: {
-    // ~2 per row with gap accounted for
-    width: '47%',
-    paddingVertical: 18,
-    paddingHorizontal: 12,
-    borderRadius: 14,
-    borderWidth: 2,
-    borderColor: '#E5E7EB',
-    backgroundColor: '#FFFFFF',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  bankBoxSelected: {
-    borderColor: '#2563EB',
-    backgroundColor: '#EFF6FF',
-  },
-  bankLabel: {
-    fontSize: 16,
-    fontWeight: '500',
-    color: '#374151',
-    textAlign: 'center',
-  },
-  bankLabelSelected: {
-    color: '#2563EB',
-    fontWeight: '700',
-  },
-
-  // ── Step 2: Financial inputs ───────────────────────────────────────────────
-  inputLabel: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#374151',
-    textAlign: TEXT_ALIGN,
-    marginBottom: 8,
-  },
-  inputLabelSpaced: {
-    marginTop: 20,
-  },
-  textInput: {
-    backgroundColor: '#FFFFFF',
-    borderWidth: 1.5,
-    borderColor: '#D1D5DB',
-    borderRadius: 12,
-    paddingHorizontal: 16,
-    paddingVertical: 14,
-    fontSize: 17,
-    color: '#111827',
-  },
-  textInputError: {
-    borderColor: '#DC2626',
-  },
-  fieldError: {
-    fontSize: 13,
-    color: '#DC2626',
-    textAlign: TEXT_ALIGN,
-    marginTop: 5,
-  },
-  saveError: {
-    marginTop: 16,
-    fontSize: 14,
-  },
-
-  // ── Stub ───────────────────────────────────────────────────────────────────
-  stubContainer: {
-    flex: 1,
-    justifyContent: 'center',
-    alignItems: 'center',
-    minHeight: 200,
-  },
-
-  // ── Step 3: Card setup ────────────────────────────────────────────────────
-  step3Section: {
-    marginTop: 20,
-  },
-  clubList: {
-    borderRadius: 12,
-    overflow: 'hidden',
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
-  },
-  clubItem: {
-    paddingVertical: 14,
-    paddingHorizontal: 16,
-    backgroundColor: '#FFFFFF',
-    borderBottomWidth: StyleSheet.hairlineWidth,
-    borderBottomColor: '#E5E7EB',
-  },
-  clubItemSelected: {
-    backgroundColor: '#EFF6FF',
-  },
-  clubItemLabel: {
-    fontSize: 16,
-    color: '#374151',
-    textAlign: TEXT_ALIGN,
-  },
-  clubItemLabelSelected: {
-    color: '#2563EB',
-    fontWeight: '600',
-  },
-  unknownClubBtn: {
-    marginTop: 16,
-    paddingVertical: 12,
-    alignItems: 'center',
-  },
-  unknownClubBtnText: {
-    fontSize: 14,
-    color: '#6B7280',
-    textDecorationLine: 'underline',
-    textAlign: 'center',
-  },
-  finishButton: {
-    marginTop: 20,
-    paddingVertical: 16,
-    borderRadius: 14,
-    backgroundColor: '#2563EB',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  finishButtonLabel: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  // ── Step 3: Q&A flow ───────────────────────────────────────────────────────
-  qaQuestion: {
-    fontSize: 15,
-    fontWeight: '600',
-    color: '#111827',
-    textAlign: TEXT_ALIGN,
-    marginBottom: 10,
-  },
-  qaQuestionSpaced: {
-    marginTop: 20,
-  },
-  qaOptions: {
-    flexDirection: 'row',
-    flexWrap: 'wrap',
-    gap: 8,
-  },
-  qaOption: {
-    paddingVertical: 10,
-    paddingHorizontal: 16,
-    borderRadius: 20,
-    borderWidth: 1.5,
-    borderColor: '#D1D5DB',
-    backgroundColor: '#FFFFFF',
-  },
-  qaOptionSelected: {
-    borderColor: '#2563EB',
-    backgroundColor: '#EFF6FF',
-  },
-  qaOptionLabel: {
-    fontSize: 14,
-    color: '#374151',
-  },
-  qaOptionLabelSelected: {
-    color: '#2563EB',
-    fontWeight: '600',
-  },
-  suggestedClubBox: {
-    marginTop: 20,
-    padding: 16,
-    borderRadius: 12,
-    backgroundColor: '#F0FDF4',
-    borderWidth: 1,
-    borderColor: '#BBF7D0',
-  },
-  suggestedClubLabel: {
-    fontSize: 13,
-    color: '#166534',
-    textAlign: TEXT_ALIGN,
-    marginBottom: 4,
-  },
-  suggestedClubName: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#15803D',
-    textAlign: TEXT_ALIGN,
-  },
-
-  // ── Bottom navigation bar ──────────────────────────────────────────────────
-  bottomBar: {
-    // RTL: flexDirection 'row' → first child on RIGHT, second on LEFT
-    flexDirection: 'row',
-    paddingHorizontal: 20,
-    paddingTop: 12,
-    paddingBottom: Platform.OS === 'ios' ? 36 : 20,
-    backgroundColor: '#FFFFFF',
-    borderTopWidth: StyleSheet.hairlineWidth,
-    borderTopColor: '#E5E7EB',
-    gap: 12,
-  },
-  btnNext: {
-    flex: 2,
-    paddingVertical: 16,
-    borderRadius: 14,
-    backgroundColor: '#2563EB',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  btnNextLabel: {
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#FFFFFF',
-  },
-  btnNextDisabled: {
-    backgroundColor: '#BFDBFE',
-  },
-  btnBack: {
-    flex: 1,
-    paddingVertical: 16,
-    borderRadius: 14,
-    borderWidth: 1.5,
-    borderColor: '#D1D5DB',
-    alignItems: 'center',
-    justifyContent: 'center',
-    backgroundColor: '#FFFFFF',
-  },
-  btnBackDisabled: {
-    borderColor: '#E5E7EB',
-    backgroundColor: '#F9FAFB',
-  },
-  btnBackLabel: {
-    fontSize: 16,
-    fontWeight: '600',
-    color: '#374151',
-  },
-  btnLabelMuted: {
-    color: '#D1D5DB',
-  },
-});

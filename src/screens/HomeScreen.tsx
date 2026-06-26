@@ -1,17 +1,11 @@
 import React from 'react';
-import {
-  I18nManager,
-  Pressable,
-  ScrollView,
-  StyleSheet,
-  Text,
-  View,
-} from 'react-native';
+import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useNavigation, type NavigationProp } from '@react-navigation/native';
 
 import { FeatureGate } from '../components/FeatureGate';
 import type { TabParamList } from '../navigation/types';
 import { useCardsStore } from '../store/useCardsStore';
+import { rtl } from '../utils/rtlStyles';
 
 const DAILY_TIPS: readonly string[] = [
   'שלם ביום חיוב כדי למקסם את תקופת האשראי',
@@ -38,166 +32,92 @@ export function HomeScreen(): React.ReactElement {
   }
 
   return (
-    <View style={styles.screen}>
-      <ScrollView contentContainerStyle={styles.content}>
-        <View style={styles.savingsPanel}>
-          <Text style={styles.savingsValue}>₪0 נחסך</Text>
-          <Text style={styles.savingsLabel}>החיסכון שלך עד עכשיו</Text>
-        </View>
-
-        <View style={styles.section}>
-          <Text style={styles.sectionTitle}>טיפ היום</Text>
-          <Text style={styles.tipText}>{getDailyTip()}</Text>
-        </View>
-
-        <View style={styles.obligationsBanner}>
-          <Text style={styles.sectionTitle}>חיובים קרובים</Text>
-          <Text style={styles.bannerText}>
-            {upcomingObligationsCount === 0
-              ? 'אין חיובים קרובים 📅'
-              : `יש ${upcomingObligationsCount} חיובים קרובים`}
-          </Text>
-        </View>
-
-        <FeatureGate feature="InternationalTravel">
-          <View style={styles.travelBanner}>
-            <Text style={styles.travelTitle}>נוסעים לחו"ל? ✈️</Text>
-            <Text style={styles.travelText}>
-              בקרוב תוכלו לבדוק מראש איזה כרטיס עדיף לנסיעות ולחיובים במט"ח.
+    <View style={[rtl.screen, { backgroundColor: '#F8FAFC' }]}>
+      {/*
+        FIX: Removed className="flex-1" from ScrollView.
+        NativeWind's CSSInterop.ScrollView injects className props into the
+        native `style` prop. On Android, if any layout prop (alignItems,
+        flexDirection, etc.) ends up in ScrollView's style instead of
+        contentContainerStyle, React Native throws Invariant Violation.
+        Solution: use explicit style/contentContainerStyle only — no className on ScrollView.
+      */}
+      <ScrollView
+        style={rtl.scrollOuter}
+        contentContainerStyle={rtl.scrollInner}
+        keyboardShouldPersistTaps="handled"
+      >
+        <View className="min-h-full w-full px-5 pb-28 pt-5">
+          <View className="rounded-lg bg-slate-900 p-[22px] dark:bg-neutral-900">
+            <Text className="text-right text-[34px] font-black text-white" style={rtl.text}>
+              ₪0 נחסך
+            </Text>
+            <Text className="mt-1.5 text-right text-[15px] text-slate-300" style={rtl.text}>
+              החיסכון שלך עד עכשיו
             </Text>
           </View>
-        </FeatureGate>
+
+          <View className="mt-4 rounded-lg border border-slate-300 bg-white p-[18px] dark:border-neutral-700 dark:bg-neutral-900">
+            <Text
+              className="text-right text-lg font-extrabold text-slate-900 dark:text-white"
+              style={rtl.text}
+            >
+              טיפ היום
+            </Text>
+            <Text
+              className="mt-2 text-right text-base leading-6 text-slate-700 dark:text-slate-200"
+              style={rtl.text}
+            >
+              {getDailyTip()}
+            </Text>
+          </View>
+
+          <View className="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-[18px] dark:border-sky-900 dark:bg-sky-950">
+            <Text
+              className="text-right text-lg font-extrabold text-slate-900 dark:text-white"
+              style={rtl.text}
+            >
+              חיובים קרובים
+            </Text>
+            <Text
+              className="mt-2 text-right text-base font-bold text-sky-700 dark:text-sky-200"
+              style={rtl.text}
+            >
+              {upcomingObligationsCount === 0
+                ? 'אין חיובים קרובים 📅'
+                : `יש ${upcomingObligationsCount} חיובים קרובים`}
+            </Text>
+          </View>
+
+          <FeatureGate feature="InternationalTravel">
+            <View className="mt-4 rounded-lg border border-orange-200 bg-orange-50 p-[18px] opacity-45 dark:border-orange-900 dark:bg-orange-950">
+              <Text
+                className="text-right text-lg font-extrabold text-orange-800 dark:text-orange-200"
+                style={rtl.text}
+              >
+                נוסעים לחו"ל? ✈️
+              </Text>
+              <Text
+                className="mt-2 text-right text-[15px] leading-[22px] text-orange-800 dark:text-orange-200"
+                style={rtl.text}
+              >
+                בקרוב תוכלו לבדוק מראש איזה כרטיס עדיף לנסיעות ולחיובים במט"ח.
+              </Text>
+            </View>
+          </FeatureGate>
+        </View>
       </ScrollView>
 
-      <View style={styles.footer}>
+      <View className="absolute bottom-0 left-0 right-0 border-t border-slate-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
         <Pressable
           accessibilityRole="button"
+          className="min-h-[50px] items-center justify-center rounded-lg bg-blue-600"
           onPress={handleCheckPurchase}
-          style={styles.ctaButton}
         >
-          <Text style={styles.ctaButtonText}>בדוק רכישה</Text>
+          <Text className="text-center text-base font-extrabold text-white" style={rtl.text}>
+            בדוק רכישה
+          </Text>
         </Pressable>
       </View>
     </View>
   );
 }
-
-const writingDirection = I18nManager.isRTL ? 'rtl' : 'ltr';
-
-const styles = StyleSheet.create({
-  screen: {
-    flex: 1,
-    backgroundColor: '#F8FAFC',
-  },
-  content: {
-    flexGrow: 1,
-    padding: 20,
-    paddingBottom: 104,
-  },
-  savingsPanel: {
-    padding: 22,
-    borderRadius: 8,
-    backgroundColor: '#0F172A',
-  },
-  savingsValue: {
-    fontSize: 34,
-    fontWeight: '900',
-    color: '#FFFFFF',
-    textAlign: 'right',
-    writingDirection,
-  },
-  savingsLabel: {
-    marginTop: 6,
-    fontSize: 15,
-    color: '#CBD5E1',
-    textAlign: 'right',
-    writingDirection,
-  },
-  section: {
-    marginTop: 16,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: '#CBD5E1',
-    borderRadius: 8,
-    backgroundColor: '#FFFFFF',
-  },
-  sectionTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#0F172A',
-    textAlign: 'right',
-    writingDirection,
-  },
-  tipText: {
-    marginTop: 8,
-    fontSize: 16,
-    lineHeight: 24,
-    color: '#334155',
-    textAlign: 'right',
-    writingDirection,
-  },
-  obligationsBanner: {
-    marginTop: 16,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: '#BAE6FD',
-    borderRadius: 8,
-    backgroundColor: '#F0F9FF',
-  },
-  bannerText: {
-    marginTop: 8,
-    fontSize: 16,
-    fontWeight: '700',
-    color: '#0369A1',
-    textAlign: 'right',
-    writingDirection,
-  },
-  travelBanner: {
-    marginTop: 16,
-    padding: 18,
-    borderWidth: 1,
-    borderColor: '#FED7AA',
-    borderRadius: 8,
-    backgroundColor: '#FFF7ED',
-    opacity: 0.45,
-  },
-  travelTitle: {
-    fontSize: 18,
-    fontWeight: '800',
-    color: '#9A3412',
-    textAlign: 'right',
-    writingDirection,
-  },
-  travelText: {
-    marginTop: 8,
-    fontSize: 15,
-    lineHeight: 22,
-    color: '#9A3412',
-    textAlign: 'right',
-    writingDirection,
-  },
-  footer: {
-    position: 'absolute',
-    left: 0,
-    right: 0,
-    bottom: 0,
-    padding: 16,
-    borderTopWidth: 1,
-    borderTopColor: '#E2E8F0',
-    backgroundColor: '#FFFFFF',
-  },
-  ctaButton: {
-    minHeight: 50,
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderRadius: 8,
-    backgroundColor: '#2563EB',
-  },
-  ctaButtonText: {
-    fontSize: 16,
-    fontWeight: '800',
-    color: '#FFFFFF',
-    textAlign: 'center',
-    writingDirection,
-  },
-});

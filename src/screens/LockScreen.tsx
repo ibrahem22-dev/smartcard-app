@@ -10,7 +10,7 @@
 // the authenticated branch.
 
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Pressable, Text, View } from 'react-native';
 
 import { useAuth } from '../navigation/authContext';
 
@@ -18,48 +18,24 @@ export function LockScreen(): React.ReactElement {
   const auth = useAuth();
 
   return (
-    <View style={styles.container}>
-      <Text style={styles.title}>Authenticate to continue</Text>
+    <View className="flex-1 items-center justify-center bg-slate-900 p-6 dark:bg-neutral-950">
+      <Text className="text-center text-[22px] font-bold text-white">
+        Authenticate to continue
+      </Text>
 
       {__DEV__ && auth.debugUnlock !== undefined ? (
         <Pressable
           accessibilityRole="button"
-          style={styles.debugButton}
+          className="mt-10 rounded-[10px] bg-blue-600 px-6 py-3"
           onPress={() => {
             void auth.debugUnlock?.();
           }}
         >
-          <Text style={styles.debugButtonText}>DEBUG: Unlock</Text>
+          <Text className="text-base font-semibold text-white">
+            DEBUG: Unlock
+          </Text>
         </Pressable>
       ) : null}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  container: {
-    flex: 1,
-    alignItems: 'center',
-    justifyContent: 'center',
-    padding: 24,
-    backgroundColor: '#0F172A',
-  },
-  title: {
-    fontSize: 22,
-    fontWeight: '700',
-    color: '#FFFFFF',
-    textAlign: 'center',
-  },
-  debugButton: {
-    marginTop: 40,
-    paddingVertical: 12,
-    paddingHorizontal: 24,
-    borderRadius: 10,
-    backgroundColor: '#2563EB',
-  },
-  debugButtonText: {
-    color: '#FFFFFF',
-    fontSize: 16,
-    fontWeight: '600',
-  },
-});
