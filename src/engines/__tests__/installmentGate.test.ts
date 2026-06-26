@@ -182,7 +182,7 @@ describe('evaluateInstallment', () => {
     expect(decision.resultingLoadRatio).toBeCloseTo(0.25, 5);
   });
 
-  test('exactly 35 percent load remains warning', () => {
+  test('PROD-INSTALL-01: exactly 35 percent load returns warning', () => { // PROD-INSTALL-01: 35% is upper bound of Warning band
     const user = makeUser({ monthlyIncome: 10_000 });
     const request = makeRequest({ totalAmount: 42_000, numPayments: 12 });
 
@@ -190,6 +190,7 @@ describe('evaluateInstallment', () => {
 
     expect(decision.approved).toBe(true);
     expect(decision.warningLevel).toBe(InstallmentWarningLevel.Warning);
+    expect(decision.warningLevel).not.toBe(InstallmentWarningLevel.Strong);
     expect(decision.resultingLoadRatio).toBeCloseTo(0.35, 5);
   });
 

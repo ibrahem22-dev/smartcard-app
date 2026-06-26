@@ -1,41 +1,57 @@
-import type { CashflowSnapshot } from '../types/cashflow.types';
-import type { PurchaseDecision } from '../types/decision.types';
+import { predictChargeReturn } from './cashflowRadar';
+import type {
+  PurchaseDecision,
+  PurchaseGateInput,
+} from '../types/decision.types';
 import type { PurchaseInput } from '../types/purchase.types';
 import { Currency } from '../types/purchase.types';
 import { isValidMonetaryAmount } from '../utils/monetary';
 
-const DAY_IN_MS = 24 * 60 * 60 * 1000;
-const WAIT_24H_AMOUNT_THRESHOLD_ILS = 500;
-const APPROVAL_BUFFER_MULTIPLIER = 1.2;
+const APPROVED_BUFFER_RATIO = 0.2;
+const WARNING_MIN_BUFFER_RATIO = 0.05;
+const WAIT_24H_MAX_BUFFER_RATIO = 0.15;
+const BLOCKED_UTILIZATION_RATIO = 0.9;
+const WARNING_UTILIZATION_RATIO = 0.7;
 
-function isWithinLast24Hours(date: string | null, snapshotDate: string): boolean {
-  if (date === null) {
-    return false;
-  }
+function buildDecision(
+  verdict: PurchaseDecision['verdict'],
+  reason: string,
+  reasonAr: string,
+  currency: Currency,
+  exchangeFeeWarning?: string,
+): PurchaseDecision {
+  const decision: PurchaseDecision = {
+    verdict,
+    reason,
+    reasonAr,
+    recommendedCard: null,
+    savingsAmount: 0,
+    currency,
+  };
 
-  const timestamp = Date.parse(date);
-  const snapshotTimestamp = Date.parse(snapshotDate);
+  return exchangeFeeWarning === undefined
+    ? decision
+    : { ...decision, exchangeFeeWarning };
+}
 
-  if (!Number.isFinite(timestamp) || !Number.isFinite(snapshotTimestamp)) {
-    return false;
-  }
-
-  const elapsedMs = snapshotTimestamp - timestamp;
-
-  return elapsedMs >= 0 && elapsedMs < DAY_IN_MS;
+function getSelectedCard(
+  input: PurchaseInput,
+  gateInput: PurchaseGateInput,
+): PurchaseGateInput['availableCards'][number] | undefined {
+  return gateInput.availableCards.find(
+    availableCard => availableCard.cardId === input.cardId,
+  );
 }
 
 function getExchangeFeeWarning(
   input: PurchaseInput,
-  cashflow: CashflowSnapshot,
+  gateInput: PurchaseGateInput,
 ): string | undefined {
   if (!input.isInternational) {
     return undefined;
   }
 
-  const card = cashflow.availableCards.find(
-    availableCard => availableCard.cardId === input.cardId,
-  );
+  const card = getSelectedCard(input, gateInput);
 
   if (card === undefined || !Number.isFinite(card.foreignTransactionFee)) {
     return undefined;
@@ -43,90 +59,168 @@ function getExchangeFeeWarning(
 
   const feePercent = (card.foreignTransactionFee * 100).toFixed(2);
 
-  return `רכישה בינלאומית: בכרטיס זה עשויה לחול עמלת המרה של ${feePercent}%.`;
+  return `רכישה בחו"ל: בכרטיס זה עשויה לחול עמלת המרה של ${feePercent}%.`;
 }
 
-function invalidAmountDecision(currency: Currency): PurchaseDecision {
-  return {
-    verdict: 'blocked',
-    reason: 'סכום הרכישה אינו תקין. הזן סכום בין ₪0.01 ל-₪999,999.',
-    reasonAr: 'مبلغ الشراء غير صالح. أدخل مبلغًا بين ₪0.01 و₪999,999.',
-    recommendedCard: null,
-    savingsAmount: 0,
-    currency,
-  };
+function getCardsWithPendingPurchase(
+  input: PurchaseInput,
+  gateInput: PurchaseGateInput,
+): PurchaseGateInput['availableCards'] {
+  return gateInput.availableCards.map((card): PurchaseGateInput['availableCards'][number] => {
+    if (card.cardId !== input.cardId) {
+      return card;
+    }
+
+    return {
+      ...card,
+      framework: {
+        ...card.framework,
+        currentBalance: card.framework.currentBalance + input.amount,
+      },
+    };
+  });
+}
+
+function getCreditUtilizationAfterPurchase(
+  input: PurchaseInput,
+  gateInput: PurchaseGateInput,
+): number | null {
+  const card = getSelectedCard(input, gateInput);
+
+  if (
+    card === undefined ||
+    !isValidMonetaryAmount(card.framework.creditLimit) ||
+    !Number.isFinite(card.framework.currentBalance) ||
+    card.framework.currentBalance < 0
+  ) {
+    return null;
+  }
+
+  return (card.framework.currentBalance + input.amount) / card.framework.creditLimit;
 }
 
 export function evaluatePurchase(
   input: PurchaseInput,
-  cashflow: CashflowSnapshot,
+  gateInput: PurchaseGateInput,
 ): PurchaseDecision {
   if (!isValidMonetaryAmount(input.amount)) {
-    return invalidAmountDecision(input.currency);
+    return buildDecision(
+      'blocked',
+      'סכום הרכישה אינו תקין. הזן סכום בין ₪0.01 ל-₪999,999.',
+      'مبلغ الشراء غير صالح. أدخل مبلغًا بين ₪0.01 و₪999,999.',
+      input.currency,
+    );
   }
-
-  const isLargeIlsPurchase =
-    input.currency === Currency.ILS && input.amount > WAIT_24H_AMOUNT_THRESHOLD_ILS;
-  const exchangeFeeWarning = getExchangeFeeWarning(input, cashflow);
 
   if (
-    isWithinLast24Hours(cashflow.lastPurchaseDate, cashflow.snapshotDate) &&
-    isLargeIlsPurchase
+    !isValidMonetaryAmount(gateInput.currentBalance) ||
+    !isValidMonetaryAmount(gateInput.remainingBalance)
   ) {
-    const decision: PurchaseDecision = {
-      verdict: 'wait_24h',
-      reason: 'בוצעה רכישה משמעותית ב-24 השעות האחרונות. כדאי להמתין לפני רכישה נוספת.',
-      reasonAr: 'تمت عملية شراء كبيرة خلال آخر 24 ساعة. من الأفضل الانتظار قبل شراء إضافي.',
-      recommendedCard: null,
-      savingsAmount: 0,
-      currency: input.currency,
-    };
-
-    return exchangeFeeWarning === undefined
-      ? decision
-      : { ...decision, exchangeFeeWarning };
+    return buildDecision(
+      'blocked',
+      'נתוני התזרים אינם תקינים. לא ניתן לאשר את הרכישה.',
+      'بيانات التدفق النقدي غير صالحة. لا يمكن الموافقة على الشراء.',
+      input.currency,
+    );
   }
 
-  if (cashflow.remainingBalance > input.amount * APPROVAL_BUFFER_MULTIPLIER) {
-    const decision: PurchaseDecision = {
-      verdict: 'approved',
-      reason: 'היתרה הצפויה מספיקה לרכישה ומשאירה מרווח ביטחון.',
-      reasonAr: 'الرصيد المتوقع يكفي للشراء ويترك هامش أمان.',
-      recommendedCard: null,
-      savingsAmount: 0,
-      currency: input.currency,
-    };
-
-    return exchangeFeeWarning === undefined
-      ? decision
-      : { ...decision, exchangeFeeWarning };
+  if (!isValidMonetaryAmount(gateInput.monthlyIncome)) {
+    return buildDecision(
+      'blocked',
+      'הכנסה חודשית חסרה או לא תקינה. לא ניתן לאשר רכישה.',
+      'الدخل الشهري مفقود أو غير صالح. لا يمكن الموافقة على الشراء.',
+      input.currency,
+    );
   }
 
-  if (cashflow.remainingBalance > input.amount) {
-    const decision: PurchaseDecision = {
-      verdict: 'warning',
-      reason: 'היתרה הצפויה מספיקה לרכישה, אך מרווח הביטחון נמוך.',
-      reasonAr: 'الرصيد المتوقع يكفي للشراء، لكن هامش الأمان منخفض.',
-      recommendedCard: null,
-      savingsAmount: 0,
-      currency: input.currency,
-    };
+  const exchangeFeeWarning = getExchangeFeeWarning(input, gateInput);
 
-    return exchangeFeeWarning === undefined
-      ? decision
-      : { ...decision, exchangeFeeWarning };
+  const chargeReturnRisk = predictChargeReturn(
+    getCardsWithPendingPurchase(input, gateInput),
+    gateInput.obligations,
+    gateInput.currentBalance,
+  );
+
+  if (chargeReturnRisk.atRisk) {
+    return buildDecision(
+      'blocked',
+      chargeReturnRisk.reason,
+      chargeReturnRisk.reasonAr,
+      input.currency,
+      exchangeFeeWarning,
+    );
   }
 
-  const decision: PurchaseDecision = {
-    verdict: 'blocked',
-    reason: 'היתרה הצפויה אינה מספיקה לכיסוי הרכישה.',
-    reasonAr: 'الرصيد المتوقع لا يكفي لتغطية عملية الشراء.',
-    recommendedCard: null,
-    savingsAmount: 0,
-    currency: input.currency,
-  };
+  const creditUtilization = getCreditUtilizationAfterPurchase(input, gateInput);
 
-  return exchangeFeeWarning === undefined
-    ? decision
-    : { ...decision, exchangeFeeWarning };
+  if (
+    creditUtilization !== null &&
+    creditUtilization > BLOCKED_UTILIZATION_RATIO
+  ) {
+    return buildDecision(
+      'blocked',
+      'ניצול מסגרת האשראי יעבור 90%, ולכן הרכישה חסומה.',
+      'سيتجاوز استخدام إطار الائتمان 90%، لذلك تم حظر الشراء.',
+      input.currency,
+      exchangeFeeWarning,
+    );
+  }
+
+  const postPurchaseBuffer = gateInput.remainingBalance - input.amount;
+  const bufferRatio = postPurchaseBuffer / gateInput.monthlyIncome;
+
+  if (bufferRatio < WARNING_MIN_BUFFER_RATIO) {
+    return buildDecision(
+      'blocked',
+      'מרווח הביטחון אחרי הרכישה נמוך מ-5% מההכנסה.',
+      'هامش الأمان بعد الشراء أقل من 5% من الدخل.',
+      input.currency,
+      exchangeFeeWarning,
+    );
+  }
+
+  if (
+    !input.isEssential &&
+    bufferRatio >= WARNING_MIN_BUFFER_RATIO &&
+    bufferRatio <= WAIT_24H_MAX_BUFFER_RATIO
+  ) {
+    return buildDecision(
+      'wait_24h',
+      'הרכישה אינה חיונית ומרווח הביטחון צפוף. כדאי להמתין 24 שעות.',
+      'الشراء غير ضروري وهامش الأمان ضيق. من الأفضل الانتظار 24 ساعة.',
+      input.currency,
+      exchangeFeeWarning,
+    );
+  }
+
+  if (
+    creditUtilization !== null &&
+    creditUtilization > WARNING_UTILIZATION_RATIO
+  ) {
+    return buildDecision(
+      'warning',
+      'ניצול מסגרת האשראי יעבור 70%, מומלץ לשקול כרטיס אחר.',
+      'سيتجاوز استخدام إطار الائتمان 70%، يوصى بالتفكير ببطاقة أخرى.',
+      input.currency,
+      exchangeFeeWarning,
+    );
+  }
+
+  if (bufferRatio <= APPROVED_BUFFER_RATIO) {
+    return buildDecision(
+      'warning',
+      'מרווח הביטחון אחרי הרכישה הוא 5%-20% מההכנסה.',
+      'هامش الأمان بعد الشراء بين 5% و20% من الدخل.',
+      input.currency,
+      exchangeFeeWarning,
+    );
+  }
+
+  return buildDecision(
+    'approved',
+    'מרווח הביטחון אחרי הרכישה גבוה מ-20% מההכנסה.',
+    'هامش الأمان بعد الشراء أعلى من 20% من الدخل.',
+    input.currency,
+    exchangeFeeWarning,
+  );
 }

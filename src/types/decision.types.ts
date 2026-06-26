@@ -1,6 +1,7 @@
 // /src/types/decision.types.ts
 
 import type { CardIssuer } from './card.types';
+import type { Obligation } from './cashflow.types';
 import type { Currency, PurchaseInput } from './purchase.types';
 
 /** Final purchase verdict rendered by DecisionScreen. */
@@ -9,6 +10,28 @@ export type DecisionVerdict =
   | 'warning'
   | 'blocked'
   | 'wait_24h';
+
+export type PurchaseDecisionReasonCode =
+  | 'INVALID_AMOUNT'
+  | 'INVALID_CASHFLOW_SNAPSHOT'
+  | 'INVALID_INCOME';
+
+export interface PurchaseGateInput {
+  /** ISO 8601 timestamp/date when this snapshot was produced. */
+  readonly snapshotDate: string;
+  /** Current bank balance before this purchase and before upcoming card charge. */
+  readonly currentBalance: number;
+  /** Projected balance available for discretionary spending. */
+  readonly remainingBalance: number;
+  /** Net monthly income used for buffer percentage thresholds. */
+  readonly monthlyIncome: number;
+  /** Certain outflows due this month, used for charge-return risk. */
+  readonly obligations: readonly Obligation[];
+  /** ISO 8601 timestamp/date of the previous purchase. null when unknown. */
+  readonly lastPurchaseDate: string | null;
+  /** Cards available to the decision engine for metadata such as FX fee. */
+  readonly availableCards: readonly UserCard[];
+}
 
 /**
  * The card the engine recommends for this purchase. Carries the minimum the

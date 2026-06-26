@@ -11,6 +11,12 @@ const UNKNOWN_CLUB_REASON_AR = 'المועدون غير معروف — قد تت
 const DEFAULT_REASON_HE = 'הכרטיס מתאים לרכישה זו';
 const DEFAULT_REASON_AR = 'البطاقة مناسبة لهذا الشراء';
 
+const INVALID_CARD_SCORE = -Infinity;
+
+function isValidRateFraction(value: number): boolean {
+  return Number.isFinite(value) && value >= 0 && value <= 1;
+}
+
 function clampScore(score: number): number {
   return Math.max(0, Math.min(100, score));
 }
@@ -66,6 +72,18 @@ function scoreCard(
   userProfile: UserProfile,
   isInternational: boolean,
 ): CardRecommendation {
+  if (
+    !isValidRateFraction(card.cashbackRate) ||
+    !isValidRateFraction(card.foreignTransactionFee)
+  ) {
+    return {
+      card,
+      score: INVALID_CARD_SCORE,
+      scoreReason: DEFAULT_REASON_HE,
+      scoreReasonAr: DEFAULT_REASON_AR,
+    };
+  }
+
   let score = 50;
   const reasonsHe: string[] = [];
   const reasonsAr: string[] = [];
@@ -132,10 +150,23 @@ export function recommendCard(
     return null;
   }
 
-  return activeCards.reduce<CardRecommendation | null>(
-    (best: CardRecommendation | null, card: CardInput): CardRecommendation | null => {
-      const candidate = scoreCard(card, purchaseCategory, userProfile, isInternational);
+  const scoredCards = activeCards
+    .map((card: CardInput): CardRecommendation =>
+      scoreCard(card, purchaseCategory, userProfile, isInternational),
+    )
+    .filter((candidate: CardRecommendation): boolean =>
+      candidate.score !== INVALID_CARD_SCORE,
+    );
 
+  if (scoredCards.length === 0) {
+    return null;
+  }
+
+  return scoredCards.reduce<CardRecommendation | null>(
+    (
+      best: CardRecommendation | null,
+      candidate: CardRecommendation,
+    ): CardRecommendation | null => {
       if (best === null || candidate.score > best.score) {
         return candidate;
       }

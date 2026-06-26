@@ -270,3 +270,8 @@ You: "REJECTED — offline-first rule. Benefits data is bundled in /src/data/*.j
      and loaded at app start into useBenefitsStore via MMKV.
      The screen reads from the store, not from network.
      Here is the correct pattern: [show hook reading from store]"
+
+
+
+
+

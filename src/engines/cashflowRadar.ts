@@ -1,8 +1,13 @@
 import type {
+  ChargeReturnRisk,
   DayBalance,
   MonthInput,
   Obligation,
+  RiskScore,
 } from '../types/cashflow.types';
+import { RiskLevel } from '../types/cashflow.types';
+import type { CardInput } from '../types/card.types';
+import { isValidMonetaryAmount } from '../utils/monetary';
 
 const PROJECTION_DAYS = 30;
 const CHARGE_RETURN_WINDOW_DAYS = 7;
@@ -35,6 +40,25 @@ function formatIsoDate(date: Date): string {
   return date.toISOString().slice(0, 10);
 }
 
+function invalidProjection(month: MonthInput): readonly DayBalance[] {
+  return Array.from(
+    { length: getProjectionDays(month) },
+    (_value: unknown, index: number): DayBalance => {
+      const date = getProjectedDate(month, index);
+
+      return {
+        date: formatIsoDate(date),
+        dayOfMonth: date.getUTCDate(),
+        projectedBalance: 0,
+        outflow: 0,
+        inflow: 0,
+        isOverdraft: false,
+        belowDanger: month.dangerThreshold > 0,
+      };
+    },
+  );
+}
+
 function getEffectiveDayOfMonth(
   obligation: Obligation,
   year: number,
@@ -44,7 +68,10 @@ function getEffectiveDayOfMonth(
 }
 
 function isObligationDueOnDate(obligation: Obligation, date: Date): boolean {
-  if (!isValidDayOfMonth(obligation.dayOfMonth) || !isFiniteAmount(obligation.amount)) {
+  if (
+    !isValidDayOfMonth(obligation.dayOfMonth) ||
+    !isValidMonetaryAmount(obligation.amount)
+  ) {
     return false;
   }
 
@@ -60,7 +87,7 @@ function getDailyOutflow(
   date: Date,
 ): number {
   return obligations.reduce((sum: number, obligation: Obligation): number => {
-    if (!isObligationDueOnDate(obligation, date) || obligation.amount <= 0) {
+    if (!isObligationDueOnDate(obligation, date)) {
       return sum;
     }
 
@@ -71,8 +98,7 @@ function getDailyOutflow(
 function getDailyInflow(month: MonthInput, date: Date): number {
   if (
     !isValidDayOfMonth(month.incomeDayOfMonth) ||
-    !isFiniteAmount(month.monthlyIncome) ||
-    month.monthlyIncome <= 0
+    !isValidMonetaryAmount(month.monthlyIncome)
   ) {
     return 0;
   }
@@ -122,10 +148,65 @@ function hasChargeReturnRiskWithinSevenDays(month: MonthInput): boolean {
     .some((day: DayBalance): boolean => day.projectedBalance < 0);
 }
 
+function getRiskLevel(score: number): RiskLevel {
+  if (score >= 75) {
+    return RiskLevel.Critical;
+  }
+
+  if (score >= 50) {
+    return RiskLevel.Elevated;
+  }
+
+  if (score >= 25) {
+    return RiskLevel.Caution;
+  }
+
+  return RiskLevel.Safe;
+}
+
+function noChargeReturnRisk(): ChargeReturnRisk {
+  return {
+    atRisk: false,
+    cardId: null,
+    chargeAmount: 0,
+    projectedBalanceOnDate: 0,
+    shortfall: 0,
+    billingDate: '',
+    reason: 'לא זוהה סיכון לחזרת חיוב.',
+    reasonAr: 'لم يتم رصد خطر رجوع دفعة.',
+  };
+}
+
+function getObligationsDueBeforeBilling(
+  obligations: readonly Obligation[],
+  billingDayOfMonth: number,
+): number {
+  return obligations.reduce((sum: number, obligation: Obligation): number => {
+    if (
+      !isValidDayOfMonth(obligation.dayOfMonth) ||
+      obligation.dayOfMonth >= billingDayOfMonth ||
+      !isValidMonetaryAmount(obligation.amount)
+    ) {
+      return sum;
+    }
+
+    return sum + obligation.amount;
+  }, 0);
+}
+
+function formatBillingDate(billingDayOfMonth: number): string {
+  return `day-${billingDayOfMonth.toString().padStart(2, '0')}`;
+}
+
 export function getDailyProjection(month: MonthInput): readonly DayBalance[] {
-  let projectedBalance = isFiniteAmount(month.openingBalance)
-    ? month.openingBalance
-    : 0;
+  if (
+    !isValidMonetaryAmount(month.openingBalance) ||
+    !isValidMonetaryAmount(month.monthlyIncome)
+  ) {
+    return invalidProjection(month);
+  }
+
+  let projectedBalance = month.openingBalance;
 
   return Array.from(
     { length: getProjectionDays(month) },
@@ -159,8 +240,7 @@ export function getUpcomingCharges(month: MonthInput): readonly Obligation[] {
   return month.obligations
     .filter((obligation: Obligation): boolean => {
       if (
-        obligation.amount <= 0 ||
-        !isFiniteAmount(obligation.amount) ||
+        !isValidMonetaryAmount(obligation.amount) ||
         !isValidDayOfMonth(obligation.dayOfMonth)
       ) {
         return false;
@@ -186,7 +266,10 @@ export function getSafeSpendingLimit(month: MonthInput): number {
     return 0;
   }
 
-  if (!isFiniteAmount(month.monthlyIncome) || month.monthlyIncome <= 0) {
+  if (
+    !isValidMonetaryAmount(month.openingBalance) ||
+    !isValidMonetaryAmount(month.monthlyIncome)
+  ) {
     return 0;
   }
 
@@ -204,4 +287,138 @@ export function getSafeSpendingLimit(month: MonthInput): number {
   const safeLimit = lowestProjectedBalance - Math.max(0, month.dangerThreshold);
 
   return Math.max(0, Math.round(safeLimit * 100) / 100);
+}
+
+export function predictChargeReturn(
+  cards: readonly CardInput[],
+  obligations: readonly Obligation[],
+  balance: number,
+): ChargeReturnRisk {
+  if (!isValidMonetaryAmount(balance)) {
+    return noChargeReturnRisk();
+  }
+
+  const sortedCards = cards
+    .filter((card: CardInput): boolean =>
+      isValidDayOfMonth(card.billingCycle.billingDayOfMonth) &&
+      isValidMonetaryAmount(card.framework.currentBalance),
+    )
+    .slice()
+    .sort((left: CardInput, right: CardInput): number =>
+      left.billingCycle.billingDayOfMonth - right.billingCycle.billingDayOfMonth,
+    );
+
+  for (const card of sortedCards) {
+    const billingDay = card.billingCycle.billingDayOfMonth;
+    const obligationsBeforeBilling = getObligationsDueBeforeBilling(
+      obligations,
+      billingDay,
+    );
+    const projectedBalanceOnDate = balance - obligationsBeforeBilling;
+    const chargeAmount = card.framework.currentBalance;
+
+    if (projectedBalanceOnDate < chargeAmount) {
+      return {
+        atRisk: true,
+        cardId: card.cardId,
+        chargeAmount,
+        projectedBalanceOnDate,
+        shortfall: chargeAmount - projectedBalanceOnDate,
+        billingDate: formatBillingDate(billingDay),
+        reason: 'קיים סיכון לחזרת חיוב במועד החיוב של הכרטיס.',
+        reasonAr: 'هناك خطر رجوع دفعة في موعد خصم البطاقة.',
+      };
+    }
+  }
+
+  return noChargeReturnRisk();
+}
+
+export function calculateMonthlyRisk(month: MonthInput): RiskScore {
+  const projection = getDailyProjection(month);
+  const fallbackDay = projection[0];
+  const lowestDay = projection.reduce(
+    (lowest: DayBalance | undefined, day: DayBalance): DayBalance =>
+      lowest === undefined || day.projectedBalance < lowest.projectedBalance
+        ? day
+        : lowest,
+    fallbackDay,
+  );
+  const lowestProjectedBalance = lowestDay?.projectedBalance ?? 0;
+  const lowestBalanceDate = lowestDay?.date ?? '';
+  const daysBelowDanger = projection.filter(
+    (day: DayBalance): boolean => day.belowDanger,
+  ).length;
+  const hasOverdraftRisk = detectMinus(projection);
+  const hasChargeReturnRisk = hasChargeReturnRiskWithinSevenDays(month);
+
+  let score = 0;
+
+  if (hasOverdraftRisk) {
+    score += 45;
+  }
+
+  if (hasChargeReturnRisk) {
+    score += 35;
+  }
+
+  if (daysBelowDanger > 0) {
+    score += Math.min(20, daysBelowDanger * 2);
+  }
+
+  if (lowestProjectedBalance < 0) {
+    score += Math.min(20, Math.ceil(Math.abs(lowestProjectedBalance) / 500));
+  }
+
+  const normalizedScore = Math.min(100, score);
+
+  if (normalizedScore >= 75) {
+    return {
+      score: normalizedScore,
+      level: getRiskLevel(normalizedScore),
+      lowestProjectedBalance,
+      lowestBalanceDate,
+      hasOverdraftRisk,
+      daysBelowDanger,
+      reason: 'סיכון תזרימי קריטי החודש.',
+      reasonAr: 'خطر نقدي حرج هذا الشهر.',
+    };
+  }
+
+  if (normalizedScore >= 50) {
+    return {
+      score: normalizedScore,
+      level: getRiskLevel(normalizedScore),
+      lowestProjectedBalance,
+      lowestBalanceDate,
+      hasOverdraftRisk,
+      daysBelowDanger,
+      reason: 'סיכון תזרימי מוגבר החודש.',
+      reasonAr: 'خطر نقدي مرتفع هذا الشهر.',
+    };
+  }
+
+  if (normalizedScore >= 25) {
+    return {
+      score: normalizedScore,
+      level: getRiskLevel(normalizedScore),
+      lowestProjectedBalance,
+      lowestBalanceDate,
+      hasOverdraftRisk,
+      daysBelowDanger,
+      reason: 'כדאי לעקוב אחרי התזרים החודשי.',
+      reasonAr: 'من الأفضل متابعة التدفق النقدي الشهري.',
+    };
+  }
+
+  return {
+    score: normalizedScore,
+    level: RiskLevel.Safe,
+    lowestProjectedBalance,
+    lowestBalanceDate,
+    hasOverdraftRisk,
+    daysBelowDanger,
+    reason: 'התזרים החודשי נראה יציב.',
+    reasonAr: 'يبدو التدفق النقدي الشهري مستقراً.',
+  };
 }

@@ -1,14 +1,17 @@
 import {
+  calculateMonthlyRisk,
   detectMinus,
   getDailyProjection,
   getSafeSpendingLimit,
   getUpcomingCharges,
+  predictChargeReturn,
 } from '../cashflowRadar';
 import {
   ObligationType,
   type DayBalance,
   type MonthInput,
   type Obligation,
+  RiskLevel,
 } from '../../types/cashflow.types';
 import {
   CardIssuer,
@@ -169,8 +172,8 @@ describe('cashflowRadar', () => {
       year: 2026,
       month: 1,
       openingBalance: 1_000,
-      monthlyIncome: 0,
-      incomeDayOfMonth: 1,
+      monthlyIncome: 0.01,
+      incomeDayOfMonth: 31,
       obligations: [
         makeObligation({ obligationId: 'jan-31', amount: 300, dayOfMonth: 31 }),
       ],
@@ -182,13 +185,13 @@ describe('cashflowRadar', () => {
     expect(projection).toHaveLength(31);
     expect(projection[30]?.date).toBe('2026-01-31');
     expect(projection[30]?.outflow).toBe(300);
-    expect(projection[30]?.projectedBalance).toBe(700);
+    expect(projection[30]?.projectedBalance).toBeCloseTo(700.01, 5);
   });
 
   test('getDailyProjection marks danger and overdraft days correctly', () => {
     const month = makeMonth({
       openingBalance: 300,
-      monthlyIncome: 0,
+      monthlyIncome: 0.01,
       incomeDayOfMonth: 1,
       obligations: [
         makeObligation({ obligationId: 'large-charge', amount: 500, dayOfMonth: 2 }),
@@ -198,9 +201,9 @@ describe('cashflowRadar', () => {
 
     const projection = getDailyProjection(month);
 
-    expect(projection[0]?.projectedBalance).toBe(300);
+    expect(projection[0]?.projectedBalance).toBeCloseTo(300.01, 5);
     expect(projection[0]?.belowDanger).toBe(false);
-    expect(projection[1]?.projectedBalance).toBe(-200);
+    expect(projection[1]?.projectedBalance).toBeCloseTo(-199.99, 5);
     expect(projection[1]?.isOverdraft).toBe(true);
     expect(projection[1]?.belowDanger).toBe(true);
   });
@@ -210,7 +213,7 @@ describe('cashflowRadar', () => {
       year: 2026,
       month: 2,
       openingBalance: 1_000,
-      monthlyIncome: 0,
+      monthlyIncome: 0.01,
       incomeDayOfMonth: 31,
       obligations: [
         makeObligation({ obligationId: 'end-of-month', amount: 250, dayOfMonth: 31 }),
@@ -222,7 +225,7 @@ describe('cashflowRadar', () => {
 
     expect(projection[27]?.date).toBe('2026-02-28');
     expect(projection[27]?.outflow).toBe(250);
-    expect(projection[27]?.projectedBalance).toBe(750);
+    expect(projection[27]?.projectedBalance).toBeCloseTo(750.01, 5);
     expect(projection[29]?.date).toBe('2026-03-02');
   });
 
@@ -316,7 +319,7 @@ describe('cashflowRadar', () => {
   test('charge return risk within seven days forces safe spending limit to 0', () => {
     const month = makeMonth({
       openingBalance: 1_000,
-      monthlyIncome: 0,
+      monthlyIncome: 0.01,
       incomeDayOfMonth: 20,
       obligations: [
         makeObligation({
@@ -333,5 +336,74 @@ describe('cashflowRadar', () => {
     expect(projection[5]?.projectedBalance).toBe(-200);
     expect(detectMinus(projection.slice(0, 7))).toBe(true);
     expect(getSafeSpendingLimit(month)).toBe(0);
+  });
+
+  test('predictChargeReturn flags a card whose billing charge would bounce', () => {
+    const risk = predictChargeReturn(
+      [makeCard({
+        cardId: 'risk-card',
+        framework: {
+          creditLimit: 20_000,
+          currentBalance: 2_000,
+        },
+        billingCycle: {
+          statementClosingDay: 25,
+          billingDayOfMonth: 10,
+        },
+      })],
+      [makeObligation({ amount: 600, dayOfMonth: 5 })],
+      2_500,
+    );
+
+    expect(risk.atRisk).toBe(true);
+    expect(risk.cardId).toBe('risk-card');
+    expect(risk.shortfall).toBe(100);
+  });
+
+  test('predictChargeReturn returns no risk when balance covers obligations and card charge', () => {
+    const risk = predictChargeReturn(
+      [makeCard({
+        framework: {
+          creditLimit: 20_000,
+          currentBalance: 1_000,
+        },
+      })],
+      [makeObligation({ amount: 500, dayOfMonth: 5 })],
+      3_000,
+    );
+
+    expect(risk.atRisk).toBe(false);
+    expect(risk.cardId).toBeNull();
+  });
+
+  test('calculateMonthlyRisk returns safe score for healthy cashflow', () => {
+    const risk = calculateMonthlyRisk(makeMonth({
+      openingBalance: 5_000,
+      monthlyIncome: 5_000,
+      obligations: [makeObligation({ amount: 500, dayOfMonth: 10 })],
+      dangerThreshold: 500,
+    }));
+
+    expect(risk.score).toBe(0);
+    expect(risk.level).toBe(RiskLevel.Safe);
+    expect(risk.hasOverdraftRisk).toBe(false);
+  });
+
+  test('calculateMonthlyRisk returns critical score for overdraft and charge return risk', () => {
+    const risk = calculateMonthlyRisk(makeMonth({
+      openingBalance: 500,
+      monthlyIncome: 0.01,
+      incomeDayOfMonth: 20,
+      obligations: [
+        makeObligation({ amount: 800, dayOfMonth: 3 }),
+        makeObligation({ amount: 200, dayOfMonth: 4 }),
+      ],
+      dangerThreshold: 100,
+    }));
+
+    expect(risk.score).toBeGreaterThanOrEqual(75);
+    expect(risk.level).toBe(RiskLevel.Critical);
+    expect(risk.hasOverdraftRisk).toBe(true);
+    expect(risk.daysBelowDanger).toBeGreaterThan(0);
   });
 });

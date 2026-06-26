@@ -13,6 +13,7 @@
 
 import React from 'react';
 
+import { PrivacyOverlay } from '../components/PrivacyOverlay';
 import { AuthProvider } from './authContext';
 import { AuthGate } from './AuthGate';
 
@@ -20,6 +21,7 @@ export function RootNavigator(): React.ReactElement {
   return (
     <AuthProvider>
       <AuthGate />
+      <PrivacyOverlay />
     </AuthProvider>
   );
 }

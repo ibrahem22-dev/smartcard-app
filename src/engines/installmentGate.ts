@@ -5,6 +5,7 @@ import type {
   MonthlyImpact,
 } from '../types/installment.types';
 import { InstallmentWarningLevel } from '../types/installment.types';
+import { isValidMonetaryAmount } from '../utils/monetary';
 
 const MONTHS_TO_PROJECT = 3;
 const WARNING_THRESHOLD = 0.25;
@@ -19,7 +20,7 @@ function isValidRequest(request: InstallmentRequest): boolean {
   return (
     request.purchaseId.trim().length > 0 &&
     request.billingCardId.trim().length > 0 &&
-    isPositiveFinite(request.totalAmount) &&
+    isValidMonetaryAmount(request.totalAmount) &&
     Number.isInteger(request.numPayments) &&
     request.numPayments >= 2 &&
     Number.isInteger(request.billingDayOfMonth) &&
@@ -34,7 +35,7 @@ function getActiveMonthlyLoad(
   return existingInstallments.reduce((sum: number, installment: Installment): number => {
     if (
       installment.paymentsRemaining <= 0 ||
-      !isPositiveFinite(installment.monthlyPayment)
+      !isValidMonetaryAmount(installment.monthlyPayment)
     ) {
       return sum;
     }
@@ -50,7 +51,7 @@ function getProjectedExistingLoad(
   return existingInstallments.reduce((sum: number, installment: Installment): number => {
     if (
       installment.paymentsRemaining < monthOffset ||
-      !isPositiveFinite(installment.monthlyPayment)
+      !isValidMonetaryAmount(installment.monthlyPayment)
     ) {
       return sum;
     }
@@ -130,7 +131,7 @@ export function evaluateInstallment(
   existingInstallments: readonly Installment[],
   monthlyIncome: number,
 ): InstallmentDecision {
-  if (!isValidRequest(installmentRequest) || !isPositiveFinite(monthlyIncome)) {
+  if (!isValidRequest(installmentRequest) || !isValidMonetaryAmount(monthlyIncome)) {
     return buildDecision(
       false,
       InstallmentWarningLevel.Blocked,
