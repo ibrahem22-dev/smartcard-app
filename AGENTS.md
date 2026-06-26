@@ -317,6 +317,43 @@ Pick the first task that is not ✅ and whose blockers are clear. Do not start a
 9. **ENGINE-03** `installmentGate.ts` (+ TEST).
 10. **ENGINE-04** `cashflowRadar.ts` (4 functions) → **TEST-03**. Then `npx jest --coverage` (target 90%+) and a full offline-first/security self-audit of all engines. *Completes M2.*
 
+### M3 Task Definitions
+
+1. **UI-01: Purchase Gate Screen + Hook**
+   - Files affected: `src/screens/PurchaseGateScreen.tsx`, `src/hooks/usePurchaseGate.ts`.
+   - Dependencies: `ENGINE-02` (`src/engines/purchaseGate.ts`) complete.
+   - Done when: the screen renders inside the authenticated navigator; the top toggle switches between domestic and international purchase modes; the hook calls `evaluatePurchase()` with typed inputs including `isInternational`; verdicts `approved`, `warning`, `blocked`, and `wait_24h` render with the canonical colors; international purchases with available exchange-fee data show a warning banner; layout is RTL and uses `StyleSheet.create`; `npx tsc --noEmit` exits 0.
+
+2. **UI-02: Decision Screen**
+   - Files affected: `src/screens/DecisionScreen.tsx`.
+   - Dependencies: `UI-01` complete.
+   - Done when: the screen receives and renders the latest `PurchaseDecision`; Hebrew and Arabic reasons are supported by the data shape; blocked/warning/approved/wait_24h states render without overlap on mobile; the card score section is wrapped in `FeatureGate` and displays the "soon" locked state until M4; the "יש לך בעיה?" action navigates to `ContactScreen` or a typed stub route; `npx tsc --noEmit` exits 0.
+
+3. **UI-03: Cards Screen**
+   - Files affected: `src/screens/CardsScreen.tsx`.
+   - Dependencies: `UI-01` complete.
+   - Done when: the screen lists the user's stored cards from the existing store; empty `cards = []` renders a useful empty state; last-4 only is displayed and no full PAN field is introduced; card issuer, role, billing date, and credit utilization are visible; no financial logic is implemented in the screen; RTL layout uses `StyleSheet.create`; `npx tsc --noEmit` exits 0.
+
+4. **UI-04: Home Screen**
+   - Files affected: `src/screens/HomeScreen.tsx`.
+   - Dependencies: `UI-02`, `UI-03` complete.
+   - Done when: Home summarizes the current decision status, card count, and cashflow risk using existing hooks/stores only; it renders meaningful empty states when no cards or purchase decision exist; it links to Purchase Gate, Cards, Calendar, and Contact flows through typed navigation; no engine is called directly from the screen; RTL layout uses `StyleSheet.create`; `npx tsc --noEmit` exits 0.
+
+5. **UI-05: Contact Screen**
+   - Files affected: `src/screens/ContactScreen.tsx`.
+   - Dependencies: `UI-02` complete.
+   - Done when: the screen provides static offline contact data for Max, Isracard, and CAL; an issue-type selector shows phone number and "what to say" guidance; it is reachable from DecisionScreen after blocked/warning verdicts and from Settings when available; no network calls are added; RTL layout uses `StyleSheet.create`; `npx tsc --noEmit` exits 0.
+
+6. **UI-06: Calendar Screen + Cashflow Hook**
+   - Files affected: `src/screens/CalendarScreen.tsx`, `src/hooks/useCashflowCalendar.ts`.
+   - Dependencies: `ENGINE-04` (`src/engines/cashflowRadar.ts`) complete.
+   - Done when: the hook calls `getDailyProjection()`, `detectMinus()`, `getUpcomingCharges()`, `getSafeSpendingLimit()`, and `calculateMonthlyRisk()` with typed inputs; the screen renders a 30-day-or-calendar-month projection with safe/tight/danger colors; day 1 and final day render correctly; empty obligations render without crash; no financial logic is implemented in the screen; RTL layout uses `StyleSheet.create`; `npx tsc --noEmit` exits 0.
+
+7. **UI-07: NativeWind v4 Activation**
+   - Files affected: `babel.config.js`, `metro.config.js`, `tailwind.config.js`, `global.css`, `App.tsx`, `nativewind-env.d.ts`.
+   - Dependencies: `UI-01`, `UI-02`, `UI-03`, `UI-04`, `UI-05`, and `UI-06` complete.
+   - Done when: NativeWind v4 is configured for Expo SDK 52 without changing screen behavior; TypeScript recognizes NativeWind class names; existing StyleSheet screens still render; no screen is rewritten in this task; `npx tsc --noEmit` exits 0; `npx expo-doctor` has no new SDK compatibility findings.
+
 Everything M3 and later is deferred until M2 is green.
 
 ---

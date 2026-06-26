@@ -33,6 +33,17 @@ export interface PurchaseGateInput {
   readonly availableCards: readonly UserCard[];
 }
 
+export interface UsePurchaseGateResult {
+  readonly amount: number;
+  readonly setAmount: (amount: number) => void;
+  readonly isInternational: boolean;
+  readonly setIsInternational: (isInternational: boolean) => void;
+  readonly verdict: DecisionVerdict | null;
+  readonly decision: PurchaseDecision | null;
+  readonly exchangeFeeWarning: string | null;
+  readonly evaluate: () => DecisionVerdict;
+}
+
 /**
  * The card the engine recommends for this purchase. Carries the minimum the
  * screen needs to render a card chip without a second lookup.
