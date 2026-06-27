@@ -2,6 +2,7 @@ import React from 'react';
 import { FlatList, Text, View, type ListRenderItem } from 'react-native';
 
 import { useCashflowCalendar } from '../hooks/useCashflowCalendar';
+import { useTheme } from '../hooks/useTheme';
 import type { CashflowCalendarCharge } from '../types/cashflow.types';
 import { rtl } from '../utils/rtlStyles';
 
@@ -69,6 +70,7 @@ const renderCharge: ListRenderItem<CashflowCalendarCharge> = ({
 };
 
 export function CalendarScreen(): React.ReactElement {
+  const theme = useTheme();
   const charges = useCashflowCalendar();
 
   if (charges.length === 0) {

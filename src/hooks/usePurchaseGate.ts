@@ -17,6 +17,14 @@ import {
 import type { Obligation } from '../types/cashflow.types';
 
 const EMPTY_OBLIGATIONS: readonly Obligation[] = [];
+const NO_CARDS_DECISION: PurchaseDecision = {
+  verdict: 'blocked',
+  reason: 'לא נמצאו כרטיסים — הוסף כרטיס תחילה',
+  reasonAr: 'لم يتم العثور على بطاقات — أضف بطاقة أولا',
+  recommendedCard: null,
+  savingsAmount: 0,
+  currency: Currency.ILS,
+};
 
 function buildPurchaseInput(
   amount: number,
@@ -61,6 +69,11 @@ export function usePurchaseGate(): UsePurchaseGateResult {
   );
 
   const evaluate = useCallback((): DecisionVerdict => {
+    if (cards.length === 0) {
+      setDecision(NO_CARDS_DECISION);
+      return NO_CARDS_DECISION.verdict;
+    }
+
     const result = evaluatePurchase(
       buildPurchaseInput(amount, isInternational, selectedCardId),
       gateInput,
@@ -68,7 +81,7 @@ export function usePurchaseGate(): UsePurchaseGateResult {
     setDecision(result);
 
     return result.verdict;
-  }, [amount, gateInput, isInternational, selectedCardId]);
+  }, [amount, cards.length, gateInput, isInternational, selectedCardId]);
 
   return {
     amount,

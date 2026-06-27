@@ -1,5 +1,6 @@
 # SmartCard — AGENTS.md
 ### Codex Build Instructions | Replaces Agents 1, 3, 4, 5, 7, 9
+### Last updated: June 27, 2026 — M3 ✅ complete · Features A1–F1 + 22–27
 
 > This file is your only instruction source. Read it fully before every task.
 > Every rule is a hard DO or DO NOT. When two statements conflict, the
@@ -9,35 +10,36 @@
 
 ## 1. Project Overview
 
-SmartCard (final name candidate: **MyCard**) is an Israeli FinTech mobile app — a **pre-purchase decision assistant**, not a budget tracker. Before any purchase it answers three questions: (1) Can I afford this? (2) Which card should I use? (3) Which card saves the most on this purchase? Target market: Israeli adults with 2–4 credit cards, תשלומים (installments), הוראות קבע (standing orders), and מינוס (overdraft) risk. UI is Hebrew-primary + full Arabic RTL; English for technical terms only. Manual-first — no Open Banking in MVP.
+SmartCard (final name candidate: **MyCard**) is an Israeli FinTech mobile app — a **pre-purchase decision assistant**, not a budget tracker. Before any purchase it answers: (1) Can I afford this? (2) Which card should I use? (3) Which card saves the most? Target market: Israeli adults with 2–4 credit cards, תשלומים, הוראות קבע, מינוס risk. Hebrew-primary + full Arabic RTL; English for technical terms. Manual-first — no Open Banking in MVP.
 
 ---
 
-## 2. Tech Stack (Pinned Versions — Do Not Upgrade)
+## 2. Tech Stack (Pinned — Do Not Upgrade)
 
 | Dependency | Version | Note |
 |---|---|---|
-| Node | **20.20.2** | PINNED via nvm-windows. Node v24 crashes SDK 52 — BANNED. |
-| Expo SDK | **52** | PINNED. No upgrade to 54/55 without a dedicated isolated session. |
+| Node | **20.20.2** | PINNED. v24 crashes SDK 52 — BANNED. |
+| Expo SDK | **52** | PINNED. No upgrade without isolated session. |
 | React Native | 0.76.9 | Tied to SDK 52 (React 18.3). |
-| New Architecture | **ENABLED** | `newArchEnabled=true` in `android/gradle.properties` — mandatory for MMKV v3. |
+| New Architecture | **ENABLED** | `newArchEnabled=true` — mandatory for MMKV v3. |
 | react-native-mmkv | 3.3.3 | V3 Classic API. Requires New Arch. |
 | TypeScript | strict | `strict: true`, no exceptions. |
-| @noble/hashes | pure JS | Argon2id KDF (Expo-managed-safe, no native build). |
+| @noble/hashes | pure JS | Argon2id KDF. |
 | @noble/ciphers | pure JS | AES-256-GCM for PIN envelope. |
 | expo-secure-store | installed | Hardware keychain for DEK + pepper. |
-| expo-crypto | installed | CSPRNG (`getRandomBytesAsync`). |
+| expo-crypto | installed | CSPRNG. |
+| expo-localization | installed | Device language detection. |
 | expo-local-authentication | — | Biometric. |
+| expo-notifications | — | Local push notifications (M4 — discount reminders). |
 | Zustand | — | State. Redux/MobX BANNED. |
 | React Navigation | v7 | Stack + Tab. |
-| NativeWind | v4 | **Deferred to M3.** Use `StyleSheet.create` in M1/M2. |
+| NativeWind | v4 | Active from M3. `tailwind.config.js` + `global.css` committed. |
 | Jest | — | Mandatory for all engine logic. |
-| Detox | — | E2E, Phase 3+ only — do not write now. |
+| Detox | — | E2E, Phase 3+ only. |
 
-**BANNED ENTIRELY:** `AsyncStorage`, `redux`, `mobx`, `axios` (use `fetch` for rare network), `moment`, `react-native-argon2` (native build fails — use @noble/hashes), the `any` type, and any package not in the Expo managed workflow.
+**BANNED:** `AsyncStorage`, `redux`, `mobx`, `axios`, `moment`, `react-native-argon2`, `any` type, packages outside Expo managed workflow.
 
-**Run command:** `npx expo run:android` (never Expo Go — native modules are unsupported there).
-**Device:** Samsung S928B (physical). `requireAuthentication: true` does not work on emulators.
+**Run command:** `npx expo run:android`. Device: Samsung S928B (physical).
 
 ---
 
@@ -45,333 +47,455 @@ SmartCard (final name candidate: **MyCard**) is an Israeli FinTech mobile app �
 
 ```
 /src
-  /engines    Pure financial + benefits logic. ZERO React/RN/Expo imports. ZERO network. ZERO async.
-  /types      All interfaces/types. Engines and screens import from here; never define types inline.
-  /security   keyVault.ts ONLY. Sole owner of the DEK + all crypto. No network. No imports from stores.
+  /engines    Pure financial logic. ZERO React/RN/Expo imports. ZERO network. ZERO async.
+              Includes: purchaseGate, cardRoleEngine, installmentGate, cashflowRadar,
+              benefitsMatcher (M4), loanEngine (M4), interestCalculator (M4).
+  /types      All interfaces/types. Never define types inline in screens or engines.
+  /security   keyVault.ts ONLY. DEK + all crypto. No network.
   /services   Network calls ONLY (Phase 4+). Empty until then.
-  /store      Zustand + encrypted MMKV via keyVault handle. keys.ts holds ALL MMKV key constants.
-  /screens    UI only. Calls hooks (which call engines). Never implements financial logic.
-  /components  Reusable UI. Includes FeatureGate.tsx.
-  /hooks      Custom hooks. Hooks may import engines; screens import hooks, not engines directly.
-  /data       Static benefits JSON (Max/Isracard/CAL). READ ONLY at runtime. Bundled, not fetched.
-  /utils      Pure helpers (currency, dates, formatting).
-  /i18n       he.ts + ar.ts translation maps.
-/docs         SEC-CONTRACT-001.md and architecture contracts. READ ONLY.
+  /store      Zustand + MMKV. keys.ts = ALL key constants. Includes useProfileStore (M3),
+              useLoansStore (M4), useCardRatesStore (M4).
+  /screens    UI only. Calls hooks, never engines directly.
+  /components  FeatureGate.tsx, ProfileSwitcher.tsx (M3), GlossaryScreen components.
+  /hooks      usePurchaseGate.ts ✅, useCashflowCalendar.ts ✅, useFeatureFlag.ts ✅.
+  /data       Static JSON — benefits DB (M4) + card_rates.json (M4). READ ONLY at runtime.
+  /utils      parseAmount.ts ✅, languageService.ts (M3), currency/date/formatting helpers.
+  /i18n       he.ts + ar.ts + en.ts (M3) translation maps.
+/docs         SEC-CONTRACT-001.md. READ ONLY.
+/shims        react-native-reanimated.js ✅ (Metro shim).
 ```
 
-**Hard ownership rules:**
-- `/src/engines/` imports **nothing** from React, React Native, Expo, `/src/screens/`, `/src/store/`, `/src/security/`, or `/src/services/`. Engines receive all state as typed parameters. Violation = CRITICAL.
-- Engines NEVER import from another engine — flat dependency graph.
-- `/src/security/` is the only place that touches the keychain or the DEK. Moving crypto out = HIGH finding.
-- MMKV keys are constants in `/src/store/keys.ts`. No string literals for keys anywhere else. No key built dynamically from user input (e.g. `card_${userId}`) = HIGH.
-- Screens import engines only via hooks. A screen importing an engine directly is allowed only for pure type imports; logic calls go through hooks.
+**Ownership rules:**
+- `/src/engines/` — zero React/RN/Expo/screens/store/security imports. Violation = CRITICAL.
+- Engines never import from each other — flat dependency graph.
+- `/src/security/` — only place touching keychain or DEK.
+- MMKV keys = constants in `keys.ts`. Profile keys = `profile_{id}:field`. Never inline strings.
+- Screens → hooks → engines. Never screen → engine directly (except pure type imports).
 
 ---
 
 ## 4. TypeScript Standards
 
-- `strict: true`. No `any`, no `as any`, ever.
-- No non-null assertion (`!`) without a prior existence check guarding it.
-- Every function parameter and return type explicitly typed.
-- Use `enum` or a string-literal union for fixed sets (verdicts, roles, categories).
-- Use `readonly` on input parameters not meant to be mutated.
-- No external libraries inside engines (no lodash, no date-fns) — native TS only.
-- Import types with `import type { X } from '../types/x.types'`.
-- **Definition of clean:** `npx tsc --noEmit` returns zero errors before any commit.
-
-Most common violations to self-check before committing: an inferred `any` on a destructured param; a missing return type on a hook; a key literal that should live in `keys.ts`; an engine file with a stray `import { useState }`.
+- `strict: true`. No `any`, no `as any`. No unguarded `!`.
+- Every parameter and return type explicitly typed.
+- String-literal unions for fixed sets (verdicts, roles, categories, LoanType, LanguagePref).
+- `readonly` on immutable parameters.
+- No external libs in engines — native TS only.
+- `import type { X } from '../types/x.types'`.
+- **Clean = `npx tsc --noEmit` → zero errors before any commit.**
 
 ---
 
 ## 5. Israeli Financial Domain
 
-**Definitions:**
-- **תשלומים (installments):** a purchase split into monthly payments. Each = `{ totalAmount, numMonths, monthlyPayment, billingCard, billingDate, category }`. Billing dates differ **per card**, not per bank. Load% = (sum of active monthly installment payments / monthlyIncome) × 100.
-- **חזרת חיוב (bounced payment):** bank balance insufficient on a card's billing date. Cost ≈ ₪80 bank fee + merchant penalty + credit-score damage. Always surface at WARNING level minimum.
-- **מינוס (overdraft):** negative bank balance. Track projected daily balance going negative at any future point in the month; severity scales with depth/duration.
-- **מסגרת אשראי (credit limit):** per-card framework. Utilization > 70% = warning, > 90% = blocked from new charges.
-- **הוראת קבע (standing order):** fixed monthly deduction (rent, loans, insurance, university). Certain future outflow = `{ amount, dayOfMonth, description, category }`. Always include in cashflow projections.
+- **תשלומים:** purchase split monthly. `{ totalAmount, numMonths, monthlyPayment, billingCard, billingDate, category }`.
+- **חזרת חיוב:** bank balance insufficient on billing date. ≈₪80 fee + penalties. Always WARNING minimum.
+- **מינוס:** negative bank balance. Track projected daily balance.
+- **מסגרת אשראי:** per-card credit limit. >70% = warning, >90% = blocked.
+- **הוראת קבע:** fixed monthly deduction. Certain future outflow.
+- **הלוואה אישית:** personal loan. Fixed monthly payment + end date. Treated as obligation in cashflow.
+- **משכנתא:** housing loan. MVP = fixed obligation with `type: 'mortgage'`. No מסלולים.
+- **דמי כרטיס:** monthly card fee. Most users have discounts — often forgotten when they expire.
+- **ריבית קרדיט:** interest on deferred credit payment. Typically prime + X%.
+- **עמלת המרה:** foreign exchange commission (2–3% in Israel). Varies per issuer/club.
+- **Load%:** (sum monthly installment payments / monthlyIncome) × 100.
 
-**The only 3 Israeli card issuers** (covers 100% of market): `Max` (מקס), `Isracard` (ישראכרט — also issues Amex), `CAL` (כ.א.ל — issues Visa + Diners). No other issuer value is valid. Each has multiple מועדונים (clubs) with different benefits; the benefits DB is keyed company → club → card type → benefit rules.
+**3 Israeli card issuers only:** `Max`, `Isracard`, `CAL`. No other value valid.
 
-**Canonical verdict thresholds** (do not change without product sign-off):
-- `approved`: buffer after purchase **> 20%** of income
-- `warning`: buffer **5–20%** of income **OR** installment load **25–35%** **OR** credit utilization **70–90%**
-- `blocked`: buffer **< 5%** **OR** installment load **> 50%** **OR** חזרת חיוב predicted **OR** utilization **> 90%**
-- `wait_24h`: non-essential purchase **AND** buffer in the **5–15%** range
-- **חזרת חיוב trigger:** `(currentBalance − obligations due before billing date) < card charge amount`
+**Verdict thresholds (canonical):**
+- `approved`: buffer > 20% income · `warning`: 5–20% OR load 25–35% OR utilization 70–90%
+- `blocked`: < 5% OR load > 50% OR חזרת חיוב predicted OR utilization > 90%
+- `wait_24h`: non-essential AND buffer 5–15%
+- **חזרת חיוב:** `(currentBalance − obligations before billing date) < charge amount`
 
 ---
 
 ## 6. Engine Specifications
 
-All engines are pure, synchronous, offline-first. Each ships with a companion Jest file at `/src/engines/__tests__/<name>.test.ts`. Tests are **mandatory before any PR** that touches an engine.
+All engines: pure, synchronous, offline-first. Companion Jest file mandatory before any PR.
 
-### 6.1 `/src/engines/purchaseGate.ts`
+### 6.1 `purchaseGate.ts` ✅
 ```ts
 function evaluatePurchase(input: PurchaseInput): PurchaseDecision
-// returns { verdict, reason, reasonAr, details }
-// verdict: 'approved' | 'warning' | 'blocked' | 'wait_24h'
+// verdict union, reason (He) + reasonAr (Ar). isInternational → exchange-fee warning.
 ```
-Logic: apply the §5 threshold table. `reason` in Hebrew AND `reasonAr` in Arabic — both must be non-empty. If `input.isInternational === true`, include an exchange-fee warning in the reason when relevant. Card scoring is NOT done here — that is `cardRoleEngine`.
 
-### 6.2 `/src/engines/cardRoleEngine.ts`
+### 6.2 `cardRoleEngine.ts` ✅
 ```ts
 function assignCardRole(card: CardInput, userProfile: UserProfile): CardRole
-function recommendCard(
-  cards: CardInput[], purchaseCategory: PurchaseCategory,
-  userProfile: UserProfile, isInternational: boolean
-): CardRecommendation
-// CardRole: 'daily' | 'travel' | 'subscriptions' | 'installments' | 'education' | 'benefits'
+function recommendCard(cards: CardInput[], purchaseCategory: PurchaseCategory,
+  userProfile: UserProfile, isInternational: boolean): CardRecommendation
+// isInternational=true → rank by foreignExchangeCommission (lowest first).
+// If card has hasForeignCurrencyAccount=true AND currency matches → commission = 0, rank first.
+// Feature 23 is an extension of this function, not a separate engine.
 ```
-Each card gets exactly ONE primary role. `recommendCard` returns a ranked result with a 0–100 `score` plus `scoreReason` (He) and `scoreReasonAr` (Ar). If `isInternational`, weight travel cards higher and apply an exchange-fee penalty in score. Cards with `unknownClub === true`: score on company defaults, flag `scoreReason = "מועדון לא ידוע — ייתכן הטבות נוספות"`. Cards valid for the user's `bankName` get a flat **+5** score bonus.
 
-### 6.3 `/src/engines/installmentGate.ts`
+### 6.3 `installmentGate.ts` ✅
 ```ts
-function evaluateInstallment(
-  installmentRequest: InstallmentRequest,
-  existingInstallments: Installment[], monthlyIncome: number
-): InstallmentDecision
+function evaluateInstallment(req: InstallmentRequest, existing: Installment[],
+  monthlyIncome: number): InstallmentDecision
+// PROD-INSTALL-01: exactly 35% = Warning (not Strong Warning).
 ```
-Thresholds on resulting load: `< 25%` approved · `25–35%` warning (with monthly breakdown) · `35–50%` strong warning (+ 3-month cashflow impact) · `> 50%` blocked. Output: monthly addition, total cost, next-3-months impact, warning level.
 
-### 6.4 `/src/engines/cashflowRadar.ts`
+### 6.4 `cashflowRadar.ts` ✅
 ```ts
 function calculateMonthlyRisk(month: MonthInput): RiskScore
 function predictChargeReturn(cards: CardInput[], obligations: Obligation[], balance: number): ChargeReturnRisk
 function getDailyBalanceProjection(month: MonthInput): DayBalance[]
+// Obligations include: הוראות קבע + installment payments + loan payments + mortgage payment.
 ```
-Risk score 0–100 (0 safe, 100 critical). חזרת חיוב predicted when `(balance − upcoming obligations) < 0` within 7 days. מינוס predicted when projected balance goes negative at any point in the month. `DayBalance[]` powers the Cashflow Calendar UI.
 
-### 6.5 `/src/engines/benefitsMatcher.ts` (M4)
+### 6.5 `loanEngine.ts` (M4)
 ```ts
-function findBestCard(cards: UserCard[], purchase: PurchaseContext, benefitsDB: BenefitsDatabase): BenefitMatch[]
-function calculateMissedSavings(cards: UserCard[], transactions: Transaction[], benefitsDB: BenefitsDatabase): MissedSavings
+function calculateLoanSummary(loan: Loan): LoanSummary
+// { remainingBalance, remainingMonths, totalInterestRemaining, monthlyPayment }
+// Mortgage: same function, type='mortgage', no מסלולים.
+function calculateLoanImpact(loans: Loan[], monthlyIncome: number): LoanImpact
+// { totalMonthlyObligation, percentOfIncome, riskLevel: 'low'|'medium'|'high' }
 ```
-`benefitsDB` is always passed in by the caller (loaded from `/src/data/*.json` via the store). The engine never fetches its own data. Benefits matching content/rules are Agent 2's domain — this file owns the shell + matching mechanics only.
 
-**Mandatory Jest cases for EVERY engine function (10 minimum):** (1) happy path; (2) minimum valid input; (3) maximum/extreme values; (4) Israeli edge — billing date = last day of month (31→Feb 28/29); (5) Israeli edge — חזרת חיוב scenario; (6) Israeli edge — מינוס scenario; (7) boundary exactly at the warning threshold; (8) boundary exactly at the blocked threshold; (9) multiple cards; (10) zero income / zero balance → must return `'blocked'`, never throw or divide-by-zero. Also cover empty arrays (`cards: []`, `installments: []`), ₪0.01 and ₪1,000,000 amounts, and negative inputs (rejected, not crashed). Use test-data factories (`makeUser`, `makeCard`, `makeInstallment`, `makeObligation`) at the top of each file — never repeat raw objects.
+### 6.6 `interestCalculator.ts` (M4 — Features 24 + 24.2)
+```ts
+function calculateInstallmentInterest(
+  amount: number, months: number, annualRate: number
+): InterestResult
+// Feature 24: ריבית על עסקת קרדיט תשלומים
+
+function calculateCardLoan(
+  principal: number, months: number, annualRate: number
+): InterestResult
+// Feature 24.2: ריבית על הלוואה מתוך הכרטיס
+
+type InterestResult = {
+  totalInterest: number
+  effectiveMonthlyPayment: number
+  totalCost: number
+  schedule: MonthlyPaymentBreakdown[]  // full amortization table
+}
+type MonthlyPaymentBreakdown = { month: number; principal: number; interest: number; balance: number }
+// Uses Shpitzer (שפיצר) method: fixed monthly payment, decreasing interest portion.
+// annualRate validation: 0–30% (Israeli legal max for consumer credit).
+```
+
+### 6.7 `benefitsMatcher.ts` (M4)
+```ts
+function findBestCard(cards: UserCard[], purchase: PurchaseContext,
+  benefitsDB: BenefitsDatabase): BenefitMatch[]
+function calculateMissedSavings(cards: UserCard[], transactions: Transaction[],
+  benefitsDB: BenefitsDatabase): MissedSavings
+```
+
+**Mandatory Jest cases (10+ per function):** happy path · minimum input · extreme values · Israeli billing edge (31→Feb) · חזרת חיוב · מינוס · warning boundary · blocked boundary · multiple cards · zero income → `'blocked'`, never throw · empty arrays · ₪0.01 + ₪1,000,000 · negative inputs rejected. Factories required.
 
 ---
 
 ## 7. Types Specification (`/src/types/`)
 
-All 8 type files exist and compile (committed `3cae95a`). Extend them — do not rewrite.
+Extend — do not rewrite existing files.
 
-- `card.types.ts` — `CardInput`, `UserCard`, `CardRole`, `CardRecommendation`. `UserCard` includes `bankName?: string`, `unknownClub?: boolean`, `clubSuggestedByApp?: boolean`. `CardRecommendation` includes `score: number` (0–100), `scoreReason: string`, `scoreReasonAr: string`. `issuer` ∈ `'Max' | 'Isracard' | 'CAL'`.
-- `purchase.types.ts` — `PurchaseInput` (includes **mandatory** `isInternational: boolean`), `PurchaseDecision`, `PurchaseCategory`, `DecisionDetails`.
-- `installment.types.ts` — `Installment`, `InstallmentRequest`, `InstallmentDecision`.
-- `cashflow.types.ts` — `MonthInput`, `RiskScore`, `DayBalance`, `ChargeReturnRisk`, `Obligation`.
-- `benefit.types.ts` — `BenefitsDatabase`, `BenefitMatch` (includes `isValidForInternational: boolean`, `exchangeFeePercent?: number`), `MissedSavings`, `UserCard`, `Transaction`.
-- `user.types.ts` — `UserProfile { bankName?, phoneNumber?, monthlyIncome, currentBalance, dangerThreshold }`.
-- `feature.types.ts` — `FeatureStatus = 'live' | 'soon' | 'beta' | 'pro_only'`, `FeatureConfig`, `INITIAL_FEATURE_STATUS`.
-- `decision.types.ts` — verdict union (see conflict note below).
+**Existing (all compile ✅):**
+- `card.types.ts` · `purchase.types.ts` · `installment.types.ts` · `cashflow.types.ts`
+- `benefit.types.ts` · `user.types.ts` · `feature.types.ts` · `decision.types.ts`
+- `contact.types.ts` ✅ (committed — `ProblemType`, `IssuerContact`)
 
-**⚠️ VERDICT UNION — MUST FIX BEFORE M2:** the canonical union is `'approved' | 'warning' | 'blocked' | 'wait_24h'`. Any legacy `'approve' | 'warn' | 'block'` in `decision.types.ts` must be retired and all imports updated. `wait_24h` must not be dropped.
+**Extensions to `card.types.ts` (M4 — CARD-RATES-TYPES-01):**
+```ts
+// Add to CardInput:
+cardRates?: CardRates          // from card_rates.json (auto-filled) or manual entry
+cardFee?: CardFeeInfo          // monthly fee + discount (Feature 27)
+hasForeignCurrencyAccount?: boolean   // כרטיס מחובר לחשבון מט"ח
+foreignCurrencyType?: 'USD' | 'EUR' | 'GBP' | 'other'
+bankFxCommission?: number      // bank's FX rate (replaces issuer commission if מט"ח)
+cardIssuanceDate?: string      // ISO date — used for discount reminder anniversary
 
-**INITIAL_FEATURE_STATUS naming note:** the committed code uses **UI-component keys** — `BenefitsScreen: 'soon'` (phase 4), `SavingsTracker: 'soon'` (3), `ScoreSection: 'soon'` (3), `InternationalMode: 'soon'` (3), `ProUpgrade: 'pro_only'` (5). Conceptual keys (`PURCHASE_GATE`, `CARD_ROLE`, `CASHFLOW_CALENDAR` = `'live'`; `CARD_SCORE`, `MONTHLY_REPORT`, `TRAVEL_RECOMMENDATIONS`, `MERCHANT_SEARCH`, `AI_CONSULTATION` = `'soon'`) are for engine gating. Do NOT rewrite the file to unify them — extend it. This map is the sole source of truth for all feature gates; no screen/store/engine hardcodes a gate state.
+type CardRates = {
+  creditInterestRate: number         // ריבית קרדיט שנתית (%)
+  installmentInterestRate: number    // ריבית תשלומים (%)
+  cardLoanInterestRate: number       // ריבית הלוואה מהכרטיס (%)
+  foreignExchangeCommission: number  // עמלת המרה (%)
+  source: 'db' | 'manual'           // where did this data come from
+  lastUpdated: string                // ISO date — shown in UI as disclaimer
+}
+
+type CardFeeInfo = {
+  monthlyFeeOriginal: number         // original fee from card_rates.json or manual
+  hasDiscount: boolean
+  discountPercentage?: number        // 0–100
+  effectiveMonthlyFee: number        // monthlyFeeOriginal × (1 - discount/100)
+  discountEndDate?: string           // ISO date — triggers reminder
+  discountSource: 'db' | 'manual' | 'document'
+}
+```
+
+**New type files (M3–M4):**
+- `loan.types.ts` (M4) — `LoanType`, `Loan`, `LoanSummary`, `LoanImpact`, `LoanDecision`
+- `profile.types.ts` (M3) — `AppProfile`, `ProfileSummary`
+- `interest.types.ts` (M4) — `InterestResult`, `MonthlyPaymentBreakdown`
+
+**Updated `user.types.ts`:** add `languagePreference: 'device' | 'he' | 'ar' | 'en'`
+
+**⚠️ VERDICT UNION:** `'approved' | 'warning' | 'blocked' | 'wait_24h'` — canonical. Legacy `'approve'|'warn'|'block'` BANNED.
 
 ---
 
 ## 8. Screen & Component Rules
 
-- **Offline-first:** every screen renders meaningfully with zero network. No spinner waits on network. Missing MMKV data → empty state, not loading state. Never call `fetch()`/`axios` inside a screen or inside a hook that blocks rendering. Subtle offline banner at top when network is down; the app keeps working.
-- **RTL always:** support Hebrew + Arabic. Use `I18nManager.isRTL` for directional logic; prefer `ms-`/`me-` over `ml-`/`mr-`; `text-start` not `text-left`; flip directional icons with `scaleX: I18nManager.isRTL ? -1 : 1`. `I18nManager.forceRTL` is set globally in `App.tsx`. Test every screen in both languages before "done".
-- **NativeWind:** deferred to M3 (`UI-07`). Until then use `StyleSheet.create`. Dark mode + 3-layer theming come **after** NativeWind is wired.
-- **Screen pattern:** screen → hook → engine. Hooks call engines synchronously with local store data; screens hold no logic. Every screen must render correctly when `cards = []`.
-- **Currency:** always show ₪; format with `Intl.NumberFormat('he-IL')` → `₪1,234.50`. Never show a bare minus — render overdraft as `"חריגה של ₪XXX"`.
-- **Verdict colors:** approved `#16A34A`, warning `#D97706`, blocked `#DC2626`, wait_24h `#2563EB`. **Calendar risk colors:** safe `#DCFCE7`, tight `#FEF9C3`, danger `#FEE2E2`.
-- **FeatureGate.tsx** (required pattern): `<FeatureGate featureId="CARD_SCORE">…</FeatureGate>`. `'live'` → render normally. `'soon'` → grayed children + "בקרוב" badge overlay. `'pro_only'` → grayed children + "Pro בלבד" badge + upgrade CTA. Tapping a locked overlay opens a modal with the feature description + release label. Reads status from `INITIAL_FEATURE_STATUS` via `useFeatureFlag(featureId)`.
-- **Onboarding (4 steps):** Step 1 bank selection — 5 tappable boxes `לאומי | הפועלים | דיסקונט | מזרחי | אחר` (MVP; do NOT change to progressive disclosure until `ONBOARD-IMPROVE-01` in M3). Step 2 income + balance (validate both > 0 before advancing). Step 3 add first card — issuer selector + club dropdown + always-visible "אני לא יודע את המועדון" button opening a 3-question guided flow that suggests a club or sets `unknownClub=true`. Step 4 phone number (optional, label "מספר טלפון — לשחזור חשבון בעתיד (אופציונלי)", no OTP until Phase 4) + `isOnboardingComplete` wired to `useUserStore` + AuthGate handoff (authenticated & `!isOnboardingComplete` → show OnboardingScreen). **Status: Steps 1+2+3 ✅ done; Step 4 ❌ stub.** Also fix: `pending_card` migration in `debugUnlock`, and `onboarding_complete` writing via the wrong `new MMKV()` instead of `onboardingStorage`.
-- **בארץ/חו"ל toggle:** top of PurchaseGateScreen, default בארץ 🇮🇱; switching to חו"ל ✈️ passes `isInternational=true`; if card has exchange-fee data, show `⚠️ עמלת המרה X%` in the result.
-- **ContactScreen (M3):** static, per-company (Max/Isracard/CAL) contact data; issue-type selector → phone + what to say. No network. Entry from Settings and from DecisionScreen after a blocked/warning verdict.
-- **Dynamic theming (M3, after NativeWind):** Layer 1 Bank = main-screen background brand color; Layer 2 Company accent (Max orange / Isracard blue / CAL purple); Layer 3 Club badge chip. **Dark mode:** background always `#141414`; brand color appears only on cards/badges/accents (never as background); HSL: reduce saturation, lightness 55–65%; use NativeWind `dark:` utilities, no manual `Platform.OS` color checks.
-- **No financial data in logs** (see §9). Add `babel-plugin-transform-remove-console` to `babel.config.js` for production before M5.
+**Core rules:** offline-first · RTL always · NativeWind active (M3 ✅) · screen→hook→engine · ₪ currency with `Intl.NumberFormat('he-IL')`.
+
+**Verdict colors:** approved `#16A34A` · warning `#D97706` · blocked `#DC2626` · wait_24h `#2563EB`.
+**Calendar risk:** safe `#DCFCE7` · tight `#FEF9C3` · danger `#FEE2E2`.
+**Glossary accent:** `#1D4ED8` (informational blue).
+
+**Open RTL issue:** `ISSUE-RTL-01` — Hebrew text displaying LTR. Deferred to standalone session. Do NOT attempt to fix inline during other tasks.
+
+**FeatureGate.tsx ✅:** `'live'` render · `'soon'` grayed+"בקרוב" · `'pro_only'` grayed+"Pro בלבד"+modal.
+
+**Committed screens (all live on device ✅):**
+PurchaseGateScreen · DecisionScreen · CardsScreen · HomeScreen · ContactScreen · CalendarScreen · LockScreen
+
+**New files committed in M3 session:**
+`usePurchaseGate.ts` · `useCashflowCalendar.ts` · `parseAmount.ts` · `contact.types.ts` · `tailwind.config.js` · `global.css` · `shims/react-native-reanimated.js`
+
+---
+
+**LockScreen redesign (LOCK-UI-01 — M3 polish):**
+Biometric [primary] + PIN [secondary] both visible. OTP = FeatureGate `'soon'`. Bank theme Layer 1 as background. No keyVault changes.
+
+**Language (LANG-01 — M3 polish):**
+`expo-localization` on first launch. Default Hebrew. Settings picker: 4 options. English = LTR → restart dialog. `app:language_preference` in MMKV.
+
+**Existing Installments Import (INSTALL-IMPORT-01 — M3 polish):**
+`InstallmentImportScreen` — merchantName, originalAmount, numMonths, monthsPaid, monthlyPayment, billingCardId, billingDay. `source: 'imported'`. Reflected immediately in cashflowRadar.
+
+**Multi-Profile (PROFILE-01/02 — M3 polish):** `useProfileStore` · MMKV namespace `profile_{id}:*` · max 5 · ProfileSwitcher component · active ID in `app:active_profile_id`.
+
+**Multi-User on Device (MULTI-USER-01 — M3 polish):** each profile = own PIN verifier in keyVault. LockScreen profile selector when >1 profile.
+
+**Glossary Screen (GLOSSARY-01 — M3 polish, Feature 25):**
+Static informational screen. No engine. Entry from Settings.
+Terms: ריבית פריים · ריבית נומינלית · ריבית אפקטיבית · מחשבון שפיצר · עמלת המרה · חזרת חיוב · מסגרת אשראי · קרדיט · מינוס.
+Each term: title + 2-3 sentence plain Hebrew explanation + "כיצד זה משפיע עליי?" button → opens example with user's own numbers.
+
+**Card Detail Screen (CARD-DETAIL-01 — M4, Feature 22):**
+Tapping a card in CardsScreen opens `CardDetailScreen`. Shows:
+- Card info: issuer, club, last-4, billing date, credit limit
+- Financial rates (from `CardRates` — auto-filled from `card_rates.json` or manual):
+  ריבית קרדיט · ריבית תשלומים · ריבית הלוואה · עמלת המרה · דמי כרטיס
+- Disclaimer: `"המידע מוצג לנוחות — בדוק מול חברת הכרטיסים לוידוא. עודכן: [lastUpdated]"`
+- Discount section (Feature 27): current fee, discount %, effective fee, expiry date
+- Edit button for all rate fields (manual override)
+- Foreign account section: toggle `hasForeignCurrencyAccount` + currency + bankFxCommission
+- Link to InterestCalculatorScreen
+
+**Discount Reminder (DISCOUNT-REMINDER-01 — M4, Feature 27):**
+- If `discountEndDate` known: local push notification 30 days before + 7 days before + on expiry
+- If `discountEndDate` unknown + `cardIssuanceDate` known: annual reminder on anniversary (month 11)
+- Global annual reminder every January 1: "בדוק את ההנחות על דמי הכרטיסים שלך"
+- Manual entry UI in CardDetailScreen: discount %, end date, or "לא ידוע — תזכר שנתי"
+- Uses `expo-notifications` (local only — no server)
+- Notification text: `"הנחת דמי הכרטיס של [cardName] מסתיימת בעוד חודש — שקול להתקשר לחברת הכרטיסים"`
+
+**FX Card Recommendation (FX-RECOMMEND-01 — M4, Feature 23):**
+Extension of `cardRoleEngine.recommendCard` when `isInternational=true`:
+- Rank cards by `foreignExchangeCommission` (lowest first)
+- If `hasForeignCurrencyAccount=true` AND matching currency → commission = 0 → rank first
+- If `hasForeignCurrencyAccount=true` AND different currency → use `bankFxCommission`
+- Display comparison on DecisionScreen (international mode): all user cards with their commissions
+- Only shown when user has ≥2 cards with `cardRates` defined
+
+**Interest Calculator Screen (INTEREST-CALC-UI-01 — M4, Features 24 + 24.2):**
+Two tabs: "ריבית תשלומים" + "הלוואה מהכרטיס"
+Inputs: amount, months, interest rate (pre-filled from active card's CardRates)
+Output: total interest, monthly payment, total cost, full amortization table (שפיצר)
+Card selector: if user has multiple cards, shows rates per card for comparison
+Disclaimer: "לצורך הדגמה בלבד — לא ייעוץ פיננסי"
+
+**Dark Mode (UI-DARKMODE-01 — M3 polish):** bg `#141414` · brand on badges/cards only · NativeWind `dark:` utilities only.
+
+**3-Layer Bank Theming (UI-THEME-01 — M3 polish):**
+Layer 1: bank bg (לאומי=blue, הפועלים=red, דיסקונט=purple, מזרחי=orange, אחר=neutral)
+Layer 2: company accent (Max=`#FF6B00`, Isracard=`#0057B7`, CAL=`#6B21A8`)
+Layer 3: club badge chip on card components
+
+**Onboarding (ONBOARD-IMPROVE-01 — M3 polish):** top 4 banks + expandable 12-bank list.
+
+**No financial data in logs.** `babel-plugin-transform-remove-console` before M5.
 
 ---
 
 ## 9. Security Constraints (Hard Rules — Non-Negotiable)
 
-Source of truth: `docs/SEC-CONTRACT-001.md`. The invariant the whole module defends: *without a fresh biometric or PIN success this session, the only thing on disk is ciphertext, and the key that decrypts it is not retrievable.*
+Source of truth: `docs/SEC-CONTRACT-001.md`.
 
-**Acceptance Criteria — AC-1 … AC-8 (must all pass for STORE-01 / AUTH-01 / any financial merge):**
-- **AC-1** With the app locked, the on-disk MMKV file is ciphertext; no plaintext balance/income/last-4 recoverable.
-- **AC-2** Keychain item carries auth-required + this-device-only flags on **both** iOS and Android.
-- **AC-3** No DEK, key bytes, salt, or PIN appears in any `console.*`, Sentry breadcrumb, or persisted store.
-- **AC-4** Deep link / cold start into a financial route lands on `LOCKED` and forces auth.
-- **AC-5** Switching biometric↔PIN does not reset the failure counter; the lockout schedule fires; the terminal action works.
-- **AC-6** PIN verification uses Argon2id with recorded params; grep finds no MD5/SHA1/plain-SHA256 on the PIN.
-- **AC-7** Background > 5 min wipes the in-memory DEK (post-timeout read fails until re-auth) and the app-switcher snapshot is blurred.
-- **AC-8** No hardcoded key/seed in source; `keySchemeVersion` + `kdfVersion` present.
+**AC-1…AC-8 (all passing ✅):** ciphertext at rest · auth-required keychain · no keys in logs · deep link → LOCKED · shared lockout counter · Argon2id PIN · 5-min auto-lock DEK wipe · no hardcoded keys.
 
-**Navigation binding — BIND-1 … BIND-4 (verbatim, permanent):**
-- **BIND-1** Auth success MUST be the trigger that unwraps the DEK. No path may reach `UNLOCKED` (DEK in memory, navigator mounted) without it.
-- **BIND-2** Financial screens MUST mount only inside the authenticated navigator. Per-screen `useEffect` auth checks are MUST NOT as the sole gate. (Hidden-but-mounted is not acceptable — verify at the component-tree level.)
-- **BIND-3** Cold start via deep link or OS state-restoration MUST route to `LOCKED` and force auth before the authenticated navigator mounts.
-- **BIND-4** There MUST be no app state in which the navigator is mounted but the DEK is absent (and vice versa) — they transition together.
+**BIND-1…BIND-4 (✅ structurally in place):** auth before navigation · financial tabs inside AuthenticatedNavigator only · cold start always LOCKED · DEK and navigator transition together.
 
-**PIN hardening — PIN-1 … PIN-7 (verbatim):**
-- **PIN-1** The PIN MUST NOT be stored in any form comparable in plaintext. Store only a verifier, or use the PIN solely to unwrap key access via a slow KDF.
-- **PIN-2** KDF MUST be Argon2id (scrypt acceptable, documented). MUST NOT be MD5/SHA1/plain-SHA256.
-- **PIN-3** Argon2id params tuned to ~250–500 ms on a mid-range device. Record params + `kdfVersion`.
-- **PIN-4** Salt MUST be a per-install 16-byte CSPRNG value stored in the keychain (not bundled, not hardcoded).
-- **PIN-5** Lockout MUST apply escalating backoff. The biometric and PIN paths share ONE counter — switching methods MUST NOT reset the count.
-- **PIN-6** A terminal action MUST be defined and implemented after the final threshold (wipe local financial data OR enter extended lock).
-- **PIN-7** The PIN MUST NOT unlock anything the biometric can't — equal scope, no backdoor.
+**PIN-1…PIN-7 (✅ implemented):** no plaintext PIN · Argon2id KDF · per-install salt · shared lockout counter · terminal action defined.
 
-**Implemented crypto (ground truth from committed code):** DEK = 256-bit CSPRNG → hardware keychain (`expo-secure-store`, auth-required, this-device-only) → retrieved memory-only per session. PIN KDF = **Argon2id via `@noble/hashes`** (pure JS); implemented params `t=2, m=19456 KiB, p=1`, `KDF_VERSION=2`; PIN envelope = **AES-256-GCM via `@noble/ciphers`**; pepper = 16-byte CSPRNG in keychain (device-bound). Contract minimum is `t=3, m=65536` — a calibration spike against a real mid-range Android device is an OPEN MEDIUM item; do not silently lower below contract without re-ratifying SEC-CONTRACT-001. The MMKV encryptionKey is derived at runtime from the DEK — never a string literal.
+**HIGH-01 (✅ FIXED):** lockout backoff = `Math.min(monotonicDelta, wallClockDelta)`. Session timeout = `Math.max`. Do not conflate.
 
-**Lockout schedule (single counter, owned by keyVault):** 1–4 no delay · 5 → 30s · 6 → 1min · 7 → 5min · 8 → 15min · 9 → 1h · 10 → terminal action.
+**HIGH-02:** app-switcher blur — deferred to M5.
 
-**🚫 HIGH-01 — lockout backoff clock (still open; known bug — apply verbatim):** the backoff elapsed-time aggregation MUST use `Math.min`, NOT `Math.max`. `Math.max` was wrongly applied and blocks AUTH-01 merge.
-```ts
-const elapsed = Math.min(monotonicDelta, wallClockDelta); // backoff: trust the shorter reading
-const clampedElapsed = Math.max(0, elapsed);              // clamp for monotonic resets
-```
-Rationale: for *backoff*, an attacker wants to inflate elapsed time to expire the lockout early; `Math.min` trusts the shorter reading (only one clock can be inflated at a time). **Session timeout is the opposite** — it correctly uses `Math.max` (lock at the shorter elapsed = fail-safe). These are two separate aggregations with opposite correct directions; do not conflate them.
+**Terminal action (ratified):** recoverable extended lock + biometric recovery. `security:terminal_locked_until` in MMKV. No unconditional wipe.
 
-**RATIFIED terminal action (resolves the project's "PIN-7" terminal-action item + HIGH-REC-01):** the terminal tier is a **rate-limited but recoverable extended lock**, with **biometric as the recovery path** — not an unconditional data wipe. Persist the terminal lockout via a **wall-clock timestamp** in MMKV under key `security:terminal_locked_until` (so a monotonic-clock reset on app restart cannot strand the user permanently), and **exempt biometric from terminal-tier checks** so the user can always recover via biometric. Do not implement an unrecoverable wipe as the default.
+**Logging:** NEVER log balance, income, cardNumber, userId, MMKV values, DEK, salt, PIN.
 
-**Logging — NEVER allowed in `console.*` (or Sentry breadcrumbs):** `balance`, `income`, `cardNumber`, `userId`, any MMKV value, DEK/key bytes, salt, or PIN. Dev-only structural logs (`'[onboarding] step completed'`) are tolerable but stripped in production. There are leftover diagnostic `console.log` lines in `src/navigation/authContext.tsx` — remove them.
+**Storage:** keyVault.ts = only MMKV crypto source. Card numbers = last-4 only. Profile namespaces encrypted via same DEK. CardRates and CardFeeInfo stored in profile namespace — not in logs.
 
-**Storage:** `keyVault.ts` is the only source of MMKV keys/encryption. Card numbers are stored as **last-4-digits only** — never the full PAN. `keyVault.initializeOnFirstLaunch()` MUST be called in `App.tsx` before `<AuthProvider>` (currently a workaround lives in `debugUnlock` — move it).
+**Input validation:** monetary ₪0.01–₪999,999 · interest rates 0–30% (legal max) · loan months 1–360 · discount 0–100% · FX commission 0–10%.
 
-**Input validation (enforce on every financial input):** monetary numeric only, **₪0.01–₪999,999**; percentages 0–100; card billing date 1–31; month/year validated against the real calendar; Hebrew/Arabic text inputs checked for script injection.
-
-**M2 auto-BLOCK conditions (any one = immediate block):** `fetch()`/`axios` inside `/src/engines/` (CRITICAL) · financial screen added outside `AuthenticatedNavigator` (CRITICAL) · network response stored to MMKV without a DEK retrieved from keyVault (CRITICAL) · MMKV key built from user input (HIGH) · `console.log` with balance/income/cardNumber/userId (HIGH) · monetary input without the validation contract (HIGH) · benefits JSON downloaded without checksum verification (HIGH).
-
-**Confirmed passing (do not regress):** BIND-1..4 structurally in place; PIN-1 no plaintext PIN; single lockout counter in keyVault; session timeout `Math.max` correct; `initializeOnFirstLaunch()` ordering verified in App.tsx code review. **Deferred to before M5:** HIGH-02 app-switcher privacy blur (app-shell scope). **Out of scope here:** Supabase RLS, JWT-in-keychain, cert pinning (Phase 4+ separate contract).
+**M4 auto-BLOCK conditions:** `fetch()`/`axios` in `/src/engines/` · financial screen outside AuthenticatedNavigator · MMKV key from user input · `console.log` with financial data · interest rate input without 0–30% bound validation.
 
 ---
 
 ## 10. Known Errors & Permanent Fixes
 
-**Environment (run the pre-build checklist every session):**
-1. `node --version` → must be v20.x (v24 BANNED with SDK 52).
-2. Ghost `package.json`: `Get-ChildItem C:\Users\ebrah\package.json` → must NOT exist (a stale SDK-56 file there hijacks npm root). Delete it before every `npm install`.
-3. `Get-Location` → must be the project root before `git init`/installs.
-4. `Test-Path node_modules` → if False, run `npm install` **before** any `npx expo` command (reverse order → `expo-module-gradle-plugin not found`).
-5. `newArchEnabled=true` in `android/gradle.properties` (required by MMKV 3.3.3).
-6. `npx tsc --noEmit` → zero errors.
-7. `npx expo-doctor` → all checks pass (the **only** authority on SDK-52-compatible versions; never `npm install <pkg>@latest`, use `npx expo install`).
-8. `adb devices` → Samsung S928B listed.
+**Pre-build checklist (every session):**
+1. `node --version` → v20.x
+2. `Get-ChildItem C:\Users\ebrah\package.json` → must NOT exist
+3. `Get-Location` → project root
+4. `Test-Path node_modules` → if False, `npm install` first
+5. `newArchEnabled=true` in `android/gradle.properties`
+6. `npx tsc --noEmit` → 0 errors
+7. `npx expo-doctor` → all pass
+8. `adb devices` → Samsung S928B listed
 
-**Documented errors and their exact fixes:**
-- **BufferSource TS error** (`Uint8Array<ArrayBufferLike>` not assignable) in keyVault `sha256` (TS 5.7+ generic on typed arrays) → wrap the value in `new Uint8Array(data)` before passing.
-- **`adb not recognized`** → add `%LOCALAPPDATA%\Android\Sdk\platform-tools` to PATH.
-- **Metro `EACCES /var/run/docker.sock`** → stop Docker Desktop (or `npx expo start --clear` after restarting the terminal).
-- **`expo-module-gradle-plugin not found`** → `npm install` first to restore local `expo`, then `npx expo run:android`.
-- **Node v24 crash** → `nvm use 20.20.2`.
-- **MMKV compile fail (New Arch required)** → set `newArchEnabled=true` + clean build.
-- **Unlock not responding** → `keyVault.initializeOnFirstLaunch()` was missing before mount; move it to `App.tsx` before `<AuthProvider>` (architectural fix still pending).
-- **UTF-16 corruption** (`ÿþ`/`\x00` prefixes from PowerShell `WriteAllText`/`Set-Content`) → re-save UTF-8 in VS Code or `git checkout`; always `git commit` before any batch file operation; avoid PowerShell `WriteAllText` without `-Encoding UTF8`.
-- **SDK 54 peer conflicts** (React 19 vs RN 0.76) → stay on SDK 52; use `npx expo install`, not `@latest`.
-- **Argon2id native build failure** (`react-native-argon2` incompatible with managed workflow) → use `@noble/hashes` (pure JS). (An earlier interim used PBKDF2 100k via expo-crypto; the @noble/hashes Argon2id path is the current state.)
-- **Ghost `package.json`** → see env step 2.
-- **Copilot Chat extension corruption** → delete `%USERPROFILE%\.vscode\extensions\github.copilot-chat-*` and reinstall from Marketplace.
-
-**Permanent rules:** Node 20 always · `npx expo run:android` (never Expo Go) · `npx expo-doctor` is the version authority · `npx expo install` for native packages · `npm install` before `npx expo` after deleting node_modules · New Arch always on · `requireAuthentication: true` needs a physical device · UTF-8 + commit before batch ops · verify working dir before `git init` · `.gitignore` (`node_modules/`, `.expo/`, `.env`, `*.keystore`, `build/`, `dist/`) before first `git add` · SDK 52 pinned.
+**Documented fixes:**
+- `Uint8Array<ArrayBufferLike>` → `new Uint8Array(data)` before passing
+- `adb not recognized` → add platform-tools to PATH
+- Metro `EACCES /docker.sock` → stop Docker Desktop
+- `expo-module-gradle-plugin not found` → `npm install` first
+- Node v24 → `nvm use 20.20.2`
+- MMKV compile fail → `newArchEnabled=true` + clean build
+- UTF-16 corruption → re-save UTF-8; avoid PowerShell WriteAllText
+- Ghost `package.json` → delete before `npm install`
+- `ISSUE-RTL-01` (open): Hebrew text displaying LTR — deferred to standalone session
 
 ---
 
 ## 11. Finalized Decisions (Do Not Re-Open)
 
-**✅ Ratified — treat as inviolable:** pre-purchase decision tool (not a budget tracker) · FinGuard + הטבות combined in one app · manual-first, no Open Banking in MVP (2+ years minimum) · Hebrew primary + full Arabic RTL · Freemium Free / Plus ₪29 / Pro ₪49, primary conversion = "Missed Savings" screen · React Native + Expo (not Next.js PWA) · TypeScript strict · MMKV (not AsyncStorage) · Zustand (not Redux) · NativeWind v4 (deferred to M3) · Supabase Phase 4+ only · offline-first from day 1 · biometric in M1 · engines strictly separated from UI · benefits DB bundled as JSON, updated in background · 3 issuers only (Max/Isracard/CAL) · club selection cascading dropdown (Company → Card Type → מועדון) · canonical verdict union `'approved' | 'warning' | 'blocked' | 'wait_24h'` · key lifecycle CSPRNG → hardware keychain → biometric/PIN-gated → memory-only · cold start always LOCKED · PIN mandatory, set in onboarding · session 5-min background auto-lock · PIN-forgotten has NO recovery beyond local wipe by design · AuthenticatedNavigator structural gate (no per-screen checks) · `ONBOARD-01` keeps the 5-bank grid; progressive disclosure (12 banks) is `ONBOARD-IMPROVE-01` in M3 · terminal action = recoverable extended lock with biometric recovery (see §9).
+**✅ Core (ratified):**
+Pre-purchase decision tool · FinGuard+הטבות combined · manual-first · Hebrew primary+Arabic RTL · Freemium ₪29/₪49 · React Native+Expo SDK 52 · TypeScript strict · MMKV+Zustand · NativeWind v4 (active M3) · Supabase Phase 4+ · offline-first · engines separated · benefits DB bundled JSON · 3 issuers only · verdict union `'approved'|'warning'|'blocked'|'wait_24h'` · DEK→keychain→biometric/PIN→memory-only · cold start LOCKED · AuthenticatedNavigator structural gate · terminal = recoverable extended lock + biometric recovery · PROD-INSTALL-01: 35%=Warning.
 
-**❌ Rejected — do NOT propose:** budget-tracker framing · separate apps for FinGuard vs benefits · Open Banking in MVP · Redux/MobX/AsyncStorage/axios/moment · dropdown for bank selection (too cold) · full 12-bank grid (cluttered) · storing full PAN · AI/LLM consultation (Phase 5) · ticket/admin systems (need scale) · points gamification (Phase 5) · OCR/PDF upload (Phase 6) · family/couple mode (later) · legacy verdict union `'approve' | 'warn' | 'block'` · unconditional data-wipe as the default terminal action · OTP required for normal use (breaks offline-first).
+**✅ Multi-account + users (June 26):** max 5 profiles/device · MMKV namespace `profile_{id}:*` · single DEK · multiple users = separate AppProfile with own PIN verifier · QR profile share (local, M4) · shared account Phase 4.
 
-**Open product items that can block code:** Argon2id param calibration vs contract minimum (MEDIUM); HIGH-02 app-switcher blur (before M5); COND-A MMKV KDF ~112-bit entropy (MEDIUM); COND-B pepper integration verification (MEDIUM).
+**✅ Language (June 26):** auto-detect device locale · Hebrew default · LTR English = restart dialog · Settings picker: device/he/ar/en.
 
-**Conflict Hierarchy (when sources disagree):** (1) finalized decisions · (2) `SEC-CONTRACT-001.md` · (3) the four status summaries / this file's stated current state · (4) project history (committed code) · (5) build plan · (6) original agent prompts. Higher wins.
+**✅ Loans + Mortgage (June 26):** Loan type M4 · mortgage simplified (no מסלולים) · loan refinancing alerts = Phase 5, informational only (not financial advice per חוק הייעוץ הפיננסי 2005).
+
+**✅ Card rates + discount (June 27):**
+- `card_rates.json` built by Agent 2 with rates per issuer/club — auto-fill + user editable
+- Disclaimer mandatory: "בדוק מול חברת הכרטיסים. עודכן: [date]"
+- Interest calculator uses שפיצר method (fixed payment, decreasing interest)
+- Interest rate input validated: 0–30% (Israeli legal max)
+- `CardFeeInfo.discountEndDate` triggers local push notification reminder
+- Annual reminder on card anniversary if no known end date
+- מט"ח account: `hasForeignCurrencyAccount=true` → use `bankFxCommission` instead of issuer FX rate
+- FX card recommendation shown on DecisionScreen only when ≥2 cards with rates defined
+
+**✅ Feature 25 — Glossary (June 27):** static informational screen · not financial advice · "כיצד זה משפיע עליי?" per term uses user's own numbers.
+
+**✅ Feature 26 — Document parser (June 27):** deferred to Phase 5 pending sample document evaluation · if PDF is machine-readable → feasible · OCR adds Phase 6 complexity.
+
+**✅ Feature 27 base (June 27):** discount reminder system in M4 · `expo-notifications` local only · notification 30 days + 7 days + on expiry if date known · annual anniversary reminder if date unknown.
+
+**❌ Rejected:** budget-tracker · Open Banking · Redux/MobX/AsyncStorage/axios · full PAN storage · AI consultation before Phase 5 · unconditional wipe · OTP before Phase 4 · SMS OTP before Phase 5 · mortgage מסלולים in MVP · loan recommendations as binding advice · language picker on first launch · real-time shared account before Phase 4 · >5 profiles/device in MVP · financial advice (not compliant with חוק הייעוץ הפיננסי).
+
+**Conflict Hierarchy:** (1) finalized decisions · (2) SEC-CONTRACT-001 · (3) this file's current state · (4) project history · (5) build plan · (6) original agent prompts.
 
 ---
 
 ## 12. Current Build Status
 
-- **M0 — Setup + Types:** ✅ COMPLETE. All 8 type files compile, zero TS errors (`3cae95a`, `TYPES-04`).
-- **M1 — App Skeleton (~80%):**
-  - `NAV-01` AuthGate + Tab + 5 screens ✅ (`6297b76`)
-  - `NAV-02` per-tab stacks ✅ (`2863b76`)
-  - `SEC-IMPL-01` keyVault.ts ✅ (`1c9a40b`, approved with conditions)
-  - `AUTH-01` biometric + PIN ✅ committed (`40ffa33`) — but **🚫 HIGH-01 (`Math.min`) re-fix still required before this counts as merge-clean**
-  - `STORE-01` useUserStore ✅ · `STORE-02` useCardsStore ✅ (`65f6a5b`)
-  - `ONBOARD-01` ⚠️ Steps 1+2+3 ✅, **Step 4 ❌ stub**; `pending_card` migration + `onboarding_complete` MMKV-instance fix outstanding
-  - `FEATURE-01` FeatureGate.tsx + useFeatureFlag.ts ❌ not started
-- **M2 — Core Engines:** ❌ not started. Scope: the 4 engines (cardRole, purchaseGate, installmentGate, cashflowRadar) + Jest, `npx jest` 100%, zero network in engines, Agent-5-style security review.
-- **M3+ — deferred, do NOT implement now:** M3 = 7 screens + NativeWind (`UI-07`) + theming/dark mode + ContactScreen + ONBOARD-IMPROVE-01. M4 = benefits engine/DB + feature unlocks. M5 = Supabase auth + paywall + EAS. Phase 4 = OTP + cloud sync. Phase 5/6 = AI, OCR, PDF.
+- **M0 — Setup + Types:** ✅ COMPLETE (`3cae95a`)
+- **M1 — App Skeleton:** ✅ COMPLETE (all tasks, HIGH-01 fixed, Agent 5 approved)
+- **M2 — Core Engines:** ✅ COMPLETE — 139 tests, 98.4% statements, 95.58% branches (`406531a`, `2ff1381`). Agent 5 APPROVED. Agent 1 VALIDATED (3 fixes: income-% model, חזרת חיוב formula, cashflowRadar functions).
+- **M3 — UI + NativeWind:** ✅ COMPLETE — all 7 screens live on device. Agent 5 APPROVED (COND-M3-01..04 all resolved). Gate commit pending (`git commit --allow-empty`). `ISSUE-RTL-01` carried forward to standalone session.
+  - Files committed: usePurchaseGate.ts · useCashflowCalendar.ts · parseAmount.ts · contact.types.ts · tailwind.config.js · global.css · shims/react-native-reanimated.js
+- **M3 Polish** — ❌ not started. Scope: UI-THEME-01 · UI-DARKMODE-01 · LANG-01 · LOCK-UI-01 · INSTALL-IMPORT-01 · GLOSSARY-01 · PROFILE-01 · PROFILE-02 · MULTI-USER-01 · ONBOARD-IMPROVE-01
+- **M4 — Full scope:** ❌ not started. Scope: loanEngine · LoansScreen · card_rates.json · CardDetailScreen · interestCalculator · DiscountReminder · FX recommendation · benefitsMatcher · BenefitsScreen · QR share.
+- **M5 — Beta Release:** ❌ not started.
+- **Phase 4 (post-Beta):** Email OTP · shared account real-time.
+- **Phase 5:** Document parser · loan alerts · SMS OTP · AI.
 
 ---
 
 ## 13. Task Queue (Work in This Order)
 
-Pick the first task that is not ✅ and whose blockers are clear. Do not start a BLOCKED task.
+Pick the first task not ✅ and whose blockers are clear.
 
-1. **HIGH-01 re-fix** — `/src/security/keyVault.ts`. Replace the `Math.max` backoff aggregation with the `Math.min` form in §9 (+ zero clamp). AC: lockout cannot be expired early by advancing either clock; session-timeout `Math.max` left untouched. *Blocks AUTH-01 merge-clean.*
-2. **AUTH cleanup** — `src/navigation/authContext.tsx`. Remove diagnostic `console.log`s; implement the `pending_card` migration TODO in `debugUnlock`. AC: no financial-field logs; pending card migrates to encrypted storage on first unlock.
-3. **initializeOnFirstLaunch move** — `App.tsx`. Call `keyVault.initializeOnFirstLaunch()` before `<AuthProvider>`; remove the workaround. AC: cold-start unlock works without the debug workaround.
-4. **ONBOARD-01 Step 4** — `src/screens/onboarding/OnboardingScreen.tsx`. Optional phone field; always-enabled "סיום"; wire `isOnboardingComplete` to `useUserStore`; AuthGate handoff (authenticated & `!isOnboardingComplete` → Onboarding). Fix `onboarding_complete` to use `onboardingStorage`, not a fresh `new MMKV()`. AC: full 4-step flow end-to-end on device; flag persists.
-5. **FEATURE-01** — `src/components/FeatureGate.tsx` + `src/hooks/useFeatureFlag.ts`. Badge overlay per `INITIAL_FEATURE_STATUS`; `useFeatureFlag(featureId)` returns the config (lookup only). AC: `'soon'`→"בקרוב", `'pro_only'`→"Pro בלבד", `'live'`→passthrough. *Completes M1.*
-6. **M1 completion check** — `npx tsc --noEmit` zero errors; manual cold-launch → biometric → onboarding → Home. `git commit -m "feat: M1 complete"`.
-7. **ENGINE-01** `cardRoleEngine.ts` (+ verdict-union canonicalization in `decision.types.ts` if not already done) → **TEST-01** (incl. חו"ל + unknownClub).
-8. **ENGINE-02** `purchaseGate.ts` (isInternational exchange-fee branch) → **TEST-02**.
-9. **ENGINE-03** `installmentGate.ts` (+ TEST).
-10. **ENGINE-04** `cashflowRadar.ts` (4 functions) → **TEST-03**. Then `npx jest --coverage` (target 90%+) and a full offline-first/security self-audit of all engines. *Completes M2.*
+### M3 GATE (immediate)
+1. **M3 gate commit** — `git commit --allow-empty -m "feat: M3 complete — UI + NativeWind (COND-M3-01..04 resolved)"`. `ISSUE-RTL-01` carried forward. *Unblocks M3 polish.*
 
-### M3 Task Definitions
+### M3 POLISH (after task #1)
+2. **UI-THEME-01** — `src/hooks/useTheme.ts` (new) + all 7 screens. Done when: bank color changes on profile switch; company accent on CardsScreen; Layer 1 on LockScreen; tsc clean.
+3. **UI-DARKMODE-01** — all 7 screens, NativeWind `dark:` utilities. Done when: dark mode toggle works; bg=`#141414`; brand on badges only; tsc clean.
+4. **LANG-01** — `src/utils/languageService.ts` + `src/i18n/en.ts` + `src/store/keys.ts` + App.tsx + SettingsScreen. Done when: first launch sets language from device; 4-option Settings picker; English triggers restart dialog; tsc clean.
+5. **GLOSSARY-01** — `src/screens/GlossaryScreen.tsx` + navigation entry in SettingsScreen. Done when: 9+ terms with Hebrew explanations; "כיצד זה משפיע עליי?" opens example with user numbers; tsc clean. *Static — no engine.*
+6. **LOCK-UI-01** — `src/screens/LockScreen.tsx` redesign. Done when: biometric+PIN visible; OTP as FeatureGate `'soon'`; bank theme applied; no keyVault changes; tsc clean.
+7. **INSTALL-IMPORT-01** — `src/screens/InstallmentImportScreen.tsx` + route + Settings entry. Done when: saves with `source:'imported'`; reflected in cashflowRadar; tsc clean.
+8. **PROFILE-01** — `src/types/profile.types.ts` + `src/store/useProfileStore.ts` + `keys.ts`. Done when: CRUD works; MMKV namespace isolated; max 5 enforced; jest tests; tsc clean.
+9. **PROFILE-02** — `src/components/ProfileSwitcher.tsx` + SettingsScreen + HomeScreen. Done when: switch profile updates all data; add profile → onboarding; tsc clean.
+10. **MULTI-USER-01** — `keyVault.ts` (per-profile PIN verifier) + LockScreen (profile selector). Done when: each profile has independent PIN; selector shown when >1 profile; tsc clean.
+11. **ONBOARD-IMPROVE-01** — `OnboardingScreen.tsx`. Done when: top 4 banks + expandable full 12-bank list; tsc clean.
+12. **M3 polish close** — `npx tsc --noEmit` + device test all screens + Agent 5 M3 polish gate + `git commit -m "feat: M3 polish complete"`.
 
-1. **UI-01: Purchase Gate Screen + Hook**
-   - Files affected: `src/screens/PurchaseGateScreen.tsx`, `src/hooks/usePurchaseGate.ts`.
-   - Dependencies: `ENGINE-02` (`src/engines/purchaseGate.ts`) complete.
-   - Done when: the screen renders inside the authenticated navigator; the top toggle switches between domestic and international purchase modes; the hook calls `evaluatePurchase()` with typed inputs including `isInternational`; verdicts `approved`, `warning`, `blocked`, and `wait_24h` render with the canonical colors; international purchases with available exchange-fee data show a warning banner; layout is RTL and uses `StyleSheet.create`; `npx tsc --noEmit` exits 0.
+### M4 (after task #12)
+13. **LOAN-TYPES-01** — `src/types/loan.types.ts`. Done when: LoanType, Loan, LoanSummary, LoanImpact, LoanDecision all defined; tsc clean.
+14. **LOAN-ENGINE-01** — `src/engines/loanEngine.ts` + `__tests__/loanEngine.test.ts`. Done when: calculateLoanSummary + calculateLoanImpact; 10+ jest cases (mortgage type, zero balance, 360 months, zero income, rentalIncome offset); jest 100%; tsc clean; zero RN imports.
+15. **LOAN-UI-01** — `src/screens/LoansScreen.tsx` + `src/store/useLoansStore.ts`. Done when: personal+mortgage tabs; CRUD; feeds cashflowRadar; monetary input validated; tsc clean.
+16. **CARD-RATES-TYPES-01** — extend `src/types/card.types.ts` with `CardRates`, `CardFeeInfo`. Add `hasForeignCurrencyAccount`, `bankFxCommission`, `cardIssuanceDate` to CardInput. Add `src/types/interest.types.ts`. Done when: all new types defined; tsc clean.
+17. **FX-CARD-01** — extend `cardRoleEngine.ts` logic for `hasForeignCurrencyAccount` + `bankFxCommission`. Done when: מט"ח card with matching currency → commission 0 → ranked first; different currency → bankFxCommission used; existing tests still pass; new FX cases added; jest 100%.
+18. **CARD-DETAIL-01** — `src/screens/CardDetailScreen.tsx` (Feature 22). Done when: all CardRates fields displayed + editable; disclaimer shown with lastUpdated; CardFeeInfo section visible; link to InterestCalc; tsc clean.
+19. **CARD-RATES-DB-01** — `src/data/card_rates.json` *(Agent 2 task — research Max/Isracard/CAL rates per club)*. Done when: JSON covers main clubs for all 3 issuers; rates + fees + FX commissions included; `lastUpdated` timestamp present.
+20. **DISCOUNT-REMINDER-01** — `CardDetailScreen.tsx` (discount fields) + `src/utils/discountReminder.ts` (notification scheduler). Done when: discount fields in CardDetail; `expo-notifications` schedules 30d+7d+expiry notifications; annual anniversary fallback; manual entry UI works; tsc clean.
+21. **INTEREST-ENGINE-01** — `src/engines/interestCalculator.ts` + `__tests__/interestCalculator.test.ts`. Done when: calculateInstallmentInterest + calculateCardLoan (שפיצר); 10+ jest cases (0%, max 30%, 1 month, 360 months, zero amount → blocked); jest 100%; tsc clean; zero RN imports.
+22. **INTEREST-CALC-UI-01** — `src/screens/InterestCalculatorScreen.tsx` (Features 24+24.2). Done when: two tabs; card selector pre-fills rates; amortization table displayed; disclaimer shown; tsc clean.
+23. **DATA-01** — `src/data/max_benefits.json` *(Agent 2 — research Max clubs)*.
+24. **DATA-02** — `src/data/isracard_benefits.json` *(Agent 2)*.
+25. **DATA-03** — `src/data/cal_benefits.json` *(Agent 2)*.
+26. **ENGINE-05** — `src/engines/benefitsMatcher.ts` + tests. Done when: findBestCard + calculateMissedSavings; jest 100%; zero network; tsc clean.
+27. **BENEFITS-UI-01** — BenefitsScreen + SavingsTracker (FeatureGate → `'live'`). Done when: renders with real benefitsDB; tsc clean.
+28. **QR-SHARE-01** — `src/screens/ProfileShareScreen.tsx`. Done when: QR encodes encrypted profile; scan imports profile; no cloud; tsc clean.
+29. **M4 close** — `npx jest --coverage` (target 90%+) + `npx tsc --noEmit` + Agent 5 M4 gate + Agent 1 financial validation + `git commit -m "feat: M4 complete"`.
 
-2. **UI-02: Decision Screen**
-   - Files affected: `src/screens/DecisionScreen.tsx`.
-   - Dependencies: `UI-01` complete.
-   - Done when: the screen receives and renders the latest `PurchaseDecision`; Hebrew and Arabic reasons are supported by the data shape; blocked/warning/approved/wait_24h states render without overlap on mobile; the card score section is wrapped in `FeatureGate` and displays the "soon" locked state until M4; the "יש לך בעיה?" action navigates to `ContactScreen` or a typed stub route; `npx tsc --noEmit` exits 0.
+### M5 (after task #29)
+30. **EAS-01** — EAS build config + keystore. Done when: `eas build --platform android` succeeds.
+31. **PAYWALL-01** — paywall screen + RevenueCat (Free/Plus/Pro). Done when: FeatureGate reads subscription status; tsc clean.
+32. **LEGAL-01** — Privacy Policy HTML *(Agent 6 writes content → hosted GitHub Pages)*. Done when: URL live; linked in Play Console.
+33. **STORE-01** — Play Store submission + Data Safety form. Done when: APK uploaded; Hebrew listing; Data Safety complete.
 
-3. **UI-03: Cards Screen**
-   - Files affected: `src/screens/CardsScreen.tsx`.
-   - Dependencies: `UI-01` complete.
-   - Done when: the screen lists the user's stored cards from the existing store; empty `cards = []` renders a useful empty state; last-4 only is displayed and no full PAN field is introduced; card issuer, role, billing date, and credit utilization are visible; no financial logic is implemented in the screen; RTL layout uses `StyleSheet.create`; `npx tsc --noEmit` exits 0.
+### Phase 4 (post-Beta — do NOT implement before M5 ships)
+- **AUTH-OTP-01** — Email OTP via Supabase Auth
+- **SHARED-01** — חשבון משותף real-time sync
 
-4. **UI-04: Home Screen**
-   - Files affected: `src/screens/HomeScreen.tsx`.
-   - Dependencies: `UI-02`, `UI-03` complete.
-   - Done when: Home summarizes the current decision status, card count, and cashflow risk using existing hooks/stores only; it renders meaningful empty states when no cards or purchase decision exist; it links to Purchase Gate, Cards, Calendar, and Contact flows through typed navigation; no engine is called directly from the screen; RTL layout uses `StyleSheet.create`; `npx tsc --noEmit` exits 0.
-
-5. **UI-05: Contact Screen**
-   - Files affected: `src/screens/ContactScreen.tsx`.
-   - Dependencies: `UI-02` complete.
-   - Done when: the screen provides static offline contact data for Max, Isracard, and CAL; an issue-type selector shows phone number and "what to say" guidance; it is reachable from DecisionScreen after blocked/warning verdicts and from Settings when available; no network calls are added; RTL layout uses `StyleSheet.create`; `npx tsc --noEmit` exits 0.
-
-6. **UI-06: Calendar Screen + Cashflow Hook**
-   - Files affected: `src/screens/CalendarScreen.tsx`, `src/hooks/useCashflowCalendar.ts`.
-   - Dependencies: `ENGINE-04` (`src/engines/cashflowRadar.ts`) complete.
-   - Done when: the hook calls `getDailyProjection()`, `detectMinus()`, `getUpcomingCharges()`, `getSafeSpendingLimit()`, and `calculateMonthlyRisk()` with typed inputs; the screen renders a 30-day-or-calendar-month projection with safe/tight/danger colors; day 1 and final day render correctly; empty obligations render without crash; no financial logic is implemented in the screen; RTL layout uses `StyleSheet.create`; `npx tsc --noEmit` exits 0.
-
-7. **UI-07: NativeWind v4 Activation**
-   - Files affected: `babel.config.js`, `metro.config.js`, `tailwind.config.js`, `global.css`, `App.tsx`, `nativewind-env.d.ts`.
-   - Dependencies: `UI-01`, `UI-02`, `UI-03`, `UI-04`, `UI-05`, and `UI-06` complete.
-   - Done when: NativeWind v4 is configured for Expo SDK 52 without changing screen behavior; TypeScript recognizes NativeWind class names; existing StyleSheet screens still render; no screen is rewritten in this task; `npx tsc --noEmit` exits 0; `npx expo-doctor` has no new SDK compatibility findings.
-
-Everything M3 and later is deferred until M2 is green.
+### Phase 5
+- **DOCUMENT-PARSER-01** — PDF card document analysis (Feature 26) — pending sample document evaluation
+- **DISCOUNT-AUTO-01** — auto-extract discount info from document (Feature 27 + 26)
+- **LOAN-ADVISOR-01** — high-interest loan alerts (informational only — never financial advice)
+- **SMS-OTP-01** — SMS OTP via provider
+- **AI-CONSULT-01** — AI consultation
 
 ---
 
 ## 14. Definition of Done
 
-A task is complete only when **all** of these hold:
-- `npx tsc --noEmit` returns zero errors.
-- `npx jest` passes 100% for every engine touched (10+ mandatory cases each, incl. Israeli edge cases and the zero-income guard).
-- No `fetch()`/`axios` anywhere in `/src/engines/`; no engine imports React/RN/Expo/screens/store/security.
-- No `console.*` containing balance/income/cardNumber/userId/MMKV values/keys/salt/PIN.
-- No new financial screen outside `AuthenticatedNavigator`; BIND-1..4 intact.
-- All monetary inputs validated (numeric, ₪0.01–₪999,999).
+All of these must hold before any task is marked complete:
+- `npx tsc --noEmit` → zero errors.
+- `npx jest` → 100% for every engine touched (10+ cases each).
+- No `fetch()`/`axios` in `/src/engines/`.
+- No `console.*` with balance/income/cardNumber/userId/keys/salt/PIN/cardRates values.
+- No financial screen outside `AuthenticatedNavigator`.
+- Monetary inputs: ₪0.01–₪999,999. Interest: 0–30%. Loan months: 1–360. Discount: 0–100%.
 - No `any`, no unguarded `!`, all params/returns typed.
-- No hardcoded keys/seeds; MMKV encryptionKey comes from keyVault at runtime.
-- New persistent data uses an MMKV key constant in `/src/store/keys.ts`.
-- The PR contains no TODO left in shipped logic, no `any`, and no security violation from §9.
+- No hardcoded keys; MMKV encryptionKey from keyVault at runtime.
+- New persistent data → MMKV key constant in `keys.ts`.
+- Profile keys use `profile_{id}:` prefix — built only in useProfileStore.
+- CardRates disclaimer shown wherever rates are displayed.
+- No TODO in shipped logic. No security violation from §9.
 
-**Codex must NOT:** open PRs with TODOs in shipped logic, `any` types, or §9 security violations; make product decisions (route those to the human); upgrade Expo SDK or any pinned dependency; implement deferred M3+ work early; or implement an unrecoverable terminal wipe.
+**Codex must NOT:** open PRs with TODOs or `any` · violate §9 · make product decisions · upgrade Expo SDK · implement Phase 4/5 work early · implement unconditional data wipe · calculate mortgage מסלולים · give financial advice in loan/interest UI text.
 
 *End of AGENTS.md — start each session at §13.*

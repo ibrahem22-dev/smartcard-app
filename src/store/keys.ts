@@ -6,4 +6,5 @@
 export const MMKV_KEYS = {
   userProfile: 'user.profile',
   cards: 'cards',
+  languagePreference: 'app:language_preference',
 } as const;

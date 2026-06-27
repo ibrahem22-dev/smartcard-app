@@ -11,6 +11,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { ContactScreen } from '../../screens/ContactScreen';
+import { GlossaryScreen } from '../../screens/GlossaryScreen';
 import { SettingsScreen } from '../../screens/SettingsScreen';
 import type { SettingsStackParamList } from '../types';
 
@@ -28,6 +29,15 @@ export function SettingsStack(): React.ReactElement {
         name="Contact"
         component={ContactScreen}
         options={{ title: 'Contact' }}
+      />
+      <Stack.Screen
+        name="Glossary"
+        component={GlossaryScreen}
+        options={{
+          headerShown: true,
+          headerTitleAlign: 'center',
+          title: 'מילון פיננסי',
+        }}
       />
     </Stack.Navigator>
   );

@@ -1,18 +1,9 @@
 import React, { useState } from 'react';
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 
+import { useTheme } from '../hooks/useTheme';
+import type { IssuerContact, ProblemType } from '../types/contact.types';
 import { rtl } from '../utils/rtlStyles';
-
-type ProblemType =
-  | 'wrong_charge'
-  | 'cancel_transaction'
-  | 'charge_return'
-  | 'general_question';
-
-type IssuerContact = {
-  readonly name: string;
-  readonly phone: string;
-};
 
 const PROBLEM_OPTIONS: readonly {
   readonly id: ProblemType;
@@ -54,6 +45,7 @@ function getTelUrl(phone: string): string {
 }
 
 export function ContactScreen(): React.ReactElement {
+  const theme = useTheme();
   const [selectedProblem, setSelectedProblem] =
     useState<ProblemType>('wrong_charge');
   const script = SCRIPTS[selectedProblem];

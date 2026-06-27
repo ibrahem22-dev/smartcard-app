@@ -23,11 +23,21 @@ type Step = 1 | 2 | 3 | 4;
 
 const STEPS: readonly Step[] = [1, 2, 3, 4];
 
-const BANK_OPTIONS: readonly string[] = [
+const QUICK_BANK_OPTIONS: readonly string[] = [
   'לאומי',
   'הפועלים',
   'דיסקונט',
   'מזרחי',
+];
+
+const ADDITIONAL_BANK_OPTIONS: readonly string[] = [
+  'הבינלאומי הראשון',
+  'ירושלים',
+  'מסד',
+  'מרכנתיל דיסקונט',
+  'יהב',
+  'אגוד',
+  'One Zero',
   'אחר',
 ];
 
@@ -87,6 +97,7 @@ export default function OnboardingScreen(): React.ReactElement {
 
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [selectedBank, setSelectedBank] = useState<string | null>(null);
+  const [showAdditionalBanks, setShowAdditionalBanks] = useState(false);
   const [incomeText, setIncomeText] = useState('');
   const [balanceText, setBalanceText] = useState('');
   const [incomeError, setIncomeError] = useState<string | null>(null);
@@ -188,7 +199,7 @@ export default function OnboardingScreen(): React.ReactElement {
           className="w-full flex-row-reverse flex-wrap gap-3"
           style={rtl.row}
         >
-          {BANK_OPTIONS.map(bank => {
+          {QUICK_BANK_OPTIONS.map(bank => {
             const isSelected = selectedBank === bank;
 
             return (
@@ -206,6 +217,51 @@ export default function OnboardingScreen(): React.ReactElement {
             );
           })}
         </View>
+
+        <Pressable
+          accessibilityRole="button"
+          accessibilityState={{ expanded: showAdditionalBanks }}
+          className="mt-4 min-h-[48px] items-center justify-center rounded-lg border border-blue-300 bg-blue-50 px-4 dark:border-blue-800 dark:bg-blue-950"
+          onPress={(): void => setShowAdditionalBanks(current => !current)}
+        >
+          <Text
+            className="text-center text-base font-extrabold text-blue-700 dark:text-blue-200"
+            style={rtl.text}
+          >
+            בנקים נוספים (8)
+          </Text>
+        </Pressable>
+
+        {showAdditionalBanks ? (
+          <ScrollView
+            className="mt-3 max-h-64 w-full"
+            contentContainerStyle={{ gap: 8 }}
+            nestedScrollEnabled
+            showsVerticalScrollIndicator
+          >
+            {ADDITIONAL_BANK_OPTIONS.map(bank => {
+              const isSelected = selectedBank === bank;
+
+              return (
+                <Pressable
+                  accessibilityRole="button"
+                  accessibilityState={{ selected: isSelected }}
+                  className={`min-h-[48px] items-center justify-center rounded-lg border px-4 ${
+                    isSelected
+                      ? 'border-blue-600 bg-blue-100 dark:border-blue-400 dark:bg-blue-950'
+                      : 'border-slate-300 bg-white dark:border-neutral-700 dark:bg-neutral-900'
+                  }`}
+                  key={bank}
+                  onPress={(): void => setSelectedBank(bank)}
+                >
+                  <Text className={optionTextClassName(isSelected)} style={rtl.text}>
+                    {bank}
+                  </Text>
+                </Pressable>
+              );
+            })}
+          </ScrollView>
+        ) : null}
       </View>
     );
   }

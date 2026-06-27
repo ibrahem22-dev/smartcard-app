@@ -12,9 +12,11 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 
+import { useTheme } from '../hooks/useTheme';
 import { useAuth } from '../navigation/authContext';
 
 export function LockScreen(): React.ReactElement {
+  const theme = useTheme();
   const auth = useAuth();
 
   return (

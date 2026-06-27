@@ -8,6 +8,7 @@ import {
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { FeatureGate } from '../components/FeatureGate';
+import { useTheme } from '../hooks/useTheme';
 import type { PurchaseGateStackParamList } from '../navigation/types';
 import type { DecisionVerdict } from '../types/decision.types';
 import { rtl } from '../utils/rtlStyles';
@@ -42,6 +43,7 @@ export function DecisionScreen({
   navigation,
   route,
 }: DecisionScreenProps): React.ReactElement {
+  const theme = useTheme();
   const verdict = route.params.verdict;
 
   return (

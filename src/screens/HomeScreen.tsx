@@ -3,6 +3,7 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useNavigation, type NavigationProp } from '@react-navigation/native';
 
 import { FeatureGate } from '../components/FeatureGate';
+import { useTheme } from '../hooks/useTheme';
 import type { TabParamList } from '../navigation/types';
 import { useCardsStore } from '../store/useCardsStore';
 import { rtl } from '../utils/rtlStyles';
@@ -23,6 +24,7 @@ function getDailyTip(): string {
 }
 
 export function HomeScreen(): React.ReactElement {
+  const theme = useTheme();
   const navigation = useNavigation<NavigationProp<TabParamList>>();
   const cards = useCardsStore(state => state.cards);
   const upcomingObligationsCount = cards.length;
@@ -48,9 +50,11 @@ export function HomeScreen(): React.ReactElement {
       >
         <View className="min-h-full w-full px-5 pb-28 pt-5">
           <View className="rounded-lg bg-slate-900 p-[22px] dark:bg-neutral-900">
-            <Text className="text-right text-[34px] font-black text-white" style={rtl.text}>
+            <FeatureGate feature="SavingsTracker">
+              <Text className="text-right text-[34px] font-black text-white" style={rtl.text}>
               ₪0 נחסך
             </Text>
+            </FeatureGate>
             <Text className="mt-1.5 text-right text-[15px] text-slate-300" style={rtl.text}>
               החיסכון שלך עד עכשיו
             </Text>
@@ -102,8 +106,8 @@ export function HomeScreen(): React.ReactElement {
               >
                 בקרוב תוכלו לבדוק מראש איזה כרטיס עדיף לנסיעות ולחיובים במט"ח.
               </Text>
-            </View>
-          </FeatureGate>
+          </View>
+        </FeatureGate>
         </View>
       </ScrollView>
 

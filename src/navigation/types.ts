@@ -39,6 +39,7 @@ export type CalendarStackParamList = {
 export type SettingsStackParamList = {
   SettingsRoot: undefined;
   Contact: undefined;
+  Glossary: undefined;
 };
 
 /**

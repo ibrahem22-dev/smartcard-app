@@ -6,6 +6,7 @@ import {
   View,
 } from 'react-native';
 
+import { useTheme } from '../hooks/useTheme';
 import { useCardsStore } from '../store/useCardsStore';
 import { CardIssuer, type CardInput } from '../types/card.types';
 import { rtl } from '../utils/rtlStyles';
@@ -25,6 +26,7 @@ function getClubLabel(card: CardInput): string {
 }
 
 export function CardsScreen(): React.ReactElement {
+  const theme = useTheme();
   const cards = useCardsStore(state => state.cards);
 
   return (
