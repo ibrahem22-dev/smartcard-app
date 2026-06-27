@@ -2,6 +2,7 @@ import React, { type ReactNode } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 
 import { useFeatureFlag } from '../hooks/useFeatureFlag';
+import { useTranslation } from '../hooks/useTranslation';
 import { INITIAL_FEATURE_STATUS } from '../types/feature.types';
 import { rtl } from '../utils/rtlStyles';
 
@@ -12,6 +13,7 @@ export type FeatureGateProps = {
 
 export function FeatureGate({ feature, children }: FeatureGateProps): React.ReactElement | null {
   const status = useFeatureFlag(feature);
+  const { t } = useTranslation();
 
   if (status !== 'active' && status !== 'soon' && status !== 'pro_only') {
     return null;
@@ -21,7 +23,7 @@ export function FeatureGate({ feature, children }: FeatureGateProps): React.Reac
     return <>{children}</>;
   }
 
-  const badgeLabel = status === 'soon' ? 'בקרוב' : 'Pro בלבד';
+  const badgeLabel = status === 'soon' ? t('בקרוב') : t('Pro בלבד');
 
   return (
     <View style={styles.wrapper}>

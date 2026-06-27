@@ -1,7 +1,9 @@
-import { useEffect, useState } from 'react';
+import { useState } from 'react';
+import { I18nManager } from 'react-native';
 import { getLocales } from 'expo-localization';
+import * as Updates from 'expo-updates';
+import { MMKV } from 'react-native-mmkv';
 
-import { keyVault } from '../security/keyVault';
 import { MMKV_KEYS } from '../store/keys';
 
 export type LanguagePreference = 'device' | 'he' | 'ar' | 'en';
@@ -13,7 +15,9 @@ interface UseLanguageResult {
   readonly setLanguagePreference: (preference: LanguagePreference) => void;
 }
 
-function getDeviceLanguage(): AppLanguage {
+const preferencesStorage = new MMKV({ id: 'smartcard.preferences' });
+
+export function getDeviceLanguage(): AppLanguage {
   const locale = getLocales()[0];
   const languageCode = locale?.languageCode?.toLowerCase() ?? '';
 
@@ -32,48 +36,47 @@ function isLanguagePreference(value: string): value is LanguagePreference {
   return value === 'device' || value === 'he' || value === 'ar' || value === 'en';
 }
 
-function readInitialPreference(): {
-  readonly preference: LanguagePreference;
-  readonly shouldPersist: boolean;
-} {
-  const stored = keyVault
-    .getEncryptedStorage()
-    .getString(MMKV_KEYS.languagePreference);
+export function readLanguagePreference(): LanguagePreference {
+  const stored = preferencesStorage.getString(MMKV_KEYS.languagePreference);
 
   if (stored !== undefined && isLanguagePreference(stored)) {
-    return { preference: stored, shouldPersist: false };
+    return stored;
   }
 
-  return { preference: getDeviceLanguage(), shouldPersist: true };
+  const initialPreference = getDeviceLanguage();
+  preferencesStorage.set(MMKV_KEYS.languagePreference, initialPreference);
+  return initialPreference;
+}
+
+export function resolveLanguage(
+  preference: LanguagePreference,
+): AppLanguage {
+  return preference === 'device' ? getDeviceLanguage() : preference;
+}
+
+export function getInitialLanguage(): AppLanguage {
+  return resolveLanguage(readLanguagePreference());
 }
 
 export function useLanguage(): UseLanguageResult {
-  const [initial] = useState(readInitialPreference);
   const [languagePreference, setPreference] = useState<LanguagePreference>(
-    initial.preference,
+    readLanguagePreference,
   );
 
-  useEffect(() => {
-    if (initial.shouldPersist) {
-      keyVault
-        .getEncryptedStorage()
-        .set(MMKV_KEYS.languagePreference, initial.preference);
-    }
-  }, [initial]);
-
   function setLanguagePreference(preference: LanguagePreference): void {
-    keyVault
-      .getEncryptedStorage()
-      .set(MMKV_KEYS.languagePreference, preference);
+    const language = resolveLanguage(preference);
+    const shouldUseRtl = language === 'he' || language === 'ar';
+
+    preferencesStorage.set(MMKV_KEYS.languagePreference, preference);
     setPreference(preference);
+    I18nManager.allowRTL(shouldUseRtl);
+    I18nManager.forceRTL(shouldUseRtl);
+    void Updates.reloadAsync();
   }
 
   return {
     languagePreference,
-    language:
-      languagePreference === 'device'
-        ? getDeviceLanguage()
-        : languagePreference,
+    language: resolveLanguage(languagePreference),
     setLanguagePreference,
   };
 }

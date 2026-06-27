@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
 
 import { useTheme } from '../hooks/useTheme';
+import { useTranslation } from '../hooks/useTranslation';
 import type { IssuerContact, ProblemType } from '../types/contact.types';
 import { rtl } from '../utils/rtlStyles';
 
@@ -46,6 +47,7 @@ function getTelUrl(phone: string): string {
 
 export function ContactScreen(): React.ReactElement {
   const theme = useTheme();
+  const { t } = useTranslation();
   const [selectedProblem, setSelectedProblem] =
     useState<ProblemType>('wrong_charge');
   const script = SCRIPTS[selectedProblem];
@@ -62,9 +64,9 @@ export function ContactScreen(): React.ReactElement {
       <View className="min-h-full w-full p-5 dark:bg-app-dark">
         <Text
           className="mb-[18px] text-right text-[26px] font-extrabold text-slate-900 dark:text-white"
-          style={rtl.text}
+          style={[rtl.text, { color: theme.bankColor }]}
         >
-          צור קשר עם חברת האשראי
+          {t('צור קשר עם חברת האשראי')}
         </Text>
 
         <View
@@ -87,14 +89,14 @@ export function ContactScreen(): React.ReactElement {
                 onPress={(): void => setSelectedProblem(option.id)}
               >
                 <Text
-                  className={`text-center text-sm font-bold ${
+                  className={`text-right text-center text-sm font-bold ${
                     isSelected
                       ? 'text-blue-700 dark:text-blue-200'
                       : 'text-slate-600 dark:text-slate-200'
                   }`}
                   style={rtl.text}
                 >
-                  {option.label}
+                  {t(option.label)}
                 </Text>
               </Pressable>
             );
@@ -109,7 +111,7 @@ export function ContactScreen(): React.ReactElement {
             >
               <Text
                 className="text-right text-xl font-extrabold text-slate-900 dark:text-white"
-                style={rtl.text}
+                style={[rtl.text, { color: theme.companyAccent }]}
               >
                 {issuer.name}
               </Text>
@@ -125,19 +127,19 @@ export function ContactScreen(): React.ReactElement {
                   className="mb-1.5 text-right text-sm font-extrabold text-slate-700 dark:text-slate-100"
                   style={rtl.text}
                 >
-                  מה לומר
+                  {t('מה לומר')}
                 </Text>
                 <Text
                   className="text-right text-[15px] leading-[22px] text-slate-700 dark:text-slate-200"
                   style={rtl.text}
                 >
-                  {script[0]}
+                  {t(script[0])}
                 </Text>
                 <Text
                   className="text-right text-[15px] leading-[22px] text-slate-700 dark:text-slate-200"
                   style={rtl.text}
                 >
-                  {script[1]}
+                  {t(script[1])}
                 </Text>
               </View>
 
@@ -147,10 +149,10 @@ export function ContactScreen(): React.ReactElement {
                 onPress={(): Promise<void> => Linking.openURL(getTelUrl(issuer.phone))}
               >
                 <Text
-                  className="text-center text-[15px] font-extrabold text-white dark:text-slate-900"
+                  className="text-right text-center text-[15px] font-extrabold text-white dark:text-slate-900"
                   style={rtl.text}
                 >
-                  התקשר עכשיו
+                  {t('התקשר עכשיו')}
                 </Text>
               </Pressable>
             </View>

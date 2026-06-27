@@ -5,7 +5,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { ProfileSwitcher } from '../components/ProfileSwitcher';
 import { useLanguage, type LanguagePreference } from '../hooks/useLanguage';
 import { useTheme } from '../hooks/useTheme';
-import { en } from '../i18n/en';
+import { useTranslation } from '../hooks/useTranslation';
 import type { SettingsStackParamList } from '../navigation/types';
 import { useProfileStore } from '../store/useProfileStore';
 import type { AppProfile } from '../types/profile.types';
@@ -18,38 +18,50 @@ type SettingsScreenProps = NativeStackScreenProps<
 
 const LANGUAGE_OPTIONS: readonly {
   readonly preference: Extract<LanguagePreference, 'device' | 'he' | 'en'>;
-  readonly labelHe: string;
-  readonly labelEn: string;
+  readonly label: string;
 }[] = [
   {
     preference: 'device',
-    labelHe: 'שפת המכשיר אוטומטי',
-    labelEn: en.settings.deviceLanguage,
+    label: 'שפת המכשיר אוטומטי',
   },
   {
     preference: 'he',
-    labelHe: 'עברית',
-    labelEn: en.settings.hebrew,
+    label: 'עברית',
   },
   {
     preference: 'en',
-    labelHe: 'English',
-    labelEn: en.settings.english,
+    label: 'English',
   },
 ];
+
+function withOpacity(color: string, opacity: number): string {
+  if (/^#[0-9a-f]{6}$/i.test(color)) {
+    const alpha = Math.round(opacity * 255)
+      .toString(16)
+      .padStart(2, '0');
+    return `${color}${alpha}`;
+  }
+
+  if (color.startsWith('hsl(') && color.endsWith(')')) {
+    return `hsla(${color.slice(4, -1)}, ${opacity})`;
+  }
+
+  return color;
+}
 
 export function SettingsScreen({
   navigation,
 }: SettingsScreenProps): React.ReactElement {
   const theme = useTheme();
   const {
-    language,
     languagePreference,
     setLanguagePreference,
   } = useLanguage();
+  const { language, t } = useTranslation();
   const activeProfile = useProfileStore(state => state.activeProfile);
   const deleteProfile = useProfileStore(state => state.deleteProfile);
   const isEnglish = language === 'en';
+  const bankDividerColor = withOpacity(theme.bankColor, 0.3);
 
   function confirmDeleteProfile(profile: AppProfile): void {
     if (activeProfile?.id === profile.id) {
@@ -57,12 +69,12 @@ export function SettingsScreen({
     }
 
     Alert.alert(
-      'מחיקת פרופיל',
-      `למחוק את הפרופיל ${profile.displayName}?`,
+      t('מחיקת פרופיל'),
+      t('למחוק את הפרופיל {{name}}?', { name: profile.displayName }),
       [
-        { text: 'ביטול', style: 'cancel' },
+        { text: t('ביטול'), style: 'cancel' },
         {
-          text: 'מחיקה',
+          text: t('מחיקה'),
           style: 'destructive',
           onPress: (): void => deleteProfile(profile.id),
         },
@@ -82,12 +94,19 @@ export function SettingsScreen({
             className={`mb-[18px] text-[26px] font-extrabold text-slate-900 dark:text-white ${
               isEnglish ? 'text-left' : 'text-right'
             }`}
-            style={isEnglish ? { writingDirection: 'ltr' } : rtl.text}
+            style={[
+              isEnglish ? { writingDirection: 'ltr' } : rtl.text,
+              {
+                borderBottomColor: bankDividerColor,
+                borderBottomWidth: 1,
+              },
+            ]}
           >
-            {isEnglish ? en.settings.title : 'הגדרות'}
+            {t('הגדרות')}
           </Text>
 
           <ProfileSwitcher
+            activeBorderColor={theme.bankColor}
             mode="editor"
             onRequestDelete={confirmDeleteProfile}
           />
@@ -96,9 +115,15 @@ export function SettingsScreen({
             className={`mb-2 mt-6 text-base font-extrabold text-slate-700 dark:text-slate-200 ${
               isEnglish ? 'text-left' : 'text-right'
             }`}
-            style={isEnglish ? { writingDirection: 'ltr' } : rtl.text}
+            style={[
+              isEnglish ? { writingDirection: 'ltr' } : rtl.text,
+              {
+                borderBottomColor: bankDividerColor,
+                borderBottomWidth: 1,
+              },
+            ]}
           >
-            {isEnglish ? en.settings.languageTitle : 'שפה'}
+            {t('שפה')}
           </Text>
 
           <View accessibilityRole="radiogroup" className="mb-5 gap-2">
@@ -118,6 +143,17 @@ export function SettingsScreen({
                   onPress={(): void =>
                     setLanguagePreference(option.preference)
                   }
+                  style={
+                    isSelected
+                      ? {
+                          backgroundColor: withOpacity(
+                            theme.companyAccent,
+                            0.15,
+                          ),
+                          borderColor: theme.companyAccent,
+                        }
+                      : undefined
+                  }
                 >
                   <Text
                     className={`text-base font-extrabold ${
@@ -129,7 +165,7 @@ export function SettingsScreen({
                     }`}
                     style={isEnglish ? { writingDirection: 'ltr' } : rtl.text}
                   >
-                    {isEnglish ? option.labelEn : option.labelHe}
+                    {t(option.label)}
                   </Text>
                 </Pressable>
               );
@@ -142,10 +178,10 @@ export function SettingsScreen({
             onPress={(): void => navigation.navigate('Glossary')}
           >
             <Text
-              className="text-center text-base font-extrabold text-blue-700 dark:text-blue-200"
+              className="text-right text-center text-base font-extrabold text-blue-700 dark:text-blue-200"
               style={isEnglish ? { writingDirection: 'ltr' } : rtl.text}
             >
-              {isEnglish ? en.settings.financialGlossary : 'מילון פיננסי'}
+              {t('מילון פיננסי')}
             </Text>
           </Pressable>
 
@@ -155,12 +191,10 @@ export function SettingsScreen({
             onPress={(): void => navigation.navigate('InstallmentImport')}
           >
             <Text
-              className="text-center text-base font-extrabold text-blue-700 dark:text-blue-200"
+              className="text-right text-center text-base font-extrabold text-blue-700 dark:text-blue-200"
               style={isEnglish ? { writingDirection: 'ltr' } : rtl.text}
             >
-              {isEnglish
-                ? en.settings.importInstallments
-                : 'הוסף תשלומים קיימים'}
+              {t('הוסף תשלומים קיימים')}
             </Text>
           </Pressable>
 
@@ -170,10 +204,10 @@ export function SettingsScreen({
             onPress={(): void => navigation.navigate('Contact')}
           >
             <Text
-              className="text-center text-base font-extrabold text-white dark:text-slate-900"
+              className="text-right text-center text-base font-extrabold text-white dark:text-slate-900"
               style={isEnglish ? { writingDirection: 'ltr' } : rtl.text}
             >
-              {isEnglish ? en.settings.contactIssuer : 'צור קשר עם חברת האשראי'}
+              {t('צור קשר עם חברת האשראי')}
             </Text>
           </Pressable>
         </View>

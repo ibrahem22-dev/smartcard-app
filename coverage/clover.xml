@@ -1,136 +1,28 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<coverage generated="1782559689879" clover="3.2.0">
-  <project timestamp="1782559689879" name="All files">
-    <metrics statements="124" coveredstatements="122" conditionals="68" coveredconditionals="65" methods="18" coveredmethods="18" elements="210" coveredelements="205" complexity="0" loc="124" ncloc="124" packages="1" files="2" classes="2"/>
-    <file name="cardRoleEngine.ts" path="C:\Users\ebrah\SmartCard\src\engines\cardRoleEngine.ts">
-      <metrics statements="73" coveredstatements="73" conditionals="38" coveredconditionals="37" methods="10" coveredmethods="10"/>
-      <line num="1" count="2" type="stmt"/>
-      <line num="6" count="2" type="stmt"/>
-      <line num="9" count="2" type="stmt"/>
-      <line num="10" count="2" type="stmt"/>
-      <line num="11" count="2" type="stmt"/>
-      <line num="12" count="2" type="stmt"/>
-      <line num="14" count="2" type="stmt"/>
-      <line num="17" count="56" type="cond" truecount="3" falsecount="0"/>
-      <line num="21" count="22" type="stmt"/>
-      <line num="25" count="16" type="cond" truecount="1" falsecount="0"/>
-      <line num="26" count="6" type="stmt"/>
-      <line num="29" count="10" type="stmt"/>
-      <line num="30" count="10" type="cond" truecount="1" falsecount="1"/>
-      <line num="33" count="2" type="stmt"/>
-      <line num="34" count="30" type="cond" truecount="1" falsecount="0"/>
-      <line num="35" count="14" type="stmt"/>
-      <line num="38" count="16" type="stmt"/>
-      <line num="39" count="16" type="cond" truecount="1" falsecount="0"/>
-      <line num="40" count="10" type="stmt"/>
-      <line num="43" count="6" type="cond" truecount="1" falsecount="0"/>
-      <line num="47" count="1" type="stmt"/>
-      <line num="50" count="5" type="cond" truecount="1" falsecount="0"/>
-      <line num="51" count="1" type="stmt"/>
-      <line num="54" count="4" type="cond" truecount="1" falsecount="0"/>
-      <line num="55" count="1" type="stmt"/>
-      <line num="58" count="3" type="cond" truecount="3" falsecount="0"/>
-      <line num="59" count="1" type="stmt"/>
-      <line num="62" count="2" type="cond" truecount="1" falsecount="0"/>
-      <line num="63" count="1" type="stmt"/>
-      <line num="66" count="1" type="stmt"/>
-      <line num="75" count="30" type="cond" truecount="1" falsecount="0"/>
-      <line num="79" count="8" type="stmt"/>
-      <line num="87" count="22" type="stmt"/>
-      <line num="88" count="22" type="stmt"/>
-      <line num="89" count="22" type="stmt"/>
-      <line num="91" count="22" type="cond" truecount="1" falsecount="0"/>
-      <line num="92" count="1" type="stmt"/>
-      <line num="93" count="1" type="stmt"/>
-      <line num="94" count="1" type="stmt"/>
-      <line num="97" count="22" type="cond" truecount="1" falsecount="0"/>
-      <line num="98" count="19" type="stmt"/>
-      <line num="99" count="19" type="stmt"/>
-      <line num="100" count="19" type="stmt"/>
-      <line num="103" count="22" type="stmt"/>
-      <line num="105" count="22" type="cond" truecount="1" falsecount="0"/>
-      <line num="106" count="3" type="cond" truecount="1" falsecount="0"/>
-      <line num="107" count="2" type="stmt"/>
-      <line num="108" count="2" type="stmt"/>
-      <line num="109" count="2" type="stmt"/>
-      <line num="112" count="3" type="stmt"/>
-      <line num="113" count="3" type="stmt"/>
-      <line num="115" count="3" type="cond" truecount="1" falsecount="0"/>
-      <line num="116" count="1" type="stmt"/>
-      <line num="117" count="1" type="stmt"/>
-      <line num="121" count="22" type="cond" truecount="1" falsecount="0"/>
-      <line num="126" count="2" type="stmt"/>
-      <line num="127" count="2" type="stmt"/>
-      <line num="128" count="2" type="stmt"/>
-      <line num="131" count="22" type="stmt"/>
-      <line num="133" count="22" type="stmt"/>
-      <line num="141" count="2" type="stmt"/>
-      <line num="147" count="31" type="stmt"/>
-      <line num="149" count="19" type="cond" truecount="1" falsecount="0"/>
-      <line num="150" count="1" type="stmt"/>
-      <line num="153" count="18" type="stmt"/>
-      <line num="155" count="30" type="stmt"/>
-      <line num="158" count="30" type="stmt"/>
-      <line num="161" count="18" type="cond" truecount="1" falsecount="0"/>
-      <line num="162" count="1" type="stmt"/>
-      <line num="165" count="17" type="stmt"/>
-      <line num="170" count="22" type="cond" truecount="3" falsecount="0"/>
-      <line num="171" count="21" type="stmt"/>
-      <line num="174" count="1" type="stmt"/>
-    </file>
-    <file name="purchaseGate.ts" path="C:\Users\ebrah\SmartCard\src\engines\purchaseGate.ts">
-      <metrics statements="51" coveredstatements="49" conditionals="30" coveredconditionals="28" methods="8" coveredmethods="8"/>
-      <line num="1" count="2" type="stmt"/>
-      <line num="8" count="2" type="stmt"/>
-      <line num="10" count="2" type="stmt"/>
-      <line num="11" count="2" type="stmt"/>
-      <line num="12" count="2" type="stmt"/>
-      <line num="13" count="2" type="stmt"/>
-      <line num="14" count="2" type="stmt"/>
-      <line num="23" count="44" type="stmt"/>
-      <line num="32" count="44" type="cond" truecount="2" falsecount="0"/>
-      <line num="41" count="17" type="stmt"/>
-      <line num="42" count="15" type="stmt"/>
-      <line num="50" count="19" type="cond" truecount="1" falsecount="0"/>
-      <line num="51" count="16" type="stmt"/>
-      <line num="54" count="3" type="stmt"/>
-      <line num="56" count="3" type="cond" truecount="3" falsecount="0"/>
-      <line num="57" count="1" type="stmt"/>
-      <line num="60" count="2" type="stmt"/>
-      <line num="62" count="2" type="stmt"/>
-      <line num="69" count="19" type="stmt"/>
-      <line num="70" count="18" type="cond" truecount="0" falsecount="1"/>
-      <line num="71" count="0" type="stmt"/>
-      <line num="74" count="18" type="stmt"/>
-      <line num="88" count="14" type="stmt"/>
-      <line num="90" count="14" type="cond" truecount="1" falsecount="0"/>
-      <line num="96" count="1" type="stmt"/>
-      <line num="99" count="13" type="stmt"/>
-      <line num="102" count="2" type="stmt"/>
-      <line num="106" count="44" type="cond" truecount="1" falsecount="0"/>
-      <line num="107" count="9" type="stmt"/>
-      <line num="115" count="35" type="cond" truecount="1" falsecount="0"/>
-      <line num="119" count="10" type="stmt"/>
-      <line num="127" count="25" type="cond" truecount="1" falsecount="0"/>
-      <line num="128" count="6" type="stmt"/>
-      <line num="136" count="19" type="stmt"/>
-      <line num="138" count="19" type="stmt"/>
-      <line num="144" count="19" type="cond" truecount="1" falsecount="0"/>
-      <line num="145" count="5" type="stmt"/>
-      <line num="154" count="14" type="stmt"/>
-      <line num="156" count="14" type="cond" truecount="1" falsecount="0"/>
-      <line num="160" count="2" type="stmt"/>
-      <line num="169" count="12" type="stmt"/>
-      <line num="170" count="12" type="stmt"/>
-      <line num="172" count="12" type="cond" truecount="0" falsecount="1"/>
-      <line num="173" count="0" type="stmt"/>
-      <line num="182" count="12" type="cond" truecount="1" falsecount="0"/>
-      <line num="187" count="1" type="stmt"/>
-      <line num="196" count="11" type="cond" truecount="1" falsecount="0"/>
-      <line num="200" count="1" type="stmt"/>
-      <line num="209" count="10" type="cond" truecount="1" falsecount="0"/>
-      <line num="210" count="2" type="stmt"/>
-      <line num="219" count="8" type="stmt"/>
+<coverage generated="1782563528052" clover="3.2.0">
+  <project timestamp="1782563528052" name="All files">
+    <metrics statements="19" coveredstatements="19" conditionals="10" coveredconditionals="10" methods="6" coveredmethods="6" elements="35" coveredelements="35" complexity="0" loc="19" ncloc="19" packages="1" files="1" classes="1"/>
+    <file name="loanEngine.ts" path="C:\Users\ebrah\SmartCard\src\engines\loanEngine.ts">
+      <metrics statements="19" coveredstatements="19" conditionals="10" coveredconditionals="10" methods="6" coveredmethods="6"/>
+      <line num="4" count="13" type="stmt"/>
+      <line num="8" count="5" type="stmt"/>
+      <line num="9" count="5" type="stmt"/>
+      <line num="10" count="5" type="stmt"/>
+      <line num="13" count="1" type="stmt"/>
+      <line num="14" count="5" type="stmt"/>
+      <line num="18" count="5" type="stmt"/>
+      <line num="19" count="5" type="stmt"/>
+      <line num="24" count="5" type="stmt"/>
+      <line num="34" count="1" type="stmt"/>
+      <line num="38" count="8" type="stmt"/>
+      <line num="39" count="7" type="stmt"/>
+      <line num="42" count="7" type="cond" truecount="5" falsecount="0"/>
+      <line num="48" count="7" type="stmt"/>
+      <line num="53" count="7" type="cond" truecount="1" falsecount="0"/>
+      <line num="54" count="1" type="stmt"/>
+      <line num="62" count="6" type="stmt"/>
+      <line num="64" count="6" type="cond" truecount="4" falsecount="0"/>
+      <line num="66" count="6" type="stmt"/>
     </file>
   </project>
 </coverage>

@@ -31,6 +31,7 @@ import { gcm } from '@noble/ciphers/aes';
 import { argon2idAsync } from '@noble/hashes/argon2';
 
 import type { UserProfile } from '../types/user.types';
+import { MMKV_KEYS } from '../store/keys';
 import type { LockoutCaller, LockoutState } from './keyVault.types';
 
 // --- Public contract (SEC-CONTRACT-001 ┬د8) -----------------------------------
@@ -108,7 +109,12 @@ const GCM_NONCE_BYTES = 12;
 
 const SESSION_TIMEOUT_MS = 5 * 60 * 1000; // SESS-1
 const TERMINAL_FAILURE_COUNT = 10; // PIN-6
+const PROFILE_ID_PATTERN =
+  /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const MMKV_ID = 'smartcard.secure';
+// CONFLICT: These legacy typed accessors retain their historical global key,
+// but the task forbids modifying existing keyVault behavior. Financial stores
+// no longer call them and use profile-scoped keys exclusively.
 const PROFILE_KEY = 'user.profile';
 const KEYCHAIN_SERVICE = 'smartcard.keyvault.v1';
 
@@ -538,6 +544,38 @@ async function enrollPin(pin: string): Promise<void> {
   await SecureStore.setItemAsync(SS.pinEnvelope, envelope, META_OPTS);
 }
 
+function enrollProfilePin(profileId: string, pinHash: string): void {
+  if (!PROFILE_ID_PATTERN.test(profileId) || pinHash.length === 0) {
+    throw new Error('INVALID_PROFILE_PIN_VERIFIER');
+  }
+  getEncryptedStorage().set(MMKV_KEYS.profilePinVerifier(profileId), pinHash);
+}
+
+function verifyProfilePin(profileId: string, candidate: string): boolean {
+  if (!PROFILE_ID_PATTERN.test(profileId)) {
+    return false;
+  }
+  const verifier = getEncryptedStorage().getString(
+    MMKV_KEYS.profilePinVerifier(profileId),
+  );
+  return verifier !== undefined && verifier === candidate;
+}
+
+// CONFLICT: The requested profile API reuses enrollPin, which already owns the
+// raw-PIN Argon2id DEK enrollment path. This overload preserves that existing
+// one-argument behavior and adds the requested two-argument verifier storage.
+function enrollPinDispatcher(pin: string): Promise<void>;
+function enrollPinDispatcher(profileId: string, pinHash: string): void;
+function enrollPinDispatcher(
+  pinOrProfileId: string,
+  pinHash?: string,
+): Promise<void> | void {
+  if (pinHash === undefined) {
+    return enrollPin(pinOrProfileId);
+  }
+  enrollProfilePin(pinOrProfileId, pinHash);
+}
+
 // AC-5 fix: classify the OS-lockout case so it can be surfaced accurately. A
 // biometric prompt can reject for reasons that are NOT a credential attempt
 // (user cancel/dismiss, timeout, no enrollment, hardware unavailable) and also
@@ -787,6 +825,8 @@ export type AuthStatus = 'LOCKED' | 'UNLOCKED' | 'UNKNOWN';
 
 interface KeyVaultModule extends KeyVault {
   enrollPin(pin: string): Promise<void>;
+  enrollPin(profileId: string, pinHash: string): void;
+  verifyProfilePin(profileId: string, candidate: string): boolean;
   wipeVault(): Promise<void>;
   startSessionGuard(): () => void;
   isUnlocked(): boolean;
@@ -805,7 +845,8 @@ export const keyVault: KeyVaultModule = {
   unlockWithPin,
   getEncryptedStorage,
   lock,
-  enrollPin,
+  enrollPin: enrollPinDispatcher,
+  verifyProfilePin,
   wipeVault,
   startSessionGuard,
   canMountSecureNavigator,

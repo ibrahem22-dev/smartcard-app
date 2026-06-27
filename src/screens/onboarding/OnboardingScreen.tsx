@@ -16,6 +16,7 @@ import {
 } from 'react-native';
 
 import { useAuth } from '../../navigation/authContext';
+import { useTranslation } from '../../hooks/useTranslation';
 import { CardIssuer } from '../../types/card.types';
 import { rtl } from '../../utils/rtlStyles';
 
@@ -94,6 +95,7 @@ function optionTextClassName(isSelected: boolean): string {
 
 export default function OnboardingScreen(): React.ReactElement {
   const { completeOnboarding } = useAuth();
+  const { t } = useTranslation();
 
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [selectedBank, setSelectedBank] = useState<string | null>(null);
@@ -120,8 +122,10 @@ export default function OnboardingScreen(): React.ReactElement {
     const income = parsePositiveNumber(incomeText);
     const balance = parsePositiveNumber(balanceText);
 
-    setIncomeError(income === null ? 'נא להזין הכנסה חודשית תקינה' : null);
-    setBalanceError(balance === null ? 'נא להזין יתרה תקינה' : null);
+    setIncomeError(
+      income === null ? t('נא להזין הכנסה חודשית תקינה') : null,
+    );
+    setBalanceError(balance === null ? t('נא להזין יתרה תקינה') : null);
 
     return income !== null && balance !== null;
   }
@@ -158,18 +162,18 @@ export default function OnboardingScreen(): React.ReactElement {
 
     try {
       const result = await LocalAuthentication.authenticateAsync({
-        promptMessage: 'אישור סיום',
-        fallbackLabel: 'השתמש בקוד',
+        promptMessage: t('אישור סיום'),
+        fallbackLabel: t('השתמש בקוד'),
       });
 
       if (!result.success) {
-        setFinishError('האימות לא הושלם. נסה שוב.');
+        setFinishError(t('האימות לא הושלם. נסה שוב.'));
         return;
       }
 
       completeOnboarding();
     } catch {
-      setFinishError('לא הצלחנו להשלים את האימות. נסה שוב.');
+      setFinishError(t('לא הצלחנו להשלים את האימות. נסה שוב.'));
     }
   }
 
@@ -193,7 +197,7 @@ export default function OnboardingScreen(): React.ReactElement {
           className="mb-5 text-right text-2xl font-black text-slate-900 dark:text-white"
           style={rtl.text}
         >
-          באיזה בנק אתה מנהל את החשבון?
+          {t('באיזה בנק אתה מנהל את החשבון?')}
         </Text>
         <View
           className="w-full flex-row-reverse flex-wrap gap-3"
@@ -210,8 +214,11 @@ export default function OnboardingScreen(): React.ReactElement {
                 key={bank}
                 onPress={(): void => setSelectedBank(bank)}
               >
-                <Text className={optionTextClassName(isSelected)} style={rtl.text}>
-                  {bank}
+                <Text
+                  className={`text-right ${optionTextClassName(isSelected)}`}
+                  style={rtl.text}
+                >
+                  {t(bank)}
                 </Text>
               </Pressable>
             );
@@ -225,10 +232,10 @@ export default function OnboardingScreen(): React.ReactElement {
           onPress={(): void => setShowAdditionalBanks(current => !current)}
         >
           <Text
-            className="text-center text-base font-extrabold text-blue-700 dark:text-blue-200"
+            className="text-right text-center text-base font-extrabold text-blue-700 dark:text-blue-200"
             style={rtl.text}
           >
-            בנקים נוספים (8)
+            {t('בנקים נוספים (8)')}
           </Text>
         </Pressable>
 
@@ -254,8 +261,11 @@ export default function OnboardingScreen(): React.ReactElement {
                   key={bank}
                   onPress={(): void => setSelectedBank(bank)}
                 >
-                  <Text className={optionTextClassName(isSelected)} style={rtl.text}>
-                    {bank}
+                  <Text
+                    className={`text-right ${optionTextClassName(isSelected)}`}
+                    style={rtl.text}
+                  >
+                    {t(bank)}
                   </Text>
                 </Pressable>
               );
@@ -273,20 +283,20 @@ export default function OnboardingScreen(): React.ReactElement {
           className="mb-5 text-right text-2xl font-black text-slate-900 dark:text-white"
           style={rtl.text}
         >
-          פרטים פיננסיים
+          {t('פרטים פיננסיים')}
         </Text>
 
         <Text
           className="mb-2 text-right text-base font-extrabold text-slate-700 dark:text-slate-200"
           style={rtl.text}
         >
-          הכנסה חודשית (₪)
+          {t('הכנסה חודשית (₪)')}
         </Text>
         <TextInput
           className="min-h-[52px] rounded-lg border border-slate-300 bg-white px-4 text-right text-lg text-slate-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
           keyboardType="numeric"
           onChangeText={setIncomeText}
-          placeholder="לדוגמה: 12000"
+          placeholder={t('לדוגמה: 12000')}
           placeholderTextColor="#94A3B8"
           style={rtl.input}
           value={incomeText}
@@ -304,13 +314,13 @@ export default function OnboardingScreen(): React.ReactElement {
           className="mb-2 mt-5 text-right text-base font-extrabold text-slate-700 dark:text-slate-200"
           style={rtl.text}
         >
-          יתרה נוכחית (₪)
+          {t('יתרה נוכחית (₪)')}
         </Text>
         <TextInput
           className="min-h-[52px] rounded-lg border border-slate-300 bg-white px-4 text-right text-lg text-slate-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
           keyboardType="numeric"
           onChangeText={setBalanceText}
-          placeholder="לדוגמה: 3500"
+          placeholder={t('לדוגמה: 3500')}
           placeholderTextColor="#94A3B8"
           style={rtl.input}
           value={balanceText}
@@ -336,14 +346,14 @@ export default function OnboardingScreen(): React.ReactElement {
           className="mb-5 text-right text-2xl font-black text-slate-900 dark:text-white"
           style={rtl.text}
         >
-          הוסף את הכרטיס הראשון שלך
+          {t('הוסף את הכרטיס הראשון שלך')}
         </Text>
 
         <Text
           className="mb-2 text-right text-base font-extrabold text-slate-700 dark:text-slate-200"
           style={rtl.text}
         >
-          חברת כרטיס האשראי
+          {t('חברת כרטיס האשראי')}
         </Text>
         <View
           className="w-full flex-row-reverse flex-wrap gap-3"
@@ -360,8 +370,11 @@ export default function OnboardingScreen(): React.ReactElement {
                 key={company}
                 onPress={(): void => handleCompanySelect(company)}
               >
-                <Text className={optionTextClassName(isSelected)} style={rtl.text}>
-                  {COMPANY_LABELS[company]}
+                <Text
+                  className={`text-right ${optionTextClassName(isSelected)}`}
+                  style={rtl.text}
+                >
+                  {t(COMPANY_LABELS[company])}
                 </Text>
               </Pressable>
             );
@@ -374,7 +387,7 @@ export default function OnboardingScreen(): React.ReactElement {
               className="mb-2 text-right text-base font-extrabold text-slate-700 dark:text-slate-200"
               style={rtl.text}
             >
-              מועדון הכרטיס
+              {t('מועדון הכרטיס')}
             </Text>
             <View className="gap-2">
               {clubs.map(club => {
@@ -395,8 +408,11 @@ export default function OnboardingScreen(): React.ReactElement {
                       setUnknownClub(false);
                     }}
                   >
-                    <Text className={optionTextClassName(isSelected)} style={rtl.text}>
-                      {club}
+                    <Text
+                      className={`text-right ${optionTextClassName(isSelected)}`}
+                      style={rtl.text}
+                    >
+                      {t(club)}
                     </Text>
                   </Pressable>
                 );
@@ -414,10 +430,10 @@ export default function OnboardingScreen(): React.ReactElement {
               onPress={handleUnknownClub}
             >
               <Text
-                className="text-center text-base font-extrabold text-orange-800 dark:text-orange-200"
+                className="text-right text-center text-base font-extrabold text-orange-800 dark:text-orange-200"
                 style={rtl.text}
               >
-                אני לא יודע את המועדון 🔍
+                {t('אני לא יודע את המועדון 🔍')}
               </Text>
             </Pressable>
           </View>
@@ -433,13 +449,13 @@ export default function OnboardingScreen(): React.ReactElement {
           className="mb-5 text-right text-2xl font-black text-slate-900 dark:text-white"
           style={rtl.text}
         >
-          מספר טלפון
+          {t('מספר טלפון')}
         </Text>
         <Text
           className="mb-2 text-right text-base font-extrabold text-slate-700 dark:text-slate-200"
           style={rtl.text}
         >
-          מספר טלפון - לשחזור חשבון בעתיד (אופציונלי)
+          {t('מספר טלפון - לשחזור חשבון בעתיד (אופציונלי)')}
         </Text>
         <TextInput
           className="min-h-[52px] rounded-lg border border-slate-300 bg-white px-4 text-right text-lg text-slate-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
@@ -458,8 +474,8 @@ export default function OnboardingScreen(): React.ReactElement {
             void handleFinish();
           }}
         >
-          <Text className="text-center text-lg font-black text-white" style={rtl.text}>
-            סיום
+          <Text className="text-right text-center text-lg font-black text-white" style={rtl.text}>
+            {t('סיום')}
           </Text>
         </Pressable>
 
@@ -547,14 +563,14 @@ export default function OnboardingScreen(): React.ReactElement {
           onPress={goBack}
         >
           <Text
-            className={`text-center text-base font-extrabold ${
+            className={`text-right text-center text-base font-extrabold ${
               currentStep === 1
                 ? 'text-slate-400 dark:text-neutral-600'
                 : 'text-slate-700 dark:text-slate-100'
             }`}
             style={rtl.text}
           >
-            חזרה
+            {t('חזרה')}
           </Text>
         </Pressable>
 
@@ -568,8 +584,8 @@ export default function OnboardingScreen(): React.ReactElement {
           disabled={isContinueDisabled}
           onPress={handleNext}
         >
-          <Text className="text-center text-base font-extrabold text-white" style={rtl.text}>
-            {currentStep === 4 ? 'סיום' : 'המשך'}
+          <Text className="text-right text-center text-base font-extrabold text-white" style={rtl.text}>
+            {currentStep === 4 ? t('סיום') : t('המשך')}
           </Text>
         </Pressable>
       </View>

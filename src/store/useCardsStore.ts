@@ -64,6 +64,8 @@ interface CardsState {
    * Safe to call again (re-hydrates, e.g. after re-auth).
    */
   hydrate(): void;
+  hydrateProfile(profileId: string): void;
+  persistProfile(profileId: string): void;
 
   /**
    * Append a new card. If the card's club was suggested by the app's guided
@@ -98,8 +100,10 @@ interface CardsState {
 // ---------------------------------------------------------------------------
 
 /** Serialize entries to MMKV. */
-function persist(entries: CardEntry[]): void {
-  keyVault.getEncryptedStorage().set(MMKV_KEYS.cards, JSON.stringify(entries));
+function persist(entries: CardEntry[], profileId: string): void {
+  keyVault
+    .getEncryptedStorage()
+    .set(MMKV_KEYS.profileCards(profileId), JSON.stringify(entries));
 }
 
 /** Deserialize entries from a raw MMKV string (undefined = key absent). */
@@ -110,10 +114,16 @@ function parseEntries(raw: string | undefined): CardEntry[] {
   return JSON.parse(raw) as CardEntry[];
 }
 
-function persistObligations(obligations: readonly ImportedInstallment[]): void {
+function persistObligations(
+  obligations: readonly ImportedInstallment[],
+  profileId: string,
+): void {
   keyVault
     .getEncryptedStorage()
-    .set(MMKV_KEYS.cardObligations, JSON.stringify(obligations));
+    .set(
+      MMKV_KEYS.profileCardObligations(profileId),
+      JSON.stringify(obligations),
+    );
 }
 
 function parseObligations(raw: string | undefined): ImportedInstallment[] {
@@ -138,6 +148,16 @@ function assertValidObligation(obligation: ImportedInstallment): void {
   }
 }
 
+function getActiveProfileId(): string {
+  const activeProfileId = keyVault
+    .getEncryptedStorage()
+    .getString(MMKV_KEYS.activeProfileId);
+  if (activeProfileId === undefined) {
+    throw new Error('ACTIVE_PROFILE_REQUIRED');
+  }
+  return activeProfileId;
+}
+
 // ---------------------------------------------------------------------------
 
 export const useCardsStore = create<CardsState>()((set) => ({
@@ -147,11 +167,35 @@ export const useCardsStore = create<CardsState>()((set) => ({
 
   hydrate() {
     const handle = keyVault.getEncryptedStorage();
-    const entries = parseEntries(handle.getString(MMKV_KEYS.cards));
+    const activeProfileId = handle.getString(MMKV_KEYS.activeProfileId);
+    if (activeProfileId === undefined) {
+      set({ entries: [], cards: [], obligations: [] });
+      return;
+    }
+    const entries = parseEntries(
+      handle.getString(MMKV_KEYS.profileCards(activeProfileId)),
+    );
     const obligations = parseObligations(
-      handle.getString(MMKV_KEYS.cardObligations),
+      handle.getString(MMKV_KEYS.profileCardObligations(activeProfileId)),
     );
     set({ entries, cards: entries.map((e) => e.card), obligations });
+  },
+
+  hydrateProfile(profileId: string) {
+    const handle = keyVault.getEncryptedStorage();
+    const entries = parseEntries(
+      handle.getString(MMKV_KEYS.profileCards(profileId)),
+    );
+    const obligations = parseObligations(
+      handle.getString(MMKV_KEYS.profileCardObligations(profileId)),
+    );
+    set({ entries, cards: entries.map(entry => entry.card), obligations });
+  },
+
+  persistProfile(profileId: string) {
+    const state = useCardsStore.getState();
+    persist(state.entries, profileId);
+    persistObligations(state.obligations, profileId);
   },
 
   addCard(card: UserCard, clubSuggestedByApp?: boolean) {
@@ -161,7 +205,7 @@ export const useCardsStore = create<CardsState>()((set) => ({
           ? { card, clubSuggestedByApp: true }
           : { card };
       const entries = [...state.entries, entry];
-      persist(entries);
+      persist(entries, getActiveProfileId());
       return { entries, cards: entries.map((e) => e.card) };
     });
   },
@@ -169,7 +213,7 @@ export const useCardsStore = create<CardsState>()((set) => ({
   removeCard(cardId: string) {
     set((state) => {
       const entries = state.entries.filter((e) => e.card.cardId !== cardId);
-      persist(entries);
+      persist(entries, getActiveProfileId());
       return { entries, cards: entries.map((e) => e.card) };
     });
   },
@@ -185,7 +229,7 @@ export const useCardsStore = create<CardsState>()((set) => ({
         const updatedCard: UserCard = { ...e.card, ...updates };
         return { ...e, card: updatedCard };
       });
-      persist(entries);
+      persist(entries, getActiveProfileId());
       return { entries, cards: entries.map((e) => e.card) };
     });
   },
@@ -201,7 +245,7 @@ export const useCardsStore = create<CardsState>()((set) => ({
         throw new Error('IMPORTED_INSTALLMENT_ALREADY_EXISTS');
       }
       const obligations = [...state.obligations, obligation];
-      persistObligations(obligations);
+      persistObligations(obligations, getActiveProfileId());
       return { obligations };
     });
   },
@@ -218,7 +262,7 @@ export const useCardsStore = create<CardsState>()((set) => ({
       const obligations = state.obligations.map(existing =>
         existing.installmentId === installmentId ? obligation : existing,
       );
-      persistObligations(obligations);
+      persistObligations(obligations, getActiveProfileId());
       return { obligations };
     });
   },
@@ -228,20 +272,12 @@ export const useCardsStore = create<CardsState>()((set) => ({
       const obligations = state.obligations.filter(
         obligation => obligation.installmentId !== installmentId,
       );
-      persistObligations(obligations);
+      persistObligations(obligations, getActiveProfileId());
       return { obligations };
     });
   },
 
   clearCards() {
-    // Zero memory unconditionally.
     set({ cards: [], entries: [], obligations: [] });
-    // Best-effort MMKV delete — vault may already be locked/wiped on logout.
-    try {
-      keyVault.getEncryptedStorage().delete(MMKV_KEYS.cards);
-      keyVault.getEncryptedStorage().delete(MMKV_KEYS.cardObligations);
-    } catch {
-      // Vault locked or wiped: nothing to delete, in-memory state already cleared.
-    }
   },
 }));

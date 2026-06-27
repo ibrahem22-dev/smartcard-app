@@ -1,5 +1,6 @@
 import { useColorScheme } from 'react-native';
 
+import { useAuth } from '../navigation/authContext';
 import { useCardsStore } from '../store/useCardsStore';
 import { useUserStore } from '../store/useUserStore';
 import { CardIssuer } from '../types/card.types';
@@ -91,12 +92,23 @@ function getClubBadge(clubName: string | undefined, isDark: boolean): string {
 }
 
 export function useTheme(): ThemeColors {
-  const bankName = useUserStore(state => state.profile?.bankName);
-  const primaryCard = useCardsStore(state =>
+  const { isUnlocked } = useAuth();
+  const storedBankName = useUserStore(state => state.profile?.bankName);
+  const storedPrimaryCard = useCardsStore(state =>
     state.cards.find(card => card.isActive) ?? state.cards[0],
   );
   const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
+  const bankName = isUnlocked ? storedBankName : undefined;
+  const primaryCard = isUnlocked ? storedPrimaryCard : undefined;
+
+  if (!isUnlocked) {
+    return {
+      bankColor: NEUTRAL_COLOR,
+      companyAccent: NEUTRAL_COLOR,
+      clubBadge: NEUTRAL_COLOR,
+    };
+  }
 
   const bankColor = BANK_COLORS[bankName ?? ''] ?? NEUTRAL_COLOR;
   const companyAccent =

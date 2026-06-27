@@ -5,6 +5,7 @@ import { useNavigation, type NavigationProp } from '@react-navigation/native';
 import { FeatureGate } from '../components/FeatureGate';
 import { ProfileSwitcher } from '../components/ProfileSwitcher';
 import { useTheme } from '../hooks/useTheme';
+import { useTranslation } from '../hooks/useTranslation';
 import type { TabParamList } from '../navigation/types';
 import { useCardsStore } from '../store/useCardsStore';
 import { useProfileStore } from '../store/useProfileStore';
@@ -27,6 +28,7 @@ function getDailyTip(): string {
 
 export function HomeScreen(): React.ReactElement {
   const theme = useTheme();
+  const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<TabParamList>>();
   const cards = useCardsStore(state => state.cards);
   const activeProfile = useProfileStore(state => state.activeProfile);
@@ -55,11 +57,17 @@ export function HomeScreen(): React.ReactElement {
         keyboardShouldPersistTaps="handled"
       >
         <View className="min-h-full w-full px-5 pb-28 pt-5">
-          <View className="mb-5 w-full">
-            <ProfileSwitcher mode="compact" />
+          <View
+            className="mb-5 w-full"
+            style={{ backgroundColor: theme.bankColor }}
+          >
+            <ProfileSwitcher
+              activeBorderColor={theme.bankColor}
+              mode="compact"
+            />
             <Text
-              className="mt-2 text-right text-base font-extrabold text-slate-700 dark:text-slate-200"
-              style={rtl.text}
+              className="mt-2 text-right text-base font-extrabold"
+              style={[rtl.text, { color: '#FFFFFF' }]}
             >
               {activeProfile?.displayName ?? ''}
             </Text>
@@ -67,12 +75,15 @@ export function HomeScreen(): React.ReactElement {
 
           <View className="rounded-lg bg-slate-900 p-[22px] dark:bg-dark-surface">
             <FeatureGate feature="SavingsTracker">
-              <Text className="text-right text-[34px] font-black text-white" style={rtl.text}>
-              ₪0 נחסך
+              <Text
+                className="text-right text-[34px] font-black"
+                style={[rtl.text, { color: theme.companyAccent }]}
+              >
+              {t('₪0 נחסך')}
             </Text>
             </FeatureGate>
             <Text className="mt-1.5 text-right text-[15px] text-slate-300" style={rtl.text}>
-              החיסכון שלך עד עכשיו
+              {t('החיסכון שלך עד עכשיו')}
             </Text>
           </View>
 
@@ -81,13 +92,13 @@ export function HomeScreen(): React.ReactElement {
               className="text-right text-lg font-extrabold text-slate-900 dark:text-white"
               style={rtl.text}
             >
-              טיפ היום
+              {t('טיפ היום')}
             </Text>
             <Text
               className="mt-2 text-right text-base leading-6 text-slate-700 dark:text-slate-200"
               style={rtl.text}
             >
-              {getDailyTip()}
+              {t(getDailyTip())}
             </Text>
           </View>
 
@@ -96,15 +107,17 @@ export function HomeScreen(): React.ReactElement {
               className="text-right text-lg font-extrabold text-slate-900 dark:text-white"
               style={rtl.text}
             >
-              חיובים קרובים
+              {t('חיובים קרובים')}
             </Text>
             <Text
               className="mt-2 text-right text-base font-bold text-sky-700 dark:text-sky-200"
               style={rtl.text}
             >
               {upcomingObligationsCount === 0
-                ? 'אין חיובים קרובים 📅'
-                : `יש ${upcomingObligationsCount} חיובים קרובים`}
+                ? t('אין חיובים קרובים 📅')
+                : t('יש {{count}} חיובים קרובים', {
+                    count: upcomingObligationsCount,
+                  })}
             </Text>
           </View>
 
@@ -114,13 +127,15 @@ export function HomeScreen(): React.ReactElement {
                 className="text-right text-lg font-extrabold text-orange-800 dark:text-orange-200"
                 style={rtl.text}
               >
-                נוסעים לחו"ל? ✈️
+                {t('נוסעים לחו"ל? ✈️')}
               </Text>
               <Text
                 className="mt-2 text-right text-[15px] leading-[22px] text-orange-800 dark:text-orange-200"
                 style={rtl.text}
               >
-                בקרוב תוכלו לבדוק מראש איזה כרטיס עדיף לנסיעות ולחיובים במט"ח.
+                {t(
+                  'בקרוב תוכלו לבדוק מראש איזה כרטיס עדיף לנסיעות ולחיובים במט"ח.',
+                )}
               </Text>
           </View>
         </FeatureGate>
@@ -133,8 +148,8 @@ export function HomeScreen(): React.ReactElement {
           className="min-h-[50px] items-center justify-center rounded-lg bg-blue-600"
           onPress={handleCheckPurchase}
         >
-          <Text className="text-center text-base font-extrabold text-white" style={rtl.text}>
-            בדוק רכישה
+          <Text className="text-right text-center text-base font-extrabold text-white" style={rtl.text}>
+            {t('בדוק רכישה')}
           </Text>
         </Pressable>
       </View>

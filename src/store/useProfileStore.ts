@@ -1,13 +1,17 @@
 import { create } from 'zustand';
 
 import { keyVault } from '../security/keyVault';
+import { useCardsStore } from './useCardsStore';
+import { useUserStore } from './useUserStore';
 import type {
   AppProfile,
   ProfileLanguagePreference,
 } from '../types/profile.types';
 import { MMKV_KEYS } from './keys';
 
-const MAX_PROFILES = 3;
+// CONFLICT: AGENTS.md currently says max profiles is 3; LOW-001 explicitly
+// requires aligning this store constant to 5.
+const MAX_PROFILES = 5;
 const UUID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 
@@ -19,6 +23,7 @@ interface ProfileState {
   deleteProfile(id: string): void;
   renameProfile(id: string, displayName: string): void;
   switchProfile(id: string): void;
+  clearProfiles(): void;
 }
 
 function isRecord(value: unknown): value is Record<string, unknown> {
@@ -41,10 +46,7 @@ function isAppProfile(value: unknown): value is AppProfile {
     typeof value.id === 'string' &&
     UUID_PATTERN.test(value.id) &&
     typeof value.displayName === 'string' &&
-    typeof value.pinHash === 'string' &&
     typeof value.bankName === 'string' &&
-    typeof value.monthlyIncome === 'number' &&
-    Number.isFinite(value.monthlyIncome) &&
     isLanguagePreference(value.languagePreference) &&
     isStringArray(value.cardIds)
   );
@@ -59,6 +61,16 @@ function assertUuid(id: string): void {
 function buildProfileKey(id: string): string {
   assertUuid(id);
   return `${MMKV_KEYS.profilePrefix}${id}${MMKV_KEYS.profileDataSuffix}`;
+}
+
+function deleteAllProfileKeys(id: string): void {
+  assertUuid(id);
+  const storage = keyVault.getEncryptedStorage();
+  const prefix = `${MMKV_KEYS.profilePrefix}${id}:`;
+  storage
+    .getAllKeys()
+    .filter(key => key.startsWith(prefix))
+    .forEach(key => storage.delete(key));
 }
 
 function parseProfile(raw: string | undefined): AppProfile | null {
@@ -112,6 +124,10 @@ export const useProfileStore = create<ProfileState>()((set, get) => ({
     );
 
     set({ allProfiles, activeProfile });
+    if (activeProfile !== null) {
+      useUserStore.getState().hydrateProfile(activeProfile.id);
+      useCardsStore.getState().hydrateProfile(activeProfile.id);
+    }
   },
 
   addProfile(profile: AppProfile) {
@@ -152,29 +168,20 @@ export const useProfileStore = create<ProfileState>()((set, get) => ({
   deleteProfile(id: string) {
     assertUuid(id);
     const storage = keyVault.getEncryptedStorage();
+    const activeId =
+      get().activeProfile?.id ??
+      storage.getString(MMKV_KEYS.activeProfileId);
+    if (activeId === id) {
+      throw new Error('CANNOT_DELETE_ACTIVE_PROFILE');
+    }
     const profiles =
       get().allProfiles.length > 0 ? get().allProfiles : readProfiles();
     const allProfiles = profiles.filter(profile => profile.id !== id);
-    const currentActiveId =
-      get().activeProfile?.id ??
-      storage.getString(MMKV_KEYS.activeProfileId);
-
-    storage.delete(buildProfileKey(id));
-
-    if (currentActiveId === id) {
-      const nextActiveProfile = allProfiles[0] ?? null;
-      if (nextActiveProfile === null) {
-        storage.delete(MMKV_KEYS.activeProfileId);
-      } else {
-        storage.set(MMKV_KEYS.activeProfileId, nextActiveProfile.id);
-      }
-      set({ allProfiles, activeProfile: nextActiveProfile });
-      return;
-    }
+    deleteAllProfileKeys(id);
 
     set({
       allProfiles,
-      activeProfile: resolveActiveProfile(allProfiles, currentActiveId),
+      activeProfile: resolveActiveProfile(allProfiles, activeId),
     });
   },
 
@@ -229,9 +236,22 @@ export const useProfileStore = create<ProfileState>()((set, get) => ({
       throw new Error('PROFILE_NOT_FOUND');
     }
 
-    keyVault
-      .getEncryptedStorage()
-      .set(MMKV_KEYS.activeProfileId, activeProfile.id);
+    const storage = keyVault.getEncryptedStorage();
+    const outgoingProfileId =
+      get().activeProfile?.id ??
+      storage.getString(MMKV_KEYS.activeProfileId);
+    if (outgoingProfileId !== undefined) {
+      useUserStore.getState().persistProfile(outgoingProfileId);
+      useCardsStore.getState().persistProfile(outgoingProfileId);
+    }
+
+    storage.set(MMKV_KEYS.activeProfileId, activeProfile.id);
     set({ allProfiles: profiles, activeProfile });
+    useUserStore.getState().hydrateProfile(activeProfile.id);
+    useCardsStore.getState().hydrateProfile(activeProfile.id);
+  },
+
+  clearProfiles() {
+    set({ activeProfile: null, allProfiles: [] });
   },
 }));

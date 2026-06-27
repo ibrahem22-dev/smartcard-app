@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 
 import { useCardsStore } from '../store/useCardsStore';
+import { useTranslation } from '../hooks/useTranslation';
 import type { ImportedInstallment } from '../types/installment.types';
 import { parseAmount } from '../utils/parseAmount';
 import { rtl } from '../utils/rtlStyles';
@@ -22,6 +23,7 @@ function parseMonths(value: string): number | null {
 }
 
 export function InstallmentImportScreen(): React.ReactElement {
+  const { t } = useTranslation();
   const cards = useCardsStore(state => state.cards);
   const obligations = useCardsStore(state => state.obligations);
   const hydrate = useCardsStore(state => state.hydrate);
@@ -76,7 +78,9 @@ export function InstallmentImportScreen(): React.ReactElement {
       billingCardId === ''
     ) {
       setFormError(
-        'יש למלא את כל שדות החובה. סכומים עד 999,999 ₪ ומספר חודשים בין 1 ל־360.',
+        t(
+          'יש למלא את כל שדות החובה. סכומים עד 999,999 ₪ ומספר חודשים בין 1 ל־360.',
+        ),
       );
       return;
     }
@@ -115,12 +119,14 @@ export function InstallmentImportScreen(): React.ReactElement {
 
   function confirmDelete(obligation: ImportedInstallment): void {
     Alert.alert(
-      'מחיקת תשלומים',
-      `למחוק את התשלומים של ${obligation.merchantName}?`,
+      t('מחיקת תשלומים'),
+      t('למחוק את התשלומים של {{name}}?', {
+        name: obligation.merchantName,
+      }),
       [
-        { text: 'ביטול', style: 'cancel' },
+        { text: t('ביטול'), style: 'cancel' },
         {
-          text: 'מחיקה',
+          text: t('מחיקה'),
           style: 'destructive',
           onPress: (): void => {
             deleteObligation(obligation.installmentId);
@@ -145,14 +151,14 @@ export function InstallmentImportScreen(): React.ReactElement {
             className="text-right text-2xl font-black text-slate-900 dark:text-white"
             style={rtl.text}
           >
-            תשלומים קיימים
+            {t('תשלומים קיימים')}
           </Text>
 
           <Text
             className="text-right text-sm font-bold text-slate-700 dark:text-slate-200"
             style={rtl.text}
           >
-            שם בית העסק
+            {t('שם בית העסק')}
           </Text>
           <TextInput
             className="min-h-[50px] rounded-lg border border-slate-300 bg-white px-4 text-right text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
@@ -165,7 +171,7 @@ export function InstallmentImportScreen(): React.ReactElement {
             className="text-right text-sm font-bold text-slate-700 dark:text-slate-200"
             style={rtl.text}
           >
-            סכום כולל (₪)
+            {t('סכום כולל (₪)')}
           </Text>
           <TextInput
             className="min-h-[50px] rounded-lg border border-slate-300 bg-white px-4 text-right text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
@@ -179,7 +185,7 @@ export function InstallmentImportScreen(): React.ReactElement {
             className="text-right text-sm font-bold text-slate-700 dark:text-slate-200"
             style={rtl.text}
           >
-            חודשים שנותרו
+            {t('חודשים שנותרו')}
           </Text>
           <TextInput
             className="min-h-[50px] rounded-lg border border-slate-300 bg-white px-4 text-right text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
@@ -193,7 +199,7 @@ export function InstallmentImportScreen(): React.ReactElement {
             className="text-right text-sm font-bold text-slate-700 dark:text-slate-200"
             style={rtl.text}
           >
-            תשלום חודשי (₪)
+            {t('תשלום חודשי (₪)')}
           </Text>
           <TextInput
             className="min-h-[50px] rounded-lg border border-slate-300 bg-white px-4 text-right text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
@@ -207,7 +213,7 @@ export function InstallmentImportScreen(): React.ReactElement {
             className="text-right text-sm font-bold text-slate-700 dark:text-slate-200"
             style={rtl.text}
           >
-            כרטיס לחיוב
+            {t('כרטיס לחיוב')}
           </Text>
           <View className="flex-row-reverse flex-wrap gap-2" style={rtl.row}>
             {cards.map(card => {
@@ -225,7 +231,7 @@ export function InstallmentImportScreen(): React.ReactElement {
                   onPress={(): void => setBillingCardId(card.cardId)}
                 >
                   <Text
-                    className="text-center text-sm font-extrabold text-slate-800 dark:text-slate-100"
+                    className="text-right text-center text-sm font-extrabold text-slate-800 dark:text-slate-100"
                     style={rtl.text}
                   >
                     {card.displayName} · {card.last4}
@@ -239,7 +245,7 @@ export function InstallmentImportScreen(): React.ReactElement {
               className="text-right text-sm font-bold text-amber-700 dark:text-amber-300"
               style={rtl.text}
             >
-              יש להוסיף כרטיס לפני ייבוא תשלומים.
+              {t('יש להוסיף כרטיס לפני ייבוא תשלומים.')}
             </Text>
           ) : null}
 
@@ -247,7 +253,7 @@ export function InstallmentImportScreen(): React.ReactElement {
             className="text-right text-sm font-bold text-slate-700 dark:text-slate-200"
             style={rtl.text}
           >
-            הערות (אופציונלי)
+            {t('הערות (אופציונלי)')}
           </Text>
           <TextInput
             className="min-h-20 rounded-lg border border-slate-300 bg-white px-4 py-3 text-right text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
@@ -273,10 +279,12 @@ export function InstallmentImportScreen(): React.ReactElement {
               onPress={saveObligation}
             >
               <Text
-                className="text-center text-base font-extrabold text-white"
+                className="text-right text-center text-base font-extrabold text-white"
                 style={rtl.text}
               >
-                {editingId === null ? 'הוסף תשלומים' : 'שמור שינויים'}
+                {editingId === null
+                  ? t('הוסף תשלומים')
+                  : t('שמור שינויים')}
               </Text>
             </Pressable>
             {editingId !== null ? (
@@ -286,10 +294,10 @@ export function InstallmentImportScreen(): React.ReactElement {
                 onPress={resetForm}
               >
                 <Text
-                  className="text-center text-base font-bold text-slate-700 dark:text-slate-200"
+                  className="text-right text-center text-base font-bold text-slate-700 dark:text-slate-200"
                   style={rtl.text}
                 >
-                  ביטול
+                  {t('ביטול')}
                 </Text>
               </Pressable>
             ) : null}
@@ -316,7 +324,9 @@ export function InstallmentImportScreen(): React.ReactElement {
                     style={rtl.text}
                   >
                     {obligation.monthlyPayment.toLocaleString('he-IL')} ₪ ·{' '}
-                    {obligation.monthsRemaining} חודשים נותרו
+                    {t('{{count}} חודשים נותרו', {
+                      count: obligation.monthsRemaining,
+                    })}
                   </Text>
                 </Pressable>
                 <Pressable
@@ -325,10 +335,10 @@ export function InstallmentImportScreen(): React.ReactElement {
                   onPress={(): void => confirmDelete(obligation)}
                 >
                   <Text
-                    className="text-center text-sm font-extrabold text-red-700 dark:text-red-200"
+                    className="text-right text-center text-sm font-extrabold text-red-700 dark:text-red-200"
                     style={rtl.text}
                   >
-                    מחיקה
+                    {t('מחיקה')}
                   </Text>
                 </Pressable>
               </View>

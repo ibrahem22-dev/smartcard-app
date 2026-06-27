@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { Pressable, ScrollView, Text, View } from 'react-native';
 
+import { useTranslation } from '../hooks/useTranslation';
+import { en } from '../i18n/en';
 import { rtl } from '../utils/rtlStyles';
 
 const GLOSSARY_TERMS = [
@@ -70,6 +72,7 @@ const GLOSSARY_TERMS = [
 ] as const;
 
 export function GlossaryScreen(): React.ReactElement {
+  const { t } = useTranslation();
   const [expandedTerms, setExpandedTerms] = useState<readonly string[]>([]);
 
   function toggleTerm(title: string): void {
@@ -91,18 +94,20 @@ export function GlossaryScreen(): React.ReactElement {
             className="text-right text-[26px] font-extrabold text-slate-900 dark:text-white"
             style={rtl.text}
           >
-            מילון פיננסי
+            {t('מילון פיננסי')}
           </Text>
           <Text
             className="mb-1 text-right text-sm leading-6 text-slate-600 dark:text-slate-300"
             style={rtl.text}
           >
-            הסברים כלליים למונחים נפוצים. המידע נועד להבנה בלבד ואינו ייעוץ
-            פיננסי.
+            {t(
+              'הסברים כלליים למונחים נפוצים. המידע נועד להבנה בלבד ואינו ייעוץ פיננסי.',
+            )}
           </Text>
 
-          {GLOSSARY_TERMS.map(term => {
+          {GLOSSARY_TERMS.map((term, index) => {
             const isExpanded = expandedTerms.includes(term.title);
+            const englishTerm = en.glossary.terms[index];
 
             return (
               <View
@@ -113,13 +118,17 @@ export function GlossaryScreen(): React.ReactElement {
                   className="text-right text-xl font-extrabold text-blue-700 dark:text-blue-400"
                   style={rtl.text}
                 >
-                  {term.title}
+                  {t(term.title, undefined, englishTerm?.title)}
                 </Text>
                 <Text
                   className="mt-2 text-right text-base leading-7 text-slate-700 dark:text-slate-200"
                   style={rtl.text}
                 >
-                  {term.explanation}
+                  {t(
+                    term.explanation,
+                    undefined,
+                    englishTerm?.explanation,
+                  )}
                 </Text>
 
                 <Pressable
@@ -129,10 +138,10 @@ export function GlossaryScreen(): React.ReactElement {
                   onPress={(): void => toggleTerm(term.title)}
                 >
                   <Text
-                    className="text-center text-base font-extrabold text-blue-700 dark:text-blue-300"
+                    className="text-right text-center text-base font-extrabold text-blue-700 dark:text-blue-300"
                     style={rtl.text}
                   >
-                    כיצד זה משפיע עליך?
+                    {t('כיצד זה משפיע עליך?')}
                   </Text>
                 </Pressable>
 
@@ -142,7 +151,7 @@ export function GlossaryScreen(): React.ReactElement {
                       className="text-right text-sm leading-6 text-slate-700 dark:text-slate-200"
                       style={rtl.text}
                     >
-                      {term.example}
+                      {t(term.example, undefined, englishTerm?.example)}
                     </Text>
                   </View>
                 ) : null}

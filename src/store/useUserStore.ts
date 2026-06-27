@@ -34,6 +34,8 @@ interface UserState {
    * Safe to call again (re-hydrates, e.g. after a re-auth).
    */
   hydrate(): void;
+  hydrateProfile(profileId: string): void;
+  persistProfile(profileId: string): void;
 
   /** Write a complete profile to memory and MMKV. */
   setProfile(profile: UserProfile): void;
@@ -59,13 +61,41 @@ export const useUserStore = create<UserState>()((set) => ({
 
   hydrate() {
     const handle = keyVault.getEncryptedStorage();
-    const stored = handle.getUserProfile();
-    set({ profile: stored ?? null });
+    const activeProfileId = handle.getString(MMKV_KEYS.activeProfileId);
+    if (activeProfileId === undefined) {
+      set({ profile: null });
+      return;
+    }
+    const raw = handle.getString(MMKV_KEYS.profileUser(activeProfileId));
+    set({
+      profile: raw === undefined ? null : (JSON.parse(raw) as UserProfile),
+    });
+  },
+
+  hydrateProfile(profileId: string) {
+    const handle = keyVault.getEncryptedStorage();
+    const raw = handle.getString(MMKV_KEYS.profileUser(profileId));
+    set({
+      profile: raw === undefined ? null : (JSON.parse(raw) as UserProfile),
+    });
+  },
+
+  persistProfile(profileId: string) {
+    const profile = useUserStore.getState().profile;
+    if (profile !== null) {
+      keyVault
+        .getEncryptedStorage()
+        .set(MMKV_KEYS.profileUser(profileId), JSON.stringify(profile));
+    }
   },
 
   setProfile(profile: UserProfile) {
     const handle = keyVault.getEncryptedStorage();
-    handle.setUserProfile(profile);
+    const activeProfileId = handle.getString(MMKV_KEYS.activeProfileId);
+    if (activeProfileId === undefined) {
+      throw new Error('ACTIVE_PROFILE_REQUIRED');
+    }
+    handle.set(MMKV_KEYS.profileUser(activeProfileId), JSON.stringify(profile));
     set({ profile });
   },
 
@@ -79,7 +109,15 @@ export const useUserStore = create<UserState>()((set) => ({
         monthlyIncome: amount,
         updatedAt: Date.now(),
       };
-      keyVault.getEncryptedStorage().setUserProfile(updated);
+      const storage = keyVault.getEncryptedStorage();
+      const activeProfileId = storage.getString(MMKV_KEYS.activeProfileId);
+      if (activeProfileId === undefined) {
+        throw new Error('ACTIVE_PROFILE_REQUIRED');
+      }
+      storage.set(
+        MMKV_KEYS.profileUser(activeProfileId),
+        JSON.stringify(updated),
+      );
       return { profile: updated };
     });
   },
@@ -94,7 +132,15 @@ export const useUserStore = create<UserState>()((set) => ({
         currentBalance: amount,
         updatedAt: Date.now(),
       };
-      keyVault.getEncryptedStorage().setUserProfile(updated);
+      const storage = keyVault.getEncryptedStorage();
+      const activeProfileId = storage.getString(MMKV_KEYS.activeProfileId);
+      if (activeProfileId === undefined) {
+        throw new Error('ACTIVE_PROFILE_REQUIRED');
+      }
+      storage.set(
+        MMKV_KEYS.profileUser(activeProfileId),
+        JSON.stringify(updated),
+      );
       return { profile: updated };
     });
   },
@@ -102,11 +148,5 @@ export const useUserStore = create<UserState>()((set) => ({
   clearProfile() {
     // Zero memory unconditionally.
     set({ profile: null });
-    // Best-effort MMKV delete — vault may already be locked/wiped on logout.
-    try {
-      keyVault.getEncryptedStorage().delete(MMKV_KEYS.userProfile);
-    } catch {
-      // Vault locked or wiped: nothing to delete, in-memory state already cleared.
-    }
   },
 }));

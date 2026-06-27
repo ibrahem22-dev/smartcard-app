@@ -2,11 +2,13 @@ import React, { useEffect, useState } from 'react';
 import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
 
 import { useProfileStore } from '../store/useProfileStore';
+import { useTranslation } from '../hooks/useTranslation';
 import type { AppProfile } from '../types/profile.types';
 import { rtl } from '../utils/rtlStyles';
 
 export interface ProfileSwitcherProps {
   readonly mode: 'compact' | 'editor';
+  readonly activeBorderColor?: string;
   readonly onAddProfile?: () => void;
   readonly onRequestDelete?: (profile: AppProfile) => void;
 }
@@ -23,9 +25,11 @@ function getInitials(displayName: string): string {
 
 export function ProfileSwitcher({
   mode,
+  activeBorderColor,
   onAddProfile,
   onRequestDelete,
 }: ProfileSwitcherProps): React.ReactElement {
+  const { t } = useTranslation();
   const allProfiles = useProfileStore(state => state.allProfiles);
   const activeProfile = useProfileStore(state => state.activeProfile);
   const hydrate = useProfileStore(state => state.hydrate);
@@ -75,6 +79,11 @@ export function ProfileSwitcher({
                       : 'border-slate-300 bg-white dark:border-neutral-700 dark:bg-neutral-900'
                   }`}
                   onPress={(): void => switchProfile(profile.id)}
+                  style={
+                    isActive && activeBorderColor !== undefined
+                      ? { borderColor: activeBorderColor }
+                      : undefined
+                  }
                 >
                   <Text
                     className={`text-center text-base font-black ${
@@ -108,7 +117,7 @@ export function ProfileSwitcher({
                 className="text-center text-sm font-extrabold text-blue-700 dark:text-blue-200"
                 style={rtl.text}
               >
-                הוסף פרופיל
+                {t('הוסף פרופיל')}
               </Text>
             </Pressable>
           ) : null}
@@ -143,7 +152,7 @@ export function ProfileSwitcher({
                         className="text-center text-sm font-extrabold text-white"
                         style={rtl.text}
                       >
-                        שמור שם
+                        {t('שמור שם')}
                       </Text>
                     </Pressable>
                   </View>
@@ -167,7 +176,7 @@ export function ProfileSwitcher({
                         className="text-sm font-bold text-slate-700 dark:text-slate-200"
                         style={rtl.text}
                       >
-                        שינוי שם
+                        {t('שינוי שם')}
                       </Text>
                     </Pressable>
                     <Pressable
@@ -188,7 +197,7 @@ export function ProfileSwitcher({
                         }`}
                         style={rtl.text}
                       >
-                        מחיקה
+                        {t('מחיקה')}
                       </Text>
                     </Pressable>
                   </View>

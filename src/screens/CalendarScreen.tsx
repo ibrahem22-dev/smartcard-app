@@ -1,8 +1,9 @@
 import React from 'react';
-import { FlatList, Text, View, type ListRenderItem } from 'react-native';
+import { FlatList, Text, View } from 'react-native';
 
 import { useCashflowCalendar } from '../hooks/useCashflowCalendar';
 import { useTheme } from '../hooks/useTheme';
+import { useTranslation } from '../hooks/useTranslation';
 import type { CashflowCalendarCharge } from '../types/cashflow.types';
 import { rtl } from '../utils/rtlStyles';
 
@@ -35,20 +36,21 @@ function formatAmount(amount: number): string {
   }).format(amount);
 }
 
-const renderCharge: ListRenderItem<CashflowCalendarCharge> = ({
-  item,
-}): React.ReactElement => {
+function renderCharge(
+  item: CashflowCalendarCharge,
+  companyAccent: string,
+): React.ReactElement {
   return (
     <View
       className={`mb-3 min-h-[82px] w-full flex-row-reverse items-center justify-between rounded-lg border border-slate-300 p-4 dark:border-neutral-700 rtl:flex-row-reverse ${getRiskRowClassName(
         item.riskLevel,
       )}`}
-      style={rtl.row}
+      style={[rtl.row, { borderColor: companyAccent }]}
     >
       <View className="flex-1 items-stretch">
         <Text
           className="text-right text-base font-extrabold text-slate-900 dark:text-white"
-          style={rtl.text}
+          style={[rtl.text, { color: companyAccent }]}
         >
           {formatDisplayDate(item.date)}
         </Text>
@@ -67,10 +69,11 @@ const renderCharge: ListRenderItem<CashflowCalendarCharge> = ({
       </Text>
     </View>
   );
-};
+}
 
 export function CalendarScreen(): React.ReactElement {
   const theme = useTheme();
+  const { t } = useTranslation();
   const charges = useCashflowCalendar();
 
   if (charges.length === 0) {
@@ -80,10 +83,10 @@ export function CalendarScreen(): React.ReactElement {
         style={rtl.screen}
       >
         <Text
-          className="text-center text-lg font-extrabold text-slate-500 dark:text-slate-300"
+          className="text-right text-center text-lg font-extrabold text-slate-500 dark:text-slate-300"
           style={rtl.text}
         >
-          אין חיובים מתוכננים 📅
+          {t('אין חיובים מתוכננים 📅')}
         </Text>
       </View>
     );
@@ -97,8 +100,16 @@ export function CalendarScreen(): React.ReactElement {
       keyExtractor={(item: CashflowCalendarCharge): string =>
         `${item.date}-${item.cardName}-${item.amount}`
       }
-      renderItem={renderCharge}
-      style={rtl.scrollOuter}
+      renderItem={({ item }): React.ReactElement =>
+        renderCharge(item, theme.companyAccent)
+      }
+      style={[
+        rtl.scrollOuter,
+        {
+          borderTopColor: theme.bankColor,
+          borderTopWidth: 2,
+        },
+      ]}
     />
   );
 }

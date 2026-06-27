@@ -9,6 +9,7 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { FeatureGate } from '../components/FeatureGate';
 import { useTheme } from '../hooks/useTheme';
+import { useTranslation } from '../hooks/useTranslation';
 import type { PurchaseGateStackParamList } from '../navigation/types';
 import type { DecisionVerdict } from '../types/decision.types';
 import { rtl } from '../utils/rtlStyles';
@@ -44,6 +45,7 @@ export function DecisionScreen({
   route,
 }: DecisionScreenProps): React.ReactElement {
   const theme = useTheme();
+  const { t } = useTranslation();
   const verdict = route.params.verdict;
 
   return (
@@ -56,18 +58,21 @@ export function DecisionScreen({
         style={rtl.scrollOuter}
       >
       <View className="min-h-full w-full p-5 dark:bg-app-dark">
-        <View className={`rounded-lg border p-5 ${VERDICT_CLASSES[verdict]}`}>
+        <View
+          className={`rounded-lg border p-5 ${VERDICT_CLASSES[verdict]}`}
+          style={{ backgroundColor: theme.companyAccent }}
+        >
           <Text
             className="text-right text-3xl font-extrabold text-slate-900 dark:text-slate-50"
-            style={rtl.text}
+            style={[rtl.text, { color: theme.bankColor }]}
           >
-            {VERDICT_LABELS[verdict]}
+            {t(VERDICT_LABELS[verdict])}
           </Text>
           <Text
             className="mt-2.5 text-right text-base leading-6 text-slate-800 dark:text-slate-100"
             style={rtl.text}
           >
-            {VERDICT_REASONS[verdict]}
+            {t(VERDICT_REASONS[verdict])}
           </Text>
         </View>
 
@@ -77,7 +82,7 @@ export function DecisionScreen({
               className="mb-3 text-right text-lg font-extrabold text-slate-900 dark:text-slate-50"
               style={rtl.text}
             >
-              ניקוד כרטיסים
+              {t('ניקוד כרטיסים')}
             </Text>
             <View
               className="min-h-[38px] flex-row-reverse items-center justify-between border-t border-slate-200 rtl:flex-row-reverse dark:border-neutral-700"
@@ -87,7 +92,7 @@ export function DecisionScreen({
                 className="text-right text-base text-slate-700 dark:text-slate-200"
                 style={rtl.text}
               >
-                כרטיס מוביל
+                {t('כרטיס מוביל')}
               </Text>
               <Text
                 className="text-right text-base font-extrabold text-slate-900 dark:text-slate-50"
@@ -104,7 +109,7 @@ export function DecisionScreen({
                 className="text-right text-base text-slate-700 dark:text-slate-200"
                 style={rtl.text}
               >
-                כרטיס חלופי
+                {t('כרטיס חלופי')}
               </Text>
               <Text
                 className="text-right text-base font-extrabold text-slate-900 dark:text-slate-50"
@@ -124,10 +129,10 @@ export function DecisionScreen({
           onPress={(): void => navigation.navigate('Contact')}
         >
           <Text
-            className="text-center text-base font-extrabold text-white dark:text-slate-900"
+            className="text-right text-center text-base font-extrabold text-white dark:text-slate-900"
             style={rtl.text}
           >
-            יש לך בעיה?
+            {t('יש לך בעיה?')}
           </Text>
         </Pressable>
       </View>

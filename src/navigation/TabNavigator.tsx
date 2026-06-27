@@ -15,6 +15,7 @@ import {
 } from '@react-navigation/bottom-tabs';
 
 import { CalendarStack } from './stacks/CalendarStack';
+import { useTranslation } from '../hooks/useTranslation';
 import { CardsStack } from './stacks/CardsStack';
 import { HomeStack } from './stacks/HomeStack';
 import { PurchaseGateStack } from './stacks/PurchaseGateStack';
@@ -34,14 +35,16 @@ const ICONS: Record<keyof TabParamList, IoniconName> = {
 };
 
 const LABELS: Record<keyof TabParamList, string> = {
-  Home: 'Home',
-  PurchaseGate: 'Purchase Gate',
-  Cards: 'Cards',
-  Calendar: 'Calendar',
-  Settings: 'Settings',
+  Home: 'בית',
+  PurchaseGate: 'בדיקת קנייה',
+  Cards: 'כרטיסים',
+  Calendar: 'לוח',
+  Settings: 'תפריט',
 };
 
 export function TabNavigator(): React.ReactElement {
+  const { t } = useTranslation();
+
   return (
     <Tab.Navigator
       // Tabs render start-to-end; RTL is handled globally by I18nManager.
@@ -49,8 +52,12 @@ export function TabNavigator(): React.ReactElement {
         headerShown: false,
         tabBarActiveTintColor: '#2563EB',
         tabBarInactiveTintColor: '#94A3B8',
-        tabBarLabel: LABELS[route.name],
-        tabBarStyle: { flexDirection: 'row-reverse' },
+        tabBarLabel: t(LABELS[route.name]),
+        tabBarStyle: {
+          backgroundColor: '#141414',
+          borderTopColor: '#262626',
+          flexDirection: 'row-reverse',
+        },
         tabBarIcon: ({ color, size }) => (
           <Ionicons name={ICONS[route.name]} size={size} color={color} />
         ),

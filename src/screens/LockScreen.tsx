@@ -12,17 +12,17 @@
 import React from 'react';
 import { Pressable, Text, View } from 'react-native';
 
-import { useTheme } from '../hooks/useTheme';
 import { useAuth } from '../navigation/authContext';
+import { useTranslation } from '../hooks/useTranslation';
 
 export function LockScreen(): React.ReactElement {
-  const theme = useTheme();
   const auth = useAuth();
+  const { t } = useTranslation();
 
   return (
     <View className="flex-1 items-center justify-center bg-slate-900 p-6 dark:bg-app-dark">
-      <Text className="text-center text-[22px] font-bold text-white">
-        Authenticate to continue
+      <Text className="text-right text-center text-[22px] font-bold text-white">
+        {t('אימות להמשך')}
       </Text>
 
       {__DEV__ && auth.debugUnlock !== undefined ? (
@@ -33,8 +33,8 @@ export function LockScreen(): React.ReactElement {
             void auth.debugUnlock?.();
           }}
         >
-          <Text className="text-base font-semibold text-white">
-            DEBUG: Unlock
+          <Text className="text-right text-base font-semibold text-white">
+            {t('פתיחת נעילה לצורכי פיתוח')}
           </Text>
         </Pressable>
       ) : null}

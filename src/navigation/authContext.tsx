@@ -24,6 +24,15 @@ import { AppState, type AppStateStatus } from 'react-native';
 import { MMKV as MmkvStorage } from 'react-native-mmkv';
 
 import { keyVault, type AuthStatus } from '../security/keyVault';
+import { useCardsStore } from '../store/useCardsStore';
+import { useProfileStore } from '../store/useProfileStore';
+import { useUserStore } from '../store/useUserStore';
+
+function clearInMemoryStores(): void {
+  useUserStore.getState().clearProfile();
+  useCardsStore.getState().clearCards();
+  useProfileStore.getState().clearProfiles();
+}
 
 export interface AuthContextValue {
   readonly status: AuthStatus;
@@ -56,9 +65,13 @@ export function AuthProvider({
   const evaluate = useCallback(async (): Promise<void> => {
     try {
       const next = await keyVault.getAuthStatus();
+      if (next !== 'UNLOCKED') {
+        clearInMemoryStores();
+      }
       setStatus(next);
     } catch {
       // Any failure is treated as locked -- never optimistically unlock.
+      clearInMemoryStores();
       setStatus('LOCKED');
     }
   }, []);
@@ -73,6 +86,7 @@ export function AuthProvider({
   
   const lock = useCallback(async (): Promise<void> => {
     await keyVault.lock();
+    clearInMemoryStores();
     setStatus('LOCKED');
   }, []);
 
@@ -95,6 +109,7 @@ export function AuthProvider({
         if (next === 'active') {
           void evaluate();
         } else {
+          clearInMemoryStores();
           setStatus('UNKNOWN');
         }
       },
