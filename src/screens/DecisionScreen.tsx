@@ -47,12 +47,15 @@ export function DecisionScreen({
   const verdict = route.params.verdict;
 
   return (
-    <View style={[rtl.screen, { backgroundColor: '#F8FAFC' }]}>
+    <View
+      className="flex-1 bg-slate-50 dark:bg-app-dark"
+      style={rtl.screen}
+    >
       <ScrollView
         contentContainerStyle={rtl.scrollInner}
         style={rtl.scrollOuter}
       >
-      <View className="min-h-full w-full p-5 dark:bg-neutral-950">
+      <View className="min-h-full w-full p-5 dark:bg-app-dark">
         <View className={`rounded-lg border p-5 ${VERDICT_CLASSES[verdict]}`}>
           <Text
             className="text-right text-3xl font-extrabold text-slate-900 dark:text-slate-50"
@@ -69,7 +72,7 @@ export function DecisionScreen({
         </View>
 
         <FeatureGate feature="ScoreSection">
-          <View className="mt-5 rounded-lg border border-slate-300 bg-white p-[18px] opacity-45 dark:border-neutral-700 dark:bg-neutral-900">
+          <View className="mt-5 rounded-lg border border-slate-300 bg-white p-[18px] opacity-45 dark:border-neutral-700 dark:bg-dark-surface">
             <Text
               className="mb-3 text-right text-lg font-extrabold text-slate-900 dark:text-slate-50"
               style={rtl.text}

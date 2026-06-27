@@ -1,4 +1,4 @@
-import { useColorScheme } from 'nativewind';
+import { useColorScheme } from 'react-native';
 
 import { useCardsStore } from '../store/useCardsStore';
 import { useUserStore } from '../store/useUserStore';
@@ -95,7 +95,7 @@ export function useTheme(): ThemeColors {
   const primaryCard = useCardsStore(state =>
     state.cards.find(card => card.isActive) ?? state.cards[0],
   );
-  const { colorScheme } = useColorScheme();
+  const colorScheme = useColorScheme();
   const isDark = colorScheme === 'dark';
 
   const bankColor = BANK_COLORS[bankName ?? ''] ?? NEUTRAL_COLOR;

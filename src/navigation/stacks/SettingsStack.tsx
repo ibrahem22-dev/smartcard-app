@@ -12,6 +12,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { ContactScreen } from '../../screens/ContactScreen';
 import { GlossaryScreen } from '../../screens/GlossaryScreen';
+import { InstallmentImportScreen } from '../../screens/InstallmentImportScreen';
 import { SettingsScreen } from '../../screens/SettingsScreen';
 import type { SettingsStackParamList } from '../types';
 
@@ -37,6 +38,15 @@ export function SettingsStack(): React.ReactElement {
           headerShown: true,
           headerTitleAlign: 'center',
           title: 'מילון פיננסי',
+        }}
+      />
+      <Stack.Screen
+        name="InstallmentImport"
+        component={InstallmentImportScreen}
+        options={{
+          headerShown: true,
+          headerTitleAlign: 'center',
+          title: 'תשלומים קיימים',
         }}
       />
     </Stack.Navigator>

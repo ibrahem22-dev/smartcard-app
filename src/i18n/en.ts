@@ -6,6 +6,7 @@ export const en = {
     hebrew: 'Hebrew',
     english: 'English',
     financialGlossary: 'Financial glossary',
+    importInstallments: 'Add existing installments',
     contactIssuer: 'Contact the card issuer',
   },
 } as const;

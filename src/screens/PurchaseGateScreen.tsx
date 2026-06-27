@@ -91,13 +91,16 @@ export function PurchaseGateScreen(): React.ReactElement {
   }
 
   return (
-    <View style={[rtl.screen, { backgroundColor: '#F8FAFC' }]}>
+    <View
+      className="flex-1 bg-slate-50 dark:bg-app-dark"
+      style={rtl.screen}
+    >
       <ScrollView
         contentContainerStyle={rtl.scrollInner}
         keyboardShouldPersistTaps="handled"
         style={rtl.scrollOuter}
       >
-        <View className="min-h-full w-full p-5 dark:bg-neutral-950">
+        <View className="min-h-full w-full p-5 dark:bg-app-dark">
           <View className="mb-5 w-full items-stretch">
             <Text
               className="text-right text-3xl font-extrabold text-slate-900 dark:text-slate-50"
@@ -168,7 +171,7 @@ export function PurchaseGateScreen(): React.ReactElement {
                   סכום הרכישה
                 </Text>
                 <View
-                  className="min-h-[54px] flex-row-reverse items-center rounded-lg border border-slate-300 bg-white px-3.5 dark:border-neutral-700 dark:bg-neutral-900 rtl:flex-row-reverse"
+                  className="min-h-[54px] flex-row-reverse items-center rounded-lg border border-slate-300 bg-white px-3.5 dark:border-neutral-700 dark:bg-dark-surface rtl:flex-row-reverse"
                   style={rtl.row}
                 >
                   <Text
@@ -229,7 +232,7 @@ export function PurchaseGateScreen(): React.ReactElement {
           <View className="mt-6 min-h-[150px] w-full">
             {verdictClass === null || decision === null ? (
               <Text
-                className="rounded-lg border border-slate-300 bg-white p-[18px] text-right text-base leading-6 text-slate-500 dark:border-neutral-700 dark:bg-neutral-900 dark:text-slate-300"
+                className="rounded-lg border border-slate-300 bg-white p-[18px] text-right text-base leading-6 text-slate-500 dark:border-neutral-700 dark:bg-dark-surface dark:text-slate-300"
                 style={rtl.text}
               >
                 ההחלטה תופיע כאן אחרי הבדיקה.

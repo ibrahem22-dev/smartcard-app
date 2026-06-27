@@ -1,4 +1,4 @@
-import { useMemo } from 'react';
+import { useEffect, useMemo } from 'react';
 
 import {
   calculateMonthlyRisk,
@@ -15,6 +15,7 @@ import type {
   RiskScore,
 } from '../types/cashflow.types';
 import { ObligationType } from '../types/cashflow.types';
+import type { ImportedInstallment } from '../types/installment.types';
 import { Currency, PurchaseCategory } from '../types/purchase.types';
 
 const WINDOW_DAYS = 30;
@@ -53,6 +54,21 @@ function buildCardObligation(card: CardInput): Obligation {
     amount: card.framework.currentBalance,
     dayOfMonth: card.billingCycle.billingDayOfMonth,
     description: card.displayName,
+    category: PurchaseCategory.Other,
+    cardId: card.cardId,
+  };
+}
+
+function buildImportedObligation(
+  installment: ImportedInstallment,
+  card: CardInput,
+): Obligation {
+  return {
+    obligationId: installment.installmentId,
+    type: ObligationType.InstallmentCharge,
+    amount: installment.monthlyPayment,
+    dayOfMonth: card.billingCycle.billingDayOfMonth,
+    description: installment.merchantName,
     category: PurchaseCategory.Other,
     cardId: card.cardId,
   };
@@ -106,12 +122,39 @@ function groupChargesByDate(
 
 export function useCashflowCalendar(): readonly CashflowCalendarCharge[] {
   const cards = useCardsStore(state => state.cards);
+  const importedInstallments = useCardsStore(state => state.obligations);
+  const hydrateCards = useCardsStore(state => state.hydrate);
   const profile = useUserStore(state => state.profile);
 
+  useEffect(() => {
+    hydrateCards();
+  }, [hydrateCards]);
+
   return useMemo((): readonly CashflowCalendarCharge[] => {
-    const obligations = cards
+    const cardObligations = cards
       .filter((card: CardInput): boolean => card.framework.currentBalance > 0)
       .map((card: CardInput): Obligation => buildCardObligation(card));
+    const installmentObligations = importedInstallments
+      .map(
+        (
+          installment: ImportedInstallment,
+        ): { installment: ImportedInstallment; card: CardInput | undefined } => ({
+          installment,
+          card: cards.find(card => card.cardId === installment.billingCardId),
+        }),
+      )
+      .filter(
+        (
+          item,
+        ): item is {
+          installment: ImportedInstallment;
+          card: CardInput;
+        } => item.card !== undefined,
+      )
+      .map(({ installment, card }): Obligation =>
+        buildImportedObligation(installment, card),
+      );
+    const obligations = [...cardObligations, ...installmentObligations];
 
     if (obligations.length === 0) {
       return [];
@@ -140,12 +183,11 @@ export function useCashflowCalendar(): readonly CashflowCalendarCharge[] {
 
     void projection;
 
-    const charges = cards
-      .filter((card: CardInput): boolean => card.framework.currentBalance > 0)
-      .map((card: CardInput): CashflowCalendarCharge => ({
-        date: toIsoDate(getNextBillingDate(card.billingCycle.billingDayOfMonth, today)),
-        cardName: card.displayName,
-        amount: card.framework.currentBalance,
+    const charges = obligations
+      .map((obligation: Obligation): CashflowCalendarCharge => ({
+        date: toIsoDate(getNextBillingDate(obligation.dayOfMonth, today)),
+        cardName: obligation.description,
+        amount: obligation.amount,
         riskLevel: monthlyRisk.score,
       }))
       .filter((charge: CashflowCalendarCharge): boolean =>
@@ -155,6 +197,7 @@ export function useCashflowCalendar(): readonly CashflowCalendarCharge[] {
     return groupChargesByDate(charges);
   }, [
     cards,
+    importedInstallments,
     profile?.currentBalance,
     profile?.dangerThreshold,
     profile?.monthlyIncome,

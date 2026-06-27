@@ -51,12 +51,15 @@ export function ContactScreen(): React.ReactElement {
   const script = SCRIPTS[selectedProblem];
 
   return (
-    <View style={[rtl.screen, { backgroundColor: '#F8FAFC' }]}>
+    <View
+      className="flex-1 bg-slate-50 dark:bg-app-dark"
+      style={rtl.screen}
+    >
       <ScrollView
         contentContainerStyle={rtl.scrollInner}
         style={rtl.scrollOuter}
       >
-      <View className="min-h-full w-full p-5 dark:bg-neutral-950">
+      <View className="min-h-full w-full p-5 dark:bg-app-dark">
         <Text
           className="mb-[18px] text-right text-[26px] font-extrabold text-slate-900 dark:text-white"
           style={rtl.text}
@@ -78,7 +81,7 @@ export function ContactScreen(): React.ReactElement {
                 className={`min-h-10 justify-center rounded-lg border px-3 ${
                   isSelected
                     ? 'border-blue-600 bg-blue-100 dark:border-blue-400 dark:bg-blue-950'
-                    : 'border-slate-300 bg-white dark:border-neutral-700 dark:bg-neutral-900'
+                    : 'border-slate-300 bg-white dark:border-neutral-700 dark:bg-dark-surface'
                 }`}
                 key={option.id}
                 onPress={(): void => setSelectedProblem(option.id)}
@@ -101,7 +104,7 @@ export function ContactScreen(): React.ReactElement {
         <View className="w-full gap-3">
           {ISSUER_CONTACTS.map((issuer: IssuerContact): React.ReactElement => (
             <View
-              className="w-full rounded-lg border border-slate-300 bg-white p-4 dark:border-neutral-700 dark:bg-neutral-900"
+              className="w-full rounded-lg border border-slate-300 bg-white p-4 dark:border-neutral-700 dark:bg-dark-surface"
               key={issuer.name}
             >
               <Text
@@ -140,7 +143,7 @@ export function ContactScreen(): React.ReactElement {
 
               <Pressable
                 accessibilityRole="button"
-                className="mt-3.5 min-h-11 items-center justify-center rounded-lg bg-slate-900 dark:bg-white"
+                className="mt-3.5 min-h-11 items-center justify-center rounded-lg bg-slate-900 dark:bg-slate-100"
                 onPress={(): Promise<void> => Linking.openURL(getTelUrl(issuer.phone))}
               >
                 <Text

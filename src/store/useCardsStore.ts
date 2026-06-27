@@ -29,6 +29,8 @@ import { create } from 'zustand';
 // UserCard is CardInput — this alias is used project-wide (see decision.types.ts).
 import type { CardInput as UserCard } from '../types/card.types';
 import { keyVault } from '../security/keyVault';
+import type { ImportedInstallment } from '../types/installment.types';
+import { isValidMonetaryAmount } from '../utils/monetary';
 import { MMKV_KEYS } from './keys';
 
 // ---------------------------------------------------------------------------
@@ -54,6 +56,7 @@ interface CardsState {
    * Use this when you need clubSuggestedByApp alongside the card.
    */
   entries: CardEntry[];
+  obligations: ImportedInstallment[];
 
   /**
    * Populate in-memory state from encrypted MMKV.
@@ -77,6 +80,12 @@ interface CardsState {
    * No-op if the id is not found. Does not affect clubSuggestedByApp metadata.
    */
   updateCard(cardId: string, updates: Partial<UserCard>): void;
+  addObligation(obligation: ImportedInstallment): void;
+  updateObligation(
+    installmentId: string,
+    obligation: ImportedInstallment,
+  ): void;
+  deleteObligation(installmentId: string): void;
 
   /**
    * Zero in-memory state and delete the MMKV record.
@@ -101,16 +110,48 @@ function parseEntries(raw: string | undefined): CardEntry[] {
   return JSON.parse(raw) as CardEntry[];
 }
 
+function persistObligations(obligations: readonly ImportedInstallment[]): void {
+  keyVault
+    .getEncryptedStorage()
+    .set(MMKV_KEYS.cardObligations, JSON.stringify(obligations));
+}
+
+function parseObligations(raw: string | undefined): ImportedInstallment[] {
+  if (raw === undefined) {
+    return [];
+  }
+  return JSON.parse(raw) as ImportedInstallment[];
+}
+
+function assertValidObligation(obligation: ImportedInstallment): void {
+  if (
+    obligation.merchantName.trim() === '' ||
+    !isValidMonetaryAmount(obligation.totalAmount) ||
+    !isValidMonetaryAmount(obligation.monthlyPayment) ||
+    !Number.isInteger(obligation.monthsRemaining) ||
+    obligation.monthsRemaining < 1 ||
+    obligation.monthsRemaining > 360 ||
+    obligation.billingCardId.trim() === '' ||
+    obligation.source !== 'imported'
+  ) {
+    throw new Error('INVALID_IMPORTED_INSTALLMENT');
+  }
+}
+
 // ---------------------------------------------------------------------------
 
 export const useCardsStore = create<CardsState>()((set) => ({
   cards: [],
   entries: [],
+  obligations: [],
 
   hydrate() {
     const handle = keyVault.getEncryptedStorage();
     const entries = parseEntries(handle.getString(MMKV_KEYS.cards));
-    set({ entries, cards: entries.map((e) => e.card) });
+    const obligations = parseObligations(
+      handle.getString(MMKV_KEYS.cardObligations),
+    );
+    set({ entries, cards: entries.map((e) => e.card), obligations });
   },
 
   addCard(card: UserCard, clubSuggestedByApp?: boolean) {
@@ -149,12 +190,56 @@ export const useCardsStore = create<CardsState>()((set) => ({
     });
   },
 
+  addObligation(obligation: ImportedInstallment) {
+    assertValidObligation(obligation);
+    set(state => {
+      if (
+        state.obligations.some(
+          existing => existing.installmentId === obligation.installmentId,
+        )
+      ) {
+        throw new Error('IMPORTED_INSTALLMENT_ALREADY_EXISTS');
+      }
+      const obligations = [...state.obligations, obligation];
+      persistObligations(obligations);
+      return { obligations };
+    });
+  },
+
+  updateObligation(
+    installmentId: string,
+    obligation: ImportedInstallment,
+  ) {
+    assertValidObligation(obligation);
+    if (installmentId !== obligation.installmentId) {
+      throw new Error('IMPORTED_INSTALLMENT_ID_MISMATCH');
+    }
+    set(state => {
+      const obligations = state.obligations.map(existing =>
+        existing.installmentId === installmentId ? obligation : existing,
+      );
+      persistObligations(obligations);
+      return { obligations };
+    });
+  },
+
+  deleteObligation(installmentId: string) {
+    set(state => {
+      const obligations = state.obligations.filter(
+        obligation => obligation.installmentId !== installmentId,
+      );
+      persistObligations(obligations);
+      return { obligations };
+    });
+  },
+
   clearCards() {
     // Zero memory unconditionally.
-    set({ cards: [], entries: [] });
+    set({ cards: [], entries: [], obligations: [] });
     // Best-effort MMKV delete — vault may already be locked/wiped on logout.
     try {
       keyVault.getEncryptedStorage().delete(MMKV_KEYS.cards);
+      keyVault.getEncryptedStorage().delete(MMKV_KEYS.cardObligations);
     } catch {
       // Vault locked or wiped: nothing to delete, in-memory state already cleared.
     }

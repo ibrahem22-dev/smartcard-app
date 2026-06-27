@@ -20,7 +20,7 @@ export function LockScreen(): React.ReactElement {
   const auth = useAuth();
 
   return (
-    <View className="flex-1 items-center justify-center bg-slate-900 p-6 dark:bg-neutral-950">
+    <View className="flex-1 items-center justify-center bg-slate-900 p-6 dark:bg-app-dark">
       <Text className="text-center text-[22px] font-bold text-white">
         Authenticate to continue
       </Text>

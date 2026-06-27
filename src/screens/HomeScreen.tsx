@@ -3,9 +3,11 @@ import { Pressable, ScrollView, Text, View } from 'react-native';
 import { useNavigation, type NavigationProp } from '@react-navigation/native';
 
 import { FeatureGate } from '../components/FeatureGate';
+import { ProfileSwitcher } from '../components/ProfileSwitcher';
 import { useTheme } from '../hooks/useTheme';
 import type { TabParamList } from '../navigation/types';
 import { useCardsStore } from '../store/useCardsStore';
+import { useProfileStore } from '../store/useProfileStore';
 import { rtl } from '../utils/rtlStyles';
 
 const DAILY_TIPS: readonly string[] = [
@@ -27,6 +29,7 @@ export function HomeScreen(): React.ReactElement {
   const theme = useTheme();
   const navigation = useNavigation<NavigationProp<TabParamList>>();
   const cards = useCardsStore(state => state.cards);
+  const activeProfile = useProfileStore(state => state.activeProfile);
   const upcomingObligationsCount = cards.length;
 
   function handleCheckPurchase(): void {
@@ -34,7 +37,10 @@ export function HomeScreen(): React.ReactElement {
   }
 
   return (
-    <View style={[rtl.screen, { backgroundColor: '#F8FAFC' }]}>
+    <View
+      className="flex-1 bg-slate-50 dark:bg-app-dark"
+      style={rtl.screen}
+    >
       {/*
         FIX: Removed className="flex-1" from ScrollView.
         NativeWind's CSSInterop.ScrollView injects className props into the
@@ -49,7 +55,17 @@ export function HomeScreen(): React.ReactElement {
         keyboardShouldPersistTaps="handled"
       >
         <View className="min-h-full w-full px-5 pb-28 pt-5">
-          <View className="rounded-lg bg-slate-900 p-[22px] dark:bg-neutral-900">
+          <View className="mb-5 w-full">
+            <ProfileSwitcher mode="compact" />
+            <Text
+              className="mt-2 text-right text-base font-extrabold text-slate-700 dark:text-slate-200"
+              style={rtl.text}
+            >
+              {activeProfile?.displayName ?? ''}
+            </Text>
+          </View>
+
+          <View className="rounded-lg bg-slate-900 p-[22px] dark:bg-dark-surface">
             <FeatureGate feature="SavingsTracker">
               <Text className="text-right text-[34px] font-black text-white" style={rtl.text}>
               ₪0 נחסך
@@ -60,7 +76,7 @@ export function HomeScreen(): React.ReactElement {
             </Text>
           </View>
 
-          <View className="mt-4 rounded-lg border border-slate-300 bg-white p-[18px] dark:border-neutral-700 dark:bg-neutral-900">
+          <View className="mt-4 rounded-lg border border-slate-300 bg-white p-[18px] dark:border-neutral-700 dark:bg-dark-surface">
             <Text
               className="text-right text-lg font-extrabold text-slate-900 dark:text-white"
               style={rtl.text}
@@ -111,7 +127,7 @@ export function HomeScreen(): React.ReactElement {
         </View>
       </ScrollView>
 
-      <View className="absolute bottom-0 left-0 right-0 border-t border-slate-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
+      <View className="absolute bottom-0 left-0 right-0 border-t border-slate-200 bg-white p-4 dark:border-neutral-800 dark:bg-dark-surface">
         <Pressable
           accessibilityRole="button"
           className="min-h-[50px] items-center justify-center rounded-lg bg-blue-600"

@@ -24,7 +24,7 @@ function getRiskRowClassName(riskLevel: number): string {
     return 'bg-yellow-100 dark:bg-yellow-950';
   }
 
-  return 'bg-white dark:bg-neutral-900';
+  return 'bg-white dark:bg-dark-surface';
 }
 
 function formatAmount(amount: number): string {
@@ -76,7 +76,7 @@ export function CalendarScreen(): React.ReactElement {
   if (charges.length === 0) {
     return (
       <View
-        className="flex-1 items-center justify-center bg-slate-50 p-6 dark:bg-neutral-950"
+        className="flex-1 items-center justify-center bg-slate-50 p-6 dark:bg-app-dark"
         style={rtl.screen}
       >
         <Text
@@ -91,7 +91,7 @@ export function CalendarScreen(): React.ReactElement {
 
   return (
     <FlatList
-      className="flex-1 bg-slate-50 dark:bg-neutral-950"
+      className="flex-1 bg-slate-50 dark:bg-app-dark"
       contentContainerStyle={[rtl.listInner, { paddingHorizontal: 20, paddingTop: 20 }]}
       data={charges}
       keyExtractor={(item: CashflowCalendarCharge): string =>

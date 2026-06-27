@@ -40,6 +40,18 @@ export interface Installment {
   readonly nextChargeDate: string;
 }
 
+/** Existing installment plan manually entered after it began. */
+export interface ImportedInstallment {
+  readonly installmentId: string;
+  readonly merchantName: string;
+  readonly totalAmount: number;
+  readonly monthsRemaining: number;
+  readonly monthlyPayment: number;
+  readonly billingCardId: string;
+  readonly notes?: string;
+  readonly source: 'imported';
+}
+
 /** A proposed new תשלומים plan evaluated by installmentGate before commitment. */
 export interface InstallmentRequest {
   readonly purchaseId: string;
