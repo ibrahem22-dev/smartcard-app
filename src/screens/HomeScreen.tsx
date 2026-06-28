@@ -1,7 +1,8 @@
 import React from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 import { useNavigation, type NavigationProp } from '@react-navigation/native';
 
+import { AppText } from '../components/AppText';
 import { FeatureGate } from '../components/FeatureGate';
 import { ProfileSwitcher } from '../components/ProfileSwitcher';
 import { useTheme } from '../hooks/useTheme';
@@ -65,78 +66,72 @@ export function HomeScreen(): React.ReactElement {
               activeBorderColor={theme.bankColor}
               mode="compact"
             />
-            <Text
-              className="mt-2 text-right text-base font-extrabold"
-              style={[rtl.text, { color: '#FFFFFF' }]}
+            <AppText
+              className="mt-2 text-base font-extrabold"
+              style={{ color: '#FFFFFF' }}
             >
               {activeProfile?.displayName ?? ''}
-            </Text>
+            </AppText>
           </View>
 
           <View className="rounded-lg bg-slate-900 p-[22px] dark:bg-dark-surface">
             <FeatureGate feature="SavingsTracker">
-              <Text
-                className="text-right text-[34px] font-black"
-                style={[rtl.text, { color: theme.companyAccent }]}
+              <AppText
+                className="text-[34px] font-black"
+                style={{ color: theme.companyAccent }}
               >
-              {t('₪0 נחסך')}
-            </Text>
+              {t('0 ₪ נחסך')}
+            </AppText>
             </FeatureGate>
-            <Text className="mt-1.5 text-right text-[15px] text-slate-300" style={rtl.text}>
+            <AppText className="mt-1.5 text-[15px] text-slate-300">
               {t('החיסכון שלך עד עכשיו')}
-            </Text>
+            </AppText>
           </View>
 
           <View className="mt-4 rounded-lg border border-slate-300 bg-white p-[18px] dark:border-neutral-700 dark:bg-dark-surface">
-            <Text
-              className="text-right text-lg font-extrabold text-slate-900 dark:text-white"
-              style={rtl.text}
+            <AppText
+              className="text-lg font-extrabold text-slate-900 dark:text-white"
             >
               {t('טיפ היום')}
-            </Text>
-            <Text
-              className="mt-2 text-right text-base leading-6 text-slate-700 dark:text-slate-200"
-              style={rtl.text}
+            </AppText>
+            <AppText
+              className="mt-2 text-base leading-6 text-slate-700 dark:text-slate-200"
             >
               {t(getDailyTip())}
-            </Text>
+            </AppText>
           </View>
 
           <View className="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-[18px] dark:border-sky-900 dark:bg-sky-950">
-            <Text
-              className="text-right text-lg font-extrabold text-slate-900 dark:text-white"
-              style={rtl.text}
+            <AppText
+              className="text-lg font-extrabold text-slate-900 dark:text-white"
             >
               {t('חיובים קרובים')}
-            </Text>
-            <Text
-              className="mt-2 text-right text-base font-bold text-sky-700 dark:text-sky-200"
-              style={rtl.text}
+            </AppText>
+            <AppText
+              className="mt-2 text-base font-bold text-sky-700 dark:text-sky-200"
             >
               {upcomingObligationsCount === 0
                 ? t('אין חיובים קרובים 📅')
                 : t('יש {{count}} חיובים קרובים', {
                     count: upcomingObligationsCount,
                   })}
-            </Text>
+            </AppText>
           </View>
 
           <FeatureGate feature="InternationalTravel">
             <View className="mt-4 rounded-lg border border-orange-200 bg-orange-50 p-[18px] opacity-45 dark:border-orange-900 dark:bg-orange-950">
-              <Text
-                className="text-right text-lg font-extrabold text-orange-800 dark:text-orange-200"
-                style={rtl.text}
+              <AppText
+                className="text-lg font-extrabold text-orange-800 dark:text-orange-200"
               >
                 {t('נוסעים לחו"ל? ✈️')}
-              </Text>
-              <Text
-                className="mt-2 text-right text-[15px] leading-[22px] text-orange-800 dark:text-orange-200"
-                style={rtl.text}
+              </AppText>
+              <AppText
+                className="mt-2 text-[15px] leading-[22px] text-orange-800 dark:text-orange-200"
               >
                 {t(
                   'בקרוב תוכלו לבדוק מראש איזה כרטיס עדיף לנסיעות ולחיובים במט"ח.',
                 )}
-              </Text>
+              </AppText>
           </View>
         </FeatureGate>
         </View>
@@ -148,9 +143,9 @@ export function HomeScreen(): React.ReactElement {
           className="min-h-[50px] items-center justify-center rounded-lg bg-blue-600"
           onPress={handleCheckPurchase}
         >
-          <Text className="text-right text-center text-base font-extrabold text-white" style={rtl.text}>
+          <AppText className="text-center text-base font-extrabold text-white">
             {t('בדוק רכישה')}
-          </Text>
+          </AppText>
         </Pressable>
       </View>
     </View>

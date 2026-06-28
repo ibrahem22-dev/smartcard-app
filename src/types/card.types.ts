@@ -47,6 +47,28 @@ export interface CardCreditFramework {
   readonly currentBalance: number; // amount already charged this cycle (₪)
 }
 
+/** Financial rates and fees associated with a card. */
+export interface CardRates {
+  readonly creditInterestRate: number;
+  readonly installmentInterestRate: number;
+  readonly cardLoanInterestRate: number;
+  readonly foreignExchangeCommission: number;
+  readonly monthlyFee: number;
+  readonly source: string;
+  /** ISO 8601 date. */
+  readonly lastUpdated: string;
+}
+
+/** Current card-fee discount details. */
+export interface CardFeeInfo {
+  readonly originalFee: number;
+  readonly discountPercent: number;
+  readonly effectiveFee: number;
+  /** ISO 8601 date. */
+  readonly discountEndDate?: string;
+  readonly discountSource?: string;
+}
+
 export interface CardInput {
   readonly cardId: string;
   readonly displayName: string;
@@ -78,6 +100,14 @@ export interface CardInput {
   readonly bankName?: string;
   /** True when the user could not identify their מועדון at onboarding. */
   readonly unknownClub?: boolean;
+  readonly cardRates?: CardRates;
+  readonly cardFee?: CardFeeInfo;
+  readonly hasForeignCurrencyAccount?: boolean;
+  readonly foreignCurrencyType?: string;
+  /** Bank foreign-exchange commission as a percentage. */
+  readonly bankFxCommission?: number;
+  /** ISO 8601 date. */
+  readonly cardIssuanceDate?: string;
 }
 
 /** Ranked card pick returned by cardRoleEngine.recommendCard. */

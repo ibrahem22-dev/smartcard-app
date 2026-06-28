@@ -1,0 +1,24 @@
+{
+  "root": true,
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaVersion": 2021,
+    "sourceType": "module",
+    "ecmaFeatures": { "jsx": true }
+  },
+  "plugins": ["@typescript-eslint"],
+  "ignorePatterns": ["node_modules/", "shims/", "*.config.js"],
+  "rules": {
+    "no-restricted-imports": ["error", {
+      "paths": [{
+        "name": "react-native",
+        "importNames": ["Text"],
+        "message": "Use <AppText> from src/components/AppText.tsx — raw Text breaks RTL."
+      }]
+    }],
+    "no-restricted-syntax": ["error", {
+      "selector": "Property[key.name='textAlign'][value.value=/^(left|right)$/]",
+      "message": "Hardcoded textAlign breaks RTL. Use AppText (auto) or I18nManager.isRTL."
+    }]
+  }
+}

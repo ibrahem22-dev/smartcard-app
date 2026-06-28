@@ -1,10 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { Pressable, ScrollView, Text, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, TextInput, View } from 'react-native';
 
+import { AppText } from './AppText';
 import { useProfileStore } from '../store/useProfileStore';
 import { useTranslation } from '../hooks/useTranslation';
 import type { AppProfile } from '../types/profile.types';
-import { rtl } from '../utils/rtlStyles';
+import { inputStyle, rtl } from '../utils/rtlStyles';
 
 export interface ProfileSwitcherProps {
   readonly mode: 'compact' | 'editor';
@@ -63,7 +64,7 @@ export function ProfileSwitcher({
         horizontal
         showsHorizontalScrollIndicator={false}
       >
-        <View className="flex-row-reverse items-start gap-3" style={rtl.row}>
+        <View className="flex-row items-start gap-3" style={rtl.row}>
           {allProfiles.map(profile => {
             const isActive = activeProfile?.id === profile.id;
 
@@ -85,24 +86,18 @@ export function ProfileSwitcher({
                       : undefined
                   }
                 >
-                  <Text
-                    className={`text-center text-base font-black ${
-                      isActive
-                        ? 'text-blue-700 dark:text-blue-200'
-                        : 'text-slate-700 dark:text-slate-200'
-                    }`}
-                    style={rtl.text}
+                  <AppText
+                    className={`text-center text-base font-black ${ isActive ? 'text-blue-700 dark:text-blue-200' : 'text-slate-700 dark:text-slate-200' }`}
                   >
                     {getInitials(profile.displayName)}
-                  </Text>
+                  </AppText>
                 </Pressable>
-                <Text
+                <AppText
                   className="mt-1 w-full text-center text-xs font-bold text-slate-700 dark:text-slate-200"
                   numberOfLines={1}
-                  style={rtl.text}
                 >
                   {profile.displayName}
-                </Text>
+                </AppText>
               </View>
             );
           })}
@@ -113,12 +108,11 @@ export function ProfileSwitcher({
               className="min-h-14 min-w-24 items-center justify-center rounded-lg border border-dashed border-blue-400 bg-blue-50 px-3 dark:border-blue-700 dark:bg-blue-950"
               onPress={onAddProfile}
             >
-              <Text
+              <AppText
                 className="text-center text-sm font-extrabold text-blue-700 dark:text-blue-200"
-                style={rtl.text}
               >
                 {t('הוסף פרופיל')}
-              </Text>
+              </AppText>
             </Pressable>
           ) : null}
         </View>
@@ -138,9 +132,9 @@ export function ProfileSwitcher({
                 {isEditing ? (
                   <View className="gap-2">
                     <TextInput
-                      className="min-h-[44px] rounded-lg border border-slate-300 bg-white px-3 text-right text-base text-slate-900 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white"
+                      className="min-h-[44px] rounded-lg border border-slate-300 bg-white px-3 text-base text-slate-900 dark:border-neutral-700 dark:bg-neutral-950 dark:text-white"
                       onChangeText={setDraftName}
-                      style={rtl.input}
+                      style={inputStyle()}
                       value={draftName}
                     />
                     <Pressable
@@ -148,36 +142,33 @@ export function ProfileSwitcher({
                       className="min-h-[42px] items-center justify-center rounded-lg bg-blue-600"
                       onPress={(): void => saveRename(profile.id)}
                     >
-                      <Text
+                      <AppText
                         className="text-center text-sm font-extrabold text-white"
-                        style={rtl.text}
                       >
                         {t('שמור שם')}
-                      </Text>
+                      </AppText>
                     </Pressable>
                   </View>
                 ) : (
                   <View
-                    className="flex-row-reverse items-center gap-2"
+                    className="flex-row items-center gap-2"
                     style={rtl.row}
                   >
-                    <Text
-                      className="flex-1 text-right text-base font-extrabold text-slate-800 dark:text-slate-100"
-                      style={rtl.text}
+                    <AppText
+                      className="flex-1 text-base font-extrabold text-slate-800 dark:text-slate-100"
                     >
                       {profile.displayName}
-                    </Text>
+                    </AppText>
                     <Pressable
                       accessibilityRole="button"
                       className="min-h-[40px] justify-center rounded-lg border border-slate-300 px-3 dark:border-neutral-700"
                       onPress={(): void => beginRename(profile)}
                     >
-                      <Text
+                      <AppText
                         className="text-sm font-bold text-slate-700 dark:text-slate-200"
-                        style={rtl.text}
                       >
                         {t('שינוי שם')}
-                      </Text>
+                      </AppText>
                     </Pressable>
                     <Pressable
                       accessibilityRole="button"
@@ -189,16 +180,11 @@ export function ProfileSwitcher({
                       disabled={isActive}
                       onPress={(): void => onRequestDelete?.(profile)}
                     >
-                      <Text
-                        className={`text-sm font-bold ${
-                          isActive
-                            ? 'text-slate-400 dark:text-neutral-500'
-                            : 'text-red-700 dark:text-red-200'
-                        }`}
-                        style={rtl.text}
+                      <AppText
+                        className={`text-sm font-bold ${ isActive ? 'text-slate-400 dark:text-neutral-500' : 'text-red-700 dark:text-red-200' }`}
                       >
                         {t('מחיקה')}
-                      </Text>
+                      </AppText>
                     </Pressable>
                   </View>
                 )}

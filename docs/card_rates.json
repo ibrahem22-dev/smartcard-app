@@ -1,0 +1,270 @@
+{
+  "_meta": {
+    "task": "CARD-RATES-DB-01",
+    "lastUpdated": "2026-06-27",
+    "verifiedDate": "2026-06-27",
+    "suggestedRecheck": "2026-09-27",
+    "researchNotes": [
+      "Max: Rates sourced from official tariff PDF (taarifon_general_42025.pdf, valid from 2025-04-01) and updated November 2025 tariff. Monthly fees confirmed from the official table.",
+      "Isracard: Official tariff PDFs are bank-specific (per-bank tariff system). The non-bank (חוץ בנקאי) tariff from 2021 is the latest publicly retrievable PDF, but card-specific fee data confirmed from current product pages (Flycard, Basic, TOP, World Elite). Credit interest rates are NOT published as a fixed percentage — they appear on the monthly statement per card/arrangement.",
+      "CAL: Rates sourced from official amlot.pdf (valid from 2026-05-01) and changes page (changes/) confirming prime rate movements. CAL confirmed prime = 5.25% as of 2026-05-28.",
+      "CRITICAL NOTE on credit/installment interest rates: Israeli credit card companies do NOT publish a single fixed annual interest rate in their public tariff documents. Rates are prime-linked and vary per customer, product, and arrangement. The 14-16% range cited by multiple aggregator sources (moneyplan.co.il, 2025-2026) is a market estimate. CAL confirms minimum prime+2% for loans. Isracard states rates appear on monthly statements. Max does not publish a specific rate in its public tariff. These fields are marked needs_verification.",
+      "Foreign exchange commission: Confirmed from official PDFs — Max: 3%, CAL: 3%, Isracard non-bank standard: 2.9% (inferred from Flycard discount pages stating '2.5% instead of 2.9%')."
+    ]
+  },
+  "issuers": {
+    "Max": {
+      "_source": "https://www.max.co.il/SharedMedia/19610/taarifon_general_42025.pdf",
+      "_sourceValidFrom": "2025-04-01",
+      "defaultRates": {
+        "creditInterestRate": null,
+        "installmentInterestRate": null,
+        "cardLoanInterestRate": null,
+        "foreignExchangeCommission": 3.0,
+        "monthlyFee": 19.90,
+        "notes": {
+          "creditInterestRate": "unverified — Max does not publish a fixed annual credit interest rate in its public tariff. Market sources cite ~14-16% p.a. for revolving credit as of 2025. Check individual cardholder agreement or monthly statement. Source: max.co.il tariff + moneyplan.co.il 2026",
+          "installmentInterestRate": "unverified — rate is prime-linked and customer-specific. Not disclosed in public tariff. Check monthly statement. Source: max.co.il",
+          "cardLoanInterestRate": "unverified — 'הלוואה ברגע' and similar products are prime-linked. Loan calculator page notes illustrative rates of 4%-6.5%. Actual rate per customer approval. Source: max.co.il/loans/dictionary/loan-calculator",
+          "monthlyFee": "19.90 ₪ is the Platinum/Gold/International base rate (highest tier shown in tariff). Classic cards: 12.90 ₪. Full waiver possible if monthly spend thresholds met. Source: official tariff PDF April 2025"
+        }
+      },
+      "clubs": {
+        "Max Classic (ויזה/מאסטרקארד קלאסיק)": {
+          "monthlyFee": 12.90,
+          "monthlyFeeDiscounted": 7.90,
+          "monthlyFeeWaiverThreshold": 5000,
+          "monthlyFeeDiscountThreshold": 1750,
+          "notes": "Fee waived at ₪5,000+/month spend; reduced to ₪7.90 at ₪1,750+/month. Source: taarifon_general_42025.pdf"
+        },
+        "Max International (ויזה/מאסטרקארד בינלאומי)": {
+          "monthlyFee": 17.90,
+          "monthlyFeeDiscounted": 12.90,
+          "monthlyFeeWaiverThreshold": 6000,
+          "monthlyFeeDiscountThreshold": 3000,
+          "notes": "Fee waived at ₪6,000+/month; reduced to ₪12.90 at ₪3,000+/month. Source: taarifon_general_42025.pdf"
+        },
+        "Max Gold (זהב / זהב עסקי)": {
+          "monthlyFee": 19.90,
+          "monthlyFeeDiscounted": 15.90,
+          "monthlyFeeWaiverThreshold": 5000,
+          "monthlyFeeDiscountThreshold": 3000,
+          "notes": "Fee waived at ₪5,000+/month; reduced to ₪15.90 at ₪3,000+/month. Source: taarifon_general_42025.pdf"
+        },
+        "Max Platinum (פלטינה)": {
+          "monthlyFee": 19.90,
+          "monthlyFeeDiscounted": 15.90,
+          "monthlyFeeWaiverThreshold": 6000,
+          "monthlyFeeDiscountThreshold": 3000,
+          "notes": "Fee waived at ₪6,000+/month; reduced to ₪15.90 at ₪3,000+/month. Foreign currency charges deferred to billing date without interest for Platinum Mastercard holders. Source: taarifon_general_42025.pdf"
+        },
+        "Max Free (max free)": {
+          "monthlyFee": 0,
+          "notes": "No monthly fee. Additional ₪3 for non-internet correspondence. Source: taarifon_general_42025.pdf"
+        },
+        "Max Cash / Max Pre-Paid": {
+          "monthlyFee": 19.90,
+          "notes": "No spend-based waiver or discount available. Source: taarifon_general_42025.pdf"
+        }
+      }
+    },
+    "Isracard": {
+      "_source": "https://digital.isracard.co.il/pages/Tariff/ and product pages isracard.co.il",
+      "_sourceValidFrom": "2021-06-01",
+      "_warningOnTariff": "Isracard publishes bank-specific tariff PDFs (per issuing bank). The non-bank (חוץ בנקאי) tariff accessible publicly dates from 2021. Current card product pages and club pages are used to supplement. Interest rates are NOT disclosed in the tariff — they appear per customer on monthly statements.",
+      "defaultRates": {
+        "creditInterestRate": null,
+        "installmentInterestRate": null,
+        "cardLoanInterestRate": null,
+        "foreignExchangeCommission": 2.9,
+        "monthlyFee": null,
+        "notes": {
+          "creditInterestRate": "unverified — Isracard does not publish a fixed annual credit interest rate publicly. Market sources cite 14-16% p.a. as of 2025. Isracard states rates appear on monthly statements. Source: isracard.co.il credit products page + moneyplan.co.il 2026",
+          "installmentInterestRate": "unverified — rates are prime-linked and customer/product-specific. 'חישוב עסקת קרדיט' calculator available on site. Loan minimum is prime+1% per HOT club page. Source: isracard.co.il",
+          "cardLoanInterestRate": "unverified — minimum prime+1% (confirmed on HOT club product page). Actual rate per customer. Source: isracard.co.il/credit-cards/moadonhot",
+          "foreignExchangeCommission": "2.9% inferred from Flycard product pages stating discount to '2.5% instead of 2.9% per tariff' and '1.8% instead of 2.9%'. This is the Isracard non-bank standard FX rate. Source: isracard.co.il/flycard/private",
+          "monthlyFee": "unverified — Isracard non-bank fees vary by card type. Standard club cards may be free (HOT: 0 ₪, BASIC: see below). Bank-issued cards follow respective bank tariffs. No single default figure available without fetching specific PDFs. Manual check required."
+        }
+      },
+      "clubs": {
+        "Isracard BASIC": {
+          "foreignExchangeCommission": 0,
+          "monthlyFee": null,
+          "notes": "0% FX commission on purchases abroad and international online (not cash withdrawals). Monthly fee: unverified — check isracard.co.il/credit-cards/basic tariff. Source: isracard.co.il/credit-cards/basic"
+        },
+        "Isracard TOP": {
+          "foreignExchangeCommission": 2.465,
+          "monthlyFee": null,
+          "needs_verification": true,
+          "notes": "15% discount on FX commission (2.9% × 0.85 = ~2.465%). Free for first 12 billing cycles. After that, fees per tariff and spend target. Source: isracard.co.il/credit-cards/isracardtop"
+        },
+        "Isracard HOT Club (מועדון הוט)": {
+          "monthlyFee": 0,
+          "foreignExchangeCommission": 1.45,
+          "notes": "0 ₪ monthly fee as long as card is club-associated. FX commission: 1.5% on purchases (50% discount from 2.9% tariff). Cash withdrawal abroad: 3.5% (no discount). Source: isracard.co.il/credit-cards/moadonhot"
+        },
+        "Isracard CashBack+ (ישראכרט +Cashback)": {
+          "foreignExchangeCommission": 0,
+          "notes": "0% FX commission available for 2 months per year upon activating benefit code in advance. At other times standard 2.9% applies. Monthly fee: unverified. Source: mako.co.il article Aug 2025 citing Isracard benefit"
+        },
+        "Flycard (ישראכרט)": {
+          "foreignExchangeCommission": 2.5,
+          "notes": "FX commission 2.5% (instead of 2.9% per tariff). Premium Flycard: 1.8%. Source: isracard.co.il/flycard/private — valid as of Feb 2026"
+        },
+        "Flycard Premium (ישראכרט)": {
+          "foreignExchangeCommission": 1.8,
+          "monthlyFee": 20.90,
+          "notes": "FX commission 1.8%. Monthly fee ₪20.90 for new joiners until 31.10.2026 (promotional). Standard rate after promo period: check tariff. Source: isracard.co.il/flycard/private"
+        },
+        "World Elite Mastercard (ישראכרט)": {
+          "monthlyFee": null,
+          "needs_verification": true,
+          "notes": "Monthly fee denominated in USD: $63.90/month. Requires financial assets >₪1M. FX commission: unverified — likely 0% or heavily discounted. Source: isracard.co.il/credit-cards/world_elite_mastercard"
+        }
+      }
+    },
+    "CAL": {
+      "_source": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf (valid from 2026-05-01) and https://www.cal-online.co.il/about/legal-reports/changes/",
+      "_sourceValidFrom": "2026-05-01",
+      "defaultRates": {
+        "creditInterestRate": null,
+        "installmentInterestRate": null,
+        "cardLoanInterestRate": null,
+        "foreignExchangeCommission": 3.0,
+        "monthlyFee": 17.90,
+        "notes": {
+          "creditInterestRate": "unverified — CAL does not publish a fixed credit interest rate in its public tariff. Market sources cite 14-16% p.a. revolving credit as of 2025. CAL homepage states minimum prime+2% for loans (prime = 5.25% as of 2026-05-28, so minimum ~7.25%). Actual rate customer-specific. Source: cal-online.co.il homepage + changes page",
+          "installmentInterestRate": "unverified — rate set at time of installment arrangement, prime-linked. Displayed on monthly statement. Source: cal-online.co.il/ecredit/debit-spread/",
+          "cardLoanInterestRate": "unverified — minimum prime+2% per homepage. Actual rate per approval. Prime = 5.25% as of 2026-05-28. Source: cal-online.co.il",
+          "foreignExchangeCommission": "3.0% confirmed in official amlot.pdf (valid 2026-05-01): 'עמלת עסקאות במט\"ח 3.0% מסכום העסקה'. Source: cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "monthlyFee": "₪17.90 confirmed for standard cards (local/international/business/gold AND platinum) effective 2025-03-02 per CAL changes page. Previous: standard ₪15.90, platinum ₪19.90. Source: cal-online.co.il/about/legal-reports/changes/ + amlot.pdf"
+        }
+      },
+      "clubs": {
+        "CAL Standard (מקומי / בינלאומי / זהב / עסקי)": {
+          "monthlyFee": 17.90,
+          "monthlyFeeDiscounted": 9.90,
+          "monthlyFeeWaiverThreshold": 7500,
+          "monthlyFeeDiscountThreshold": 5000,
+          "notes": "₪17.90 base; ₪9.90 at ₪5,000+/month; free at ₪7,500+/month. Source: amlot.pdf valid 2026-05-01"
+        },
+        "CAL Platinum (פלטינום)": {
+          "monthlyFee": 17.90,
+          "monthlyFeeDiscounted": 15.90,
+          "monthlyFeeWaiverThreshold": 12000,
+          "monthlyFeeDiscountThreshold": 7500,
+          "notes": "₪17.90 base (reduced from ₪19.90 as of 2025-03-02); ₪15.90 at ₪7,500+/month; free at ₪12,000+/month. Source: amlot.pdf valid 2026-05-01 + changes page"
+        },
+        "CAL Lite (Cal לייט)": {
+          "monthlyFee": 5.90,
+          "notes": "₪5.90/month, no spend-based waiver noted in tariff. Source: amlot.pdf valid 2026-05-01"
+        },
+        "CAL Infinite (כרטיס אינפיניט)": {
+          "monthlyFee": 400.00,
+          "notes": "₪400/month. Ultra-premium tier. Source: amlot.pdf valid 2026-05-01"
+        },
+        "CAL Aviation Club Bronze / Platinum (מועדון תעופה ברונזה / פלטינום)": {
+          "monthlyFee": 19.90,
+          "foreignExchangeCommission": 3.0,
+          "notes": "₪19.90/month. No spend-based waiver. FX per standard tariff 3%. Source: amlot.pdf valid 2026-05-01"
+        },
+        "CAL Aviation Club Premium (מועדון תעופה פרימיום)": {
+          "monthlyFee": 38.90,
+          "notes": "₪38.90/month. Source: amlot.pdf valid 2026-05-01"
+        },
+        "CashCal Pro": {
+          "monthlyFee": 19.90,
+          "foreignExchangeCommission": 1.0,
+          "notes": "₪19.90/month. FX 1% in year 1 only (then rises to 2%), per mako.co.il Aug 2025 market article. Source: mako.co.il/finances-money article Aug 2025 — needs official verification",
+          "needs_verification": true
+        },
+        "CAL Flycard Mastercard": {
+          "foreignExchangeCommission": 2.5,
+          "notes": "FX 2.5% (instead of 3% per CAL tariff). Source: cal-online.co.il/cards/flycard/"
+        },
+        "CAL Premium Flycard Mastercard": {
+          "foreignExchangeCommission": 1.8,
+          "notes": "FX 1.8% (instead of 3% per CAL tariff). Source: cal-online.co.il/cards/flycard/"
+        },
+        "CAL Shufersal (כרטיס שופרסל)": {
+          "monthlyFee": 12.90,
+          "notes": "₪12.90/month. Source: amlot.pdf valid 2026-05-01"
+        },
+        "Diners Club Israel (דיינרס)": {
+          "monthlyFee": 17.90,
+          "foreignExchangeCommission": 3.0,
+          "notes": "Diners cards share same tariff table as CAL Visa/Mastercard. Standard ₪17.90 or Platinum ₪17.90. Diners Extra / Secret Flights: free if ₪5,000+/month spend. Source: amlot.pdf valid 2026-05-01"
+        }
+      },
+      "primeRate": {
+        "currentRate": 5.25,
+        "effectiveDate": "2026-05-28",
+        "previousRate": 5.50,
+        "previousEffectiveDate": "2026-01-08",
+        "source": "https://www.cal-online.co.il/about/legal-reports/changes/",
+        "notes": "Prime rate changes confirmed from CAL official changes page. Affects all prime-linked credit products (30+, Adif, Tashlum Adif, revolving credit, CalChoice). Credit interest rates for קרדיט and Larg products only change for new transactions post-change date."
+      }
+    }
+  },
+  "_summary": {
+    "totalIssuersResearched": 3,
+    "confirmedFields": {
+      "Max": ["foreignExchangeCommission", "monthlyFee (all tiers)", "spend-based waiver thresholds"],
+      "Isracard": ["foreignExchangeCommission (inferred from discount disclosures)", "specific club fees (BASIC, TOP, HOT, Flycard, World Elite)"],
+      "CAL": ["foreignExchangeCommission", "monthlyFee (all tiers)", "spend-based waiver thresholds", "primeRate", "cardLoanInterestRate minimum"]
+    },
+    "unverifiedFields": [
+      "creditInterestRate — ALL issuers: not published in public tariffs; customer-specific, prime-linked",
+      "installmentInterestRate — ALL issuers: not published; set at time of arrangement",
+      "cardLoanInterestRate — ALL issuers: not published as fixed rate; CAL minimum prime+2% confirmed",
+      "Isracard base monthlyFee — bank-specific tariffs not fetched",
+      "CashCal Pro FX rate — sourced from third-party article, not official CAL page",
+      "Isracard World Elite FX commission — not found on official page"
+    ],
+    "keyInsight": "Israeli credit card companies do not publish fixed annual interest rates in their public tariffs. All credit/installment/loan rates are prime-linked and customer-specific, disclosed on monthly statements. Only FX commissions and monthly card fees appear as fixed published figures.",
+    "sources": [
+      {
+        "issuer": "Max",
+        "url": "https://www.max.co.il/SharedMedia/19610/taarifon_general_42025.pdf",
+        "validFrom": "2025-04-01"
+      },
+      {
+        "issuer": "Max",
+        "url": "https://www.max.co.il/cards/pages/commissions",
+        "type": "index page"
+      },
+      {
+        "issuer": "Isracard",
+        "url": "https://digital.isracard.co.il/pages/Tariff/",
+        "type": "tariff index"
+      },
+      {
+        "issuer": "Isracard",
+        "url": "https://www.isracard.co.il/flycard/private",
+        "validAsOf": "2026-02"
+      },
+      {
+        "issuer": "Isracard",
+        "url": "https://www.isracard.co.il/credit-cards/moadonhot"
+      },
+      {
+        "issuer": "Isracard",
+        "url": "https://www.isracard.co.il/credit-cards/basic"
+      },
+      {
+        "issuer": "CAL",
+        "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+        "validFrom": "2026-05-01"
+      },
+      {
+        "issuer": "CAL",
+        "url": "https://www.cal-online.co.il/about/legal-reports/changes/",
+        "type": "prime rate + fee change announcements"
+      },
+      {
+        "issuer": "CAL",
+        "url": "https://www.cal-online.co.il/cards/flycard/"
+      }
+    ]
+  }
+}

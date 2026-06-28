@@ -4,16 +4,16 @@ import {
   Alert,
   Pressable,
   ScrollView,
-  Text,
   TextInput,
   View,
 } from 'react-native';
 
+import { AppText } from '../components/AppText';
 import { useCardsStore } from '../store/useCardsStore';
 import { useTranslation } from '../hooks/useTranslation';
 import type { ImportedInstallment } from '../types/installment.types';
 import { parseAmount } from '../utils/parseAmount';
-import { rtl } from '../utils/rtlStyles';
+import { inputStyle, rtl } from '../utils/rtlStyles';
 
 function parseMonths(value: string): number | null {
   const parsed = Number(value.trim());
@@ -147,75 +147,69 @@ export function InstallmentImportScreen(): React.ReactElement {
         style={rtl.scrollOuter}
       >
         <View className="w-full gap-3 p-5">
-          <Text
-            className="text-right text-2xl font-black text-slate-900 dark:text-white"
-            style={rtl.text}
+          <AppText
+            className="text-2xl font-black text-slate-900 dark:text-white"
           >
             {t('תשלומים קיימים')}
-          </Text>
+          </AppText>
 
-          <Text
-            className="text-right text-sm font-bold text-slate-700 dark:text-slate-200"
-            style={rtl.text}
+          <AppText
+            className="text-sm font-bold text-slate-700 dark:text-slate-200"
           >
             {t('שם בית העסק')}
-          </Text>
+          </AppText>
           <TextInput
-            className="min-h-[50px] rounded-lg border border-slate-300 bg-white px-4 text-right text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
+            className="min-h-[50px] rounded-lg border border-slate-300 bg-white px-4 text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
             onChangeText={setMerchantName}
-            style={rtl.input}
+            style={inputStyle()}
             value={merchantName}
           />
 
-          <Text
-            className="text-right text-sm font-bold text-slate-700 dark:text-slate-200"
-            style={rtl.text}
+          <AppText
+            className="text-sm font-bold text-slate-700 dark:text-slate-200"
           >
             {t('סכום כולל (₪)')}
-          </Text>
+          </AppText>
           <TextInput
-            className="min-h-[50px] rounded-lg border border-slate-300 bg-white px-4 text-right text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
+            className="min-h-[50px] rounded-lg border border-slate-300 bg-white px-4 text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
             keyboardType="decimal-pad"
             onChangeText={setTotalAmountText}
-            style={rtl.input}
+            style={inputStyle()}
             value={totalAmountText}
           />
 
-          <Text
-            className="text-right text-sm font-bold text-slate-700 dark:text-slate-200"
-            style={rtl.text}
+          <AppText
+            className="text-sm font-bold text-slate-700 dark:text-slate-200"
           >
             {t('חודשים שנותרו')}
-          </Text>
+          </AppText>
           <TextInput
-            className="min-h-[50px] rounded-lg border border-slate-300 bg-white px-4 text-right text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
+            className="min-h-[50px] rounded-lg border border-slate-300 bg-white px-4 text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
             keyboardType="number-pad"
             onChangeText={setMonthsRemainingText}
-            style={rtl.input}
+            style={inputStyle()}
             value={monthsRemainingText}
           />
 
-          <Text
-            className="text-right text-sm font-bold text-slate-700 dark:text-slate-200"
-            style={rtl.text}
+          <AppText
+            className="text-sm font-bold text-slate-700 dark:text-slate-200"
           >
             {t('תשלום חודשי (₪)')}
-          </Text>
+          </AppText>
           <TextInput
-            className="min-h-[50px] rounded-lg border border-slate-300 bg-white px-4 text-right text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
+            className="min-h-[50px] rounded-lg border border-slate-300 bg-white px-4 text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
             keyboardType="decimal-pad"
             onChangeText={setMonthlyPaymentText}
-            style={rtl.input}
+            style={inputStyle()}
             value={monthlyPaymentText}
           />
 
-          <Text
-            className="text-right text-sm font-bold text-slate-700 dark:text-slate-200"
-            style={rtl.text}
+          <AppText
+            className="text-sm font-bold text-slate-700 dark:text-slate-200"
           >
             {t('כרטיס לחיוב')}
-          </Text>
-          <View className="flex-row-reverse flex-wrap gap-2" style={rtl.row}>
+          </AppText>
+          <View className="flex-row flex-wrap gap-2" style={rtl.row}>
             {cards.map(card => {
               const isSelected = billingCardId === card.cardId;
               return (
@@ -230,62 +224,57 @@ export function InstallmentImportScreen(): React.ReactElement {
                   key={card.cardId}
                   onPress={(): void => setBillingCardId(card.cardId)}
                 >
-                  <Text
-                    className="text-right text-center text-sm font-extrabold text-slate-800 dark:text-slate-100"
-                    style={rtl.text}
+                  <AppText
+                    className="text-center text-sm font-extrabold text-slate-800 dark:text-slate-100"
                   >
                     {card.displayName} · {card.last4}
-                  </Text>
+                  </AppText>
                 </Pressable>
               );
             })}
           </View>
           {cards.length === 0 ? (
-            <Text
-              className="text-right text-sm font-bold text-amber-700 dark:text-amber-300"
-              style={rtl.text}
+            <AppText
+              className="text-sm font-bold text-amber-700 dark:text-amber-300"
             >
               {t('יש להוסיף כרטיס לפני ייבוא תשלומים.')}
-            </Text>
+            </AppText>
           ) : null}
 
-          <Text
-            className="text-right text-sm font-bold text-slate-700 dark:text-slate-200"
-            style={rtl.text}
+          <AppText
+            className="text-sm font-bold text-slate-700 dark:text-slate-200"
           >
             {t('הערות (אופציונלי)')}
-          </Text>
+          </AppText>
           <TextInput
-            className="min-h-20 rounded-lg border border-slate-300 bg-white px-4 py-3 text-right text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
+            className="min-h-20 rounded-lg border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
             multiline
             onChangeText={setNotes}
-            style={rtl.input}
+            style={inputStyle()}
             value={notes}
           />
 
           {formError !== null ? (
-            <Text
-              className="text-right text-sm font-bold text-red-600 dark:text-red-300"
-              style={rtl.text}
+            <AppText
+              className="text-sm font-bold text-red-600 dark:text-red-300"
             >
               {formError}
-            </Text>
+            </AppText>
           ) : null}
 
-          <View className="flex-row-reverse gap-2" style={rtl.row}>
+          <View className="flex-row gap-2" style={rtl.row}>
             <Pressable
               accessibilityRole="button"
               className="min-h-[50px] flex-1 items-center justify-center rounded-lg bg-blue-600"
               onPress={saveObligation}
             >
-              <Text
-                className="text-right text-center text-base font-extrabold text-white"
-                style={rtl.text}
+              <AppText
+                className="text-center text-base font-extrabold text-white"
               >
                 {editingId === null
                   ? t('הוסף תשלומים')
                   : t('שמור שינויים')}
-              </Text>
+              </AppText>
             </Pressable>
             {editingId !== null ? (
               <Pressable
@@ -293,12 +282,11 @@ export function InstallmentImportScreen(): React.ReactElement {
                 className="min-h-[50px] items-center justify-center rounded-lg border border-slate-300 px-4 dark:border-neutral-700"
                 onPress={resetForm}
               >
-                <Text
-                  className="text-right text-center text-base font-bold text-slate-700 dark:text-slate-200"
-                  style={rtl.text}
+                <AppText
+                  className="text-center text-base font-bold text-slate-700 dark:text-slate-200"
                 >
                   {t('ביטול')}
-                </Text>
+                </AppText>
               </Pressable>
             ) : null}
           </View>
@@ -313,33 +301,30 @@ export function InstallmentImportScreen(): React.ReactElement {
                   accessibilityRole="button"
                   onPress={(): void => beginEdit(obligation)}
                 >
-                  <Text
-                    className="text-right text-lg font-extrabold text-slate-900 dark:text-white"
-                    style={rtl.text}
+                  <AppText
+                    className="text-lg font-extrabold text-slate-900 dark:text-white"
                   >
                     {obligation.merchantName}
-                  </Text>
-                  <Text
-                    className="mt-1 text-right text-sm text-slate-600 dark:text-slate-300"
-                    style={rtl.text}
+                  </AppText>
+                  <AppText
+                    className="mt-1 text-sm text-slate-600 dark:text-slate-300"
                   >
                     {obligation.monthlyPayment.toLocaleString('he-IL')} ₪ ·{' '}
                     {t('{{count}} חודשים נותרו', {
                       count: obligation.monthsRemaining,
                     })}
-                  </Text>
+                  </AppText>
                 </Pressable>
                 <Pressable
                   accessibilityRole="button"
                   className="mt-3 min-h-[42px] items-center justify-center rounded-lg border border-red-300 bg-red-50 dark:border-red-900 dark:bg-red-950"
                   onPress={(): void => confirmDelete(obligation)}
                 >
-                  <Text
-                    className="text-right text-center text-sm font-extrabold text-red-700 dark:text-red-200"
-                    style={rtl.text}
+                  <AppText
+                    className="text-center text-sm font-extrabold text-red-700 dark:text-red-200"
                   >
                     {t('מחיקה')}
-                  </Text>
+                  </AppText>
                 </Pressable>
               </View>
             ))}

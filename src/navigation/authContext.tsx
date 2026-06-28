@@ -25,12 +25,14 @@ import { MMKV as MmkvStorage } from 'react-native-mmkv';
 
 import { keyVault, type AuthStatus } from '../security/keyVault';
 import { useCardsStore } from '../store/useCardsStore';
+import { useLoansStore } from '../store/useLoansStore';
 import { useProfileStore } from '../store/useProfileStore';
 import { useUserStore } from '../store/useUserStore';
 
 function clearInMemoryStores(): void {
   useUserStore.getState().clearProfile();
   useCardsStore.getState().clearCards();
+  useLoansStore.getState().clearLoans();
   useProfileStore.getState().clearProfiles();
 }
 

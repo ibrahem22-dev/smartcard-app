@@ -1,82 +1,53 @@
-import { useState } from 'react';
-import { I18nManager } from 'react-native';
-import { getLocales } from 'expo-localization';
-import * as Updates from 'expo-updates';
-import { MMKV } from 'react-native-mmkv';
+import * as Localization from 'expo-localization';
+import { useCallback } from 'react';
 
-import { MMKV_KEYS } from '../store/keys';
+import i18n from '../i18n';
+import {
+  useLanguageStore,
+  type LanguagePreference,
+  type ResolvedLanguage,
+} from '../store/useLanguageStore';
 
-export type LanguagePreference = 'device' | 'he' | 'ar' | 'en';
-export type AppLanguage = Exclude<LanguagePreference, 'device'>;
-
-interface UseLanguageResult {
-  readonly languagePreference: LanguagePreference;
-  readonly language: AppLanguage;
-  readonly setLanguagePreference: (preference: LanguagePreference) => void;
-}
-
-const preferencesStorage = new MMKV({ id: 'smartcard.preferences' });
-
-export function getDeviceLanguage(): AppLanguage {
-  const locale = getLocales()[0];
-  const languageCode = locale?.languageCode?.toLowerCase() ?? '';
-
-  if (languageCode.startsWith('he')) {
-    return 'he';
+export function getDeviceLanguage(): 'he' | 'en' {
+  const locales = Localization.getLocales();
+  for (const locale of locales) {
+    const code = locale.languageCode?.toLowerCase() ?? '';
+    if (code === 'en') return 'en';
+    // 'iw' — legacy ISO 639-1 Hebrew code returned by Samsung and older Android OEMs
+    if (code === 'he' || code === 'iw') return 'he';
   }
-
-  if (languageCode.startsWith('ar')) {
-    return 'ar';
-  }
-
   return 'he';
 }
 
-function isLanguagePreference(value: string): value is LanguagePreference {
-  return value === 'device' || value === 'he' || value === 'ar' || value === 'en';
+if (__DEV__) {
+  console.log('[AUTO-DETECT] Raw locales:', Localization.getLocales());
+  console.log('[AUTO-DETECT] Resolved:', getDeviceLanguage());
 }
 
-export function readLanguagePreference(): LanguagePreference {
-  const stored = preferencesStorage.getString(MMKV_KEYS.languagePreference);
+export type { LanguagePreference, ResolvedLanguage } from '../store/useLanguageStore';
+export type AppLanguage = ResolvedLanguage;
 
-  if (stored !== undefined && isLanguagePreference(stored)) {
-    return stored;
-  }
-
-  const initialPreference = getDeviceLanguage();
-  preferencesStorage.set(MMKV_KEYS.languagePreference, initialPreference);
-  return initialPreference;
-}
-
-export function resolveLanguage(
-  preference: LanguagePreference,
-): AppLanguage {
-  return preference === 'device' ? getDeviceLanguage() : preference;
-}
-
-export function getInitialLanguage(): AppLanguage {
-  return resolveLanguage(readLanguagePreference());
+interface UseLanguageResult {
+  readonly language: ResolvedLanguage;
+  readonly isRTL: boolean;
+  readonly preference: LanguagePreference;
+  readonly t: (key: string) => string;
 }
 
 export function useLanguage(): UseLanguageResult {
-  const [languagePreference, setPreference] = useState<LanguagePreference>(
-    readLanguagePreference,
+  const preference = useLanguageStore(state => state.preference);
+  const language = useLanguageStore(state => state.resolved);
+  const isRTL = useLanguageStore(state => state.isRTL);
+
+  const t = useCallback(
+    (key: string): string => i18n.t(key),
+    [language],
   );
 
-  function setLanguagePreference(preference: LanguagePreference): void {
-    const language = resolveLanguage(preference);
-    const shouldUseRtl = language === 'he' || language === 'ar';
-
-    preferencesStorage.set(MMKV_KEYS.languagePreference, preference);
-    setPreference(preference);
-    I18nManager.allowRTL(shouldUseRtl);
-    I18nManager.forceRTL(shouldUseRtl);
-    void Updates.reloadAsync();
-  }
-
   return {
-    languagePreference,
-    language: resolveLanguage(languagePreference),
-    setLanguagePreference,
+    language,
+    isRTL,
+    preference,
+    t,
   };
 }

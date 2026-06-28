@@ -12,9 +12,6 @@
     "android": {
       "package": "com.smartcard.app"
     },
-    "extra": {
-      "rtl": true
-    },
     "plugins": [
       "expo-asset",
       "expo-font",

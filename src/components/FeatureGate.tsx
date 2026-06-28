@@ -1,10 +1,11 @@
 import React, { type ReactNode } from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
+import { AppText } from './AppText';
 import { useFeatureFlag } from '../hooks/useFeatureFlag';
 import { useTranslation } from '../hooks/useTranslation';
+import { useLanguageStore } from '../store/useLanguageStore';
 import { INITIAL_FEATURE_STATUS } from '../types/feature.types';
-import { rtl } from '../utils/rtlStyles';
 
 export type FeatureGateProps = {
   feature: keyof typeof INITIAL_FEATURE_STATUS;
@@ -14,6 +15,7 @@ export type FeatureGateProps = {
 export function FeatureGate({ feature, children }: FeatureGateProps): React.ReactElement | null {
   const status = useFeatureFlag(feature);
   const { t } = useTranslation();
+  const isRTL = useLanguageStore(state => state.isRTL);
 
   if (status !== 'active' && status !== 'soon' && status !== 'pro_only') {
     return null;
@@ -25,10 +27,14 @@ export function FeatureGate({ feature, children }: FeatureGateProps): React.Reac
 
   const badgeLabel = status === 'soon' ? t('בקרוב') : t('Pro בלבד');
 
+  // Pin the badge to the trailing corner so it never covers the start of the
+  // text: left in RTL (text starts at the right), right in LTR.
+  const badgePosition = isRTL ? { left: 8 } : { right: 8 };
+
   return (
     <View style={styles.wrapper}>
-      <View style={styles.badge}>
-        <Text style={[rtl.text, styles.badgeText]}>{badgeLabel}</Text>
+      <View style={[styles.badge, badgePosition]}>
+        <AppText style={styles.badgeText}>{badgeLabel}</AppText>
       </View>
       {children}
     </View>
@@ -42,7 +48,6 @@ const styles = StyleSheet.create({
   badge: {
     position: 'absolute',
     top: 8,
-    right: 8,
     zIndex: 1,
     paddingHorizontal: 10,
     paddingVertical: 4,

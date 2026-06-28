@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Linking, Pressable, ScrollView, Text, View } from 'react-native';
+import { Linking, Pressable, ScrollView, View } from 'react-native';
 
+import { AppText } from '../components/AppText';
 import { useTheme } from '../hooks/useTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import type { IssuerContact, ProblemType } from '../types/contact.types';
@@ -62,15 +63,15 @@ export function ContactScreen(): React.ReactElement {
         style={rtl.scrollOuter}
       >
       <View className="min-h-full w-full p-5 dark:bg-app-dark">
-        <Text
-          className="mb-[18px] text-right text-[26px] font-extrabold text-slate-900 dark:text-white"
-          style={[rtl.text, { color: theme.bankColor }]}
+        <AppText
+          className="mb-[18px] text-[26px] font-extrabold text-slate-900 dark:text-white"
+          style={{ color: theme.bankColor }}
         >
           {t('צור קשר עם חברת האשראי')}
-        </Text>
+        </AppText>
 
         <View
-          className="mb-[18px] w-full flex-row-reverse flex-wrap gap-2 rtl:flex-row-reverse"
+          className="mb-[18px] w-full flex-row flex-wrap gap-2 rtl:flex-row"
           style={rtl.row}
         >
           {PROBLEM_OPTIONS.map(option => {
@@ -88,16 +89,11 @@ export function ContactScreen(): React.ReactElement {
                 key={option.id}
                 onPress={(): void => setSelectedProblem(option.id)}
               >
-                <Text
-                  className={`text-right text-center text-sm font-bold ${
-                    isSelected
-                      ? 'text-blue-700 dark:text-blue-200'
-                      : 'text-slate-600 dark:text-slate-200'
-                  }`}
-                  style={rtl.text}
+                <AppText
+                  className={`text-center text-sm font-bold ${ isSelected ? 'text-blue-700 dark:text-blue-200' : 'text-slate-600 dark:text-slate-200' }`}
                 >
                   {t(option.label)}
-                </Text>
+                </AppText>
               </Pressable>
             );
           })}
@@ -109,38 +105,34 @@ export function ContactScreen(): React.ReactElement {
               className="w-full rounded-lg border border-slate-300 bg-white p-4 dark:border-neutral-700 dark:bg-dark-surface"
               key={issuer.name}
             >
-              <Text
-                className="text-right text-xl font-extrabold text-slate-900 dark:text-white"
-                style={[rtl.text, { color: theme.companyAccent }]}
+              <AppText
+                className="text-xl font-extrabold text-slate-900 dark:text-white"
+                style={{ color: theme.companyAccent }}
               >
                 {issuer.name}
-              </Text>
-              <Text
-                className="mt-1 text-right text-[17px] font-extrabold text-blue-600 dark:text-blue-300"
-                style={rtl.text}
+              </AppText>
+              <AppText
+                className="mt-1 text-[17px] font-extrabold text-blue-600 dark:text-blue-300"
               >
                 {issuer.phone}
-              </Text>
+              </AppText>
 
               <View className="mt-3 rounded-lg bg-slate-100 p-3 dark:bg-neutral-800">
-                <Text
-                  className="mb-1.5 text-right text-sm font-extrabold text-slate-700 dark:text-slate-100"
-                  style={rtl.text}
+                <AppText
+                  className="mb-1.5 text-sm font-extrabold text-slate-700 dark:text-slate-100"
                 >
                   {t('מה לומר')}
-                </Text>
-                <Text
-                  className="text-right text-[15px] leading-[22px] text-slate-700 dark:text-slate-200"
-                  style={rtl.text}
+                </AppText>
+                <AppText
+                  className="text-[15px] leading-[22px] text-slate-700 dark:text-slate-200"
                 >
                   {t(script[0])}
-                </Text>
-                <Text
-                  className="text-right text-[15px] leading-[22px] text-slate-700 dark:text-slate-200"
-                  style={rtl.text}
+                </AppText>
+                <AppText
+                  className="text-[15px] leading-[22px] text-slate-700 dark:text-slate-200"
                 >
                   {t(script[1])}
-                </Text>
+                </AppText>
               </View>
 
               <Pressable
@@ -148,12 +140,11 @@ export function ContactScreen(): React.ReactElement {
                 className="mt-3.5 min-h-11 items-center justify-center rounded-lg bg-slate-900 dark:bg-slate-100"
                 onPress={(): Promise<void> => Linking.openURL(getTelUrl(issuer.phone))}
               >
-                <Text
-                  className="text-right text-center text-[15px] font-extrabold text-white dark:text-slate-900"
-                  style={rtl.text}
+                <AppText
+                  className="text-center text-[15px] font-extrabold text-white dark:text-slate-900"
                 >
                   {t('התקשר עכשיו')}
-                </Text>
+                </AppText>
               </Pressable>
             </View>
           ))}

@@ -4,7 +4,9 @@ import {
   calculateMonthlyRisk,
   getDailyProjection,
 } from '../engines/cashflowRadar';
+import { calculateLoanSummary } from '../engines/loanEngine';
 import { useCardsStore } from '../store/useCardsStore';
+import { useLoansStore } from '../store/useLoansStore';
 import { useUserStore } from '../store/useUserStore';
 import type { CardInput } from '../types/card.types';
 import type {
@@ -16,6 +18,7 @@ import type {
 } from '../types/cashflow.types';
 import { ObligationType } from '../types/cashflow.types';
 import type { ImportedInstallment } from '../types/installment.types';
+import type { Loan } from '../types/loan.types';
 import { Currency, PurchaseCategory } from '../types/purchase.types';
 
 const WINDOW_DAYS = 30;
@@ -124,11 +127,17 @@ export function useCashflowCalendar(): readonly CashflowCalendarCharge[] {
   const cards = useCardsStore(state => state.cards);
   const importedInstallments = useCardsStore(state => state.obligations);
   const hydrateCards = useCardsStore(state => state.hydrate);
+  const loans = useLoansStore(state => state.loans);
+  const hydrateLoans = useLoansStore(state => state.hydrate);
   const profile = useUserStore(state => state.profile);
 
   useEffect(() => {
     hydrateCards();
   }, [hydrateCards]);
+
+  useEffect(() => {
+    hydrateLoans();
+  }, [hydrateLoans]);
 
   return useMemo((): readonly CashflowCalendarCharge[] => {
     const cardObligations = cards
@@ -154,9 +163,18 @@ export function useCashflowCalendar(): readonly CashflowCalendarCharge[] {
       .map(({ installment, card }): Obligation =>
         buildImportedObligation(installment, card),
       );
+    const activeLoans = loans
+      .filter(
+        (loan: Loan): boolean =>
+          calculateLoanSummary(loan).remainingMonths > 0,
+      );
+    const loanObligations = activeLoans.reduce(
+      (total: number, loan: Loan): number => total + loan.monthlyPayment,
+      0,
+    );
     const obligations = [...cardObligations, ...installmentObligations];
 
-    if (obligations.length === 0) {
+    if (obligations.length === 0 && loanObligations === 0) {
       return [];
     }
 
@@ -171,8 +189,14 @@ export function useCashflowCalendar(): readonly CashflowCalendarCharge[] {
       dangerThreshold,
       today,
     );
-    const projection: readonly DayBalance[] = getDailyProjection(month);
-    const monthlyRisk: RiskScore = calculateMonthlyRisk(month);
+    const projection: readonly DayBalance[] = getDailyProjection(
+      month,
+      loanObligations,
+    );
+    const monthlyRisk: RiskScore = calculateMonthlyRisk(
+      month,
+      loanObligations,
+    );
     const windowEnd = new Date(
       Date.UTC(
         today.getUTCFullYear(),
@@ -183,21 +207,33 @@ export function useCashflowCalendar(): readonly CashflowCalendarCharge[] {
 
     void projection;
 
-    const charges = obligations
-      .map((obligation: Obligation): CashflowCalendarCharge => ({
-        date: toIsoDate(getNextBillingDate(obligation.dayOfMonth, today)),
-        cardName: obligation.description,
-        amount: obligation.amount,
+    const loanCharges: readonly CashflowCalendarCharge[] = activeLoans.map(
+      (loan: Loan): CashflowCalendarCharge => ({
+        date: toIsoDate(getNextBillingDate(1, today)),
+        cardName: loan.lenderName,
+        amount: loan.monthlyPayment,
         riskLevel: monthlyRisk.score,
-      }))
-      .filter((charge: CashflowCalendarCharge): boolean =>
-        new Date(`${charge.date}T00:00:00.000Z`).getTime() < windowEnd.getTime(),
-      );
+      }),
+    );
+    const charges = [
+      ...obligations
+        .map((obligation: Obligation): CashflowCalendarCharge => ({
+          date: toIsoDate(getNextBillingDate(obligation.dayOfMonth, today)),
+          cardName: obligation.description,
+          amount: obligation.amount,
+          riskLevel: monthlyRisk.score,
+        }))
+        .filter((charge: CashflowCalendarCharge): boolean =>
+          new Date(`${charge.date}T00:00:00.000Z`).getTime() < windowEnd.getTime(),
+        ),
+      ...loanCharges,
+    ];
 
     return groupChargesByDate(charges);
   }, [
     cards,
     importedInstallments,
+    loans,
     profile?.currentBalance,
     profile?.dangerThreshold,
     profile?.monthlyIncome,

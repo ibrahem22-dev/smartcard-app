@@ -243,13 +243,21 @@ type CardFeeInfo = {
 
 ## 8. Screen & Component Rules
 
-**Core rules:** offline-first · RTL always · NativeWind active (M3 ✅) · screen→hook→engine · ₪ currency with `Intl.NumberFormat('he-IL')`.
+**Core rules:** offline-first · RTL dynamic — direction follows resolved language (he→RTL, en→LTR). Never `forceRTL(true)` permanently. · NativeWind active (M3 ✅) · screen→hook→engine · ₪ currency = number-first `` `${n.toLocaleString('he-IL')} ₪` ``. **Never** `Intl.NumberFormat(...{style:'currency',currency:'ILS'})` — on Hermes/Android it renders the ISO code in the wrong order ("ILS 0").
 
 **Verdict colors:** approved `#16A34A` · warning `#D97706` · blocked `#DC2626` · wait_24h `#2563EB`.
 **Calendar risk:** safe `#DCFCE7` · tight `#FEF9C3` · danger `#FEE2E2`.
 **Glossary accent:** `#1D4ED8` (informational blue).
 
-**Open RTL issue:** `ISSUE-RTL-01` — Hebrew text displaying LTR. Deferred to standalone session. Do NOT attempt to fix inline during other tasks.
+**`ISSUE-RTL-01` / `ISSUE-RTL-ROOT-FIX-02` (RESOLVED):** Hebrew rendering LTR + English forced RTL — fixed. **Architecture RATIFIED = native dynamic RTL** (see **§14** for the binding contract). Direction is driven by `I18nManager`, set **per language** (he→RTL, en→LTR) — `allowRTL` natively in `MainApplication.kt`, `forceRTL(perLanguage)` in `languageService.ts`/`index.js`. Under RTL, Yoga auto-flips plain rows, so there is **no manual `row-reverse`** anywhere. Switching language requires an app restart (handled by the Settings restart dialog). `forceRTL(true)` is **never** hard-coded permanently — that was the bug that forced English into RTL.
+
+**RTL RULE (mandatory for every UI task — full contract in §14):**
+- **Text:** use `<AppText>` only — raw react-native `<Text>` is BANNED (ESLint `no-restricted-imports`). Never hardcode `textAlign:'left'|'right'` (ESLint `no-restricted-syntax`).
+- **Horizontal rows:** plain `flex-row` (or `style={rtl.row}`, which is plain `row`). **Never** `flex-row-reverse` or a hardcoded `row-reverse` — Yoga flips automatically under native RTL; a manual reverse double-flips and breaks Hebrew.
+- **TextInput:** `style={inputStyle()}`.
+- **Locale:** never call `getLocales()` directly — use `getNormalizedLocale()` / `isRTLLocale()` from `src/utils/languageService.ts` (handles Samsung `'iw'`→`'he'`).
+- **New screen strings:** every Hebrew source string passed to `t(...)` MUST have an entry in `enBySource` in `src/i18n/en.ts`, or English mode falls through to Hebrew. Hebrew is identity (`translateHebrew` returns the source).
+- **No per-screen `writingDirection`** (only `AppText` sets it), **no `transform: scaleX(-1)`** on icons.
 
 **FeatureGate.tsx ✅:** `'live'` render · `'soon'` grayed+"בקרוב" · `'pro_only'` grayed+"Pro בלבד"+modal.
 
@@ -344,7 +352,7 @@ MMKV key: `app:theme_preference`. On first install: `'system'` default — no pr
 | Biometric | `expo-local-authentication` works on both. Face ID on iPhone = same API as fingerprint. |
 | Expo build | iOS builds require EAS (`eas build --platform ios`) — `npx expo run:ios` needs macOS/Xcode. Planned: M5 EAS-01. |
 
-**OPEN: ISSUE-RTL-01** — Hebrew text displaying LTR — fix before any iOS TestFlight build. RTL behavior can differ between platforms; resolving on Android first resolves both.
+**ISSUE-RTL-01 (RESOLVED — LANG-RTL-DYNAMIC-01)** — Hebrew text displaying LTR — fixed. RTL behavior can differ between platforms; resolved on Android first resolves both. See **RTL RULE** in §8.
 
 **3-Layer Bank Theming (UI-THEME-01 ✅ M3 done):**
 Layer 1: bank bg (לאומי=blue, הפועלים=red, דיסקונט=purple, מזרחי=orange, אחר=neutral)
@@ -404,7 +412,7 @@ Source of truth: `docs/SEC-CONTRACT-001.md`.
 - MMKV compile fail → `newArchEnabled=true` + clean build
 - UTF-16 corruption → re-save UTF-8; avoid PowerShell WriteAllText
 - Ghost `package.json` → delete before `npm install`
-- `ISSUE-RTL-01` (open): Hebrew text displaying LTR — deferred to standalone session
+- `ISSUE-RTL-01` (RESOLVED — LANG-RTL-DYNAMIC-01): Hebrew text displaying LTR — fixed via dynamic direction (he→RTL, en→LTR). Enforce via **RTL RULE** in §8 + ESLint guards.
 
 ---
 
@@ -547,5 +555,87 @@ All of these must hold before any task is marked complete:
 - No TODO in shipped logic. No security violation from §9.
 
 **Codex must NOT:** open PRs with TODOs or `any` · violate §9 · make product decisions · upgrade Expo SDK · implement Phase 4/5 work early · implement unconditional data wipe · calculate mortgage מסלולים · give financial advice in loan/interest UI text.
+
+---
+
+## §14 — RTL ARCHITECTURE CONTRACT (PERMANENT — DO NOT MODIFY)
+
+**Last updated:** ISSUE-RTL-ROOT-FIX-02
+**Status:** RATIFIED — binding on all agents, all phases
+**Approach:** **Native dynamic RTL** (NOT permanent forceRTL, NOT JS-only reactive).
+
+### The RTL Problem History
+RTL has regressed twice (ISSUE-RTL-01, ISSUE-RTL-ROOT-FIX-02). Symptoms: Hebrew
+rendered LTR, **and** English forced into RTL. Root causes were: a hard-coded
+permanent `forceRTL(true)` in `MainApplication.kt` (forced RTL even for English),
+the Samsung `'iw'` locale bug, and per-screen `row-reverse` overrides fighting the
+global layout.
+
+### The RTL Stack (Three Layers — ALL Required)
+
+| Layer | File | What it does |
+|---|---|---|
+| Native | `MainApplication.kt` | `I18nUtil.allowRTL(ctx, true)` — **permits** RTL before SoLoader (Samsung-safe). **Never** `forceRTL(true)` here. |
+| JS bootstrap | `src/utils/languageService.ts` | Normalizes `'iw'`→`'he'`, resolves the language, and sets `forceRTL(perLanguage)` on import — **false for English**. |
+| Entry point | `index.js` | Imports `languageService` FIRST; reloads once if the direction flipped. |
+
+Direction is **dynamic**: Hebrew → RTL, English → LTR. Changing language requires
+an app restart (Settings shows the restart dialog). Removing any layer regresses RTL.
+
+### HARD RULES — VIOLATIONS ARE BLOCKING
+
+**RULE RTL-1 — Bootstrap import order.** `import … from './src/utils/languageService'`
+MUST be the first import in `index.js`. Adding any import above it breaks RTL timing.
+
+**RULE RTL-2 — No `useEffect` for `I18nManager`.** NEVER call `I18nManager.forceRTL()`
+inside a `useEffect`, component body, or callback. It must run synchronously at
+module-import time (languageService) — by the time `useEffect` runs, navigation has
+mounted and Android ignores it until restart.
+
+**RULE RTL-3 — Direction is per-language, NEVER permanent.** NEVER hard-code
+`forceRTL(true)` (native or JS). `forceRTL` is always set to the resolved language
+(`false` for English). A permanent `true` forces English into RTL — this was the bug.
+
+**RULE RTL-4 — No manual `row-reverse`.** Under native RTL, Yoga flips a plain
+`flexDirection: 'row'` automatically. NEVER use `flex-row-reverse` or a hard-coded
+`row-reverse` — it double-flips and breaks Hebrew. Use plain `flex-row` / `rtl.row`.
+
+**RULE RTL-5 — No per-screen `writingDirection` / `textAlign`.** Text direction is
+owned by `<AppText>`. Raw `<Text>` is BANNED (ESLint). Never hard-code
+`textAlign:'left'|'right'` (ESLint). Never add `writingDirection` outside `AppText`.
+
+**RULE RTL-6 — Samsung `'iw'` locale.** NEVER read `getLocales()[0]?.languageCode`
+directly. ALWAYS use `getNormalizedLocale()` / `isRTLLocale()` from
+`languageService.ts`. Samsung Galaxy returns `'iw'` for Hebrew; direct reads break.
+
+**RULE RTL-7 — `MainApplication.kt` must not be reverted.** The
+`I18nUtil.getInstance().allowRTL(applicationContext, true)` line (marked
+`// SMARTCARD RTL — DO NOT REMOVE`) must survive every Expo SDK upgrade and
+`expo prebuild`. Re-verify it after each prebuild. Do NOT re-add `forceRTL(true)`.
+
+**RULE RTL-8 — Icon mirroring.** NEVER use `transform: [{ scaleX: -1 }]` to fix a
+mirrored icon — that masks broken RTL. Use a symmetric icon or the library's RTL prop.
+
+**RULE RTL-9 — New screens checklist** (before marking any screen task done):
+□ No `flex-row-reverse` / manual `row-reverse`
+□ No `writingDirection`, no `textAlign:'left'|'right'`
+□ No `transform: scaleX(-1)` on icons
+□ Root element is `<SafeAreaView>` or uses `useSafeAreaInsets()`
+□ All text uses `<AppText>`, not `<Text>`
+□ All new Hebrew `t(...)` strings have an `enBySource` entry in `src/i18n/en.ts`
+
+### Samsung-Specific Behavior
+Samsung Galaxy S-series (tested: S928B, Android 14) returns locale `'iw'` instead of
+`'he'`. `languageService.ts` is the ONLY place that reads the raw locale and
+normalizes `'iw'`→`'he'`. All other code resolves language via `languageService`.
+
+### Recovery Procedure (If RTL Regresses Again)
+1. `MainApplication.kt` — is `allowRTL(ctx, true)` present, and is there NO hard-coded `forceRTL(true)`?
+2. `index.js` — is `languageService` the FIRST import?
+3. `languageService.ts` — does it normalize `'iw'`→`'he'` and set `forceRTL(perLanguage)`?
+4. The broken screen — any `flex-row-reverse`, `writingDirection`, or hard-coded `textAlign`?
+5. Rebuild natively: `npx expo run:android --device` (native changes need a full rebuild, not a JS reload).
+6. Test on the physical Samsung device (the emulator hides this bug).
+7. Verify BOTH languages: Hebrew → RTL, English → LTR.
 
 *End of AGENTS.md — start each session at §13.*

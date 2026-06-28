@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
-import { Pressable, ScrollView, Text, View } from 'react-native';
+import { Pressable, ScrollView, View } from 'react-native';
 
+import { AppText } from '../components/AppText';
 import { useTranslation } from '../hooks/useTranslation';
 import { en } from '../i18n/en';
 import { rtl } from '../utils/rtlStyles';
@@ -90,20 +91,18 @@ export function GlossaryScreen(): React.ReactElement {
         style={rtl.scrollOuter}
       >
         <View className="w-full gap-4 px-5 py-6">
-          <Text
-            className="text-right text-[26px] font-extrabold text-slate-900 dark:text-white"
-            style={rtl.text}
+          <AppText
+            className="text-[26px] font-extrabold text-slate-900 dark:text-white"
           >
             {t('מילון פיננסי')}
-          </Text>
-          <Text
-            className="mb-1 text-right text-sm leading-6 text-slate-600 dark:text-slate-300"
-            style={rtl.text}
+          </AppText>
+          <AppText
+            className="mb-1 text-sm leading-6 text-slate-600 dark:text-slate-300"
           >
             {t(
               'הסברים כלליים למונחים נפוצים. המידע נועד להבנה בלבד ואינו ייעוץ פיננסי.',
             )}
-          </Text>
+          </AppText>
 
           {GLOSSARY_TERMS.map((term, index) => {
             const isExpanded = expandedTerms.includes(term.title);
@@ -114,22 +113,20 @@ export function GlossaryScreen(): React.ReactElement {
                 className="w-full rounded-xl border border-slate-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
                 key={term.title}
               >
-                <Text
-                  className="text-right text-xl font-extrabold text-blue-700 dark:text-blue-400"
-                  style={rtl.text}
+                <AppText
+                  className="text-xl font-extrabold text-blue-700 dark:text-blue-400"
                 >
                   {t(term.title, undefined, englishTerm?.title)}
-                </Text>
-                <Text
-                  className="mt-2 text-right text-base leading-7 text-slate-700 dark:text-slate-200"
-                  style={rtl.text}
+                </AppText>
+                <AppText
+                  className="mt-2 text-base leading-7 text-slate-700 dark:text-slate-200"
                 >
                   {t(
                     term.explanation,
                     undefined,
                     englishTerm?.explanation,
                   )}
-                </Text>
+                </AppText>
 
                 <Pressable
                   accessibilityRole="button"
@@ -137,22 +134,20 @@ export function GlossaryScreen(): React.ReactElement {
                   className="mt-3 min-h-[44px] items-center justify-center rounded-lg border border-blue-200 bg-blue-50 px-4 dark:border-blue-900 dark:bg-blue-950"
                   onPress={(): void => toggleTerm(term.title)}
                 >
-                  <Text
-                    className="text-right text-center text-base font-extrabold text-blue-700 dark:text-blue-300"
-                    style={rtl.text}
+                  <AppText
+                    className="text-center text-base font-extrabold text-blue-700 dark:text-blue-300"
                   >
                     {t('כיצד זה משפיע עליך?')}
-                  </Text>
+                  </AppText>
                 </Pressable>
 
                 {isExpanded ? (
                   <View className="mt-3 rounded-lg bg-slate-100 p-3 dark:bg-neutral-800">
-                    <Text
-                      className="text-right text-sm leading-6 text-slate-700 dark:text-slate-200"
-                      style={rtl.text}
+                    <AppText
+                      className="text-sm leading-6 text-slate-700 dark:text-slate-200"
                     >
                       {t(term.example, undefined, englishTerm?.example)}
-                    </Text>
+                    </AppText>
                   </View>
                 ) : null}
               </View>

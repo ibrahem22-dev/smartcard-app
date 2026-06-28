@@ -1,9 +1,14 @@
-import { assignCardRole, recommendCard } from '../cardRoleEngine';
+import {
+  assignCardRole,
+  getEffectiveFxCommission,
+  recommendCard,
+} from '../cardRoleEngine';
 import {
   CardIssuer,
   CardNetwork,
   CardRole,
   type CardInput,
+  type CardRates,
 } from '../../types/card.types';
 import { Currency, PurchaseCategory } from '../../types/purchase.types';
 import type { UserProfile } from '../../types/user.types';
@@ -299,5 +304,108 @@ describe('cardRoleEngine', () => {
     });
 
     expect(assignCardRole(card, makeUser())).toBe(CardRole.Education);
+  });
+
+  // --- FX-CARD-01: foreign-currency (מט"ח) account handling ---
+
+  function makeRates(overrides: Partial<CardRates> = {}): CardRates {
+    return {
+      creditInterestRate: 12,
+      installmentInterestRate: 8,
+      cardLoanInterestRate: 10,
+      foreignExchangeCommission: 3,
+      monthlyFee: 20,
+      source: 'manual',
+      lastUpdated: '2026-01-01',
+      ...overrides,
+    };
+  }
+
+  test('getEffectiveFxCommission: מט"ח account in the purchase currency → 0', () => {
+    const card = makeCard({
+      hasForeignCurrencyAccount: true,
+      foreignCurrencyType: 'USD',
+      bankFxCommission: 1.5,
+      cardRates: makeRates({ foreignExchangeCommission: 3 }),
+    });
+
+    expect(getEffectiveFxCommission(card, Currency.USD)).toBe(0);
+  });
+
+  test('getEffectiveFxCommission: מט"ח account, different currency → bankFxCommission', () => {
+    const card = makeCard({
+      hasForeignCurrencyAccount: true,
+      foreignCurrencyType: 'EUR',
+      bankFxCommission: 1.5,
+      cardRates: makeRates({ foreignExchangeCommission: 3 }),
+    });
+
+    expect(getEffectiveFxCommission(card, Currency.USD)).toBe(1.5);
+  });
+
+  test('getEffectiveFxCommission: no מט"ח account → cardRates.foreignExchangeCommission', () => {
+    const card = makeCard({
+      cardRates: makeRates({ foreignExchangeCommission: 2.8 }),
+    });
+
+    expect(getEffectiveFxCommission(card, Currency.USD)).toBe(2.8);
+  });
+
+  test('recommendCard ranks a currency-matched מט"ח card first when international', () => {
+    const fxCard = makeCard({
+      cardId: 'fx',
+      hasForeignCurrencyAccount: true,
+      foreignCurrencyType: 'USD',
+      cardRates: makeRates({ foreignExchangeCommission: 3 }),
+      rewardCategories: [PurchaseCategory.Other],
+      cashbackRate: 0.01,
+      foreignTransactionFee: 0.03,
+    });
+    const richCard = makeCard({
+      cardId: 'rich',
+      rewardCategories: [PurchaseCategory.Travel],
+      cashbackRate: 0.03,
+      foreignTransactionFee: 0.02,
+      cardRates: makeRates({ foreignExchangeCommission: 2 }),
+    });
+
+    const result = recommendCard(
+      [richCard, fxCard],
+      PurchaseCategory.Travel,
+      makeUser(),
+      true,
+      Currency.USD,
+    );
+
+    expect(result?.card.cardId).toBe('fx');
+    expect(result?.scoreReason).toContain('מט"ח');
+  });
+
+  test('recommendCard ignores FX fields when isInternational=false', () => {
+    const plain = makeCard({
+      cardId: 'plain',
+      rewardCategories: [PurchaseCategory.Groceries],
+      cashbackRate: 0.01,
+    });
+    const fx = makeCard({
+      cardId: 'fx',
+      rewardCategories: [PurchaseCategory.Groceries],
+      cashbackRate: 0.01,
+      hasForeignCurrencyAccount: true,
+      foreignCurrencyType: 'USD',
+      cardRates: makeRates({ foreignExchangeCommission: 0 }),
+    });
+
+    // Domestic: identical category/cashback → scores tie → first card wins,
+    // proving the matched-מט"ח +30 bonus did NOT apply.
+    const result = recommendCard(
+      [plain, fx],
+      PurchaseCategory.Groceries,
+      makeUser(),
+      false,
+      Currency.USD,
+    );
+
+    expect(result?.card.cardId).toBe('plain');
   });
 });

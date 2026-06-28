@@ -95,6 +95,18 @@ function getDailyOutflow(
   }, 0);
 }
 
+function getLoanOutflow(loanObligations: number, date: Date): number {
+  if (
+    date.getUTCDate() !== 1 ||
+    !isFiniteAmount(loanObligations) ||
+    loanObligations < 0
+  ) {
+    return 0;
+  }
+
+  return loanObligations;
+}
+
 function getDailyInflow(month: MonthInput, date: Date): number {
   if (
     !isValidDayOfMonth(month.incomeDayOfMonth) ||
@@ -140,8 +152,11 @@ function getDueDateForObligation(month: MonthInput, obligation: Obligation): Dat
   return new Date(Date.UTC(nextYear, nextMonth - 1, nextCandidateDay));
 }
 
-function hasChargeReturnRiskWithinSevenDays(month: MonthInput): boolean {
-  const projection = getDailyProjection(month);
+function hasChargeReturnRiskWithinSevenDays(
+  month: MonthInput,
+  loanObligations: number = 0,
+): boolean {
+  const projection = getDailyProjection(month, loanObligations);
 
   return projection
     .slice(0, CHARGE_RETURN_WINDOW_DAYS)
@@ -198,7 +213,10 @@ function formatBillingDate(billingDayOfMonth: number): string {
   return `day-${billingDayOfMonth.toString().padStart(2, '0')}`;
 }
 
-export function getDailyProjection(month: MonthInput): readonly DayBalance[] {
+export function getDailyProjection(
+  month: MonthInput,
+  loanObligations: number = 0,
+): readonly DayBalance[] {
   if (
     !isValidMonetaryAmount(month.openingBalance) ||
     !isValidMonetaryAmount(month.monthlyIncome)
@@ -213,7 +231,9 @@ export function getDailyProjection(month: MonthInput): readonly DayBalance[] {
     (_value: unknown, index: number): DayBalance => {
       const date = getProjectedDate(month, index);
       const inflow = getDailyInflow(month, date);
-      const outflow = getDailyOutflow(month.obligations, date);
+      const outflow =
+        getDailyOutflow(month.obligations, date) +
+        getLoanOutflow(loanObligations, date);
 
       projectedBalance += inflow - outflow;
 
@@ -334,8 +354,11 @@ export function predictChargeReturn(
   return noChargeReturnRisk();
 }
 
-export function calculateMonthlyRisk(month: MonthInput): RiskScore {
-  const projection = getDailyProjection(month);
+export function calculateMonthlyRisk(
+  month: MonthInput,
+  loanObligations: number = 0,
+): RiskScore {
+  const projection = getDailyProjection(month, loanObligations);
   const fallbackDay = projection[0];
   const lowestDay = projection.reduce(
     (lowest: DayBalance | undefined, day: DayBalance): DayBalance =>
@@ -350,7 +373,10 @@ export function calculateMonthlyRisk(month: MonthInput): RiskScore {
     (day: DayBalance): boolean => day.belowDanger,
   ).length;
   const hasOverdraftRisk = detectMinus(projection);
-  const hasChargeReturnRisk = hasChargeReturnRiskWithinSevenDays(month);
+  const hasChargeReturnRisk = hasChargeReturnRiskWithinSevenDays(
+    month,
+    loanObligations,
+  );
 
   let score = 0;
 

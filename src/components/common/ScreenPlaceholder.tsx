@@ -6,9 +6,9 @@
 // start and follows the global writing direction).
 
 import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
-import { rtl } from '../../utils/rtlStyles';
+import { AppText } from '../AppText';
 
 interface ScreenPlaceholderProps {
   readonly title: string;
@@ -21,9 +21,9 @@ export function ScreenPlaceholder({
 }: ScreenPlaceholderProps): React.ReactElement {
   return (
     <View style={styles.container}>
-      <Text style={[rtl.text, styles.title]}>{title}</Text>
+      <AppText style={styles.title}>{title}</AppText>
       {subtitle !== undefined ? (
-        <Text style={[rtl.text, styles.subtitle]}>{subtitle}</Text>
+        <AppText style={styles.subtitle}>{subtitle}</AppText>
       ) : null}
     </View>
   );

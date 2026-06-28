@@ -2,11 +2,12 @@ import React from 'react';
 import {
   Pressable,
   ScrollView,
-  Text,
   View,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
+import { AppText } from '../components/AppText';
 import { FeatureGate } from '../components/FeatureGate';
 import { useTheme } from '../hooks/useTheme';
 import { useTranslation } from '../hooks/useTranslation';
@@ -40,6 +41,10 @@ const VERDICT_CLASSES: Record<DecisionVerdict, string> = {
   wait_24h: 'bg-orange-100 border-orange-500 dark:bg-orange-950 dark:border-orange-400',
 };
 
+function formatCommission(value: number): string {
+  return `${value.toLocaleString('he-IL', { maximumFractionDigits: 2 })}%`;
+}
+
 export function DecisionScreen({
   navigation,
   route,
@@ -47,9 +52,10 @@ export function DecisionScreen({
   const theme = useTheme();
   const { t } = useTranslation();
   const verdict = route.params.verdict;
+  const fxComparison = route.params.fxComparison ?? [];
 
   return (
-    <View
+    <SafeAreaView
       className="flex-1 bg-slate-50 dark:bg-app-dark"
       style={rtl.screen}
     >
@@ -62,64 +68,100 @@ export function DecisionScreen({
           className={`rounded-lg border p-5 ${VERDICT_CLASSES[verdict]}`}
           style={{ backgroundColor: theme.companyAccent }}
         >
-          <Text
-            className="text-right text-3xl font-extrabold text-slate-900 dark:text-slate-50"
-            style={[rtl.text, { color: theme.bankColor }]}
+          <AppText
+            className="text-3xl font-extrabold text-slate-900 dark:text-slate-50"
+            style={{ color: theme.bankColor }}
           >
             {t(VERDICT_LABELS[verdict])}
-          </Text>
-          <Text
-            className="mt-2.5 text-right text-base leading-6 text-slate-800 dark:text-slate-100"
-            style={rtl.text}
+          </AppText>
+          <AppText
+            className="mt-2.5 text-base leading-6 text-slate-800 dark:text-slate-100"
           >
             {t(VERDICT_REASONS[verdict])}
-          </Text>
+          </AppText>
         </View>
 
         <FeatureGate feature="ScoreSection">
           <View className="mt-5 rounded-lg border border-slate-300 bg-white p-[18px] opacity-45 dark:border-neutral-700 dark:bg-dark-surface">
-            <Text
-              className="mb-3 text-right text-lg font-extrabold text-slate-900 dark:text-slate-50"
-              style={rtl.text}
+            <AppText
+              className="mb-3 text-lg font-extrabold text-slate-900 dark:text-slate-50"
             >
               {t('ניקוד כרטיסים')}
-            </Text>
+            </AppText>
             <View
-              className="min-h-[38px] flex-row-reverse items-center justify-between border-t border-slate-200 rtl:flex-row-reverse dark:border-neutral-700"
+              className="min-h-[38px] flex-row items-center justify-between border-t border-slate-200 rtl:flex-row dark:border-neutral-700"
               style={rtl.row}
             >
-              <Text
-                className="text-right text-base text-slate-700 dark:text-slate-200"
-                style={rtl.text}
+              <AppText
+                className="text-base text-slate-700 dark:text-slate-200"
               >
                 {t('כרטיס מוביל')}
-              </Text>
-              <Text
-                className="text-right text-base font-extrabold text-slate-900 dark:text-slate-50"
-                style={rtl.text}
+              </AppText>
+              <AppText
+                className="text-base font-extrabold text-slate-900 dark:text-slate-50"
               >
                 84/100
-              </Text>
+              </AppText>
             </View>
             <View
-              className="min-h-[38px] flex-row-reverse items-center justify-between border-t border-slate-200 rtl:flex-row-reverse dark:border-neutral-700"
+              className="min-h-[38px] flex-row items-center justify-between border-t border-slate-200 rtl:flex-row dark:border-neutral-700"
               style={rtl.row}
             >
-              <Text
-                className="text-right text-base text-slate-700 dark:text-slate-200"
-                style={rtl.text}
+              <AppText
+                className="text-base text-slate-700 dark:text-slate-200"
               >
                 {t('כרטיס חלופי')}
-              </Text>
-              <Text
-                className="text-right text-base font-extrabold text-slate-900 dark:text-slate-50"
-                style={rtl.text}
+              </AppText>
+              <AppText
+                className="text-base font-extrabold text-slate-900 dark:text-slate-50"
               >
                 71/100
-              </Text>
+              </AppText>
             </View>
           </View>
         </FeatureGate>
+
+        {fxComparison.length > 0 ? (
+          <View className="mt-5 rounded-lg border border-slate-300 bg-white p-[18px] dark:border-neutral-700 dark:bg-dark-surface">
+            <AppText className="mb-3 text-lg font-extrabold text-slate-900 dark:text-slate-50">
+              {t('השוואת עמלות המרה')}
+            </AppText>
+            {fxComparison.map((rowItem, index): React.ReactElement => {
+              const isLowest = index === 0;
+              return (
+                <View
+                  className={`min-h-[44px] flex-row items-center justify-between rounded-md border px-2 ${
+                    isLowest
+                      ? 'border-green-500 bg-green-50 shadow-sm dark:border-green-600 dark:bg-green-950'
+                      : 'border-transparent border-t-slate-200 dark:border-t-neutral-700'
+                  }`}
+                  key={rowItem.cardId}
+                  style={rtl.row}
+                >
+                  <AppText
+                    className={`text-base ${
+                      isLowest
+                        ? 'font-extrabold text-green-700 dark:text-green-200'
+                        : 'text-slate-700 dark:text-slate-200'
+                    }`}
+                  >
+                    {rowItem.displayName}
+                    {isLowest ? ` · ${t('הזול ביותר')}` : ''}
+                  </AppText>
+                  <AppText
+                    className={`text-base font-extrabold ${
+                      isLowest
+                        ? 'text-green-700 dark:text-green-200'
+                        : 'text-slate-900 dark:text-slate-50'
+                    }`}
+                  >
+                    {formatCommission(rowItem.commission)}
+                  </AppText>
+                </View>
+              );
+            })}
+          </View>
+        ) : null}
 
         <View className="min-h-8 flex-1" />
 
@@ -128,15 +170,14 @@ export function DecisionScreen({
           className="min-h-[50px] items-center justify-center rounded-lg bg-slate-900 dark:bg-slate-100"
           onPress={(): void => navigation.navigate('Contact')}
         >
-          <Text
-            className="text-right text-center text-base font-extrabold text-white dark:text-slate-900"
-            style={rtl.text}
+          <AppText
+            className="text-center text-base font-extrabold text-white dark:text-slate-900"
           >
             {t('יש לך בעיה?')}
-          </Text>
+          </AppText>
         </Pressable>
       </View>
       </ScrollView>
-    </View>
+    </SafeAreaView>
   );
 }

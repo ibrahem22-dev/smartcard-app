@@ -5,7 +5,10 @@
 // (useNavigation, etc.) fully typed app-wide without per-call generics.
 
 import type { NavigatorScreenParams } from '@react-navigation/native';
-import type { DecisionVerdict } from '../types/decision.types';
+import type {
+  DecisionVerdict,
+  FxComparisonRow,
+} from '../types/decision.types';
 
 // --- Per-tab stacks -----------------------------------------------------------
 // Each of the 5 tabs owns its own stack so future detail/modal sub-screens
@@ -21,13 +24,18 @@ export type HomeStackParamList = {
 export type PurchaseGateStackParamList = {
   // Supports deep link: smartcard://purchase?amount=500&category=grocery
   PurchaseGateRoot: { amount?: number; category?: string } | undefined;
-  Decision: { verdict: DecisionVerdict };
+  Decision: {
+    verdict: DecisionVerdict;
+    fxComparison?: readonly FxComparisonRow[];
+  };
   Contact: undefined;
 };
 
-/** Cards tab stack. Future: CardDetail: { cardId: string }. */
+/** Cards tab stack. */
 export type CardsStackParamList = {
   CardsRoot: undefined;
+  CardDetail: { cardId: string };
+  InterestCalculator: { cardId?: string } | undefined;
 };
 
 /** Calendar tab stack. */
@@ -41,6 +49,8 @@ export type SettingsStackParamList = {
   Contact: undefined;
   Glossary: undefined;
   InstallmentImport: undefined;
+  Loans: undefined;
+  InterestCalculator: { cardId?: string } | undefined;
 };
 
 /**

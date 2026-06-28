@@ -33,6 +33,14 @@ export interface PurchaseGateInput {
   readonly availableCards: readonly UserCard[];
 }
 
+/** One row of the international FX-commission comparison (FX-RECOMMEND-01). */
+export interface FxComparisonRow {
+  readonly cardId: string;
+  readonly displayName: string;
+  /** Effective FX commission as a percentage (0 for a matched מט"ח account). */
+  readonly commission: number;
+}
+
 export interface UsePurchaseGateResult {
   readonly amount: number;
   readonly setAmount: (amount: number) => void;
@@ -41,6 +49,11 @@ export interface UsePurchaseGateResult {
   readonly verdict: DecisionVerdict | null;
   readonly decision: PurchaseDecision | null;
   readonly exchangeFeeWarning: string | null;
+  /**
+   * FX-commission comparison for an international purchase. Empty unless
+   * isInternational is true AND ≥2 cards have cardRates defined.
+   */
+  readonly fxComparison: readonly FxComparisonRow[];
   readonly evaluate: () => DecisionVerdict;
 }
 

@@ -1,10 +1,15 @@
 import { useCallback, useMemo, useState } from 'react';
 
 import { evaluatePurchase } from '../engines/purchaseGate';
+import {
+  getEffectiveFxCommission,
+  recommendCard,
+} from '../engines/cardRoleEngine';
 import { useCardsStore } from '../store/useCardsStore';
 import { useUserStore } from '../store/useUserStore';
 import type {
   DecisionVerdict,
+  FxComparisonRow,
   PurchaseDecision,
   PurchaseGateInput,
   UsePurchaseGateResult,
@@ -17,6 +22,7 @@ import {
 import type { Obligation } from '../types/cashflow.types';
 
 const EMPTY_OBLIGATIONS: readonly Obligation[] = [];
+const EMPTY_FX_COMPARISON: readonly FxComparisonRow[] = [];
 const NO_CARDS_DECISION: PurchaseDecision = {
   verdict: 'blocked',
   reason: 'לא נמצאו כרטיסים — הוסף כרטיס תחילה',
@@ -68,6 +74,49 @@ export function usePurchaseGate(): UsePurchaseGateResult {
     [cards, profile?.currentBalance, profile?.monthlyIncome],
   );
 
+  // International FX-commission comparison. Currency defaults to USD (the most
+  // common foreign currency for Israeli users) since the gate has no currency
+  // picker yet — a future enhancement can pass the real purchase currency.
+  const fxComparison = useMemo<readonly FxComparisonRow[]>(() => {
+    if (!isInternational) {
+      return EMPTY_FX_COMPARISON;
+    }
+    const cardsWithRates = cards.filter(card => card.cardRates !== undefined);
+    if (cardsWithRates.length < 2) {
+      return EMPTY_FX_COMPARISON;
+    }
+    const recommendation =
+      profile === null
+        ? null
+        : recommendCard(
+            cardsWithRates,
+            PurchaseCategory.Other,
+            profile,
+            true,
+            Currency.USD,
+          );
+
+    return cardsWithRates
+      .map((card): FxComparisonRow => ({
+        cardId: card.cardId,
+        displayName: card.displayName,
+        commission: getEffectiveFxCommission(card, Currency.USD),
+      }))
+      .sort((a, b): number => {
+        const commissionDifference = a.commission - b.commission;
+        if (commissionDifference !== 0) {
+          return commissionDifference;
+        }
+        if (a.cardId === recommendation?.card.cardId) {
+          return -1;
+        }
+        if (b.cardId === recommendation?.card.cardId) {
+          return 1;
+        }
+        return 0;
+      });
+  }, [cards, isInternational, profile]);
+
   const evaluate = useCallback((): DecisionVerdict => {
     if (cards.length === 0) {
       setDecision(NO_CARDS_DECISION);
@@ -91,6 +140,7 @@ export function usePurchaseGate(): UsePurchaseGateResult {
     verdict: decision?.verdict ?? null,
     decision,
     exchangeFeeWarning: decision?.exchangeFeeWarning ?? null,
+    fxComparison,
     evaluate,
   };
 }

@@ -3,8 +3,40 @@ import {
   type CardInput,
   type CardRecommendation,
 } from '../types/card.types';
-import { PurchaseCategory } from '../types/purchase.types';
+import { type Currency, PurchaseCategory } from '../types/purchase.types';
 import type { UserProfile } from '../types/user.types';
+
+/**
+ * Effective foreign-exchange commission (%) for a card on an international
+ * purchase, in priority order:
+ *   1. מט"ח account whose currency matches the purchase → 0 (no conversion).
+ *   2. מט"ח account with a different currency → the bank's FX commission.
+ *   3. Otherwise the card's own `cardRates.foreignExchangeCommission`.
+ *   4. Legacy fallback: `foreignTransactionFee` (a fraction) as a percentage.
+ * Returned as a percentage to match CardRates/bankFxCommission units.
+ */
+export function getEffectiveFxCommission(
+  card: CardInput,
+  purchaseCurrency?: Currency,
+): number {
+  if (card.hasForeignCurrencyAccount === true) {
+    if (
+      purchaseCurrency !== undefined &&
+      card.foreignCurrencyType === (purchaseCurrency as string)
+    ) {
+      return 0;
+    }
+    if (typeof card.bankFxCommission === 'number') {
+      return card.bankFxCommission;
+    }
+  }
+
+  if (card.cardRates !== undefined) {
+    return card.cardRates.foreignExchangeCommission;
+  }
+
+  return card.foreignTransactionFee * 100;
+}
 
 const UNKNOWN_CLUB_REASON_HE = 'מועדון לא ידוע — ייתכן הטבות נוספות';
 const UNKNOWN_CLUB_REASON_AR = 'المועدون غير معروف — قد تتوفر مزايا إضافية';
@@ -71,6 +103,7 @@ function scoreCard(
   purchaseCategory: PurchaseCategory,
   userProfile: UserProfile,
   isInternational: boolean,
+  purchaseCurrency: Currency | undefined,
 ): CardRecommendation {
   if (
     !isValidRateFraction(card.cashbackRate) ||
@@ -109,10 +142,20 @@ function scoreCard(
       reasonsAr.push('مناسب للمشتريات الدولية');
     }
 
-    const fxPenalty = Math.round(card.foreignTransactionFee * 100);
-    score -= fxPenalty;
+    const fxPercent = getEffectiveFxCommission(card, purchaseCurrency);
+    score -= Math.round(fxPercent);
 
-    if (card.foreignTransactionFee > 0.02) {
+    const matchedForeignAccount =
+      card.hasForeignCurrencyAccount === true &&
+      purchaseCurrency !== undefined &&
+      card.foreignCurrencyType === (purchaseCurrency as string);
+
+    if (matchedForeignAccount) {
+      // מט"ח account in the purchase currency → no conversion fee → rank first.
+      score += 30;
+      reasonsHe.push('חשבון מט"ח תואם — ללא עמלת המרה');
+      reasonsAr.push('حساب عملات أجنبية مطابق — بدون رسوم تحويل');
+    } else if (fxPercent > 2) {
       reasonsHe.push('עמלת המרה גבוהה מפחיתה את הציון');
       reasonsAr.push('رسوم تحويل عالية تقلل النتيجة');
     }
@@ -143,6 +186,7 @@ export function recommendCard(
   purchaseCategory: PurchaseCategory,
   userProfile: UserProfile,
   isInternational: boolean,
+  purchaseCurrency?: Currency,
 ): CardRecommendation | null {
   const activeCards = cards.filter((card: CardInput): boolean => card.isActive);
 
@@ -152,7 +196,13 @@ export function recommendCard(
 
   const scoredCards = activeCards
     .map((card: CardInput): CardRecommendation =>
-      scoreCard(card, purchaseCategory, userProfile, isInternational),
+      scoreCard(
+        card,
+        purchaseCategory,
+        userProfile,
+        isInternational,
+        purchaseCurrency,
+      ),
     )
     .filter((candidate: CardRecommendation): boolean =>
       candidate.score !== INVALID_CARD_SCORE,

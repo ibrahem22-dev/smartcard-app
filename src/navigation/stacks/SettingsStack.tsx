@@ -8,12 +8,15 @@
 // the English `title` is still set so route titles exist for future sub-screens.
 
 import React from 'react';
-import { Pressable, Text } from 'react-native';
+import { Pressable } from 'react-native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
+import { AppText } from '../../components/AppText';
 import { ContactScreen } from '../../screens/ContactScreen';
 import { GlossaryScreen } from '../../screens/GlossaryScreen';
 import { InstallmentImportScreen } from '../../screens/InstallmentImportScreen';
+import { InterestCalculatorScreen } from '../../screens/InterestCalculatorScreen';
+import { LoansScreen } from '../../screens/LoansScreen';
 import { SettingsScreen } from '../../screens/SettingsScreen';
 import { useTranslation } from '../../hooks/useTranslation';
 import type { SettingsStackParamList } from '../types';
@@ -35,7 +38,7 @@ export function SettingsStack(): React.ReactElement {
               hitSlop={12}
               onPress={navigation.goBack}
             >
-              <Text className="text-2xl text-white">←</Text>
+              <AppText className="text-2xl text-white">←</AppText>
             </Pressable>
           ) : null,
         headerShown: false,
@@ -69,6 +72,24 @@ export function SettingsStack(): React.ReactElement {
           headerShown: true,
           headerTitleAlign: 'center',
           title: t('תשלומים קיימים'),
+        }}
+      />
+      <Stack.Screen
+        name="Loans"
+        component={LoansScreen}
+        options={{
+          headerShown: true,
+          headerTitleAlign: 'center',
+          title: t('הלוואות ומשכנתא'),
+        }}
+      />
+      <Stack.Screen
+        name="InterestCalculator"
+        component={InterestCalculatorScreen}
+        options={{
+          headerShown: true,
+          headerTitleAlign: 'center',
+          title: t('מחשבון ריבית'),
         }}
       />
     </Stack.Navigator>

@@ -158,13 +158,14 @@ describe('cashflowRadar', () => {
       dangerThreshold: 500,
     });
 
-    const projection = getDailyProjection(month);
+    const projection = getDailyProjection(month, 250);
 
     expect(projection).toHaveLength(31);
     expect(projection[0]?.date).toBe('2026-07-01');
-    expect(projection[0]?.projectedBalance).toBe(3_800);
+    expect(projection[0]?.outflow).toBe(450);
+    expect(projection[0]?.projectedBalance).toBe(3_550);
     expect(projection[29]?.date).toBe('2026-07-30');
-    expect(projection[29]?.projectedBalance).toBe(3_400);
+    expect(projection[29]?.projectedBalance).toBe(3_150);
   });
 
   test('getDailyProjection includes day-31 obligations in a 31-day month', () => {
@@ -390,16 +391,16 @@ describe('cashflowRadar', () => {
   });
 
   test('calculateMonthlyRisk returns critical score for overdraft and charge return risk', () => {
-    const risk = calculateMonthlyRisk(makeMonth({
-      openingBalance: 500,
-      monthlyIncome: 0.01,
-      incomeDayOfMonth: 20,
-      obligations: [
-        makeObligation({ amount: 800, dayOfMonth: 3 }),
-        makeObligation({ amount: 200, dayOfMonth: 4 }),
-      ],
-      dangerThreshold: 100,
-    }));
+    const risk = calculateMonthlyRisk(
+      makeMonth({
+        openingBalance: 500,
+        monthlyIncome: 0.01,
+        incomeDayOfMonth: 20,
+        obligations: [],
+        dangerThreshold: 100,
+      }),
+      1_000,
+    );
 
     expect(risk.score).toBeGreaterThanOrEqual(75);
     expect(risk.level).toBe(RiskLevel.Critical);

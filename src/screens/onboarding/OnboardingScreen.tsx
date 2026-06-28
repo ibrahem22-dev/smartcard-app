@@ -10,15 +10,15 @@ import {
   Platform,
   Pressable,
   ScrollView,
-  Text,
   TextInput,
   View,
 } from 'react-native';
 
+import { AppText } from '../../components/AppText';
 import { useAuth } from '../../navigation/authContext';
 import { useTranslation } from '../../hooks/useTranslation';
 import { CardIssuer } from '../../types/card.types';
-import { rtl } from '../../utils/rtlStyles';
+import { inputStyle, rtl } from '../../utils/rtlStyles';
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -193,14 +193,13 @@ export default function OnboardingScreen(): React.ReactElement {
   function renderStep1(): React.ReactElement {
     return (
       <View className="w-full">
-        <Text
-          className="mb-5 text-right text-2xl font-black text-slate-900 dark:text-white"
-          style={rtl.text}
+        <AppText
+          className="mb-5 text-2xl font-black text-slate-900 dark:text-white"
         >
           {t('באיזה בנק אתה מנהל את החשבון?')}
-        </Text>
+        </AppText>
         <View
-          className="w-full flex-row-reverse flex-wrap gap-3"
+          className="w-full flex-row flex-wrap gap-3"
           style={rtl.row}
         >
           {QUICK_BANK_OPTIONS.map(bank => {
@@ -214,12 +213,11 @@ export default function OnboardingScreen(): React.ReactElement {
                 key={bank}
                 onPress={(): void => setSelectedBank(bank)}
               >
-                <Text
-                  className={`text-right ${optionTextClassName(isSelected)}`}
-                  style={rtl.text}
+                <AppText
+                  className={`${optionTextClassName(isSelected)}`}
                 >
                   {t(bank)}
-                </Text>
+                </AppText>
               </Pressable>
             );
           })}
@@ -231,12 +229,11 @@ export default function OnboardingScreen(): React.ReactElement {
           className="mt-4 min-h-[48px] items-center justify-center rounded-lg border border-blue-300 bg-blue-50 px-4 dark:border-blue-800 dark:bg-blue-950"
           onPress={(): void => setShowAdditionalBanks(current => !current)}
         >
-          <Text
-            className="text-right text-center text-base font-extrabold text-blue-700 dark:text-blue-200"
-            style={rtl.text}
+          <AppText
+            className="text-center text-base font-extrabold text-blue-700 dark:text-blue-200"
           >
             {t('בנקים נוספים (8)')}
-          </Text>
+          </AppText>
         </Pressable>
 
         {showAdditionalBanks ? (
@@ -261,12 +258,11 @@ export default function OnboardingScreen(): React.ReactElement {
                   key={bank}
                   onPress={(): void => setSelectedBank(bank)}
                 >
-                  <Text
-                    className={`text-right ${optionTextClassName(isSelected)}`}
-                    style={rtl.text}
+                  <AppText
+                    className={`${optionTextClassName(isSelected)}`}
                   >
                     {t(bank)}
-                  </Text>
+                  </AppText>
                 </Pressable>
               );
             })}
@@ -279,59 +275,54 @@ export default function OnboardingScreen(): React.ReactElement {
   function renderStep2(): React.ReactElement {
     return (
       <View className="w-full">
-        <Text
-          className="mb-5 text-right text-2xl font-black text-slate-900 dark:text-white"
-          style={rtl.text}
+        <AppText
+          className="mb-5 text-2xl font-black text-slate-900 dark:text-white"
         >
           {t('פרטים פיננסיים')}
-        </Text>
+        </AppText>
 
-        <Text
-          className="mb-2 text-right text-base font-extrabold text-slate-700 dark:text-slate-200"
-          style={rtl.text}
+        <AppText
+          className="mb-2 text-base font-extrabold text-slate-700 dark:text-slate-200"
         >
           {t('הכנסה חודשית (₪)')}
-        </Text>
+        </AppText>
         <TextInput
-          className="min-h-[52px] rounded-lg border border-slate-300 bg-white px-4 text-right text-lg text-slate-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
+          className="min-h-[52px] rounded-lg border border-slate-300 bg-white px-4 text-lg text-slate-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
           keyboardType="numeric"
           onChangeText={setIncomeText}
           placeholder={t('לדוגמה: 12000')}
           placeholderTextColor="#94A3B8"
-          style={rtl.input}
+          style={inputStyle()}
           value={incomeText}
         />
         {incomeError !== null ? (
-          <Text
-            className="mt-1.5 text-right text-sm font-bold text-red-600 dark:text-red-300"
-            style={rtl.text}
+          <AppText
+            className="mt-1.5 text-sm font-bold text-red-600 dark:text-red-300"
           >
             {incomeError}
-          </Text>
+          </AppText>
         ) : null}
 
-        <Text
-          className="mb-2 mt-5 text-right text-base font-extrabold text-slate-700 dark:text-slate-200"
-          style={rtl.text}
+        <AppText
+          className="mb-2 mt-5 text-base font-extrabold text-slate-700 dark:text-slate-200"
         >
           {t('יתרה נוכחית (₪)')}
-        </Text>
+        </AppText>
         <TextInput
-          className="min-h-[52px] rounded-lg border border-slate-300 bg-white px-4 text-right text-lg text-slate-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
+          className="min-h-[52px] rounded-lg border border-slate-300 bg-white px-4 text-lg text-slate-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
           keyboardType="numeric"
           onChangeText={setBalanceText}
           placeholder={t('לדוגמה: 3500')}
           placeholderTextColor="#94A3B8"
-          style={rtl.input}
+          style={inputStyle()}
           value={balanceText}
         />
         {balanceError !== null ? (
-          <Text
-            className="mt-1.5 text-right text-sm font-bold text-red-600 dark:text-red-300"
-            style={rtl.text}
+          <AppText
+            className="mt-1.5 text-sm font-bold text-red-600 dark:text-red-300"
           >
             {balanceError}
-          </Text>
+          </AppText>
         ) : null}
       </View>
     );
@@ -342,21 +333,19 @@ export default function OnboardingScreen(): React.ReactElement {
 
     return (
       <View className="w-full">
-        <Text
-          className="mb-5 text-right text-2xl font-black text-slate-900 dark:text-white"
-          style={rtl.text}
+        <AppText
+          className="mb-5 text-2xl font-black text-slate-900 dark:text-white"
         >
           {t('הוסף את הכרטיס הראשון שלך')}
-        </Text>
+        </AppText>
 
-        <Text
-          className="mb-2 text-right text-base font-extrabold text-slate-700 dark:text-slate-200"
-          style={rtl.text}
+        <AppText
+          className="mb-2 text-base font-extrabold text-slate-700 dark:text-slate-200"
         >
           {t('חברת כרטיס האשראי')}
-        </Text>
+        </AppText>
         <View
-          className="w-full flex-row-reverse flex-wrap gap-3"
+          className="w-full flex-row flex-wrap gap-3"
           style={rtl.row}
         >
           {COMPANY_OPTIONS.map(company => {
@@ -370,12 +359,11 @@ export default function OnboardingScreen(): React.ReactElement {
                 key={company}
                 onPress={(): void => handleCompanySelect(company)}
               >
-                <Text
-                  className={`text-right ${optionTextClassName(isSelected)}`}
-                  style={rtl.text}
+                <AppText
+                  className={`${optionTextClassName(isSelected)}`}
                 >
                   {t(COMPANY_LABELS[company])}
-                </Text>
+                </AppText>
               </Pressable>
             );
           })}
@@ -383,12 +371,11 @@ export default function OnboardingScreen(): React.ReactElement {
 
         {selectedCompany !== null ? (
           <View className="mt-6 w-full">
-            <Text
-              className="mb-2 text-right text-base font-extrabold text-slate-700 dark:text-slate-200"
-              style={rtl.text}
+            <AppText
+              className="mb-2 text-base font-extrabold text-slate-700 dark:text-slate-200"
             >
               {t('מועדון הכרטיס')}
-            </Text>
+            </AppText>
             <View className="gap-2">
               {clubs.map(club => {
                 const isSelected = selectedClub === club && !unknownClub;
@@ -408,12 +395,11 @@ export default function OnboardingScreen(): React.ReactElement {
                       setUnknownClub(false);
                     }}
                   >
-                    <Text
-                      className={`text-right ${optionTextClassName(isSelected)}`}
-                      style={rtl.text}
+                    <AppText
+                      className={`${optionTextClassName(isSelected)}`}
                     >
                       {t(club)}
-                    </Text>
+                    </AppText>
                   </Pressable>
                 );
               })}
@@ -429,12 +415,11 @@ export default function OnboardingScreen(): React.ReactElement {
               }`}
               onPress={handleUnknownClub}
             >
-              <Text
-                className="text-right text-center text-base font-extrabold text-orange-800 dark:text-orange-200"
-                style={rtl.text}
+              <AppText
+                className="text-center text-base font-extrabold text-orange-800 dark:text-orange-200"
               >
                 {t('אני לא יודע את המועדון 🔍')}
-              </Text>
+              </AppText>
             </Pressable>
           </View>
         ) : null}
@@ -445,25 +430,23 @@ export default function OnboardingScreen(): React.ReactElement {
   function renderStep4(): React.ReactElement {
     return (
       <View className="w-full">
-        <Text
-          className="mb-5 text-right text-2xl font-black text-slate-900 dark:text-white"
-          style={rtl.text}
+        <AppText
+          className="mb-5 text-2xl font-black text-slate-900 dark:text-white"
         >
           {t('מספר טלפון')}
-        </Text>
-        <Text
-          className="mb-2 text-right text-base font-extrabold text-slate-700 dark:text-slate-200"
-          style={rtl.text}
+        </AppText>
+        <AppText
+          className="mb-2 text-base font-extrabold text-slate-700 dark:text-slate-200"
         >
           {t('מספר טלפון - לשחזור חשבון בעתיד (אופציונלי)')}
-        </Text>
+        </AppText>
         <TextInput
-          className="min-h-[52px] rounded-lg border border-slate-300 bg-white px-4 text-right text-lg text-slate-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
+          className="min-h-[52px] rounded-lg border border-slate-300 bg-white px-4 text-lg text-slate-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
           keyboardType="phone-pad"
           onChangeText={setPhoneText}
           placeholder="050-0000000"
           placeholderTextColor="#94A3B8"
-          style={rtl.input}
+          style={inputStyle()}
           value={phoneText}
         />
 
@@ -474,18 +457,17 @@ export default function OnboardingScreen(): React.ReactElement {
             void handleFinish();
           }}
         >
-          <Text className="text-right text-center text-lg font-black text-white" style={rtl.text}>
+          <AppText className="text-center text-lg font-black text-white">
             {t('סיום')}
-          </Text>
+          </AppText>
         </Pressable>
 
         {finishError !== null ? (
-          <Text
-            className="mt-3 text-right text-sm font-bold text-red-600 dark:text-red-300"
-            style={rtl.text}
+          <AppText
+            className="mt-3 text-sm font-bold text-red-600 dark:text-red-300"
           >
             {finishError}
-          </Text>
+          </AppText>
         ) : null}
       </View>
     );
@@ -516,14 +498,14 @@ export default function OnboardingScreen(): React.ReactElement {
       layout props (alignItems, flexDirection) into the native `style` prop
       instead of contentContainerStyle — causing Invariant Violation crash.
       Solution: explicit style props only on KeyboardAvoidingView and ScrollView.
-      All child <View> and <Text> components keep className as normal.
+      All child <View> and <AppText> components keep className as normal.
     */
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={[rtl.screen, { backgroundColor: '#F8FAFC' }]}
     >
       <View
-        className="flex-row-reverse gap-2 border-b border-slate-200 bg-white px-5 py-4 dark:border-neutral-800 dark:bg-neutral-950"
+        className="flex-row gap-2 border-b border-slate-200 bg-white px-5 py-4 dark:border-neutral-800 dark:bg-neutral-950"
         style={rtl.row}
       >
         {STEPS.map(step => {
@@ -549,7 +531,7 @@ export default function OnboardingScreen(): React.ReactElement {
       </ScrollView>
 
       <View
-        className="flex-row-reverse gap-3 border-t border-slate-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
+        className="flex-row gap-3 border-t border-slate-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
         style={rtl.row}
       >
         <Pressable
@@ -562,16 +544,11 @@ export default function OnboardingScreen(): React.ReactElement {
           disabled={currentStep === 1}
           onPress={goBack}
         >
-          <Text
-            className={`text-right text-center text-base font-extrabold ${
-              currentStep === 1
-                ? 'text-slate-400 dark:text-neutral-600'
-                : 'text-slate-700 dark:text-slate-100'
-            }`}
-            style={rtl.text}
+          <AppText
+            className={`text-center text-base font-extrabold ${ currentStep === 1 ? 'text-slate-400 dark:text-neutral-600' : 'text-slate-700 dark:text-slate-100' }`}
           >
             {t('חזרה')}
-          </Text>
+          </AppText>
         </Pressable>
 
         <Pressable
@@ -584,9 +561,9 @@ export default function OnboardingScreen(): React.ReactElement {
           disabled={isContinueDisabled}
           onPress={handleNext}
         >
-          <Text className="text-right text-center text-base font-extrabold text-white" style={rtl.text}>
+          <AppText className="text-center text-base font-extrabold text-white">
             {currentStep === 4 ? t('סיום') : t('המשך')}
-          </Text>
+          </AppText>
         </Pressable>
       </View>
     </KeyboardAvoidingView>

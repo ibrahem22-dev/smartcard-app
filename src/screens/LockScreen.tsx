@@ -10,8 +10,9 @@
 // the authenticated branch.
 
 import React from 'react';
-import { Pressable, Text, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
+import { AppText } from '../components/AppText';
 import { useAuth } from '../navigation/authContext';
 import { useTranslation } from '../hooks/useTranslation';
 
@@ -21,9 +22,12 @@ export function LockScreen(): React.ReactElement {
 
   return (
     <View className="flex-1 items-center justify-center bg-slate-900 p-6 dark:bg-app-dark">
-      <Text className="text-right text-center text-[22px] font-bold text-white">
+      <AppText
+        className="text-center text-[22px] font-bold text-white"
+        style={{ textAlign: 'center' }} // intentional center — not RTL content
+      >
         {t('אימות להמשך')}
-      </Text>
+      </AppText>
 
       {__DEV__ && auth.debugUnlock !== undefined ? (
         <Pressable
@@ -33,9 +37,9 @@ export function LockScreen(): React.ReactElement {
             void auth.debugUnlock?.();
           }}
         >
-          <Text className="text-right text-base font-semibold text-white">
+          <AppText className="text-center text-base font-semibold text-white">
             {t('פתיחת נעילה לצורכי פיתוח')}
-          </Text>
+          </AppText>
         </Pressable>
       ) : null}
     </View>

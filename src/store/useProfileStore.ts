@@ -2,6 +2,7 @@ import { create } from 'zustand';
 
 import { keyVault } from '../security/keyVault';
 import { useCardsStore } from './useCardsStore';
+import { useLoansStore } from './useLoansStore';
 import { useUserStore } from './useUserStore';
 import type {
   AppProfile,
@@ -127,6 +128,7 @@ export const useProfileStore = create<ProfileState>()((set, get) => ({
     if (activeProfile !== null) {
       useUserStore.getState().hydrateProfile(activeProfile.id);
       useCardsStore.getState().hydrateProfile(activeProfile.id);
+      useLoansStore.getState().hydrateProfile(activeProfile.id);
     }
   },
 
@@ -243,12 +245,14 @@ export const useProfileStore = create<ProfileState>()((set, get) => ({
     if (outgoingProfileId !== undefined) {
       useUserStore.getState().persistProfile(outgoingProfileId);
       useCardsStore.getState().persistProfile(outgoingProfileId);
+      useLoansStore.getState().persistProfile(outgoingProfileId);
     }
 
     storage.set(MMKV_KEYS.activeProfileId, activeProfile.id);
     set({ allProfiles: profiles, activeProfile });
     useUserStore.getState().hydrateProfile(activeProfile.id);
     useCardsStore.getState().hydrateProfile(activeProfile.id);
+    useLoansStore.getState().hydrateProfile(activeProfile.id);
   },
 
   clearProfiles() {

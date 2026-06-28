@@ -32,22 +32,24 @@ export default function App(): React.ReactElement {
       .catch(() => setVaultReady(true));
   }, []);
 
-  if (!vaultReady) {
-    return (
-      <View style={{ flex: 1, backgroundColor: '#141414' }}>
-        <StatusBar style="light" backgroundColor="#141414" />
-      </View>
-    );
-  }
-
   return (
-    <SafeAreaProvider>
-      <StatusBar style="light" backgroundColor="#141414" />
-      <NavigationContainer theme={navigationTheme}>
-        <View style={{ flex: 1 }}>
-          <RootNavigator />
-        </View>
-      </NavigationContainer>
-    </SafeAreaProvider>
+    <>
+      <StatusBar
+        style="light"
+        backgroundColor="#141414"
+        translucent={false} // required — Android default is true, causes content overlap
+      />
+      {!vaultReady ? (
+        <View style={{ flex: 1, backgroundColor: '#141414' }} />
+      ) : (
+        <SafeAreaProvider>
+          <NavigationContainer theme={navigationTheme}>
+            <View style={{ flex: 1 }}>
+              <RootNavigator />
+            </View>
+          </NavigationContainer>
+        </SafeAreaProvider>
+      )}
+    </>
   );
 }

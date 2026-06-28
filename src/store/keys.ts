@@ -13,4 +13,5 @@ export const MMKV_KEYS = {
   profileCardObligations: (id: string): string =>
     `profile_${id}:card_obligations`,
   profilePinVerifier: (id: string): string => `profile_${id}:pin_verifier`,
+  profileLoans: (id: string): string => `profile_${id}:loans`,
 } as const;
