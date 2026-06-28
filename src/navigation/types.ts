@@ -18,6 +18,8 @@ import type {
 /** Home tab stack. */
 export type HomeStackParamList = {
   HomeRoot: undefined;
+  Benefits: undefined;
+  SavingsTracker: undefined;
 };
 
 /** Purchase Gate tab stack. */
@@ -51,6 +53,7 @@ export type SettingsStackParamList = {
   InstallmentImport: undefined;
   Loans: undefined;
   InterestCalculator: { cardId?: string } | undefined;
+  ProfileShare: undefined;
 };
 
 /**

@@ -2,7 +2,6 @@ import React from 'react';
 import {
   Alert,
   DevSettings,
-  I18nManager,
   Pressable,
   ScrollView,
   View,
@@ -26,6 +25,7 @@ import {
 } from '../store/useLanguageStore';
 import { useProfileStore } from '../store/useProfileStore';
 import type { AppProfile } from '../types/profile.types';
+import { applyNativeRtlDirection } from '../utils/languageService';
 import { rtl } from '../utils/rtlStyles';
 
 type SettingsScreenProps = NativeStackScreenProps<
@@ -81,18 +81,14 @@ export function SettingsScreen({
 
   async function switchLanguage(newPref: LanguagePreference): Promise<void> {
     preferencesStorage.set(MMKV_KEYS.languagePreference, newPref);
-    setPreference(newPref);
 
     const newLang = resolveLanguage(newPref);
-    i18n.changeLanguage(newLang);
+    const needsDirectionReload = applyNativeRtlDirection();
 
-    const shouldBeRTL = newLang === 'he';
-    if (I18nManager.isRTL !== shouldBeRTL) {
-      I18nManager.allowRTL(shouldBeRTL);
-      I18nManager.forceRTL(shouldBeRTL);
-
-      const alertTitle =
-        newLang === 'he' ? 'נדרש אתחול' : 'Restart required';
+    if (needsDirectionReload) {
+      // Persist preference only — skip store/i18n until reload so text and Yoga
+      // layout never desync (store would flip before I18nManager takes effect).
+      const alertTitle = newLang === 'he' ? 'נדרש אתחול' : 'Restart required';
       const alertMessage =
         newLang === 'he'
           ? 'האפליקציה תאותחל כעת'
@@ -111,7 +107,11 @@ export function SettingsScreen({
           },
         },
       ]);
+      return;
     }
+
+    setPreference(newPref);
+    i18n.changeLanguage(newLang);
   }
 
   function confirmDeleteProfile(profile: AppProfile): void {
@@ -247,6 +247,16 @@ export function SettingsScreen({
           >
             <AppText className="text-center text-base font-extrabold text-blue-700 dark:text-blue-200">
               {t('מחשבון ריבית')}
+            </AppText>
+          </Pressable>
+
+          <Pressable
+            accessibilityRole="button"
+            className="mb-3 min-h-[50px] items-center justify-center rounded-lg border border-blue-200 bg-blue-50 px-4 shadow-sm dark:border-blue-900 dark:bg-blue-950"
+            onPress={(): void => navigation.navigate('ProfileShare')}
+          >
+            <AppText className="text-center text-base font-extrabold text-blue-700 dark:text-blue-200">
+              {t('שיתוף פרופיל')}
             </AppText>
           </Pressable>
 

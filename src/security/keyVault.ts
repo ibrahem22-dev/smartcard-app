@@ -104,6 +104,148 @@ const KDF_PARAMS: KdfOptions = {
   keyBytes: 32,
 };
 
+const TRANSFER_ENVELOPE_VERSION = 1;
+const TRANSFER_SALT_BYTES = 16;
+const TRANSFER_NONCE_BYTES = 12;
+const TRANSFER_KEY_BYTES = 32;
+const TRANSFER_TAG_BYTES = 16;
+const BASE64_ALPHABET =
+  'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
+
+function bytesToBase64(bytes: Uint8Array): string {
+  let output = '';
+  for (let index = 0; index < bytes.length; index += 3) {
+    const first = bytes[index] ?? 0;
+    const second = bytes[index + 1] ?? 0;
+    const third = bytes[index + 2] ?? 0;
+    const block = (first << 16) | (second << 8) | third;
+    output += BASE64_ALPHABET[(block >>> 18) & 63] ?? '';
+    output += BASE64_ALPHABET[(block >>> 12) & 63] ?? '';
+    output +=
+      index + 1 < bytes.length
+        ? BASE64_ALPHABET[(block >>> 6) & 63] ?? ''
+        : '=';
+    output +=
+      index + 2 < bytes.length ? BASE64_ALPHABET[block & 63] ?? '' : '=';
+  }
+  return output;
+}
+
+function base64ToBytes(value: string): Uint8Array {
+  if (
+    value.length === 0 ||
+    value.length % 4 !== 0 ||
+    !/^[A-Za-z0-9+/]+={0,2}$/.test(value)
+  ) {
+    throw new Error('INVALID_TRANSFER_PAYLOAD');
+  }
+
+  const padding = value.endsWith('==') ? 2 : value.endsWith('=') ? 1 : 0;
+  const output = new Uint8Array((value.length / 4) * 3 - padding);
+  let outputIndex = 0;
+
+  for (let index = 0; index < value.length; index += 4) {
+    const chars = value.slice(index, index + 4);
+    const values = chars.split('').map((char: string): number =>
+      char === '=' ? 0 : BASE64_ALPHABET.indexOf(char),
+    );
+    const first = values[0] ?? 0;
+    const second = values[1] ?? 0;
+    const third = values[2] ?? 0;
+    const fourth = values[3] ?? 0;
+    const block = (first << 18) | (second << 12) | (third << 6) | fourth;
+
+    if (outputIndex < output.length) {
+      output[outputIndex] = (block >>> 16) & 255;
+      outputIndex += 1;
+    }
+    if (outputIndex < output.length) {
+      output[outputIndex] = (block >>> 8) & 255;
+      outputIndex += 1;
+    }
+    if (outputIndex < output.length) {
+      output[outputIndex] = block & 255;
+      outputIndex += 1;
+    }
+  }
+
+  return output;
+}
+
+async function deriveTransferKey(
+  transferPin: string,
+  salt: Uint8Array,
+): Promise<Uint8Array> {
+  if (!/^\d{4}$/.test(transferPin)) {
+    throw new Error('INVALID_TRANSFER_PIN');
+  }
+
+  return new Uint8Array(
+    await argon2idAsync(transferPin, salt, {
+      t: 2,
+      m: 19 * 1024,
+      p: 1,
+      dkLen: TRANSFER_KEY_BYTES,
+      asyncTick: 16,
+    }),
+  );
+}
+
+export async function encryptProfileTransferPayload(
+  plaintext: string,
+  transferPin: string,
+): Promise<string> {
+  const salt = await randomBytes(TRANSFER_SALT_BYTES);
+  const nonce = await randomBytes(TRANSFER_NONCE_BYTES);
+  const key = await deriveTransferKey(transferPin, salt);
+  const ciphertext = gcm(key, nonce).encrypt(
+    new TextEncoder().encode(plaintext),
+  );
+  const envelope = new Uint8Array(
+    1 + salt.length + nonce.length + ciphertext.length,
+  );
+  envelope[0] = TRANSFER_ENVELOPE_VERSION;
+  envelope.set(salt, 1);
+  envelope.set(nonce, 1 + salt.length);
+  envelope.set(ciphertext, 1 + salt.length + nonce.length);
+  key.fill(0);
+
+  return bytesToBase64(envelope);
+}
+
+export async function decryptProfileTransferPayload(
+  encodedPayload: string,
+  transferPin: string,
+): Promise<string> {
+  const envelope = base64ToBytes(encodedPayload);
+  const minimumLength =
+    1 + TRANSFER_SALT_BYTES + TRANSFER_NONCE_BYTES + TRANSFER_TAG_BYTES;
+  if (
+    envelope.length < minimumLength ||
+    envelope[0] !== TRANSFER_ENVELOPE_VERSION
+  ) {
+    throw new Error('INVALID_TRANSFER_PAYLOAD');
+  }
+
+  const salt = envelope.slice(1, 1 + TRANSFER_SALT_BYTES);
+  const nonce = envelope.slice(
+    1 + TRANSFER_SALT_BYTES,
+    1 + TRANSFER_SALT_BYTES + TRANSFER_NONCE_BYTES,
+  );
+  const ciphertext = envelope.slice(
+    1 + TRANSFER_SALT_BYTES + TRANSFER_NONCE_BYTES,
+  );
+  const key = await deriveTransferKey(transferPin, salt);
+  const plaintext = gcm(key, nonce).decrypt(ciphertext);
+  key.fill(0);
+
+  return new TextDecoder().decode(plaintext);
+}
+
+export function createSecureProfileId(): string {
+  return Crypto.randomUUID();
+}
+
 const DEK_BYTES = 32; // 256-bit (KGEN-1)
 const GCM_NONCE_BYTES = 12;
 

@@ -5,6 +5,22 @@ import { MMKV } from 'react-native-mmkv';
 import { MMKV_KEYS } from '../store/keys';
 
 /**
+ * Apply native Yoga layout direction for the resolved locale.
+ * allowRTL is always true (native MainApplication.kt also sets this) so Hebrew
+ * can be restored after English. forceRTL follows the language: he→true, en→false.
+ * Returns true when the direction changed and a JS reload is required.
+ */
+export function applyNativeRtlDirection(): boolean {
+  const shouldBeRTL = isRTLLocale();
+  const changed = I18nManager.isRTL !== shouldBeRTL;
+  I18nManager.allowRTL(true);
+  if (changed) {
+    I18nManager.forceRTL(shouldBeRTL);
+  }
+  return changed;
+}
+
+/**
  * Single source of truth for resolving the app's language at the
  * native/boot boundary. The reactive in-app source for components remains
  * `useLanguageStore`; this module exists so that `index.js`, `src/i18n`, and the
@@ -40,14 +56,4 @@ export function isRTLLocale(): boolean {
  * Whether this import flipped the native I18nManager direction. `index.js` reads
  * it to decide if a one-time reload is needed so the new direction takes effect.
  */
-export const rtlDirectionChanged: boolean =
-  I18nManager.isRTL !== isRTLLocale();
-
-// Dynamic JS-side RTL enforcement (secondary to MainApplication.kt's allowRTL).
-// Sets forceRTL to match the resolved language — false for English, so LTR is
-// preserved. Runs synchronously on import, before any component renders.
-if (rtlDirectionChanged) {
-  const shouldBeRTL = isRTLLocale();
-  I18nManager.allowRTL(shouldBeRTL);
-  I18nManager.forceRTL(shouldBeRTL);
-}
+export const rtlDirectionChanged: boolean = applyNativeRtlDirection();

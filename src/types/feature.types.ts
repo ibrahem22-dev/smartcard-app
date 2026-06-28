@@ -23,8 +23,8 @@ export type FeatureFlags = Record<string, FeatureConfig>;
  * keys and narrowed status values for type-safe consumers.
  */
 export const INITIAL_FEATURE_STATUS = {
-  BenefitsScreen: { status: 'soon', label: 'הטבות', availableInPhase: 4 },
-  SavingsTracker: { status: 'soon', label: 'חיסכון', availableInPhase: 3 },
+  BenefitsScreen: { status: 'live', label: 'הטבות' },
+  SavingsTracker: { status: 'live', label: 'חיסכון' },
   ScoreSection: { status: 'soon', label: 'ניקוד', availableInPhase: 3 },
   InternationalMode: { status: 'soon', label: 'חו"ל', availableInPhase: 3 },
   InternationalTravel: { status: 'soon', label: 'נסיעות לחו"ל', availableInPhase: 3 },

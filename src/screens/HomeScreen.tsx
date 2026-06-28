@@ -1,10 +1,12 @@
 import React from 'react';
 import { Pressable, ScrollView, View } from 'react-native';
 import { useNavigation, type NavigationProp } from '@react-navigation/native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppText } from '../components/AppText';
 import { FeatureGate } from '../components/FeatureGate';
 import { ProfileSwitcher } from '../components/ProfileSwitcher';
+import { useSavingsOverview } from '../hooks/useBenefits';
 import { useTheme } from '../hooks/useTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import type { TabParamList } from '../navigation/types';
@@ -27,11 +29,18 @@ function getDailyTip(): string {
   return DAILY_TIPS[tipIndex] ?? 'שלם ביום חיוב כדי למקסם את תקופת האשראי';
 }
 
+function formatShekels(value: number): string {
+  return `${value.toLocaleString('he-IL', {
+    maximumFractionDigits: 2,
+  })} ₪`;
+}
+
 export function HomeScreen(): React.ReactElement {
   const theme = useTheme();
   const { t } = useTranslation();
   const navigation = useNavigation<NavigationProp<TabParamList>>();
   const cards = useCardsStore(state => state.cards);
+  const { totalSaved } = useSavingsOverview();
   const activeProfile = useProfileStore(state => state.activeProfile);
   const upcomingObligationsCount = cards.length;
 
@@ -39,8 +48,16 @@ export function HomeScreen(): React.ReactElement {
     navigation.navigate('PurchaseGate', { screen: 'PurchaseGateRoot' });
   }
 
+  function handleSavingsTracker(): void {
+    navigation.navigate('Home', { screen: 'SavingsTracker' });
+  }
+
+  function handleBenefits(): void {
+    navigation.navigate('Home', { screen: 'Benefits' });
+  }
+
   return (
-    <View
+    <SafeAreaView
       className="flex-1 bg-slate-50 dark:bg-app-dark"
       style={rtl.screen}
     >
@@ -74,19 +91,35 @@ export function HomeScreen(): React.ReactElement {
             </AppText>
           </View>
 
-          <View className="rounded-lg bg-slate-900 p-[22px] dark:bg-dark-surface">
+          <Pressable
+            accessibilityRole="button"
+            className="rounded-lg bg-slate-900 p-[22px] shadow-sm dark:bg-dark-surface"
+            onPress={handleSavingsTracker}
+          >
             <FeatureGate feature="SavingsTracker">
               <AppText
                 className="text-[34px] font-black"
                 style={{ color: theme.companyAccent }}
               >
-              {t('0 ₪ נחסך')}
+              {formatShekels(totalSaved)} {t('נחסך')}
             </AppText>
             </FeatureGate>
             <AppText className="mt-1.5 text-[15px] text-slate-300">
               {t('החיסכון שלך עד עכשיו')}
             </AppText>
-          </View>
+          </Pressable>
+
+          <FeatureGate feature="BenefitsScreen">
+            <Pressable
+              accessibilityRole="button"
+              className="mt-4 min-h-[52px] items-center justify-center rounded-lg border border-blue-200 bg-blue-50 px-4 shadow-sm dark:border-blue-900 dark:bg-blue-950"
+              onPress={handleBenefits}
+            >
+              <AppText className="text-center text-base font-extrabold text-blue-700 dark:text-blue-200">
+                {t('הצג הטבות לכרטיס')}
+              </AppText>
+            </Pressable>
+          </FeatureGate>
 
           <View className="mt-4 rounded-lg border border-slate-300 bg-white p-[18px] dark:border-neutral-700 dark:bg-dark-surface">
             <AppText
@@ -148,6 +181,6 @@ export function HomeScreen(): React.ReactElement {
           </AppText>
         </Pressable>
       </View>
-    </View>
+    </SafeAreaView>
   );
 }

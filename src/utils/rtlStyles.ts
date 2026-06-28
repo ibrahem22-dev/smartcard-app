@@ -1,13 +1,12 @@
-import { StyleSheet } from 'react-native';
+import { I18nManager, StyleSheet } from 'react-native';
 
-import { useLanguageStore } from '../store/useLanguageStore';
-
-// RTL RULE (ISSUE-RTL-ROOT-FIX-02 — do not regress, see AGENTS §14):
+// RTL RULE (ISSUE-RTL-ROOT-FIX-02 — do not regress, see AGENTS §14 + docs/RTL-AGENT-GUARD.md):
 // - Direction is driven NATIVELY by I18nManager (allowRTL in MainApplication.kt +
-//   per-language forceRTL in languageService.ts/index.js). Under RTL, Yoga flips a
-//   plain `flexDirection: 'row'` automatically — so NEVER hard-code 'row-reverse'
-//   or the `flex-row-reverse` className; that double-flips and breaks Hebrew.
-// - Text: <AppText> owns textAlign/writingDirection. Never hard-code textAlign.
+//   per-language forceRTL via applyNativeRtlDirection() in languageService.ts).
+//   Under RTL, Yoga flips a plain `flexDirection: 'row'` automatically — so NEVER
+//   hard-code 'row-reverse' or the `flex-row-reverse` className; that double-flips.
+// - Text + TextInput alignment: I18nManager.isRTL (NOT useLanguageStore — desyncs
+//   before reload). <AppText> owns textAlign/writingDirection.
 // - TextInput: inputStyle() follows the resolved language at render time.
 export const rtl = StyleSheet.create({
   row: {
@@ -39,6 +38,6 @@ export const rtl = StyleSheet.create({
  */
 export function inputStyle(): { textAlign: 'left' | 'right' } {
   return {
-    textAlign: useLanguageStore.getState().isRTL ? 'right' : 'left',
+    textAlign: I18nManager.isRTL ? 'right' : 'left',
   };
 }

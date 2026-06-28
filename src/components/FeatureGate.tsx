@@ -1,10 +1,9 @@
 import React, { type ReactNode } from 'react';
-import { StyleSheet, View } from 'react-native';
+import { I18nManager, StyleSheet, View } from 'react-native';
 
 import { AppText } from './AppText';
 import { useFeatureFlag } from '../hooks/useFeatureFlag';
 import { useTranslation } from '../hooks/useTranslation';
-import { useLanguageStore } from '../store/useLanguageStore';
 import { INITIAL_FEATURE_STATUS } from '../types/feature.types';
 
 export type FeatureGateProps = {
@@ -15,13 +14,18 @@ export type FeatureGateProps = {
 export function FeatureGate({ feature, children }: FeatureGateProps): React.ReactElement | null {
   const status = useFeatureFlag(feature);
   const { t } = useTranslation();
-  const isRTL = useLanguageStore(state => state.isRTL);
+  const isRTL = I18nManager.isRTL;
 
-  if (status !== 'active' && status !== 'soon' && status !== 'pro_only') {
+  if (
+    status !== 'active' &&
+    status !== 'live' &&
+    status !== 'soon' &&
+    status !== 'pro_only'
+  ) {
     return null;
   }
 
-  if (status === 'active') {
+  if (status === 'active' || status === 'live') {
     return <>{children}</>;
   }
 

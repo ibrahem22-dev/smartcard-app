@@ -240,6 +240,13 @@ describe('findBestCard', () => {
       .toEqual([]);
     expect(findBestCard([makeCard()], makePurchase({ amount: 0 }), GOLD_DB))
       .toEqual([]);
+    expect(
+      findBestCard(
+        [makeCard()],
+        makePurchase({ amount: Number.NaN }),
+        GOLD_DB,
+      ),
+    ).toEqual([]);
   });
 
   test('rounds estimated savings to agorot', () => {
@@ -250,6 +257,26 @@ describe('findBestCard', () => {
         GOLD_DB,
       )[0]?.estimatedSaving,
     ).toBe(2.5);
+  });
+
+  test('handles invalid and duplicate benefit values deterministically', () => {
+    const first = makeBenefit({ description: 'first equal benefit' });
+    const database = makeBenefitsDB([
+      {
+        issuer: 'Max',
+        club: 'Max Gold',
+        benefits: [
+          makeBenefit({ value: Number.NaN }),
+          first,
+          makeBenefit({ description: 'second equal benefit' }),
+        ],
+      },
+    ]);
+
+    const result = findBestCard([makeCard()], makePurchase(), database);
+
+    expect(result[0]?.benefit).toBe(first);
+    expect(result[0]?.estimatedSaving).toBe(2.5);
   });
 });
 

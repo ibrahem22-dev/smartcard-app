@@ -107,18 +107,19 @@ export function InterestCalculatorScreen(): React.ReactElement {
   return (
     <SafeAreaView
       className="flex-1 bg-slate-50 dark:bg-app-dark"
-      edges={['top', 'bottom']}
+      edges={['bottom']}
+      style={rtl.screen}
     >
       <KeyboardAvoidingView
-        behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-        className="flex-1"
+        behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+        style={rtl.screen}
       >
         <ScrollView
           contentContainerStyle={[rtl.scrollInner, { paddingBottom: 32 }]}
           keyboardShouldPersistTaps="handled"
           style={rtl.scrollOuter}
         >
-          <View className="w-full p-5">
+          <View className="min-h-full w-full p-5">
             <AppText className="text-2xl font-black text-slate-900 dark:text-white">
               {t('מחשבון ריבית')}
             </AppText>

@@ -43,3 +43,20 @@ export interface MissedSavings {
   readonly totalMissed: number;
   readonly breakdown: readonly MissedSavingRow[];
 }
+
+export interface BenefitCategoryGroup {
+  readonly category: string;
+  readonly matches: readonly BenefitMatch[];
+}
+
+export interface BenefitsOverview {
+  readonly activeCard: CardInput | null;
+  readonly groups: readonly BenefitCategoryGroup[];
+  readonly isLoading: boolean;
+}
+
+export interface SavingsOverview {
+  readonly totalSaved: number;
+  readonly missedSavings: MissedSavings;
+  readonly transactions: readonly Transaction[];
+}

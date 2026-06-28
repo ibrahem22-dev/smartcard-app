@@ -102,6 +102,36 @@ describe('calculateLoanSummary', () => {
     expect(summary.remainingMonths).toBe(0);
     expect(summary.totalInterestRemaining).toBe(0);
   });
+
+  it('returns zero balances at exactly zero remaining months without throwing', () => {
+    const summary = calculateLoanSummary(
+      makeLoan({
+        originalAmount: 12_000,
+        remainingBalance: 0,
+        monthlyPayment: 1_000,
+        totalMonths: 12,
+        monthsPaid: 12,
+      }),
+    );
+
+    expect(summary.remainingMonths).toBe(0);
+    expect(summary.remainingBalance).toBe(0);
+    expect(summary.totalInterestRemaining).toBe(0);
+  });
+
+  it('does not trust a negative stored balance and derives a non-negative balance', () => {
+    const summary = calculateLoanSummary(
+      makeLoan({
+        originalAmount: 10_000,
+        remainingBalance: -2_000,
+        monthlyPayment: 500,
+        monthsPaid: 4,
+      }),
+    );
+
+    expect(summary.remainingBalance).toBe(8_000);
+    expect(summary.remainingBalance).toBeGreaterThanOrEqual(0);
+  });
 });
 
 describe('calculateLoanImpact', () => {
@@ -203,5 +233,35 @@ describe('calculateLoanImpact', () => {
 
     expect(impact.totalMonthlyObligations).toBe(2_000);
     expect(impact.riskLevel).toBe('low');
+  });
+
+  it('applies rental income only to mortgages for otherwise identical loans', () => {
+    const personalImpact = calculateLoanImpact(
+      [
+        makeLoan({
+          loanType: 'personal',
+          monthlyPayment: 5_000,
+          rentalIncome: 2_500,
+        }),
+      ],
+      10_000,
+    );
+    const mortgageImpact = calculateLoanImpact(
+      [
+        makeLoan({
+          loanType: 'mortgage',
+          monthlyPayment: 5_000,
+          rentalIncome: 2_500,
+        }),
+      ],
+      10_000,
+    );
+
+    expect(personalImpact.totalMonthlyObligations).toBe(5_000);
+    expect(personalImpact.percentOfIncome).toBe(50);
+    expect(personalImpact.riskLevel).toBe('high');
+    expect(mortgageImpact.totalMonthlyObligations).toBe(2_500);
+    expect(mortgageImpact.percentOfIncome).toBe(25);
+    expect(mortgageImpact.riskLevel).toBe('low');
   });
 });

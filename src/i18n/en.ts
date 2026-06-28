@@ -531,4 +531,92 @@ export const enBySource: Readonly<Record<string, string>> = {
   יתרה: 'Balance',
   'לצורך הדגמה בלבד — לא ייעוץ פיננסי':
     'For illustration only — not financial advice',
+  // Benefits and savings tracker (BENEFITS-UI-01)
+  'הטבות לכרטיס': 'Card benefits',
+  'הצג הטבות לכרטיס': 'View card benefits',
+  נחסך: 'saved',
+  'לא נמצא כרטיס פעיל': 'No active card found',
+  'הטבות עבור {{cardName}}': 'Benefits for {{cardName}}',
+  'נתונים בטעינה': 'Loading data',
+  'ההטבות יוצגו כאן כשמאגר ההטבות יהיה זמין.':
+    'Benefits will appear here when the benefits database is available.',
+  'לא נמצאו הטבות מתאימות': 'No matching benefits found',
+  'מעקב חיסכון': 'Savings tracker',
+  'סיכום 30 הימים האחרונים': 'Summary of the last 30 days',
+  'נחסך החודש': 'Saved this month',
+  'חיסכון שהתפספס החודש': 'Missed savings this month',
+  'אין עסקאות ב-30 הימים האחרונים': 'No transactions in the last 30 days',
+  'כאן יופיע פירוט החיסכון לפי עסקה.':
+    'A transaction-by-transaction savings breakdown will appear here.',
+  'לא נמצא חיסכון שהתפספס': 'No missed savings found',
+  'פירוט לפי עסקה': 'Breakdown by transaction',
+  'עדיף היה להשתמש ב-{{cardName}}':
+    'Using {{cardName}} would have saved more',
+  groceries: 'Groceries',
+  supermarket: 'Supermarket',
+  dining: 'Dining',
+  fuel: 'Fuel',
+  transport: 'Transport',
+  travel: 'Travel',
+  subscriptions: 'Subscriptions',
+  education: 'Education',
+  health: 'Health',
+  entertainment: 'Entertainment',
+  shopping: 'Shopping',
+  utilities: 'Utilities',
+  other: 'Other',
+  // Local encrypted profile sharing (QR-SHARE-01)
+  'שיתוף פרופיל': 'Share profile',
+  'השיתוף מוצפן ומתבצע ישירות בין המכשירים, ללא ענן.':
+    'Sharing is encrypted and happens directly between devices, without cloud services.',
+  ייצוא: 'Export',
+  ייבוא: 'Import',
+  'צור PIN להעברה': 'Create a transfer PIN',
+  'הזן PIN להעברה': 'Enter the transfer PIN',
+  'PIN להעברה בן 4 ספרות': '4-digit transfer PIN',
+  'זהו PIN זמני ונפרד מה-PIN של האפליקציה.':
+    'This temporary PIN is separate from the app PIN.',
+  'צור קוד QR': 'Create QR code',
+  'העתק קוד': 'Copy code',
+  'הקוד הועתק': 'Code copied',
+  'פתח מצלמה וסרוק QR': 'Open camera and scan QR',
+  'פענח והצג פרופיל': 'Decrypt and preview profile',
+  'בנק: {{bankName}}': 'Bank: {{bankName}}',
+  '{{count}} כרטיסים': '{{count}} cards',
+  'ייבא פרופיל': 'Import profile',
+  'הפרופיל יובא בהצלחה': 'Profile imported successfully',
+  'יש להזין PIN להעברה בן 4 ספרות.':
+    'Enter a 4-digit transfer PIN.',
+  'יצירת קוד ההעברה נכשלה.': 'Could not create the transfer code.',
+  'נדרשת הרשאת מצלמה כדי לסרוק קוד QR.':
+    'Camera permission is required to scan a QR code.',
+  'יש לסרוק קוד ולהזין PIN להעברה בן 4 ספרות.':
+    'Scan a code and enter its 4-digit transfer PIN.',
+  'קוד ההעברה אינו מכיל פרופיל תקין.':
+    'The transfer code does not contain a valid profile.',
+  'לא ניתן לפענח את הקוד. בדוק את ה-PIN להעברה.':
+    'Could not decrypt the code. Check the transfer PIN.',
+  'יש לפענח ולהציג את הפרופיל לפני הייבוא.':
+    'Decrypt and preview the profile before importing.',
+  'ייבוא הפרופיל נכשל.': 'Profile import failed.',
+  'הפעולה נכשלה.': 'The operation failed.',
+  // Card-fee discount reminders (DISCOUNT-REMINDER-01)
+  'הנחת דמי כרטיס': 'Card-fee discount',
+  'לא ידוע — תזכיר שנתי': 'Unknown — remind me annually',
+  'תאריך סיום ההנחה': 'Discount end date',
+  'בחר תאריך': 'Choose a date',
+  'אחוז ההנחה חייב להיות בין 0 ל-100 ודמי הכרטיס חייבים להיות תקינים.':
+    'The discount must be between 0 and 100 and the card fee must be valid.',
+  'יש לבחור תאריך סיום הנחה תקין.':
+    'Choose a valid discount end date.',
+  'תאריך סיום ההנחה חייב להיות בעתיד.':
+    'The discount end date must be in the future.',
+  'לתזכורת שנתית יש להזין תאריך הנפקת כרטיס תקין.':
+    'A valid card issuance date is required for an annual reminder.',
+  'יש להזין תאריך הנפקת כרטיס תקין.':
+    'Enter a valid card issuance date.',
+  'הפרטים נשמרו, אך לא ניתן היה לתזמן את התזכורת.':
+    'The details were saved, but the reminder could not be scheduled.',
+  'ערכים ממאגר תעריפי הכרטיסים': 'Values from the card-rates database',
+  'לא פורסם — הזן ידנית': 'Not published — enter manually',
 };

@@ -10,10 +10,15 @@ import {
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
+import DateTimePicker, {
+  type DateTimePickerEvent,
+} from '@react-native-community/datetimepicker';
 
 import { AppText } from '../components/AppText';
+import { useCardDatabaseRates } from '../hooks/useCardRatesDatabase';
 import { useTranslation } from '../hooks/useTranslation';
 import type { CardsStackParamList } from '../navigation/types';
+import { scheduleDiscountReminders } from '../services/notificationScheduler';
 import { useCardsStore } from '../store/useCardsStore';
 import {
   CardIssuer,
@@ -36,6 +41,27 @@ const ISSUER_LABELS: Record<CardIssuer, string> = {
 
 function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+function formatLocalISO(date: Date): string {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, '0');
+  const day = String(date.getDate()).padStart(2, '0');
+  return `${year}-${month}-${day}`;
+}
+
+function parseLocalISO(value: string): Date | null {
+  const match = /^(\d{4})-(\d{2})-(\d{2})$/.exec(value);
+  if (match === null) return null;
+  const year = Number(match[1]);
+  const month = Number(match[2]) - 1;
+  const day = Number(match[3]);
+  const parsed = new Date(year, month, day);
+  return parsed.getFullYear() === year &&
+    parsed.getMonth() === month &&
+    parsed.getDate() === day
+    ? parsed
+    : null;
 }
 
 /** Parse a non-negative number within [min, max]; null when invalid. */
@@ -62,6 +88,7 @@ export function CardDetailScreen({
   const updateCard = useCardsStore(state => state.updateCard);
 
   const rates: CardRates | undefined = card?.cardRates;
+  const databaseRates = useCardDatabaseRates(card);
   const fee: CardFeeInfo | undefined = card?.cardFee;
 
   // --- editable state (initialized from the card) ---
@@ -71,21 +98,48 @@ export function CardDetailScreen({
   const [creditLimit, setCreditLimit] = useState(
     card ? String(card.framework.creditLimit) : '',
   );
-  const [hasRates, setHasRates] = useState(rates !== undefined);
+  const [hasRates, setHasRates] = useState(
+    rates !== undefined || databaseRates !== null,
+  );
   const [creditRate, setCreditRate] = useState(
-    rates ? String(rates.creditInterestRate) : '',
+    rates !== undefined
+      ? String(rates.creditInterestRate)
+      : databaseRates?.creditInterestRate === null ||
+          databaseRates?.creditInterestRate === undefined
+        ? ''
+        : String(databaseRates.creditInterestRate),
   );
   const [installmentRate, setInstallmentRate] = useState(
-    rates ? String(rates.installmentInterestRate) : '',
+    rates !== undefined
+      ? String(rates.installmentInterestRate)
+      : databaseRates?.installmentInterestRate === null ||
+          databaseRates?.installmentInterestRate === undefined
+        ? ''
+        : String(databaseRates.installmentInterestRate),
   );
   const [cardLoanRate, setCardLoanRate] = useState(
-    rates ? String(rates.cardLoanInterestRate) : '',
+    rates !== undefined
+      ? String(rates.cardLoanInterestRate)
+      : databaseRates?.cardLoanInterestRate === null ||
+          databaseRates?.cardLoanInterestRate === undefined
+        ? ''
+        : String(databaseRates.cardLoanInterestRate),
   );
   const [fxCommission, setFxCommission] = useState(
-    rates ? String(rates.foreignExchangeCommission) : '',
+    rates !== undefined
+      ? String(rates.foreignExchangeCommission)
+      : databaseRates?.foreignExchangeCommission === null ||
+          databaseRates?.foreignExchangeCommission === undefined
+        ? ''
+        : String(databaseRates.foreignExchangeCommission),
   );
   const [monthlyFee, setMonthlyFee] = useState(
-    rates ? String(rates.monthlyFee) : '',
+    rates !== undefined
+      ? String(rates.monthlyFee)
+      : databaseRates?.monthlyFee === null ||
+          databaseRates?.monthlyFee === undefined
+        ? ''
+        : String(databaseRates.monthlyFee),
   );
   const [hasForeignAccount, setHasForeignAccount] = useState(
     card?.hasForeignCurrencyAccount ?? false,
@@ -100,12 +154,20 @@ export function CardDetailScreen({
     card?.cardIssuanceDate ?? '',
   );
   const [feeOriginal, setFeeOriginal] = useState(
-    fee ? String(fee.originalFee) : '',
+    fee
+      ? String(fee.originalFee)
+      : String(rates?.monthlyFee ?? databaseRates?.monthlyFee ?? 0),
   );
   const [feeDiscount, setFeeDiscount] = useState(
-    fee ? String(fee.discountPercent) : '',
+    fee ? String(fee.discountPercent) : '0',
   );
   const [feeEndDate, setFeeEndDate] = useState(fee?.discountEndDate ?? '');
+  const [annualReminder, setAnnualReminder] = useState(
+    fee !== undefined &&
+      fee.discountEndDate === undefined &&
+      card?.cardIssuanceDate !== undefined,
+  );
+  const [showDatePicker, setShowDatePicker] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
 
@@ -131,7 +193,7 @@ export function CardDetailScreen({
     return Math.round(original * (1 - discount / 100) * 100) / 100;
   })();
 
-  function handleSave(): void {
+  async function handleSave(): Promise<void> {
     if (card === undefined) return;
     setSaved(false);
 
@@ -154,28 +216,36 @@ export function CardDetailScreen({
       const cardLoan = parseBounded(cardLoanRate, 0, 30);
       const fx = parseBounded(fxCommission, 0, 10);
       const mFee = parseBounded(monthlyFee, 0, 9_999);
-      if (
-        credit === null ||
-        installment === null ||
-        cardLoan === null ||
-        fx === null ||
-        mFee === null
-      ) {
+      const hasInvalidEnteredRate =
+        (creditRate.trim() !== '' && credit === null) ||
+        (installmentRate.trim() !== '' && installment === null) ||
+        (cardLoanRate.trim() !== '' && cardLoan === null) ||
+        (fxCommission.trim() !== '' && fx === null) ||
+        (monthlyFee.trim() !== '' && mFee === null);
+      if (hasInvalidEnteredRate) {
         setSaveError(
           t('שיעורי הריבית חייבים להיות 0–30%, עמלת המרה 0–10%, דמי כרטיס תקינים.'),
         );
         return;
       }
-      const newRates: CardRates = {
-        creditInterestRate: credit,
-        installmentInterestRate: installment,
-        cardLoanInterestRate: cardLoan,
-        foreignExchangeCommission: fx,
-        monthlyFee: mFee,
-        source: 'manual',
-        lastUpdated: todayISO(),
-      };
-      updates = { ...updates, cardRates: newRates };
+      if (
+        credit !== null &&
+        installment !== null &&
+        cardLoan !== null &&
+        fx !== null &&
+        mFee !== null
+      ) {
+        const newRates: CardRates = {
+          creditInterestRate: credit,
+          installmentInterestRate: installment,
+          cardLoanInterestRate: cardLoan,
+          foreignExchangeCommission: fx,
+          monthlyFee: mFee,
+          source: 'manual',
+          lastUpdated: todayISO(),
+        };
+        updates = { ...updates, cardRates: newRates };
+      }
     }
 
     if (hasForeignAccount) {
@@ -189,26 +259,62 @@ export function CardDetailScreen({
       }
     }
 
-    if (issuanceDate.trim() !== '') {
-      updates = { ...updates, cardIssuanceDate: issuanceDate.trim() };
+    const parsedIssuanceDate =
+      issuanceDate.trim() === '' ? null : parseLocalISO(issuanceDate.trim());
+    if (issuanceDate.trim() !== '' && parsedIssuanceDate === null) {
+      setSaveError(t('יש להזין תאריך הנפקת כרטיס תקין.'));
+      return;
+    }
+    if (parsedIssuanceDate !== null) {
+      updates = {
+        ...updates,
+        cardIssuanceDate: formatLocalISO(parsedIssuanceDate),
+      };
     }
 
     const original = parseBounded(feeOriginal, 0, 999_999);
     const discount = parseBounded(feeDiscount, 0, 100);
-    if (original !== null && discount !== null) {
-      const feeInfo: CardFeeInfo = {
-        originalFee: original,
-        discountPercent: discount,
-        effectiveFee: Math.round(original * (1 - discount / 100) * 100) / 100,
-        discountSource: 'manual',
-        ...(feeEndDate.trim() !== '' ? { discountEndDate: feeEndDate.trim() } : {}),
-      };
-      updates = { ...updates, cardFee: feeInfo };
+    if (original === null || discount === null) {
+      setSaveError(t('אחוז ההנחה חייב להיות בין 0 ל-100 ודמי הכרטיס חייבים להיות תקינים.'));
+      return;
     }
+    const parsedEndDate = annualReminder
+      ? null
+      : parseLocalISO(feeEndDate.trim());
+    if (!annualReminder && parsedEndDate === null) {
+      setSaveError(t('יש לבחור תאריך סיום הנחה תקין.'));
+      return;
+    }
+    if (
+      parsedEndDate !== null &&
+      parsedEndDate.getTime() <= new Date().setHours(0, 0, 0, 0)
+    ) {
+      setSaveError(t('תאריך סיום ההנחה חייב להיות בעתיד.'));
+      return;
+    }
+    if (annualReminder && parsedIssuanceDate === null) {
+      setSaveError(t('לתזכורת שנתית יש להזין תאריך הנפקת כרטיס תקין.'));
+      return;
+    }
+    const feeInfo: CardFeeInfo = {
+      originalFee: original,
+      discountPercent: discount,
+      effectiveFee: Math.round(original * (1 - discount / 100) * 100) / 100,
+      discountSource: 'manual',
+      ...(parsedEndDate === null
+        ? {}
+        : { discountEndDate: formatLocalISO(parsedEndDate) }),
+    };
+    updates = { ...updates, cardFee: feeInfo };
 
     updateCard(card.cardId, updates);
-    setSaveError(null);
-    setSaved(true);
+    try {
+      await scheduleDiscountReminders({ ...card, ...updates });
+      setSaveError(null);
+      setSaved(true);
+    } catch {
+      setSaveError(t('הפרטים נשמרו, אך לא ניתן היה לתזמן את התזכורת.'));
+    }
   }
 
   return (
@@ -258,6 +364,11 @@ export function CardDetailScreen({
             <AppText className="mt-5 text-lg font-extrabold text-slate-900 dark:text-white">
               {t('שיעורי ריבית ועמלות')}
             </AppText>
+            {rates === undefined && databaseRates !== null ? (
+              <AppText className="mt-1 text-sm font-bold text-blue-700 dark:text-blue-300">
+                {t('ערכים ממאגר תעריפי הכרטיסים')}
+              </AppText>
+            ) : null}
 
             {!hasRates ? (
               <Pressable
@@ -276,6 +387,8 @@ export function CardDetailScreen({
                   className={INPUT_CLASS}
                   keyboardType="decimal-pad"
                   onChangeText={setCreditRate}
+                  placeholder={t('לא פורסם — הזן ידנית')}
+                  placeholderTextColor="#94A3B8"
                   style={inputStyle()}
                   value={creditRate}
                 />
@@ -284,6 +397,8 @@ export function CardDetailScreen({
                   className={INPUT_CLASS}
                   keyboardType="decimal-pad"
                   onChangeText={setInstallmentRate}
+                  placeholder={t('לא פורסם — הזן ידנית')}
+                  placeholderTextColor="#94A3B8"
                   style={inputStyle()}
                   value={installmentRate}
                 />
@@ -292,6 +407,8 @@ export function CardDetailScreen({
                   className={INPUT_CLASS}
                   keyboardType="decimal-pad"
                   onChangeText={setCardLoanRate}
+                  placeholder={t('לא פורסם — הזן ידנית')}
+                  placeholderTextColor="#94A3B8"
                   style={inputStyle()}
                   value={cardLoanRate}
                 />
@@ -314,7 +431,10 @@ export function CardDetailScreen({
 
                 <AppText className="mt-2 text-xs text-slate-500 dark:text-slate-400">
                   {t('המידע מוצג לנוחות — בדוק מול חברת הכרטיסים. עודכן: {{date}}', {
-                    date: rates?.lastUpdated ?? todayISO(),
+                    date:
+                      rates?.lastUpdated ??
+                      databaseRates?.lastUpdated ??
+                      todayISO(),
                   })}
                 </AppText>
               </>
@@ -322,7 +442,7 @@ export function CardDetailScreen({
 
             {/* Card fee / discount */}
             <AppText className="mt-5 text-lg font-extrabold text-slate-900 dark:text-white">
-              {t('דמי כרטיס והנחה')}
+              {t('הנחת דמי כרטיס')}
             </AppText>
             <AppText className={LABEL_CLASS}>{t('דמי כרטיס מקוריים (₪)')}</AppText>
             <TextInput
@@ -349,17 +469,56 @@ export function CardDetailScreen({
                 })}
               </AppText>
             ) : null}
-            <AppText className={LABEL_CLASS}>
-              {t('תאריך סיום הנחה (YYYY-MM-DD, אופציונלי)')}
-            </AppText>
-            <TextInput
-              className={INPUT_CLASS}
-              onChangeText={setFeeEndDate}
-              placeholder="2026-12-31"
-              placeholderTextColor="#94A3B8"
-              style={inputStyle()}
-              value={feeEndDate}
-            />
+            <View
+              className="mt-3 min-h-[48px] flex-row items-center justify-between"
+              style={rtl.row}
+            >
+              <AppText className="me-3 flex-1 text-base text-slate-700 dark:text-slate-200">
+                {t('לא ידוע — תזכיר שנתי')}
+              </AppText>
+              <Switch
+                onValueChange={(enabled: boolean): void => {
+                  setAnnualReminder(enabled);
+                  setShowDatePicker(false);
+                  if (enabled) setFeeEndDate('');
+                }}
+                value={annualReminder}
+              />
+            </View>
+            {!annualReminder ? (
+              <>
+                <AppText className={LABEL_CLASS}>
+                  {t('תאריך סיום ההנחה')}
+                </AppText>
+                <Pressable
+                  accessibilityRole="button"
+                  className="min-h-[48px] justify-center rounded-lg border border-slate-300 bg-white px-4 shadow-sm dark:border-neutral-700 dark:bg-dark-surface"
+                  onPress={(): void => setShowDatePicker(true)}
+                >
+                  <AppText className="text-base text-slate-900 dark:text-white">
+                    {feeEndDate === ''
+                      ? t('בחר תאריך')
+                      : feeEndDate}
+                  </AppText>
+                </Pressable>
+                {showDatePicker ? (
+                  <DateTimePicker
+                    minimumDate={new Date()}
+                    mode="date"
+                    onChange={(
+                      event: DateTimePickerEvent,
+                      selectedDate?: Date,
+                    ): void => {
+                      setShowDatePicker(Platform.OS === 'ios');
+                      if (event.type === 'set' && selectedDate !== undefined) {
+                        setFeeEndDate(formatLocalISO(selectedDate));
+                      }
+                    }}
+                    value={parseLocalISO(feeEndDate) ?? new Date()}
+                  />
+                ) : null}
+              </>
+            ) : null}
 
             {/* Foreign-currency account */}
             <AppText className="mt-5 text-lg font-extrabold text-slate-900 dark:text-white">
@@ -423,7 +582,9 @@ export function CardDetailScreen({
             <Pressable
               accessibilityRole="button"
               className="mt-4 min-h-[50px] items-center justify-center rounded-lg bg-blue-600"
-              onPress={handleSave}
+              onPress={(): void => {
+                void handleSave();
+              }}
             >
               <AppText className="text-center text-base font-extrabold text-white">
                 {t('שמור שינויים')}

@@ -28,8 +28,10 @@ import { create } from 'zustand';
 
 // UserCard is CardInput — this alias is used project-wide (see decision.types.ts).
 import type { CardInput as UserCard } from '../types/card.types';
+import type { Transaction } from '../types/benefits.types';
 import { keyVault } from '../security/keyVault';
 import type { ImportedInstallment } from '../types/installment.types';
+import { cancelDiscountReminders } from '../services/notificationScheduler';
 import { isValidMonetaryAmount } from '../utils/monetary';
 import { MMKV_KEYS } from './keys';
 
@@ -57,6 +59,12 @@ interface CardsState {
    */
   entries: CardEntry[];
   obligations: ImportedInstallment[];
+  /**
+   * Recent transactions available to benefits UI. Transaction import is not
+   * implemented yet, so this remains an in-memory empty view until that
+   * authenticated ingestion path exists.
+   */
+  transactions: Transaction[];
 
   /**
    * Populate in-memory state from encrypted MMKV.
@@ -66,6 +74,7 @@ interface CardsState {
   hydrate(): void;
   hydrateProfile(profileId: string): void;
   persistProfile(profileId: string): void;
+  importProfileCards(profileId: string, cards: readonly UserCard[]): void;
 
   /**
    * Append a new card. If the card's club was suggested by the app's guided
@@ -164,6 +173,7 @@ export const useCardsStore = create<CardsState>()((set) => ({
   cards: [],
   entries: [],
   obligations: [],
+  transactions: [],
 
   hydrate() {
     const handle = keyVault.getEncryptedStorage();
@@ -198,6 +208,12 @@ export const useCardsStore = create<CardsState>()((set) => ({
     persistObligations(state.obligations, profileId);
   },
 
+  importProfileCards(profileId: string, cards: readonly UserCard[]) {
+    const entries = cards.map((card: UserCard): CardEntry => ({ card }));
+    persist(entries, profileId);
+    persistObligations([], profileId);
+  },
+
   addCard(card: UserCard, clubSuggestedByApp?: boolean) {
     set((state) => {
       const entry: CardEntry =
@@ -211,6 +227,9 @@ export const useCardsStore = create<CardsState>()((set) => ({
   },
 
   removeCard(cardId: string) {
+    void cancelDiscountReminders(cardId).catch((): void => {
+      // Card removal remains available if the OS notification API is unavailable.
+    });
     set((state) => {
       const entries = state.entries.filter((e) => e.card.cardId !== cardId);
       persist(entries, getActiveProfileId());
@@ -278,6 +297,6 @@ export const useCardsStore = create<CardsState>()((set) => ({
   },
 
   clearCards() {
-    set({ cards: [], entries: [], obligations: [] });
+    set({ cards: [], entries: [], obligations: [], transactions: [] });
   },
 }));

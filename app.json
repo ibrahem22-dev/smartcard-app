@@ -15,8 +15,15 @@
     "plugins": [
       "expo-asset",
       "expo-font",
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-camera",
+        {
+          "cameraPermission": "לאפשר ל-SmartCard לסרוק קוד QR לשיתוף פרופיל"
+        }
+      ],
+      "@react-native-community/datetimepicker",
+      "expo-notifications"
     ]
-    
   }
 }

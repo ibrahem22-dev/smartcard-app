@@ -56,7 +56,7 @@ export function TabNavigator(): React.ReactElement {
         tabBarStyle: {
           backgroundColor: '#141414',
           borderTopColor: '#262626',
-          flexDirection: 'row-reverse',
+          // RTL RULE RTL-4: never row-reverse — I18nManager mirrors tab order natively.
         },
         tabBarIcon: ({ color, size }) => (
           <Ionicons name={ICONS[route.name]} size={size} color={color} />

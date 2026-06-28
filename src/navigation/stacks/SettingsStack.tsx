@@ -17,6 +17,7 @@ import { GlossaryScreen } from '../../screens/GlossaryScreen';
 import { InstallmentImportScreen } from '../../screens/InstallmentImportScreen';
 import { InterestCalculatorScreen } from '../../screens/InterestCalculatorScreen';
 import { LoansScreen } from '../../screens/LoansScreen';
+import { ProfileShareScreen } from '../../screens/ProfileShareScreen';
 import { SettingsScreen } from '../../screens/SettingsScreen';
 import { useTranslation } from '../../hooks/useTranslation';
 import type { SettingsStackParamList } from '../types';
@@ -90,6 +91,15 @@ export function SettingsStack(): React.ReactElement {
           headerShown: true,
           headerTitleAlign: 'center',
           title: t('מחשבון ריבית'),
+        }}
+      />
+      <Stack.Screen
+        name="ProfileShare"
+        component={ProfileShareScreen}
+        options={{
+          headerShown: true,
+          headerTitleAlign: 'center',
+          title: t('שיתוף פרופיל'),
         }}
       />
     </Stack.Navigator>

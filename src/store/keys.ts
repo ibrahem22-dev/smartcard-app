@@ -14,4 +14,7 @@ export const MMKV_KEYS = {
     `profile_${id}:card_obligations`,
   profilePinVerifier: (id: string): string => `profile_${id}:pin_verifier`,
   profileLoans: (id: string): string => `profile_${id}:loans`,
+  profileCardNotificationIds: (profileId: string, cardId: string): string =>
+    `profile_${profileId}:notif_${cardId}`,
+  globalDiscountReminderId: 'app:global_discount_reminder_id',
 } as const;
