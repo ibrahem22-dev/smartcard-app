@@ -619,4 +619,9 @@ export const enBySource: Readonly<Record<string, string>> = {
     'The details were saved, but the reminder could not be scheduled.',
   'ערכים ממאגר תעריפי הכרטיסים': 'Values from the card-rates database',
   'לא פורסם — הזן ידנית': 'Not published — enter manually',
+  'Direction Lab': 'Direction Lab',
+  'Test A — reactive title': 'Test A — reactive title',
+  'Alignment probe — this line should flip sides':
+    'Alignment probe — this line should flip sides',
+  'Root direction container': 'Root direction container',
 };

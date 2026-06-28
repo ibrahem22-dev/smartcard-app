@@ -1,11 +1,9 @@
 import { enBySource } from './en';
 import { translateHebrew } from './he';
-import { getNormalizedLocale } from '../utils/languageService';
+import { getNormalizedLocale, type AppLanguage } from './locale';
 
-export type I18nLanguage = 'he' | 'en';
+export type I18nLanguage = AppLanguage;
 
-// languageService is the single source of locale resolution (handles Samsung
-// 'iw'→'he' and the stored preference). Never read getLocales() directly here.
 let currentLanguage: I18nLanguage = getNormalizedLocale();
 
 const i18n = {

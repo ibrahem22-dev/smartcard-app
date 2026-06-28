@@ -1,12 +1,11 @@
 import React from 'react';
-import { ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View } from 'react-native';
 
 import { AppText } from '../components/AppText';
+import { RtlRow, RtlScreen, RtlScrollView } from '../components/rtl';
 import { useSavingsOverview } from '../hooks/useBenefits';
 import { useTranslation } from '../hooks/useTranslation';
 import type { MissedSavingRow } from '../types/benefits.types';
-import { rtl } from '../utils/rtlStyles';
 
 function formatShekels(value: number): string {
   return `${value.toLocaleString('he-IL', {
@@ -19,14 +18,8 @@ export function SavingsTrackerScreen(): React.ReactElement {
   const { totalSaved, missedSavings, transactions } = useSavingsOverview();
 
   return (
-    <SafeAreaView
-      className="flex-1 bg-slate-50 dark:bg-app-dark"
-      style={rtl.screen}
-    >
-      <ScrollView
-        contentContainerStyle={rtl.scrollInner}
-        style={rtl.scrollOuter}
-      >
+    <RtlScreen safe className="bg-slate-50 dark:bg-app-dark">
+      <RtlScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}>
         <View className="min-h-full w-full p-5">
           <AppText className="text-3xl font-extrabold text-slate-900 dark:text-slate-50">
             {t('מעקב חיסכון')}
@@ -80,10 +73,7 @@ export function SavingsTrackerScreen(): React.ReactElement {
                     className="rounded-lg border border-slate-300 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-dark-surface"
                     key={row.transaction.purchaseId}
                   >
-                    <View
-                      className="flex-row items-center justify-between"
-                      style={rtl.row}
-                    >
+                    <RtlRow className="items-center justify-between">
                       <View className="me-3 flex-1">
                         <AppText className="font-extrabold text-slate-900 dark:text-slate-50">
                           {row.transaction.merchantName}
@@ -97,14 +87,14 @@ export function SavingsTrackerScreen(): React.ReactElement {
                       <AppText className="font-extrabold text-amber-700 dark:text-amber-300">
                         {formatShekels(row.missedAmount)}
                       </AppText>
-                    </View>
+                    </RtlRow>
                   </View>
                 ),
               )}
             </View>
           )}
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      </RtlScrollView>
+    </RtlScreen>
   );
 }

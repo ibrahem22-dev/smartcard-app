@@ -1,56 +1,33 @@
 import React from 'react';
-import {
-  Alert,
-  DevSettings,
-  Pressable,
-  ScrollView,
-  View,
-} from 'react-native';
+import { Alert, Pressable, View } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import * as Updates from 'expo-updates';
-import { MMKV } from 'react-native-mmkv';
 
 import { AppText } from '../components/AppText';
+import { RtlScrollView, RtlScreen } from '../components/rtl';
 import { ProfileSwitcher } from '../components/ProfileSwitcher';
 import { useLanguage } from '../hooks/useLanguage';
 import { useTheme } from '../hooks/useTheme';
 import { useTranslation } from '../hooks/useTranslation';
-import i18n from '../i18n';
 import type { SettingsStackParamList } from '../navigation/types';
-import { MMKV_KEYS } from '../store/keys';
 import {
-  resolveLanguage,
   useLanguageStore,
-  type LanguagePreference,
+  type LanguageChoice,
 } from '../store/useLanguageStore';
 import { useProfileStore } from '../store/useProfileStore';
 import type { AppProfile } from '../types/profile.types';
-import { applyNativeRtlDirection } from '../utils/languageService';
-import { rtl } from '../utils/rtlStyles';
 
 type SettingsScreenProps = NativeStackScreenProps<
   SettingsStackParamList,
   'SettingsRoot'
 >;
 
-const preferencesStorage = new MMKV({ id: 'smartcard.preferences' });
-
 const LANGUAGE_OPTIONS: readonly {
-  readonly preference: LanguagePreference;
+  readonly preference: LanguageChoice;
   readonly label: string;
 }[] = [
-  {
-    preference: 'auto',
-    label: 'Auto',
-  },
-  {
-    preference: 'he',
-    label: 'עברית',
-  },
-  {
-    preference: 'en',
-    label: 'English',
-  },
+  { preference: 'auto', label: 'Auto' },
+  { preference: 'he', label: 'עברית' },
+  { preference: 'en', label: 'English' },
 ];
 
 function withOpacity(color: string, opacity: number): string {
@@ -60,11 +37,9 @@ function withOpacity(color: string, opacity: number): string {
       .padStart(2, '0');
     return `${color}${alpha}`;
   }
-
   if (color.startsWith('hsl(') && color.endsWith(')')) {
     return `hsla(${color.slice(4, -1)}, ${opacity})`;
   }
-
   return color;
 }
 
@@ -72,47 +47,12 @@ export function SettingsScreen({
   navigation,
 }: SettingsScreenProps): React.ReactElement {
   const theme = useTheme();
-  const { preference } = useLanguage();
-  const setPreference = useLanguageStore(state => state.setPreference);
+  const { languageChoice } = useLanguage();
+  const setLanguageChoice = useLanguageStore(state => state.setLanguageChoice);
   const { t } = useTranslation();
   const activeProfile = useProfileStore(state => state.activeProfile);
   const deleteProfile = useProfileStore(state => state.deleteProfile);
   const bankDividerColor = withOpacity(theme.bankColor, 0.3);
-
-  async function switchLanguage(newPref: LanguagePreference): Promise<void> {
-    preferencesStorage.set(MMKV_KEYS.languagePreference, newPref);
-
-    const newLang = resolveLanguage(newPref);
-    const needsDirectionReload = applyNativeRtlDirection();
-
-    if (needsDirectionReload) {
-      // Persist preference only — skip store/i18n until reload so text and Yoga
-      // layout never desync (store would flip before I18nManager takes effect).
-      const alertTitle = newLang === 'he' ? 'נדרש אתחול' : 'Restart required';
-      const alertMessage =
-        newLang === 'he'
-          ? 'האפליקציה תאותחל כעת'
-          : 'The app will restart now.';
-      const alertButton = newLang === 'he' ? 'אישור' : 'OK';
-
-      Alert.alert(alertTitle, alertMessage, [
-        {
-          text: alertButton,
-          onPress: (): void => {
-            if (__DEV__) {
-              DevSettings.reload();
-            } else {
-              void Updates.reloadAsync();
-            }
-          },
-        },
-      ]);
-      return;
-    }
-
-    setPreference(newPref);
-    i18n.changeLanguage(newLang);
-  }
 
   function confirmDeleteProfile(profile: AppProfile): void {
     if (activeProfile?.id === profile.id) {
@@ -134,11 +74,10 @@ export function SettingsScreen({
   }
 
   return (
-    <View className="flex-1 bg-slate-50 dark:bg-app-dark" style={rtl.screen}>
-      <ScrollView
-        contentContainerStyle={rtl.scrollInner}
+    <RtlScreen className="bg-slate-50 dark:bg-app-dark">
+      <RtlScrollView
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
-        style={rtl.scrollOuter}
       >
         <View className="w-full p-5">
           <AppText
@@ -169,7 +108,7 @@ export function SettingsScreen({
 
           <View accessibilityRole="radiogroup" className="mb-5 gap-2">
             {LANGUAGE_OPTIONS.map(option => {
-              const isSelected = preference === option.preference;
+              const isSelected = languageChoice === option.preference;
 
               return (
                 <Pressable
@@ -181,9 +120,7 @@ export function SettingsScreen({
                       : 'border-slate-300 bg-white dark:border-neutral-700 dark:bg-dark-surface'
                   }`}
                   key={option.preference}
-                  onPress={(): void => {
-                    void switchLanguage(option.preference);
-                  }}
+                  onPress={(): void => setLanguageChoice(option.preference)}
                   style={
                     isSelected
                       ? {
@@ -270,7 +207,7 @@ export function SettingsScreen({
             </AppText>
           </Pressable>
         </View>
-      </ScrollView>
-    </View>
+      </RtlScrollView>
+    </RtlScreen>
   );
 }

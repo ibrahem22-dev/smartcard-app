@@ -3,23 +3,22 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  ScrollView,
   TextInput,
   View,
 } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { useRoute } from '@react-navigation/native';
 
 import { AppText } from '../components/AppText';
+import { RtlRow, RtlScreen, RtlScrollView } from '../components/rtl';
 import {
   calculateCardLoan,
   calculateInstallmentInterest,
 } from '../engines/interestCalculator';
+import { useAppDirection } from '../hooks/useAppDirection';
 import { useTranslation } from '../hooks/useTranslation';
 import { useCardsStore } from '../store/useCardsStore';
 import type { CardInput } from '../types/card.types';
 import type { InterestResult } from '../types/interest.types';
-import { inputStyle, rtl } from '../utils/rtlStyles';
 
 type CalcTab = 'installment' | 'cardLoan';
 
@@ -53,6 +52,7 @@ const LABEL_CLASS = 'mb-1 mt-3 text-sm font-bold text-slate-700 dark:text-slate-
 
 export function InterestCalculatorScreen(): React.ReactElement {
   const { t } = useTranslation();
+  const { textAlign, writingDirection } = useAppDirection();
   const route = useRoute();
   const initialCardId = (route.params as { cardId?: string } | undefined)?.cardId;
   const cards = useCardsStore(state => state.cards);
@@ -104,20 +104,17 @@ export function InterestCalculatorScreen(): React.ReactElement {
     }
   }, [activeTab, amount, months, rate]);
 
+  const inputStyle = { textAlign, writingDirection };
+
   return (
-    <SafeAreaView
-      className="flex-1 bg-slate-50 dark:bg-app-dark"
-      edges={['bottom']}
-      style={rtl.screen}
-    >
+    <RtlScreen safe className="bg-slate-50 dark:bg-app-dark">
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-        style={rtl.screen}
+        style={{ flex: 1 }}
       >
-        <ScrollView
-          contentContainerStyle={[rtl.scrollInner, { paddingBottom: 32 }]}
+        <RtlScrollView
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 32 }}
           keyboardShouldPersistTaps="handled"
-          style={rtl.scrollOuter}
         >
           <View className="min-h-full w-full p-5">
             <AppText className="text-2xl font-black text-slate-900 dark:text-white">
@@ -125,10 +122,7 @@ export function InterestCalculatorScreen(): React.ReactElement {
             </AppText>
 
             {/* Tabs */}
-            <View
-              className="mt-3 overflow-hidden rounded-lg border border-slate-300 dark:border-neutral-700"
-              style={rtl.row}
-            >
+            <RtlRow className="mt-3 overflow-hidden rounded-lg border border-slate-300 dark:border-neutral-700">
               {(['installment', 'cardLoan'] as const).map(tab => (
                 <Pressable
                   accessibilityRole="tab"
@@ -150,13 +144,13 @@ export function InterestCalculatorScreen(): React.ReactElement {
                   </AppText>
                 </Pressable>
               ))}
-            </View>
+            </RtlRow>
 
             {/* Card selector — only when ≥2 cards have rates */}
             {cardsWithRates.length >= 2 ? (
               <>
                 <AppText className={LABEL_CLASS}>{t('בחר כרטיס למילוי ריבית')}</AppText>
-                <View className="flex-wrap gap-2" style={rtl.row}>
+                <RtlRow className="flex-wrap gap-2">
                   {cardsWithRates.map(card => {
                     const isSelected = card.cardId === selectedCardId;
                     return (
@@ -182,7 +176,7 @@ export function InterestCalculatorScreen(): React.ReactElement {
                       </Pressable>
                     );
                   })}
-                </View>
+                </RtlRow>
               </>
             ) : null}
 
@@ -192,7 +186,7 @@ export function InterestCalculatorScreen(): React.ReactElement {
               className={INPUT_CLASS}
               keyboardType="decimal-pad"
               onChangeText={setAmountText}
-              style={inputStyle()}
+              style={inputStyle}
               value={amountText}
             />
             <AppText className={LABEL_CLASS}>{t('מספר חודשים (1–360)')}</AppText>
@@ -200,7 +194,7 @@ export function InterestCalculatorScreen(): React.ReactElement {
               className={INPUT_CLASS}
               keyboardType="number-pad"
               onChangeText={setMonthsText}
-              style={inputStyle()}
+              style={inputStyle}
               value={monthsText}
             />
             <AppText className={LABEL_CLASS}>{t('ריבית שנתית (0–30%)')}</AppText>
@@ -208,7 +202,7 @@ export function InterestCalculatorScreen(): React.ReactElement {
               className={INPUT_CLASS}
               keyboardType="decimal-pad"
               onChangeText={setRateText}
-              style={inputStyle()}
+              style={inputStyle}
               value={rateText}
             />
             {rateInvalid ? (
@@ -220,42 +214,33 @@ export function InterestCalculatorScreen(): React.ReactElement {
             {/* Results */}
             {result !== null ? (
               <View className="mt-5 rounded-lg border border-slate-300 bg-white p-4 dark:border-neutral-700 dark:bg-dark-surface">
-                <View className="flex-row items-center justify-between" style={rtl.row}>
+                <RtlRow className="items-center justify-between">
                   <AppText className="text-sm font-bold text-slate-600 dark:text-slate-300">
                     {t('תשלום חודשי')}
                   </AppText>
                   <AppText className="text-sm font-extrabold text-slate-900 dark:text-white">
                     {formatILS(result.monthlyPayment)}
                   </AppText>
-                </View>
-                <View
-                  className="mt-1 flex-row items-center justify-between"
-                  style={rtl.row}
-                >
+                </RtlRow>
+                <RtlRow className="mt-1 items-center justify-between">
                   <AppText className="text-sm font-bold text-slate-600 dark:text-slate-300">
                     {t('סך הריבית')}
                   </AppText>
                   <AppText className="text-sm font-extrabold text-amber-700 dark:text-amber-300">
                     {formatILS(result.totalInterest)}
                   </AppText>
-                </View>
-                <View
-                  className="mt-1 flex-row items-center justify-between"
-                  style={rtl.row}
-                >
+                </RtlRow>
+                <RtlRow className="mt-1 items-center justify-between">
                   <AppText className="text-sm font-bold text-slate-600 dark:text-slate-300">
                     {t('עלות כוללת')}
                   </AppText>
                   <AppText className="text-sm font-extrabold text-slate-900 dark:text-white">
                     {formatILS(result.totalCost)}
                   </AppText>
-                </View>
+                </RtlRow>
 
                 {/* Amortization table */}
-                <View
-                  className="mt-4 flex-row border-b border-slate-300 pb-1 dark:border-neutral-700"
-                  style={rtl.row}
-                >
+                <RtlRow className="mt-4 border-b border-slate-300 pb-1 dark:border-neutral-700">
                   <AppText className="flex-1 text-xs font-extrabold text-slate-500 dark:text-slate-400">
                     {t('חודש')}
                   </AppText>
@@ -268,12 +253,11 @@ export function InterestCalculatorScreen(): React.ReactElement {
                   <AppText className="flex-1 text-xs font-extrabold text-slate-500 dark:text-slate-400">
                     {t('יתרה')}
                   </AppText>
-                </View>
+                </RtlRow>
                 {result.schedule.map(row => (
-                  <View
-                    className="flex-row border-b border-slate-100 py-1 dark:border-neutral-800"
+                  <RtlRow
+                    className="border-b border-slate-100 py-1 dark:border-neutral-800"
                     key={row.month}
-                    style={rtl.row}
                   >
                     <AppText className="flex-1 text-xs text-slate-700 dark:text-slate-200">
                       {row.month}
@@ -289,7 +273,7 @@ export function InterestCalculatorScreen(): React.ReactElement {
                         maximumFractionDigits: 0,
                       })}
                     </AppText>
-                  </View>
+                  </RtlRow>
                 ))}
               </View>
             ) : null}
@@ -298,8 +282,8 @@ export function InterestCalculatorScreen(): React.ReactElement {
               {t('לצורך הדגמה בלבד — לא ייעוץ פיננסי')}
             </AppText>
           </View>
-        </ScrollView>
+        </RtlScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </RtlScreen>
   );
 }

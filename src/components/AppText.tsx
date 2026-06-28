@@ -1,35 +1,39 @@
 import React from 'react';
 // eslint-disable-next-line no-restricted-imports -- AppText is the single sanctioned wrapper over RN Text.
-import { I18nManager, Text, type TextProps } from 'react-native';
+import { Text, type TextProps } from 'react-native';
 
-interface AppTextProps extends TextProps {
-  children: React.ReactNode;
-}
+import { useAppDirection } from '../hooks/useAppDirection';
+import type { RtlTextAlign } from './rtl/RtlText';
+
+export type AppTextProps = TextProps & {
+  readonly children: React.ReactNode;
+  readonly align?: RtlTextAlign;
+};
 
 /**
- * Single source of text direction. Alignment follows I18nManager.isRTL so text
- * and Yoga layout always share the same direction. useLanguageStore.isRTL must
- * NOT be used here — it updates before reload and desyncs text from layout.
- * Do NOT pass a hard-coded textAlign or NativeWind text-right/text-left on
- * AppText; caller style only for color, borders, or intentional center.
+ * Direction-aware text. User styles/className first; direction applied last
+ * so NativeWind cannot override textAlign/writingDirection.
  */
 export const AppText: React.FC<AppTextProps> = ({
   children,
   style,
+  align = 'auto',
   ...props
 }) => {
-  const isRTL = I18nManager.isRTL;
+  const dir = useAppDirection();
+
+  const resolvedAlign = align === 'auto' ? dir.textAlign : align;
 
   return (
     <Text
-      style={[
-        {
-          textAlign: isRTL ? 'right' : 'left',
-          writingDirection: isRTL ? 'rtl' : 'ltr',
-        },
-        style,
-      ]}
       {...props}
+      style={[
+        style,
+        {
+          textAlign: resolvedAlign,
+          writingDirection: dir.writingDirection,
+        },
+      ]}
     >
       {children}
     </Text>

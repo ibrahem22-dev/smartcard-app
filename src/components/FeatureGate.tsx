@@ -1,7 +1,8 @@
 import React, { type ReactNode } from 'react';
-import { I18nManager, StyleSheet, View } from 'react-native';
+import { StyleSheet, View } from 'react-native';
 
 import { AppText } from './AppText';
+import { useAppDirection } from '../hooks/useAppDirection';
 import { useFeatureFlag } from '../hooks/useFeatureFlag';
 import { useTranslation } from '../hooks/useTranslation';
 import { INITIAL_FEATURE_STATUS } from '../types/feature.types';
@@ -14,7 +15,7 @@ export type FeatureGateProps = {
 export function FeatureGate({ feature, children }: FeatureGateProps): React.ReactElement | null {
   const status = useFeatureFlag(feature);
   const { t } = useTranslation();
-  const isRTL = I18nManager.isRTL;
+  const { trailingOffset } = useAppDirection();
 
   if (
     status !== 'active' &&
@@ -31,9 +32,7 @@ export function FeatureGate({ feature, children }: FeatureGateProps): React.Reac
 
   const badgeLabel = status === 'soon' ? t('בקרוב') : t('Pro בלבד');
 
-  // Pin the badge to the trailing corner so it never covers the start of the
-  // text: left in RTL (text starts at the right), right in LTR.
-  const badgePosition = isRTL ? { left: 8 } : { right: 8 };
+  const badgePosition = trailingOffset(8);
 
   return (
     <View style={styles.wrapper}>

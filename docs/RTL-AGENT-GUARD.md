@@ -1,5 +1,7 @@
 # RTL Agent Guard — Do Not Regress (ISSUE-RTL-ROOT-FIX-02)
 
+**Primary reference: [`RTL_LTR_RULES.md`](./RTL_LTR_RULES.md)** — central direction layer, agent rules, checklist.
+
 **Read this before any UI, navigation, or language task.** Full contract: AGENTS.md §14.
 
 ## Why RTL keeps breaking after agent sessions

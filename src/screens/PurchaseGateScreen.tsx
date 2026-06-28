@@ -1,7 +1,6 @@
 import React, { useState } from 'react';
 import {
   Pressable,
-  ScrollView,
   TextInput,
   View,
 } from 'react-native';
@@ -9,6 +8,8 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { AppText } from '../components/AppText';
+import { RtlRow, RtlScreen, RtlScrollView } from '../components/rtl';
+import { useAppDirection } from '../hooks/useAppDirection';
 import { usePurchaseGate } from '../hooks/usePurchaseGate';
 import { useTheme } from '../hooks/useTheme';
 import { useTranslation } from '../hooks/useTranslation';
@@ -16,7 +17,6 @@ import type { PurchaseGateStackParamList } from '../navigation/types';
 import { useCardsStore } from '../store/useCardsStore';
 import type { DecisionVerdict } from '../types/decision.types';
 import { parseAmount } from '../utils/parseAmount';
-import { inputStyle, rtl } from '../utils/rtlStyles';
 
 type PurchaseGateNavigation = NativeStackNavigationProp<
   PurchaseGateStackParamList,
@@ -50,6 +50,7 @@ const VERDICT_CLASSES: Record<
 
 export function PurchaseGateScreen(): React.ReactElement {
   const theme = useTheme();
+  const { textAlign, writingDirection } = useAppDirection();
   const { t } = useTranslation();
   const navigation = useNavigation<PurchaseGateNavigation>();
   const hasCards = useCardsStore(state => state.cards.length > 0);
@@ -97,14 +98,10 @@ export function PurchaseGateScreen(): React.ReactElement {
   }
 
   return (
-    <View
-      className="flex-1 bg-slate-50 dark:bg-app-dark"
-      style={rtl.screen}
-    >
-      <ScrollView
-        contentContainerStyle={rtl.scrollInner}
+    <RtlScreen className="bg-slate-50 dark:bg-app-dark">
+      <RtlScrollView
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
-        style={rtl.scrollOuter}
       >
         <View className="min-h-full w-full p-5 dark:bg-app-dark">
           <View className="mb-5 w-full items-stretch">
@@ -128,10 +125,9 @@ export function PurchaseGateScreen(): React.ReactElement {
 
           {hasCards ? (
             <>
-              <View
+              <RtlRow
                 accessibilityRole="tablist"
-                className="mb-6 flex-row gap-2 rounded-lg bg-slate-200 p-1 dark:bg-neutral-800 rtl:flex-row"
-                style={rtl.row}
+                className="mb-6 gap-2 rounded-lg bg-slate-200 p-1 dark:bg-neutral-800"
               >
                 <Pressable
                   accessibilityRole="button"
@@ -161,7 +157,7 @@ export function PurchaseGateScreen(): React.ReactElement {
                     {t('חו"ל ✈️')}
                   </AppText>
                 </Pressable>
-              </View>
+              </RtlRow>
 
               <View className="mb-5 w-full">
                 <AppText
@@ -169,10 +165,7 @@ export function PurchaseGateScreen(): React.ReactElement {
                 >
                   {t('סכום הרכישה')}
                 </AppText>
-                <View
-                  className="min-h-[54px] flex-row items-center rounded-lg border border-slate-300 bg-white px-3.5 dark:border-neutral-700 dark:bg-dark-surface rtl:flex-row"
-                  style={rtl.row}
-                >
+                <RtlRow className="min-h-[54px] items-center rounded-lg border border-slate-300 bg-white px-3.5 dark:border-neutral-700 dark:bg-dark-surface">
                   <AppText
                     className="ms-2 text-xl font-extrabold text-slate-900 dark:text-slate-50"
                   >
@@ -185,10 +178,10 @@ export function PurchaseGateScreen(): React.ReactElement {
                     onChangeText={handleAmountChange}
                     placeholder="0"
                     placeholderTextColor="#94A3B8"
-                    style={inputStyle()}
+                    style={{ textAlign, writingDirection }}
                     value={amountText}
                   />
-                </View>
+                </RtlRow>
                 {isAmountInvalid ? (
                   <AppText
                     className="mt-1.5 text-sm font-bold text-red-600 dark:text-red-300"
@@ -260,7 +253,7 @@ export function PurchaseGateScreen(): React.ReactElement {
             ) : null}
           </View>
         </View>
-      </ScrollView>
-    </View>
+      </RtlScrollView>
+    </RtlScreen>
   );
 }

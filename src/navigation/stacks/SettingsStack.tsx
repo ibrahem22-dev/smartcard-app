@@ -19,6 +19,7 @@ import { InterestCalculatorScreen } from '../../screens/InterestCalculatorScreen
 import { LoansScreen } from '../../screens/LoansScreen';
 import { ProfileShareScreen } from '../../screens/ProfileShareScreen';
 import { SettingsScreen } from '../../screens/SettingsScreen';
+import { useAppDirection, useStackBackGlyph } from '../../hooks/useAppDirection';
 import { useTranslation } from '../../hooks/useTranslation';
 import type { SettingsStackParamList } from '../types';
 
@@ -26,22 +27,36 @@ const Stack = createNativeStackNavigator<SettingsStackParamList>();
 
 export function SettingsStack(): React.ReactElement {
   const { t } = useTranslation();
+  const { isRTL } = useAppDirection();
+  const backGlyph = useStackBackGlyph();
+
+  const renderBackButton = (
+    canGoBack: boolean | undefined,
+    goBack: () => void,
+  ): React.ReactElement | null =>
+    canGoBack === true ? (
+      <Pressable
+        accessibilityLabel={t('חזרה')}
+        accessibilityRole="button"
+        hitSlop={12}
+        onPress={goBack}
+      >
+        <AppText className="text-2xl text-white">{backGlyph}</AppText>
+      </Pressable>
+    ) : null;
 
   return (
     <Stack.Navigator
       screenOptions={({ navigation }) => ({
         headerBackVisible: false,
-        headerLeft: ({ canGoBack }) =>
-          canGoBack ? (
-            <Pressable
-              accessibilityLabel={t('חזרה')}
-              accessibilityRole="button"
-              hitSlop={12}
-              onPress={navigation.goBack}
-            >
-              <AppText className="text-2xl text-white">←</AppText>
-            </Pressable>
-          ) : null,
+        headerLeft: isRTL
+          ? (): null => null
+          : ({ canGoBack }) =>
+              renderBackButton(canGoBack, navigation.goBack),
+        headerRight: isRTL
+          ? ({ canGoBack }) =>
+              renderBackButton(canGoBack, navigation.goBack)
+          : (): null => null,
         headerShown: false,
         headerStyle: { backgroundColor: '#141414' },
         headerTintColor: '#FFFFFF',
@@ -62,7 +77,7 @@ export function SettingsStack(): React.ReactElement {
         component={GlossaryScreen}
         options={{
           headerShown: true,
-          headerTitleAlign: 'center',
+          headerTitleAlign: isRTL ? 'center' : 'left',
           title: t('מילון פיננסי'),
         }}
       />
@@ -71,7 +86,7 @@ export function SettingsStack(): React.ReactElement {
         component={InstallmentImportScreen}
         options={{
           headerShown: true,
-          headerTitleAlign: 'center',
+          headerTitleAlign: isRTL ? 'center' : 'left',
           title: t('תשלומים קיימים'),
         }}
       />
@@ -80,7 +95,7 @@ export function SettingsStack(): React.ReactElement {
         component={LoansScreen}
         options={{
           headerShown: true,
-          headerTitleAlign: 'center',
+          headerTitleAlign: isRTL ? 'center' : 'left',
           title: t('הלוואות ומשכנתא'),
         }}
       />
@@ -89,7 +104,7 @@ export function SettingsStack(): React.ReactElement {
         component={InterestCalculatorScreen}
         options={{
           headerShown: true,
-          headerTitleAlign: 'center',
+          headerTitleAlign: isRTL ? 'center' : 'left',
           title: t('מחשבון ריבית'),
         }}
       />
@@ -98,7 +113,7 @@ export function SettingsStack(): React.ReactElement {
         component={ProfileShareScreen}
         options={{
           headerShown: true,
-          headerTitleAlign: 'center',
+          headerTitleAlign: isRTL ? 'center' : 'left',
           title: t('שיתוף פרופיל'),
         }}
       />

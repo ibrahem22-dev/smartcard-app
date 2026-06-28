@@ -1,34 +1,9 @@
-// @ts-check
-// RTL BOOTSTRAP — MUST BE FIRST IMPORT (see AGENTS §14, RULE RTL-1).
-// languageService normalizes the locale (Samsung 'iw'→'he') and sets the native
-// I18nManager direction synchronously, before navigation or any component mounts.
-import {
-  getNormalizedLocale,
-  rtlDirectionChanged,
-} from './src/utils/languageService';
-
 import { registerRootComponent } from 'expo';
 
-const resolvedLang = getNormalizedLocale();
+import i18n from './src/i18n';
+import { getNormalizedLocale } from './src/i18n/locale';
 
-// forceRTL only takes visual effect after a JS reload. If languageService flipped
-// the direction, force a single reload so layout matches the stored language.
-if (rtlDirectionChanged) {
-  if (__DEV__) {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const { DevSettings } = require('react-native');
-    DevSettings.reload();
-  } else {
-    // eslint-disable-next-line @typescript-eslint/no-require-imports
-    const Updates = require('expo-updates');
-    Updates.reloadAsync();
-  }
-}
-
-// Load after RTL resolution — avoid side effects before boot prefs are read.
-// eslint-disable-next-line @typescript-eslint/no-require-imports
-const i18n = require('./src/i18n').default;
-i18n.changeLanguage(resolvedLang);
+i18n.changeLanguage(getNormalizedLocale());
 
 // eslint-disable-next-line @typescript-eslint/no-require-imports
 const App = require('./App').default;

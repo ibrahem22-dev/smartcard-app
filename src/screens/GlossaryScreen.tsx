@@ -1,10 +1,10 @@
 import React, { useState } from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 
 import { AppText } from '../components/AppText';
+import { RtlScreen, RtlScrollView } from '../components/rtl';
 import { useTranslation } from '../hooks/useTranslation';
 import { en } from '../i18n/en';
-import { rtl } from '../utils/rtlStyles';
 
 const GLOSSARY_TERMS = [
   {
@@ -85,11 +85,8 @@ export function GlossaryScreen(): React.ReactElement {
   }
 
   return (
-    <View className="flex-1 bg-slate-50 dark:bg-neutral-950" style={rtl.screen}>
-      <ScrollView
-        contentContainerStyle={rtl.scrollInner}
-        style={rtl.scrollOuter}
-      >
+    <RtlScreen className="bg-slate-50 dark:bg-neutral-950">
+      <RtlScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}>
         <View className="w-full gap-4 px-5 py-6">
           <AppText
             className="text-[26px] font-extrabold text-slate-900 dark:text-white"
@@ -154,7 +151,7 @@ export function GlossaryScreen(): React.ReactElement {
             );
           })}
         </View>
-      </ScrollView>
-    </View>
+      </RtlScrollView>
+    </RtlScreen>
   );
 }

@@ -1,43 +1,29 @@
-import * as Localization from 'expo-localization';
 import { useCallback } from 'react';
 
 import i18n from '../i18n';
-import {
-  useLanguageStore,
-  type LanguagePreference,
-  type ResolvedLanguage,
-} from '../store/useLanguageStore';
+import type { AppLanguage, LanguageChoice } from '../i18n/locale';
+import { useLanguageStore } from '../store/useLanguageStore';
+import { isLanguageRTL } from '../utils/direction';
 
-export function getDeviceLanguage(): 'he' | 'en' {
-  const locales = Localization.getLocales();
-  for (const locale of locales) {
-    const code = locale.languageCode?.toLowerCase() ?? '';
-    if (code === 'en') return 'en';
-    // 'iw' — legacy ISO 639-1 Hebrew code returned by Samsung and older Android OEMs
-    if (code === 'he' || code === 'iw') return 'he';
-  }
-  return 'he';
-}
+export type { AppLanguage, LanguageChoice };
+/** @deprecated Use LanguageChoice */
+export type LanguagePreference = LanguageChoice;
+/** @deprecated Use AppLanguage */
+export type ResolvedLanguage = AppLanguage;
 
-if (__DEV__) {
-  console.log('[AUTO-DETECT] Raw locales:', Localization.getLocales());
-  console.log('[AUTO-DETECT] Resolved:', getDeviceLanguage());
-}
-
-export type { LanguagePreference, ResolvedLanguage } from '../store/useLanguageStore';
-export type AppLanguage = ResolvedLanguage;
+export { getDeviceLanguage } from '../i18n/locale';
 
 interface UseLanguageResult {
-  readonly language: ResolvedLanguage;
+  readonly language: AppLanguage;
   readonly isRTL: boolean;
-  readonly preference: LanguagePreference;
+  readonly preference: LanguageChoice;
+  readonly languageChoice: LanguageChoice;
   readonly t: (key: string) => string;
 }
 
 export function useLanguage(): UseLanguageResult {
-  const preference = useLanguageStore(state => state.preference);
-  const language = useLanguageStore(state => state.resolved);
-  const isRTL = useLanguageStore(state => state.isRTL);
+  const languageChoice = useLanguageStore(state => state.languageChoice);
+  const language = useLanguageStore(state => state.resolvedLanguage);
 
   const t = useCallback(
     (key: string): string => i18n.t(key),
@@ -46,8 +32,9 @@ export function useLanguage(): UseLanguageResult {
 
   return {
     language,
-    isRTL,
-    preference,
+    isRTL: isLanguageRTL(language),
+    preference: languageChoice,
+    languageChoice,
     t,
   };
 }

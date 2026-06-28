@@ -4,20 +4,20 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  ScrollView,
   TextInput,
   View,
 } from 'react-native';
 import * as Crypto from 'expo-crypto';
 
 import { AppText } from '../components/AppText';
+import { RtlRow, RtlScreen, RtlScrollView } from '../components/rtl';
 import { calculateLoanImpact, calculateLoanSummary } from '../engines/loanEngine';
+import { useAppDirection } from '../hooks/useAppDirection';
 import { useTranslation } from '../hooks/useTranslation';
 import { useLoansStore } from '../store/useLoansStore';
 import { useUserStore } from '../store/useUserStore';
 import type { Loan, LoanImpact, LoanSummary, LoanType } from '../types/loan.types';
 import { parseAmount } from '../utils/parseAmount';
-import { inputStyle, rtl } from '../utils/rtlStyles';
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -91,6 +91,7 @@ const PERSONAL_LOAN_TYPES: readonly PersonalLoanType[] = [
 
 export function LoansScreen(): React.ReactElement {
   const { t } = useTranslation();
+  const { textAlign, writingDirection } = useAppDirection();
   const loans = useLoansStore(state => state.loans);
   const hydrate = useLoansStore(state => state.hydrate);
   const addLoan = useLoansStore(state => state.addLoan);
@@ -281,14 +282,13 @@ export function LoansScreen(): React.ReactElement {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
-      className="flex-1 bg-slate-50 dark:bg-app-dark"
-      style={rtl.screen}
+      className="flex-1"
     >
-      <ScrollView
-        contentContainerStyle={[rtl.scrollInner, { paddingBottom: 32 }]}
-        keyboardShouldPersistTaps="handled"
-        style={rtl.scrollOuter}
-      >
+      <RtlScreen className="bg-slate-50 dark:bg-app-dark">
+        <RtlScrollView
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 32 }}
+          keyboardShouldPersistTaps="handled"
+        >
         <View className="w-full gap-3 p-5">
           {/* Title */}
           <AppText
@@ -298,10 +298,7 @@ export function LoansScreen(): React.ReactElement {
           </AppText>
 
           {/* Tab switcher */}
-          <View
-            className="mb-1 overflow-hidden rounded-lg border border-slate-300 dark:border-neutral-700"
-            style={rtl.row}
-          >
+          <RtlRow className="mb-1 overflow-hidden rounded-lg border border-slate-300 dark:border-neutral-700">
             {(['personal', 'mortgage'] as const).map((tab) => (
               <Pressable
                 accessibilityRole="tab"
@@ -321,7 +318,7 @@ export function LoansScreen(): React.ReactElement {
                 </AppText>
               </Pressable>
             ))}
-          </View>
+          </RtlRow>
 
           {/* Form header */}
           <AppText
@@ -336,7 +333,7 @@ export function LoansScreen(): React.ReactElement {
               <AppText className={labelClass}>
                 {t('סוג הלוואה')}
               </AppText>
-              <View className="flex-wrap gap-2" style={rtl.row}>
+              <RtlRow className="flex-wrap gap-2">
                 {PERSONAL_LOAN_TYPES.map((type) => {
                   const isSelected = selectedLoanType === type;
                   return (
@@ -359,7 +356,7 @@ export function LoansScreen(): React.ReactElement {
                     </Pressable>
                   );
                 })}
-              </View>
+              </RtlRow>
             </>
           )}
 
@@ -372,7 +369,7 @@ export function LoansScreen(): React.ReactElement {
             onChangeText={setLenderName}
             placeholder={t('לדוגמה: בנק הפועלים')}
             placeholderTextColor="#94A3B8"
-            style={inputStyle()}
+            style={{ textAlign, writingDirection }}
             value={lenderName}
           />
 
@@ -384,7 +381,7 @@ export function LoansScreen(): React.ReactElement {
             className={inputClass}
             keyboardType="decimal-pad"
             onChangeText={setOriginalAmountText}
-            style={inputStyle()}
+            style={{ textAlign, writingDirection }}
             value={originalAmountText}
           />
 
@@ -396,7 +393,7 @@ export function LoansScreen(): React.ReactElement {
             className={inputClass}
             keyboardType="decimal-pad"
             onChangeText={setMonthlyPaymentText}
-            style={inputStyle()}
+            style={{ textAlign, writingDirection }}
             value={monthlyPaymentText}
           />
 
@@ -408,7 +405,7 @@ export function LoansScreen(): React.ReactElement {
             className={inputClass}
             keyboardType="decimal-pad"
             onChangeText={setAnnualInterestRateText}
-            style={inputStyle()}
+            style={{ textAlign, writingDirection }}
             value={annualInterestRateText}
           />
 
@@ -421,7 +418,7 @@ export function LoansScreen(): React.ReactElement {
             onChangeText={setStartDateText}
             placeholder="2024-01-01"
             placeholderTextColor="#94A3B8"
-            style={inputStyle()}
+            style={{ textAlign, writingDirection }}
             value={startDateText}
           />
 
@@ -433,7 +430,7 @@ export function LoansScreen(): React.ReactElement {
             className={inputClass}
             keyboardType="number-pad"
             onChangeText={setTotalMonthsText}
-            style={inputStyle()}
+            style={{ textAlign, writingDirection }}
             value={totalMonthsText}
           />
 
@@ -445,7 +442,7 @@ export function LoansScreen(): React.ReactElement {
             className={inputClass}
             keyboardType="number-pad"
             onChangeText={setMonthsPaidText}
-            style={inputStyle()}
+            style={{ textAlign, writingDirection }}
             value={monthsPaidText}
           />
 
@@ -459,7 +456,7 @@ export function LoansScreen(): React.ReactElement {
                 className={inputClass}
                 keyboardType="decimal-pad"
                 onChangeText={setRentalIncomeText}
-                style={inputStyle()}
+                style={{ textAlign, writingDirection }}
                 value={rentalIncomeText}
               />
             </>
@@ -473,7 +470,7 @@ export function LoansScreen(): React.ReactElement {
             className="min-h-20 rounded-lg border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
             multiline
             onChangeText={setNotesText}
-            style={inputStyle()}
+            style={{ textAlign, writingDirection }}
             value={notesText}
           />
 
@@ -487,7 +484,7 @@ export function LoansScreen(): React.ReactElement {
           )}
 
           {/* Save / Cancel */}
-          <View className="gap-2" style={rtl.row}>
+          <RtlRow className="gap-2">
             <Pressable
               accessibilityRole="button"
               className="min-h-[50px] flex-1 items-center justify-center rounded-lg bg-blue-600"
@@ -512,7 +509,7 @@ export function LoansScreen(): React.ReactElement {
                 </AppText>
               </Pressable>
             )}
-          </View>
+          </RtlRow>
 
           {/* Loan list */}
           {filteredLoans.length === 0 ? (
@@ -540,7 +537,7 @@ export function LoansScreen(): React.ReactElement {
                       accessibilityRole="button"
                       onPress={(): void => beginEdit(loan)}
                     >
-                      <View className="items-center justify-between" style={rtl.row}>
+                      <RtlRow>
                         <AppText
                           className="text-lg font-extrabold text-slate-900 dark:text-white"
                         >
@@ -553,10 +550,10 @@ export function LoansScreen(): React.ReactElement {
                             {t(LOAN_TYPE_LABELS[loan.loanType])}
                           </AppText>
                         </View>
-                      </View>
+                      </RtlRow>
 
                       <View className="mt-3 gap-1">
-                        <View className="items-center justify-between" style={rtl.row}>
+                        <RtlRow>
                           <AppText
                             className="text-sm font-bold text-slate-600 dark:text-slate-300"
                           >
@@ -567,9 +564,9 @@ export function LoansScreen(): React.ReactElement {
                           >
                             {formatILS(summary.monthlyPayment)}
                           </AppText>
-                        </View>
+                        </RtlRow>
 
-                        <View className="items-center justify-between" style={rtl.row}>
+                        <RtlRow>
                           <AppText
                             className="text-sm font-bold text-slate-600 dark:text-slate-300"
                           >
@@ -580,9 +577,9 @@ export function LoansScreen(): React.ReactElement {
                           >
                             {formatILS(summary.remainingBalance)}
                           </AppText>
-                        </View>
+                        </RtlRow>
 
-                        <View className="items-center justify-between" style={rtl.row}>
+                        <RtlRow>
                           <AppText
                             className="text-sm font-bold text-slate-600 dark:text-slate-300"
                           >
@@ -593,9 +590,9 @@ export function LoansScreen(): React.ReactElement {
                           >
                             {t('{{count}} חודשים', { count: summary.remainingMonths })}
                           </AppText>
-                        </View>
+                        </RtlRow>
 
-                        <View className="items-center justify-between" style={rtl.row}>
+                        <RtlRow>
                           <AppText
                             className="text-sm font-bold text-slate-600 dark:text-slate-300"
                           >
@@ -606,10 +603,10 @@ export function LoansScreen(): React.ReactElement {
                           >
                             {endDate}
                           </AppText>
-                        </View>
+                        </RtlRow>
 
                         {summary.totalInterestRemaining > 0 && (
-                          <View className="items-center justify-between" style={rtl.row}>
+                          <RtlRow>
                             <AppText
                               className="text-sm font-bold text-slate-600 dark:text-slate-300"
                             >
@@ -620,11 +617,11 @@ export function LoansScreen(): React.ReactElement {
                             >
                               {formatILS(summary.totalInterestRemaining)}
                             </AppText>
-                          </View>
+                          </RtlRow>
                         )}
 
                         {loan.rentalIncome !== undefined && loan.rentalIncome > 0 && (
-                          <View className="items-center justify-between" style={rtl.row}>
+                          <RtlRow>
                             <AppText
                               className="text-sm font-bold text-slate-600 dark:text-slate-300"
                             >
@@ -635,7 +632,7 @@ export function LoansScreen(): React.ReactElement {
                             >
                               {formatILS(loan.rentalIncome)}
                             </AppText>
-                          </View>
+                          </RtlRow>
                         )}
                       </View>
                     </Pressable>
@@ -669,7 +666,7 @@ export function LoansScreen(): React.ReactElement {
             </AppText>
 
             <View className="gap-1">
-              <View className="items-center justify-between" style={rtl.row}>
+              <RtlRow>
                 <AppText
                   className="text-sm font-bold text-slate-600 dark:text-slate-300"
                 >
@@ -680,9 +677,9 @@ export function LoansScreen(): React.ReactElement {
                 >
                   {formatILS(impact.totalMonthlyObligations)}
                 </AppText>
-              </View>
+              </RtlRow>
 
-              <View className="items-center justify-between" style={rtl.row}>
+              <RtlRow>
                 <AppText
                   className="text-sm font-bold text-slate-600 dark:text-slate-300"
                 >
@@ -696,9 +693,9 @@ export function LoansScreen(): React.ReactElement {
                     ? `${impact.percentOfIncome.toFixed(1)}%`
                     : t('הכנסה לא הוגדרה')}
                 </AppText>
-              </View>
+              </RtlRow>
 
-              <View className="items-center justify-between" style={rtl.row}>
+              <RtlRow>
                 <AppText
                   className="text-sm font-bold text-slate-600 dark:text-slate-300"
                 >
@@ -710,9 +707,9 @@ export function LoansScreen(): React.ReactElement {
                 >
                   {t(riskLabel(impact.riskLevel))}
                 </AppText>
-              </View>
+              </RtlRow>
 
-              <View className="items-center justify-between" style={rtl.row}>
+              <RtlRow>
                 <AppText
                   className="text-sm font-bold text-slate-600 dark:text-slate-300"
                 >
@@ -723,11 +720,12 @@ export function LoansScreen(): React.ReactElement {
                 >
                   {t('{{count}} הלוואות', { count: impact.loansCount })}
                 </AppText>
-              </View>
+              </RtlRow>
             </View>
           </View>
         </View>
-      </ScrollView>
+        </RtlScrollView>
+      </RtlScreen>
     </KeyboardAvoidingView>
   );
 }

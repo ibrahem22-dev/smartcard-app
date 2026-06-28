@@ -1,19 +1,17 @@
 import React from 'react';
 import {
   Pressable,
-  ScrollView,
   View,
 } from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppText } from '../components/AppText';
 import { FeatureGate } from '../components/FeatureGate';
+import { RtlRow, RtlScreen, RtlScrollView } from '../components/rtl';
 import { useTheme } from '../hooks/useTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import type { PurchaseGateStackParamList } from '../navigation/types';
 import type { DecisionVerdict } from '../types/decision.types';
-import { rtl } from '../utils/rtlStyles';
 
 type DecisionScreenProps = NativeStackScreenProps<
   PurchaseGateStackParamList,
@@ -55,14 +53,8 @@ export function DecisionScreen({
   const fxComparison = route.params.fxComparison ?? [];
 
   return (
-    <SafeAreaView
-      className="flex-1 bg-slate-50 dark:bg-app-dark"
-      style={rtl.screen}
-    >
-      <ScrollView
-        contentContainerStyle={rtl.scrollInner}
-        style={rtl.scrollOuter}
-      >
+    <RtlScreen safe className="bg-slate-50 dark:bg-app-dark">
+      <RtlScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}>
       <View className="min-h-full w-full p-5 dark:bg-app-dark">
         <View
           className={`rounded-lg border p-5 ${VERDICT_CLASSES[verdict]}`}
@@ -88,10 +80,7 @@ export function DecisionScreen({
             >
               {t('ניקוד כרטיסים')}
             </AppText>
-            <View
-              className="min-h-[38px] flex-row items-center justify-between border-t border-slate-200 rtl:flex-row dark:border-neutral-700"
-              style={rtl.row}
-            >
+            <RtlRow className="min-h-[38px] items-center justify-between border-t border-slate-200 dark:border-neutral-700">
               <AppText
                 className="text-base text-slate-700 dark:text-slate-200"
               >
@@ -102,11 +91,8 @@ export function DecisionScreen({
               >
                 84/100
               </AppText>
-            </View>
-            <View
-              className="min-h-[38px] flex-row items-center justify-between border-t border-slate-200 rtl:flex-row dark:border-neutral-700"
-              style={rtl.row}
-            >
+            </RtlRow>
+            <RtlRow className="min-h-[38px] items-center justify-between border-t border-slate-200 dark:border-neutral-700">
               <AppText
                 className="text-base text-slate-700 dark:text-slate-200"
               >
@@ -117,7 +103,7 @@ export function DecisionScreen({
               >
                 71/100
               </AppText>
-            </View>
+            </RtlRow>
           </View>
         </FeatureGate>
 
@@ -129,14 +115,13 @@ export function DecisionScreen({
             {fxComparison.map((rowItem, index): React.ReactElement => {
               const isLowest = index === 0;
               return (
-                <View
-                  className={`min-h-[44px] flex-row items-center justify-between rounded-md border px-2 ${
+                <RtlRow
+                  className={`min-h-[44px] items-center justify-between rounded-md border px-2 ${
                     isLowest
                       ? 'border-green-500 bg-green-50 shadow-sm dark:border-green-600 dark:bg-green-950'
                       : 'border-transparent border-t-slate-200 dark:border-t-neutral-700'
                   }`}
                   key={rowItem.cardId}
-                  style={rtl.row}
                 >
                   <AppText
                     className={`text-base ${
@@ -157,7 +142,7 @@ export function DecisionScreen({
                   >
                     {formatCommission(rowItem.commission)}
                   </AppText>
-                </View>
+                </RtlRow>
               );
             })}
           </View>
@@ -177,7 +162,7 @@ export function DecisionScreen({
           </AppText>
         </Pressable>
       </View>
-      </ScrollView>
-    </SafeAreaView>
+      </RtlScrollView>
+    </RtlScreen>
   );
 }

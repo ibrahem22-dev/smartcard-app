@@ -4,7 +4,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  ScrollView,
   TextInput,
   View,
 } from 'react-native';
@@ -12,14 +11,14 @@ import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 import * as Clipboard from 'expo-clipboard';
 import { CameraView, type BarcodeScanningResult } from 'expo-camera';
 import QRCode from 'react-native-qrcode-svg';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppText } from '../components/AppText';
+import { RtlRow, RtlScreen, RtlScrollView } from '../components/rtl';
+import { useAppDirection } from '../hooks/useAppDirection';
 import { useProfileShare } from '../hooks/useProfileShare';
 import { useTranslation } from '../hooks/useTranslation';
 import type { SettingsStackParamList } from '../navigation/types';
 import type { ProfileShareMode } from '../types/profileShare.types';
-import { inputStyle, rtl } from '../utils/rtlStyles';
 
 type ProfileShareScreenProps = NativeStackScreenProps<
   SettingsStackParamList,
@@ -41,6 +40,7 @@ export function ProfileShareScreen({
   navigation,
 }: ProfileShareScreenProps): React.ReactElement {
   const { t } = useTranslation();
+  const { textAlign, writingDirection } = useAppDirection();
   const share = useProfileShare();
   const errorMessage =
     share.error === null
@@ -72,18 +72,14 @@ export function ProfileShareScreen({
   }
 
   return (
-    <SafeAreaView
-      className="flex-1 bg-slate-50 dark:bg-app-dark"
-      style={rtl.screen}
-    >
+    <RtlScreen safe className="bg-slate-50 dark:bg-app-dark">
       <KeyboardAvoidingView
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
       >
-        <ScrollView
-          contentContainerStyle={rtl.scrollInner}
+        <RtlScrollView
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
           keyboardShouldPersistTaps="handled"
-          style={rtl.scrollOuter}
         >
           <View className="min-h-full w-full p-5">
             <AppText className="text-3xl font-extrabold text-slate-900 dark:text-slate-50">
@@ -93,10 +89,9 @@ export function ProfileShareScreen({
               {t('השיתוף מוצפן ומתבצע ישירות בין המכשירים, ללא ענן.')}
             </AppText>
 
-            <View
+            <RtlRow
               accessibilityRole="tablist"
-              className="mt-5 flex-row gap-2 rounded-lg bg-slate-200 p-1 dark:bg-neutral-800"
-              style={rtl.row}
+              className="mt-5 gap-2 rounded-lg bg-slate-200 p-1 dark:bg-neutral-800"
             >
               {(['export', 'import'] as const).map(
                 (mode: ProfileShareMode): React.ReactElement => {
@@ -126,7 +121,7 @@ export function ProfileShareScreen({
                   );
                 },
               )}
-            </View>
+            </RtlRow>
 
             <AppText className="mb-2 mt-5 text-sm font-extrabold text-slate-700 dark:text-slate-200">
               {t(
@@ -144,7 +139,7 @@ export function ProfileShareScreen({
               placeholder="••••"
               placeholderTextColor="#94A3B8"
               secureTextEntry
-              style={inputStyle()}
+              style={{ textAlign, writingDirection }}
               value={share.transferPin}
             />
             <AppText className="mt-2 text-sm text-slate-500 dark:text-slate-400">
@@ -272,8 +267,8 @@ export function ProfileShareScreen({
               </AppText>
             ) : null}
           </View>
-        </ScrollView>
+        </RtlScrollView>
       </KeyboardAvoidingView>
-    </SafeAreaView>
+    </RtlScreen>
   );
 }

@@ -1,3 +1,5 @@
+import { useCallback } from 'react';
+
 import { enBySource } from '../i18n/en';
 import { translateHebrew } from '../i18n/he';
 import { useLanguage, type AppLanguage } from './useLanguage';
@@ -39,21 +41,24 @@ function translateDynamicEnglish(source: string): string | undefined {
 export function useTranslation(): UseTranslationResult {
   const { language } = useLanguage();
 
-  function t(
-    source: string,
-    values?: TranslationValues,
-    englishOverride?: string,
-  ): string {
-    const translated =
-      language === 'en'
-        ? englishOverride ??
-          enBySource[source] ??
-          translateDynamicEnglish(source) ??
-          source
-        : translateHebrew(source);
+  const t = useCallback(
+    (
+      source: string,
+      values?: TranslationValues,
+      englishOverride?: string,
+    ): string => {
+      const translated =
+        language === 'en'
+          ? englishOverride ??
+            enBySource[source] ??
+            translateDynamicEnglish(source) ??
+            source
+          : translateHebrew(source);
 
-    return interpolate(translated, values);
-  }
+      return interpolate(translated, values);
+    },
+    [language],
+  );
 
   return { language, t };
 }

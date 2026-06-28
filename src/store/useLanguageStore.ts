@@ -1,73 +1,59 @@
-import { MMKV } from 'react-native-mmkv';
 import { create } from 'zustand';
 
-import { getDeviceLanguage } from '../hooks/useLanguage';
-import { MMKV_KEYS } from './keys';
+import i18n from '../i18n';
+import {
+  getDeviceLanguage,
+  persistLanguageChoice,
+  readStoredLanguageChoice,
+  resolveLanguage,
+  type AppLanguage,
+  type LanguageChoice,
+} from '../i18n/locale';
 
-export type LanguagePreference = 'auto' | 'he' | 'en';
-export type ResolvedLanguage = 'he' | 'en';
+export type { AppLanguage, LanguageChoice };
+/** @deprecated Use LanguageChoice */
+export type LanguagePreference = LanguageChoice;
+/** @deprecated Use AppLanguage */
+export type ResolvedLanguage = AppLanguage;
 
-const storage = new MMKV({ id: 'smartcard.preferences' });
+export { getDeviceLanguage, resolveLanguage };
 
-function isLanguagePreference(value: string): value is LanguagePreference {
-  return value === 'auto' || value === 'he' || value === 'en';
-}
-
-function readStoredPreference(): LanguagePreference | undefined {
-  const stored = storage.getString(MMKV_KEYS.languagePreference);
-  if (stored === undefined) {
-    return undefined;
-  }
-  if (isLanguagePreference(stored)) {
-    return stored;
-  }
-  // Legacy values: 'device' → auto, 'ar' → he (stored as preference, resolved below)
-  if (stored === 'device') {
-    return 'auto';
-  }
-  if (stored === 'ar') {
-    return 'he';
-  }
-  return undefined;
-}
-
-export function resolveLanguage(
-  pref: LanguagePreference | undefined,
-): ResolvedLanguage {
-  if (!pref || pref === 'auto') return getDeviceLanguage();
-  return pref === 'en' ? 'en' : 'he';
-}
-
-function deriveState(preference: LanguagePreference): {
-  preference: LanguagePreference;
-  resolved: ResolvedLanguage;
-  isRTL: boolean;
+function deriveState(choice: LanguageChoice): {
+  languageChoice: LanguageChoice;
+  resolvedLanguage: AppLanguage;
 } {
-  const resolved = resolveLanguage(preference);
-  return {
-    preference,
-    resolved,
-    isRTL: resolved === 'he',
-  };
+  const resolvedLanguage = resolveLanguage(choice);
+  return { languageChoice: choice, resolvedLanguage };
 }
 
-function readInitialPreference(): LanguagePreference {
-  return readStoredPreference() ?? 'auto';
+function readInitialChoice(): LanguageChoice {
+  return readStoredLanguageChoice() ?? 'auto';
 }
 
 interface LanguageState {
-  preference: LanguagePreference;
-  resolved: ResolvedLanguage;
-  isRTL: boolean;
-  setPreference: (pref: LanguagePreference) => void;
+  languageChoice: LanguageChoice;
+  resolvedLanguage: AppLanguage;
+  isHydrated: boolean;
+  setLanguageChoice: (choice: LanguageChoice) => void;
+  hydrateLanguage: () => void;
 }
 
-const initialState = deriveState(readInitialPreference());
+const initialChoice = readInitialChoice();
+const initialState = deriveState(initialChoice);
 
 export const useLanguageStore = create<LanguageState>(set => ({
   ...initialState,
-  setPreference: (pref: LanguagePreference): void => {
-    storage.set(MMKV_KEYS.languagePreference, pref);
-    set(deriveState(pref));
+  isHydrated: true,
+  hydrateLanguage: (): void => {
+    const choice = readStoredLanguageChoice() ?? 'auto';
+    const next = deriveState(choice);
+    i18n.changeLanguage(next.resolvedLanguage);
+    set({ ...next, isHydrated: true });
+  },
+  setLanguageChoice: (choice: LanguageChoice): void => {
+    persistLanguageChoice(choice);
+    const next = deriveState(choice);
+    i18n.changeLanguage(next.resolvedLanguage);
+    set(next);
   },
 }));

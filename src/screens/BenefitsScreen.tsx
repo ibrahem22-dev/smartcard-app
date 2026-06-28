@@ -1,15 +1,14 @@
 import React from 'react';
-import { ScrollView, View } from 'react-native';
-import { SafeAreaView } from 'react-native-safe-area-context';
+import { View } from 'react-native';
 
 import { AppText } from '../components/AppText';
+import { RtlRow, RtlScreen, RtlScrollView } from '../components/rtl';
 import { useBenefitsOverview } from '../hooks/useBenefits';
 import { useTranslation } from '../hooks/useTranslation';
 import type {
   BenefitCategoryGroup,
   BenefitMatch,
 } from '../types/benefits.types';
-import { rtl } from '../utils/rtlStyles';
 
 const CATEGORY_ICONS: Readonly<Record<string, string>> = {
   groceries: '🛒',
@@ -42,14 +41,8 @@ export function BenefitsScreen(): React.ReactElement {
   const { activeCard, groups, isLoading } = useBenefitsOverview();
 
   return (
-    <SafeAreaView
-      className="flex-1 bg-slate-50 dark:bg-app-dark"
-      style={rtl.screen}
-    >
-      <ScrollView
-        contentContainerStyle={rtl.scrollInner}
-        style={rtl.scrollOuter}
-      >
+    <RtlScreen safe className="bg-slate-50 dark:bg-app-dark">
+      <RtlScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}>
         <View className="min-h-full w-full p-5">
           <AppText className="text-3xl font-extrabold text-slate-900 dark:text-slate-50">
             {t('הטבות לכרטיס')}
@@ -85,20 +78,19 @@ export function BenefitsScreen(): React.ReactElement {
                     className="rounded-lg border border-slate-300 bg-white p-4 shadow-sm dark:border-neutral-700 dark:bg-dark-surface"
                     key={group.category}
                   >
-                    <View className="flex-row items-center gap-2" style={rtl.row}>
+                    <RtlRow className="items-center gap-2">
                       <AppText className="text-2xl">
                         {categoryIcon(group.category)}
                       </AppText>
                       <AppText className="text-lg font-extrabold text-slate-900 dark:text-slate-50">
                         {t(group.category)}
                       </AppText>
-                    </View>
+                    </RtlRow>
                     {group.matches.map(
                       (match: BenefitMatch): React.ReactElement => (
-                        <View
-                          className="mt-3 flex-row items-center justify-between border-t border-slate-200 pt-3 dark:border-neutral-700"
+                        <RtlRow
+                          className="mt-3 items-center justify-between border-t border-slate-200 pt-3 dark:border-neutral-700"
                           key={`${match.card.cardId}:${match.benefit.description}`}
-                          style={rtl.row}
                         >
                           <AppText className="me-3 flex-1 text-base text-slate-700 dark:text-slate-200">
                             {match.benefit.description}
@@ -106,7 +98,7 @@ export function BenefitsScreen(): React.ReactElement {
                           <AppText className="font-extrabold text-green-700 dark:text-green-300">
                             {formatShekels(match.estimatedSaving)}
                           </AppText>
-                        </View>
+                        </RtlRow>
                       ),
                     )}
                   </View>
@@ -115,7 +107,7 @@ export function BenefitsScreen(): React.ReactElement {
             </View>
           )}
         </View>
-      </ScrollView>
-    </SafeAreaView>
+      </RtlScrollView>
+    </RtlScreen>
   );
 }

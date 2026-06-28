@@ -1,6 +1,6 @@
 # SmartCard — AGENTS.md
 ### Codex Build Instructions | Replaces Agents 1, 3, 4, 5, 7, 9
-### Last updated: June 27, 2026 — M3 ✅ complete · Features A1–F1 + 22–27
+### Last updated: June 28, 2026 — M3 ✅ complete · Features A1–F1 + 22–29 · RTL/LTR Strategy ratified
 
 > This file is your only instruction source. Read it fully before every task.
 > Every rule is a hard DO or DO NOT. When two statements conflict, the
@@ -127,10 +127,15 @@ function evaluatePurchase(input: PurchaseInput): PurchaseDecision
 ```ts
 function assignCardRole(card: CardInput, userProfile: UserProfile): CardRole
 function recommendCard(cards: CardInput[], purchaseCategory: PurchaseCategory,
-  userProfile: UserProfile, isInternational: boolean): CardRecommendation
-// isInternational=true → rank by foreignExchangeCommission (lowest first).
+  userProfile: UserProfile, isInternational: boolean,
+  mode?: PaymentMode): CardRecommendation
+// mode='credit_installment' → rank by cardRates.installmentInterestRate ASC (lowest rate first).
+//   If no card has installmentInterestRate defined → fallback to standard ranking + show advisory.
+// mode='regular' or undefined → existing standard ranking logic.
+// isInternational=true → rank by foreignExchangeCommission (lowest first) — overrides mode.
 // If card has hasForeignCurrencyAccount=true AND currency matches → commission = 0, rank first.
 // Feature 23 is an extension of this function, not a separate engine.
+// Feature 28 (CREDIT-INSTALL-01) adds mode parameter — extend, do NOT rewrite.
 ```
 
 ### 6.3 `installmentGate.ts` ✅
@@ -237,27 +242,91 @@ type CardFeeInfo = {
 
 **Updated `user.types.ts`:** add `languagePreference: 'device' | 'he' | 'ar' | 'en'`
 
+**Updated `purchase.types.ts` (M4 — CREDIT-INSTALL-01):** add `PaymentMode = 'regular' | 'credit_installment'`
+
+**New `wallet.types.ts` (M4 — PAY-NOW-01):** `WalletStatus = 'added' | 'not_added' | 'unknown'`; MMKV key: `card:wallet_status:{cardId}`
+
 **⚠️ VERDICT UNION:** `'approved' | 'warning' | 'blocked' | 'wait_24h'` — canonical. Legacy `'approve'|'warn'|'block'` BANNED.
 
 ---
 
 ## 8. Screen & Component Rules
 
-**Core rules:** offline-first · RTL dynamic — direction follows resolved language (he→RTL, en→LTR). Never `forceRTL(true)` permanently. · NativeWind active (M3 ✅) · screen→hook→engine · ₪ currency = number-first `` `${n.toLocaleString('he-IL')} ₪` ``. **Never** `Intl.NumberFormat(...{style:'currency',currency:'ILS'})` — on Hermes/Android it renders the ISO code in the wrong order ("ILS 0").
+**Core rules:** offline-first · RTL-aware · NativeWind active (M3 ✅) · screen→hook→engine · ₪ currency with `Intl.NumberFormat('he-IL')`.
 
 **Verdict colors:** approved `#16A34A` · warning `#D97706` · blocked `#DC2626` · wait_24h `#2563EB`.
 **Calendar risk:** safe `#DCFCE7` · tight `#FEF9C3` · danger `#FEE2E2`.
 **Glossary accent:** `#1D4ED8` (informational blue).
 
-**`ISSUE-RTL-01` / `ISSUE-RTL-ROOT-FIX-02` (RESOLVED):** Hebrew rendering LTR + English forced RTL — fixed. **Architecture RATIFIED = native dynamic RTL** (see **§14** for the binding contract). Direction is driven by `I18nManager`, set **per language** (he→RTL, en→LTR) — `allowRTL` natively in `MainApplication.kt`, `forceRTL(perLanguage)` in `languageService.ts`/`index.js`. Under RTL, Yoga auto-flips plain rows, so there is **no manual `row-reverse`** anywhere. Switching language requires an app restart (handled by the Settings restart dialog). `forceRTL(true)` is **never** hard-coded permanently — that was the bug that forced English into RTL.
+---
 
-**RTL RULE (mandatory for every UI task — full contract in §14):**
-- **Text:** use `<AppText>` only — raw react-native `<Text>` is BANNED (ESLint `no-restricted-imports`). Never hardcode `textAlign:'left'|'right'` (ESLint `no-restricted-syntax`).
-- **Horizontal rows:** plain `flex-row` (or `style={rtl.row}`, which is plain `row`). **Never** `flex-row-reverse` or a hardcoded `row-reverse` — Yoga flips automatically under native RTL; a manual reverse double-flips and breaks Hebrew.
-- **TextInput:** `style={inputStyle()}`.
-- **Locale:** never call `getLocales()` directly — use `getNormalizedLocale()` / `isRTLLocale()` from `src/utils/languageService.ts` (handles Samsung `'iw'`→`'he'`).
-- **New screen strings:** every Hebrew source string passed to `t(...)` MUST have an entry in `enBySource` in `src/i18n/en.ts`, or English mode falls through to Hebrew. Hebrew is identity (`translateHebrew` returns the source).
-- **No per-screen `writingDirection`** (only `AppText` sets it), **no `transform: scaleX(-1)`** on icons.
+### RTL/LTR Strategy — SmartCard Manual Dynamic RTL/LTR (ratified June 28, 2026)
+
+**Architecture:** SmartCard does NOT use native `I18nManager.forceRTL()` for runtime switching. Direction is determined at render time from the store.
+
+| Item | Value |
+|---|---|
+| Source of truth | `useLanguageStore.resolvedLanguage` |
+| Direction hook | `useAppDirection()` → `{ isRTL: boolean, dir: 'rtl' \| 'ltr' }` |
+| Switch behavior | Instant — no reload, no restart, no dialog |
+| Hebrew mode | RTL immediately |
+| English mode | LTR immediately |
+
+**Required RTL-aware primitives (create once, use everywhere):**
+```tsx
+// src/components/RtlRow.tsx — row direction only
+<RtlRow>   // flexDirection: isRTL ? 'row-reverse' : 'row'
+
+// src/components/AppText.tsx — text alignment only
+<AppText>  // textAlign: isRTL ? 'right' : 'left'
+           // writingDirection: isRTL ? 'rtl' : 'ltr'
+
+// src/hooks/useAppDirection.ts
+const { isRTL } = useAppDirection()
+```
+
+**Root cause of previous RTL bug:** double RTL flip — using BOTH `direction: 'rtl'` on a container AND `flexDirection: 'row-reverse'` on its children. In React Native's Yoga layout engine, `direction: 'rtl'` already flips row direction. Adding `row-reverse` on top cancels it. Result: Hebrew screens looked LTR even though all state flags said RTL.
+
+**Mandatory rule: use exactly ONE layout mechanism per axis.**
+- Row direction → `<RtlRow>` only.
+- Text direction → `<AppText>` only.
+- NO `direction: 'rtl'` on root, screen, scroll, or generic view containers. Ever.
+
+**Forbidden patterns (banned unless documented `rtl-ok` comment present):**
+```tsx
+style={{ direction: 'rtl' }}                          // BANNED on containers
+style={{ flexDirection: 'row-reverse', direction: 'rtl' }} // DOUBLE-FLIP — BANNED
+className="flex-row-reverse"                          // use <RtlRow> instead
+className="text-left"  className="text-right"         // use <AppText> instead
+className="items-start"  className="items-end"        // use dir-aware primitives
+className="ml-*"  className="mr-*"                    // use ms-*/me-* or dir-aware
+className="pl-*"  className="pr-*"                    // same
+```
+
+**Dependency rules (enforced):**
+```
+screens / components / navigation
+  → hooks
+    → store
+    → pure utils / types
+
+BANNED: store → hooks · utils → store · utils → hooks
+```
+
+**Runtime rules — NEVER call on language switch:**
+`I18nManager.forceRTL()` · `DevSettings.reload()` · `Updates.reloadAsync()` · `RNRestart.Restart()`
+
+**Verification checklist after any UI change:**
+
+| Check | Hebrew | English |
+|---|---|---|
+| Text alignment | right ✓ | left ✓ |
+| Row flow | right-to-left ✓ | left-to-right ✓ |
+| Reload required | NO ✓ | NO ✓ |
+
+Screens to verify: Home · Cards · Purchase Gate · Calendar · Settings · Glossary · Bottom tabs.
+
+---
 
 **FeatureGate.tsx ✅:** `'live'` render · `'soon'` grayed+"בקרוב" · `'pro_only'` grayed+"Pro בלבד"+modal.
 
@@ -314,6 +383,31 @@ Extension of `cardRoleEngine.recommendCard` when `isInternational=true`:
 - Display comparison on DecisionScreen (international mode): all user cards with their commissions
 - Only shown when user has ≥2 cards with `cardRates` defined
 
+**Purchase Gate Credit Installment Mode (CREDIT-INSTALL-01 — M4, Feature 28):**
+Extension to `PurchaseGateScreen` and `cardRoleEngine.ts`:
+- Transaction type selector in PurchaseGate (below amount input):
+  `○ תשלומים רגילים` (default) | `○ תשלומים קרדיט`
+- When `credit_installment` selected: `recommendCard()` called with `mode: 'credit_installment'`
+  → ranks cards by `cardRates.installmentInterestRate` ASC (lowest interest = best)
+- Result shows: recommended card name + rate + "חוסך לך X% ריבית לעומת כרטיס Y"
+- If no `cardRates.installmentInterestRate` on any card: advisory "הוסף ריבית תשלומים לכרטיסיך לקבלת המלצה" (no block)
+- `PaymentMode = 'regular' | 'credit_installment'` added to `purchase.types.ts`
+- CardRates prerequisite: CARD-RATES-TYPES-01 must be done first.
+
+**"לשלם עכשיו" — Wallet Launch (PAY-NOW-01 — M4, Feature 29):**
+Button on DecisionScreen after card recommendation is shown:
+- Button: `"לשלם עכשיו 📲"` (visible only when a card is recommended AND user has cards)
+- On tap: show bottom sheet confirmation: `"פותח את [Google Wallet / Apple Wallet] — בחר את כרטיס [cardName] לתשלום קרוב"`
+- Android launch: `Linking.openURL('googlepay://')` fallback `Linking.openURL('https://pay.google.com')`
+- iOS launch: `Linking.openURL('shoebox://')` fallback `Linking.openURL('https://wallet.apple.com')`
+- Wallet opens to HOME — user selects card manually (platform restriction — cannot pre-select card)
+- Wallet presence tracking (MMKV `card:wallet_status:{cardId}` = `'added' | 'not_added' | 'unknown'`):
+  - `'unknown'` (first tap for this card): dialog "הוסיפת כרטיס זה ל-Wallet?" → Yes → `'added'` / No → `'not_added'`
+  - `'not_added'`: advisory "כרטיס זה לא נמצא ב-Wallet. רצונך להוסיפו?" → open Wallet
+  - `'added'`: open Wallet directly with reminder message
+- HARD LIMIT: cannot programmatically pre-select a specific card in any Wallet app (iOS + Android API restriction). UI must state this clearly in the bottom sheet.
+- FeatureGate: `'live'` — built fully in M4. Not a 'soon' feature.
+
 **Interest Calculator Screen (INTEREST-CALC-UI-01 — M4, Features 24 + 24.2):**
 Two tabs: "ריבית תשלומים" + "הלוואה מהכרטיס"
 Inputs: amount, months, interest rate (pre-filled from active card's CardRates)
@@ -352,7 +446,7 @@ MMKV key: `app:theme_preference`. On first install: `'system'` default — no pr
 | Biometric | `expo-local-authentication` works on both. Face ID on iPhone = same API as fingerprint. |
 | Expo build | iOS builds require EAS (`eas build --platform ios`) — `npx expo run:ios` needs macOS/Xcode. Planned: M5 EAS-01. |
 
-**ISSUE-RTL-01 (RESOLVED — LANG-RTL-DYNAMIC-01)** — Hebrew text displaying LTR — fixed. RTL behavior can differ between platforms; resolved on Android first resolves both. See **RTL RULE** in §8.
+**OPEN: ISSUE-RTL-01** — Hebrew text displaying LTR — fix before any iOS TestFlight build. RTL behavior can differ between platforms; resolving on Android first resolves both.
 
 **3-Layer Bank Theming (UI-THEME-01 ✅ M3 done):**
 Layer 1: bank bg (לאומי=blue, הפועלים=red, דיסקונט=purple, מזרחי=orange, אחר=neutral)
@@ -412,7 +506,7 @@ Source of truth: `docs/SEC-CONTRACT-001.md`.
 - MMKV compile fail → `newArchEnabled=true` + clean build
 - UTF-16 corruption → re-save UTF-8; avoid PowerShell WriteAllText
 - Ghost `package.json` → delete before `npm install`
-- `ISSUE-RTL-01` (RESOLVED — LANG-RTL-DYNAMIC-01): Hebrew text displaying LTR — fixed via dynamic direction (he→RTL, en→LTR). Enforce via **RTL RULE** in §8 + ESLint guards.
+- `ISSUE-RTL-01` (open): Hebrew text displaying LTR — deferred to standalone session
 
 ---
 
@@ -446,6 +540,12 @@ Pre-purchase decision tool · FinGuard+הטבות combined · manual-first · He
 **⚠️ MULTI-USER-01 deferred (June 27):** Per-profile PIN requires separate PIN envelope per profile — conflicts with single DEK architecture. Needs Agent 6 architecture decision before Codex can implement. Not a bug — a product/security design decision.
 
 **✅ iOS compatibility (June 27):** SafeAreaView mandatory on all screens · `NSFaceIDUsageDescription` in app.json · expo-notifications requires `requestPermissionsAsync()` on iOS · EAS Build required for iOS testing (planned M5) · no platform-specific engine logic · ISSUE-RTL-01 must be resolved before iOS TestFlight.
+
+**✅ RTL/LTR Strategy (June 28):** Manual Dynamic RTL/LTR — no `I18nManager.forceRTL()` at runtime · source of truth = `useLanguageStore.resolvedLanguage` · `useAppDirection()` hook · `<RtlRow>` + `<AppText>` primitives · instant switch no reload · `direction: 'rtl'` on containers BANNED · double-RTL-flip BANNED (was root cause of ISSUE-RTL-01).
+
+**✅ Feature 28 — CREDIT-INSTALL-01 (June 28):** תשלומים קרדיט mode in PurchaseGate · extends `recommendCard()` with `mode?: PaymentMode` · ranks by `installmentInterestRate` ASC · M4 task after FX-RECOMMEND-01.
+
+**✅ Feature 29 — PAY-NOW-01 (June 28):** "לשלם עכשיו" button on DecisionScreen · opens Google Wallet (Android) or Apple Wallet (iOS) via `Linking.openURL` · cannot pre-select specific card (platform API restriction) · MMKV `card:wallet_status:{cardId}` tracks presence · M4 task.
 
 **✅ Feature 26 — Document parser (June 27):** deferred to Phase 5 pending sample document evaluation · if PDF is machine-readable → feasible · OCR adds Phase 6 complexity.
 
@@ -514,16 +614,18 @@ Pick the first task not ✅ and whose blockers are clear.
 23. **DATA-01** — `src/data/max_benefits.json` *(Agent 2 — research Max clubs)*.
 24. **DATA-02** — `src/data/isracard_benefits.json` *(Agent 2)*.
 25. **DATA-03** — `src/data/cal_benefits.json` *(Agent 2)*.
-26. **ENGINE-05** — `src/engines/benefitsMatcher.ts` + tests. Done when: findBestCard + calculateMissedSavings; jest 100%; zero network; tsc clean.
-27. **BENEFITS-UI-01** — BenefitsScreen + SavingsTracker (FeatureGate → `'live'`). Done when: renders with real benefitsDB; tsc clean.
-28. **QR-SHARE-01** — `src/screens/ProfileShareScreen.tsx`. Done when: QR encodes encrypted profile; scan imports profile; no cloud; tsc clean.
-29. **M4 close** — `npx jest --coverage` (target 90%+) + `npx tsc --noEmit` + Agent 5 M4 gate + Agent 1 financial validation + `git commit -m "feat: M4 complete"`.
+26. **CREDIT-INSTALL-01** — extend `src/engines/cardRoleEngine.ts` + `src/types/purchase.types.ts` + `src/screens/PurchaseGateScreen.tsx`. Done when: `PaymentMode` type added; `recommendCard()` accepts `mode?: PaymentMode`; `credit_installment` mode ranks by `installmentInterestRate` ASC; PurchaseGate shows 2-option selector; result displays rate comparison; existing tests pass + 4+ new credit-installment cases; tsc clean.
+27. **PAY-NOW-01** — `src/screens/DecisionScreen.tsx` + `src/types/wallet.types.ts` + `src/store/keys.ts`. Done when: "לשלם עכשיו" button visible on DecisionScreen after recommendation; bottom sheet shows card name + wallet name; `Linking.openURL` opens correct Wallet per platform; MMKV `card:wallet_status:{cardId}` tracks presence; first-tap dialog asks user to confirm wallet status; tsc clean.
+28. **ENGINE-05** — `src/engines/benefitsMatcher.ts` + tests. Done when: findBestCard + calculateMissedSavings; jest 100%; zero network; tsc clean.
+29. **BENEFITS-UI-01** — BenefitsScreen + SavingsTracker (FeatureGate → `'live'`). Done when: renders with real benefitsDB; tsc clean.
+30. **QR-SHARE-01** — `src/screens/ProfileShareScreen.tsx`. Done when: QR encodes encrypted profile; scan imports profile; no cloud; tsc clean.
+31. **M4 close** — `npx jest --coverage` (target 90%+) + `npx tsc --noEmit` + Agent 5 M4 gate + Agent 1 financial validation + `git commit -m "feat: M4 complete"`.
 
-### M5 (after task #29)
-30. **EAS-01** — EAS build config + keystore. Done when: `eas build --platform android` succeeds.
-31. **PAYWALL-01** — paywall screen + RevenueCat (Free/Plus/Pro). Done when: FeatureGate reads subscription status; tsc clean.
-32. **LEGAL-01** — Privacy Policy HTML *(Agent 6 writes content → hosted GitHub Pages)*. Done when: URL live; linked in Play Console.
-33. **STORE-01** — Play Store submission + Data Safety form. Done when: APK uploaded; Hebrew listing; Data Safety complete.
+### M5 (after task #31)
+32. **EAS-01** — EAS build config + keystore. Done when: `eas build --platform android` succeeds.
+33. **PAYWALL-01** — paywall screen + RevenueCat (Free/Plus/Pro). Done when: FeatureGate reads subscription status; tsc clean.
+34. **LEGAL-01** — Privacy Policy HTML *(Agent 6 writes content → hosted GitHub Pages)*. Done when: URL live; linked in Play Console.
+35. **STORE-01** — Play Store submission + Data Safety form. Done when: APK uploaded; Hebrew listing; Data Safety complete.
 
 ### Phase 4 (post-Beta — do NOT implement before M5 ships)
 - **AUTH-OTP-01** — Email OTP via Supabase Auth
@@ -555,87 +657,5 @@ All of these must hold before any task is marked complete:
 - No TODO in shipped logic. No security violation from §9.
 
 **Codex must NOT:** open PRs with TODOs or `any` · violate §9 · make product decisions · upgrade Expo SDK · implement Phase 4/5 work early · implement unconditional data wipe · calculate mortgage מסלולים · give financial advice in loan/interest UI text.
-
----
-
-## §14 — RTL ARCHITECTURE CONTRACT (PERMANENT — DO NOT MODIFY)
-
-**Last updated:** ISSUE-RTL-ROOT-FIX-02
-**Status:** RATIFIED — binding on all agents, all phases
-**Approach:** **Native dynamic RTL** (NOT permanent forceRTL, NOT JS-only reactive).
-
-### The RTL Problem History
-RTL has regressed twice (ISSUE-RTL-01, ISSUE-RTL-ROOT-FIX-02). Symptoms: Hebrew
-rendered LTR, **and** English forced into RTL. Root causes were: a hard-coded
-permanent `forceRTL(true)` in `MainApplication.kt` (forced RTL even for English),
-the Samsung `'iw'` locale bug, and per-screen `row-reverse` overrides fighting the
-global layout.
-
-### The RTL Stack (Three Layers — ALL Required)
-
-| Layer | File | What it does |
-|---|---|---|
-| Native | `MainApplication.kt` | `I18nUtil.allowRTL(ctx, true)` — **permits** RTL before SoLoader (Samsung-safe). **Never** `forceRTL(true)` here. |
-| JS bootstrap | `src/utils/languageService.ts` | Normalizes `'iw'`→`'he'`, resolves the language, and sets `forceRTL(perLanguage)` on import — **false for English**. |
-| Entry point | `index.js` | Imports `languageService` FIRST; reloads once if the direction flipped. |
-
-Direction is **dynamic**: Hebrew → RTL, English → LTR. Changing language requires
-an app restart (Settings shows the restart dialog). Removing any layer regresses RTL.
-
-### HARD RULES — VIOLATIONS ARE BLOCKING
-
-**RULE RTL-1 — Bootstrap import order.** `import … from './src/utils/languageService'`
-MUST be the first import in `index.js`. Adding any import above it breaks RTL timing.
-
-**RULE RTL-2 — No `useEffect` for `I18nManager`.** NEVER call `I18nManager.forceRTL()`
-inside a `useEffect`, component body, or callback. It must run synchronously at
-module-import time (languageService) — by the time `useEffect` runs, navigation has
-mounted and Android ignores it until restart.
-
-**RULE RTL-3 — Direction is per-language, NEVER permanent.** NEVER hard-code
-`forceRTL(true)` (native or JS). `forceRTL` is always set to the resolved language
-(`false` for English). A permanent `true` forces English into RTL — this was the bug.
-
-**RULE RTL-4 — No manual `row-reverse`.** Under native RTL, Yoga flips a plain
-`flexDirection: 'row'` automatically. NEVER use `flex-row-reverse` or a hard-coded
-`row-reverse` — it double-flips and breaks Hebrew. Use plain `flex-row` / `rtl.row`.
-
-**RULE RTL-5 — No per-screen `writingDirection` / `textAlign`.** Text direction is
-owned by `<AppText>`. Raw `<Text>` is BANNED (ESLint). Never hard-code
-`textAlign:'left'|'right'` (ESLint). Never add `writingDirection` outside `AppText`.
-
-**RULE RTL-6 — Samsung `'iw'` locale.** NEVER read `getLocales()[0]?.languageCode`
-directly. ALWAYS use `getNormalizedLocale()` / `isRTLLocale()` from
-`languageService.ts`. Samsung Galaxy returns `'iw'` for Hebrew; direct reads break.
-
-**RULE RTL-7 — `MainApplication.kt` must not be reverted.** The
-`I18nUtil.getInstance().allowRTL(applicationContext, true)` line (marked
-`// SMARTCARD RTL — DO NOT REMOVE`) must survive every Expo SDK upgrade and
-`expo prebuild`. Re-verify it after each prebuild. Do NOT re-add `forceRTL(true)`.
-
-**RULE RTL-8 — Icon mirroring.** NEVER use `transform: [{ scaleX: -1 }]` to fix a
-mirrored icon — that masks broken RTL. Use a symmetric icon or the library's RTL prop.
-
-**RULE RTL-9 — New screens checklist** (before marking any screen task done):
-□ No `flex-row-reverse` / manual `row-reverse`
-□ No `writingDirection`, no `textAlign:'left'|'right'`
-□ No `transform: scaleX(-1)` on icons
-□ Root element is `<SafeAreaView>` or uses `useSafeAreaInsets()`
-□ All text uses `<AppText>`, not `<Text>`
-□ All new Hebrew `t(...)` strings have an `enBySource` entry in `src/i18n/en.ts`
-
-### Samsung-Specific Behavior
-Samsung Galaxy S-series (tested: S928B, Android 14) returns locale `'iw'` instead of
-`'he'`. `languageService.ts` is the ONLY place that reads the raw locale and
-normalizes `'iw'`→`'he'`. All other code resolves language via `languageService`.
-
-### Recovery Procedure (If RTL Regresses Again)
-1. `MainApplication.kt` — is `allowRTL(ctx, true)` present, and is there NO hard-coded `forceRTL(true)`?
-2. `index.js` — is `languageService` the FIRST import?
-3. `languageService.ts` — does it normalize `'iw'`→`'he'` and set `forceRTL(perLanguage)`?
-4. The broken screen — any `flex-row-reverse`, `writingDirection`, or hard-coded `textAlign`?
-5. Rebuild natively: `npx expo run:android --device` (native changes need a full rebuild, not a JS reload).
-6. Test on the physical Samsung device (the emulator hides this bug).
-7. Verify BOTH languages: Hebrew → RTL, English → LTR.
 
 *End of AGENTS.md — start each session at §13.*

@@ -5,7 +5,9 @@ import {
   createSecureProfileId,
   decryptProfileTransferPayload,
   encryptProfileTransferPayload,
+  keyVault,
 } from '../security/keyVault';
+import { MMKV_KEYS } from '../store/keys';
 import { useCardsStore } from '../store/useCardsStore';
 import { useProfileStore } from '../store/useProfileStore';
 import type { AppProfile, ProfileLanguagePreference } from '../types/profile.types';
@@ -19,6 +21,39 @@ import {
   parseTransferProfile,
   serializeTransferProfile,
 } from '../utils/profileShareCodec';
+
+const TRANSFER_DECRYPT_MAX_ATTEMPTS = 5;
+const TRANSFER_DECRYPT_LOCKOUT_MS = 30_000;
+
+function readStoredNumber(key: string): number {
+  const storedValue = keyVault.getEncryptedStorage().getString(key);
+  if (storedValue === undefined) {
+    return 0;
+  }
+
+  const parsedValue = Number(storedValue);
+  return Number.isFinite(parsedValue) && parsedValue >= 0 ? parsedValue : 0;
+}
+
+function resetTransferDecryptLockout(): void {
+  const storage = keyVault.getEncryptedStorage();
+  storage.set(MMKV_KEYS.TRANSFER_DECRYPT_ATTEMPTS, '0');
+  storage.delete(MMKV_KEYS.TRANSFER_DECRYPT_LOCKOUT_UNTIL);
+}
+
+function recordTransferDecryptFailure(now: number): void {
+  const storage = keyVault.getEncryptedStorage();
+  const attempts =
+    readStoredNumber(MMKV_KEYS.TRANSFER_DECRYPT_ATTEMPTS) + 1;
+  storage.set(MMKV_KEYS.TRANSFER_DECRYPT_ATTEMPTS, String(attempts));
+
+  if (attempts >= TRANSFER_DECRYPT_MAX_ATTEMPTS) {
+    storage.set(
+      MMKV_KEYS.TRANSFER_DECRYPT_LOCKOUT_UNTIL,
+      String(now + TRANSFER_DECRYPT_LOCKOUT_MS),
+    );
+  }
+}
 
 export function useProfileShare(): UseProfileShareResult {
   const activeProfile = useProfileStore(state => state.activeProfile);
@@ -105,13 +140,31 @@ export function useProfileShare(): UseProfileShareResult {
       return;
     }
 
+    const now = Date.now();
+    const lockoutUntil = readStoredNumber(
+      MMKV_KEYS.TRANSFER_DECRYPT_LOCKOUT_UNTIL,
+    );
+    if (now < lockoutUntil) {
+      throw {
+        type: 'TRANSFER_LOCKED',
+        retryAfterMs: lockoutUntil - now,
+      } as const;
+    }
+
     setIsBusy(true);
     setError(null);
     try {
-      const plaintext = await decryptProfileTransferPayload(
-        scannedPayload,
-        transferPin,
-      );
+      let plaintext: string;
+      try {
+        plaintext = await decryptProfileTransferPayload(
+          scannedPayload,
+          transferPin,
+        );
+        resetTransferDecryptLockout();
+      } catch {
+        recordTransferDecryptFailure(Date.now());
+        throw new Error('TRANSFER_DECRYPT_FAILED');
+      }
       const parsedJson: unknown = JSON.parse(plaintext);
       const parsedProfile = parseTransferProfile(parsedJson);
       if (parsedProfile === null) {

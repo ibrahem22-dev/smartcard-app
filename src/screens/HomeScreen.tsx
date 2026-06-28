@@ -1,18 +1,17 @@
 import React from 'react';
-import { Pressable, ScrollView, View } from 'react-native';
+import { Pressable, View } from 'react-native';
 import { useNavigation, type NavigationProp } from '@react-navigation/native';
-import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { AppText } from '../components/AppText';
 import { FeatureGate } from '../components/FeatureGate';
 import { ProfileSwitcher } from '../components/ProfileSwitcher';
+import { RtlScreen, RtlScrollView } from '../components/rtl';
 import { useSavingsOverview } from '../hooks/useBenefits';
 import { useTheme } from '../hooks/useTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import type { TabParamList } from '../navigation/types';
 import { useCardsStore } from '../store/useCardsStore';
 import { useProfileStore } from '../store/useProfileStore';
-import { rtl } from '../utils/rtlStyles';
 
 const DAILY_TIPS: readonly string[] = [
   'שלם ביום חיוב כדי למקסם את תקופת האשראי',
@@ -57,21 +56,9 @@ export function HomeScreen(): React.ReactElement {
   }
 
   return (
-    <SafeAreaView
-      className="flex-1 bg-slate-50 dark:bg-app-dark"
-      style={rtl.screen}
-    >
-      {/*
-        FIX: Removed className="flex-1" from ScrollView.
-        NativeWind's CSSInterop.ScrollView injects className props into the
-        native `style` prop. On Android, if any layout prop (alignItems,
-        flexDirection, etc.) ends up in ScrollView's style instead of
-        contentContainerStyle, React Native throws Invariant Violation.
-        Solution: use explicit style/contentContainerStyle only — no className on ScrollView.
-      */}
-      <ScrollView
-        style={rtl.scrollOuter}
-        contentContainerStyle={rtl.scrollInner}
+    <RtlScreen safe className="bg-slate-50 dark:bg-app-dark">
+      <RtlScrollView
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
       >
         <View className="min-h-full w-full px-5 pb-28 pt-5">
@@ -168,8 +155,9 @@ export function HomeScreen(): React.ReactElement {
           </View>
         </FeatureGate>
         </View>
-      </ScrollView>
+      </RtlScrollView>
 
+      {/* rtl-ok: full-width footer dock spans both edges intentionally */}
       <View className="absolute bottom-0 left-0 right-0 border-t border-slate-200 bg-white p-4 dark:border-neutral-800 dark:bg-dark-surface">
         <Pressable
           accessibilityRole="button"
@@ -181,6 +169,6 @@ export function HomeScreen(): React.ReactElement {
           </AppText>
         </Pressable>
       </View>
-    </SafeAreaView>
+    </RtlScreen>
   );
 }

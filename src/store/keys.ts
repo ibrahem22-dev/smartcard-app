@@ -17,4 +17,7 @@ export const MMKV_KEYS = {
   profileCardNotificationIds: (profileId: string, cardId: string): string =>
     `profile_${profileId}:notif_${cardId}`,
   globalDiscountReminderId: 'app:global_discount_reminder_id',
+  rtlRestartGuard: 'app:rtl_restart_guard',
+  TRANSFER_DECRYPT_ATTEMPTS: 'app:transfer_decrypt_attempts',
+  TRANSFER_DECRYPT_LOCKOUT_UNTIL: 'app:transfer_decrypt_lockout_until',
 } as const;

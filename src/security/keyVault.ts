@@ -109,6 +109,7 @@ const TRANSFER_SALT_BYTES = 16;
 const TRANSFER_NONCE_BYTES = 12;
 const TRANSFER_KEY_BYTES = 32;
 const TRANSFER_TAG_BYTES = 16;
+const MAX_TRANSFER_PAYLOAD_BYTES = 65_536;
 const BASE64_ALPHABET =
   'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/';
 
@@ -217,6 +218,13 @@ export async function decryptProfileTransferPayload(
   encodedPayload: string,
   transferPin: string,
 ): Promise<string> {
+  if (encodedPayload.length > MAX_TRANSFER_PAYLOAD_BYTES) {
+    throw {
+      type: 'PAYLOAD_TOO_LARGE',
+      maxBytes: MAX_TRANSFER_PAYLOAD_BYTES,
+    } as const;
+  }
+
   const envelope = base64ToBytes(encodedPayload);
   const minimumLength =
     1 + TRANSFER_SALT_BYTES + TRANSFER_NONCE_BYTES + TRANSFER_TAG_BYTES;

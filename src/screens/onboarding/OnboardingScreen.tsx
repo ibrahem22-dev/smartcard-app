@@ -18,7 +18,8 @@ import { AppText } from '../../components/AppText';
 import { useAuth } from '../../navigation/authContext';
 import { useTranslation } from '../../hooks/useTranslation';
 import { CardIssuer } from '../../types/card.types';
-import { inputStyle, rtl } from '../../utils/rtlStyles';
+import { RtlRow, RtlScreen, RtlScrollView } from '../../components/rtl';
+import { useAppDirection } from '../../hooks/useAppDirection';
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -96,6 +97,7 @@ function optionTextClassName(isSelected: boolean): string {
 export default function OnboardingScreen(): React.ReactElement {
   const { completeOnboarding } = useAuth();
   const { t } = useTranslation();
+  const { textAlign, writingDirection } = useAppDirection();
 
   const [currentStep, setCurrentStep] = useState<Step>(1);
   const [selectedBank, setSelectedBank] = useState<string | null>(null);
@@ -198,10 +200,7 @@ export default function OnboardingScreen(): React.ReactElement {
         >
           {t('באיזה בנק אתה מנהל את החשבון?')}
         </AppText>
-        <View
-          className="w-full flex-row flex-wrap gap-3"
-          style={rtl.row}
-        >
+        <RtlRow className="w-full flex-wrap gap-3">
           {QUICK_BANK_OPTIONS.map(bank => {
             const isSelected = selectedBank === bank;
 
@@ -221,7 +220,7 @@ export default function OnboardingScreen(): React.ReactElement {
               </Pressable>
             );
           })}
-        </View>
+        </RtlRow>
 
         <Pressable
           accessibilityRole="button"
@@ -292,7 +291,7 @@ export default function OnboardingScreen(): React.ReactElement {
           onChangeText={setIncomeText}
           placeholder={t('לדוגמה: 12000')}
           placeholderTextColor="#94A3B8"
-          style={inputStyle()}
+          style={{ textAlign, writingDirection }}
           value={incomeText}
         />
         {incomeError !== null ? (
@@ -314,7 +313,7 @@ export default function OnboardingScreen(): React.ReactElement {
           onChangeText={setBalanceText}
           placeholder={t('לדוגמה: 3500')}
           placeholderTextColor="#94A3B8"
-          style={inputStyle()}
+          style={{ textAlign, writingDirection }}
           value={balanceText}
         />
         {balanceError !== null ? (
@@ -344,10 +343,7 @@ export default function OnboardingScreen(): React.ReactElement {
         >
           {t('חברת כרטיס האשראי')}
         </AppText>
-        <View
-          className="w-full flex-row flex-wrap gap-3"
-          style={rtl.row}
-        >
+        <RtlRow className="w-full flex-wrap gap-3">
           {COMPANY_OPTIONS.map(company => {
             const isSelected = selectedCompany === company;
 
@@ -367,7 +363,7 @@ export default function OnboardingScreen(): React.ReactElement {
               </Pressable>
             );
           })}
-        </View>
+        </RtlRow>
 
         {selectedCompany !== null ? (
           <View className="mt-6 w-full">
@@ -446,7 +442,7 @@ export default function OnboardingScreen(): React.ReactElement {
           onChangeText={setPhoneText}
           placeholder="050-0000000"
           placeholderTextColor="#94A3B8"
-          style={inputStyle()}
+          style={{ textAlign, writingDirection }}
           value={phoneText}
         />
 
@@ -502,12 +498,9 @@ export default function OnboardingScreen(): React.ReactElement {
     */
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={[rtl.screen, { backgroundColor: '#F8FAFC' }]}
+      style={{ flex: 1, backgroundColor: '#F8FAFC' }}
     >
-      <View
-        className="flex-row gap-2 border-b border-slate-200 bg-white px-5 py-4 dark:border-neutral-800 dark:bg-neutral-950"
-        style={rtl.row}
-      >
+      <RtlRow className="gap-2 border-b border-slate-200 bg-white px-5 py-4 dark:border-neutral-800 dark:bg-neutral-950">
         {STEPS.map(step => {
           const isActive = step <= currentStep;
 
@@ -520,20 +513,16 @@ export default function OnboardingScreen(): React.ReactElement {
             />
           );
         })}
-      </View>
+      </RtlRow>
 
-      <ScrollView
-        style={rtl.scrollOuter}
-        contentContainerStyle={rtl.scrollInner}
+      <RtlScrollView
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
       >
         <View className="min-h-full w-full px-5 py-6">{renderCurrentStep()}</View>
-      </ScrollView>
+      </RtlScrollView>
 
-      <View
-        className="flex-row gap-3 border-t border-slate-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950"
-        style={rtl.row}
-      >
+      <RtlRow className="gap-3 border-t border-slate-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
         <Pressable
           accessibilityRole="button"
           className={`min-h-[50px] flex-1 items-center justify-center rounded-lg border ${
@@ -565,7 +554,7 @@ export default function OnboardingScreen(): React.ReactElement {
             {currentStep === 4 ? t('סיום') : t('המשך')}
           </AppText>
         </Pressable>
-      </View>
+      </RtlRow>
     </KeyboardAvoidingView>
   );
 }

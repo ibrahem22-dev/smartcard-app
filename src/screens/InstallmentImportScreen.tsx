@@ -3,17 +3,17 @@ import * as Crypto from 'expo-crypto';
 import {
   Alert,
   Pressable,
-  ScrollView,
   TextInput,
   View,
 } from 'react-native';
 
 import { AppText } from '../components/AppText';
+import { RtlRow, RtlScreen, RtlScrollView } from '../components/rtl';
+import { useAppDirection } from '../hooks/useAppDirection';
 import { useCardsStore } from '../store/useCardsStore';
 import { useTranslation } from '../hooks/useTranslation';
 import type { ImportedInstallment } from '../types/installment.types';
 import { parseAmount } from '../utils/parseAmount';
-import { inputStyle, rtl } from '../utils/rtlStyles';
 
 function parseMonths(value: string): number | null {
   const parsed = Number(value.trim());
@@ -24,6 +24,7 @@ function parseMonths(value: string): number | null {
 
 export function InstallmentImportScreen(): React.ReactElement {
   const { t } = useTranslation();
+  const { textAlign, writingDirection } = useAppDirection();
   const cards = useCardsStore(state => state.cards);
   const obligations = useCardsStore(state => state.obligations);
   const hydrate = useCardsStore(state => state.hydrate);
@@ -139,12 +140,13 @@ export function InstallmentImportScreen(): React.ReactElement {
     );
   }
 
+  const inputStyle = { textAlign, writingDirection };
+
   return (
-    <View className="flex-1 bg-slate-50 dark:bg-app-dark" style={rtl.screen}>
-      <ScrollView
-        contentContainerStyle={rtl.scrollInner}
+    <RtlScreen className="bg-slate-50 dark:bg-app-dark">
+      <RtlScrollView
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
-        style={rtl.scrollOuter}
       >
         <View className="w-full gap-3 p-5">
           <AppText
@@ -161,7 +163,7 @@ export function InstallmentImportScreen(): React.ReactElement {
           <TextInput
             className="min-h-[50px] rounded-lg border border-slate-300 bg-white px-4 text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
             onChangeText={setMerchantName}
-            style={inputStyle()}
+            style={inputStyle}
             value={merchantName}
           />
 
@@ -174,7 +176,7 @@ export function InstallmentImportScreen(): React.ReactElement {
             className="min-h-[50px] rounded-lg border border-slate-300 bg-white px-4 text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
             keyboardType="decimal-pad"
             onChangeText={setTotalAmountText}
-            style={inputStyle()}
+            style={inputStyle}
             value={totalAmountText}
           />
 
@@ -187,7 +189,7 @@ export function InstallmentImportScreen(): React.ReactElement {
             className="min-h-[50px] rounded-lg border border-slate-300 bg-white px-4 text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
             keyboardType="number-pad"
             onChangeText={setMonthsRemainingText}
-            style={inputStyle()}
+            style={inputStyle}
             value={monthsRemainingText}
           />
 
@@ -200,7 +202,7 @@ export function InstallmentImportScreen(): React.ReactElement {
             className="min-h-[50px] rounded-lg border border-slate-300 bg-white px-4 text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
             keyboardType="decimal-pad"
             onChangeText={setMonthlyPaymentText}
-            style={inputStyle()}
+            style={inputStyle}
             value={monthlyPaymentText}
           />
 
@@ -209,7 +211,7 @@ export function InstallmentImportScreen(): React.ReactElement {
           >
             {t('כרטיס לחיוב')}
           </AppText>
-          <View className="flex-row flex-wrap gap-2" style={rtl.row}>
+          <RtlRow className="flex-wrap gap-2">
             {cards.map(card => {
               const isSelected = billingCardId === card.cardId;
               return (
@@ -232,7 +234,7 @@ export function InstallmentImportScreen(): React.ReactElement {
                 </Pressable>
               );
             })}
-          </View>
+          </RtlRow>
           {cards.length === 0 ? (
             <AppText
               className="text-sm font-bold text-amber-700 dark:text-amber-300"
@@ -250,7 +252,7 @@ export function InstallmentImportScreen(): React.ReactElement {
             className="min-h-20 rounded-lg border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
             multiline
             onChangeText={setNotes}
-            style={inputStyle()}
+            style={inputStyle}
             value={notes}
           />
 
@@ -262,7 +264,7 @@ export function InstallmentImportScreen(): React.ReactElement {
             </AppText>
           ) : null}
 
-          <View className="flex-row gap-2" style={rtl.row}>
+          <RtlRow className="gap-2">
             <Pressable
               accessibilityRole="button"
               className="min-h-[50px] flex-1 items-center justify-center rounded-lg bg-blue-600"
@@ -289,7 +291,7 @@ export function InstallmentImportScreen(): React.ReactElement {
                 </AppText>
               </Pressable>
             ) : null}
-          </View>
+          </RtlRow>
 
           <View className="mt-4 gap-3">
             {obligations.map(obligation => (
@@ -330,7 +332,7 @@ export function InstallmentImportScreen(): React.ReactElement {
             ))}
           </View>
         </View>
-      </ScrollView>
-    </View>
+      </RtlScrollView>
+    </RtlScreen>
   );
 }

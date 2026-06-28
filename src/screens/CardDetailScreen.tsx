@@ -3,7 +3,6 @@ import {
   KeyboardAvoidingView,
   Platform,
   Pressable,
-  ScrollView,
   Switch,
   TextInput,
   View,
@@ -15,6 +14,8 @@ import DateTimePicker, {
 } from '@react-native-community/datetimepicker';
 
 import { AppText } from '../components/AppText';
+import { RtlRow, RtlScrollView } from '../components/rtl';
+import { useAppDirection } from '../hooks/useAppDirection';
 import { useCardDatabaseRates } from '../hooks/useCardRatesDatabase';
 import { useTranslation } from '../hooks/useTranslation';
 import type { CardsStackParamList } from '../navigation/types';
@@ -26,7 +27,6 @@ import {
   type CardInput,
   type CardRates,
 } from '../types/card.types';
-import { inputStyle, rtl } from '../utils/rtlStyles';
 
 type CardDetailScreenProps = NativeStackScreenProps<
   CardsStackParamList,
@@ -82,6 +82,7 @@ export function CardDetailScreen({
   route,
 }: CardDetailScreenProps): React.ReactElement {
   const { t } = useTranslation();
+  const { textAlign, writingDirection } = useAppDirection();
   const card = useCardsStore(state =>
     state.cards.find(c => c.cardId === route.params.cardId),
   );
@@ -170,6 +171,8 @@ export function CardDetailScreen({
   const [showDatePicker, setShowDatePicker] = useState(false);
   const [saveError, setSaveError] = useState<string | null>(null);
   const [saved, setSaved] = useState(false);
+
+  const inputStyle = { textAlign, writingDirection };
 
   if (card === undefined) {
     return (
@@ -326,10 +329,9 @@ export function CardDetailScreen({
         behavior={Platform.OS === 'ios' ? 'padding' : 'height'}
         className="flex-1"
       >
-        <ScrollView
-          contentContainerStyle={[rtl.scrollInner, { paddingBottom: 32 }]}
+        <RtlScrollView
+          contentContainerStyle={{ flexGrow: 1, paddingBottom: 32 }}
           keyboardShouldPersistTaps="handled"
-          style={rtl.scrollOuter}
         >
           <View className="w-full gap-1 p-5">
             {/* Header */}
@@ -347,7 +349,7 @@ export function CardDetailScreen({
               className={INPUT_CLASS}
               keyboardType="number-pad"
               onChangeText={setBillingDay}
-              style={inputStyle()}
+              style={inputStyle}
               value={billingDay}
             />
 
@@ -356,7 +358,7 @@ export function CardDetailScreen({
               className={INPUT_CLASS}
               keyboardType="decimal-pad"
               onChangeText={setCreditLimit}
-              style={inputStyle()}
+              style={inputStyle}
               value={creditLimit}
             />
 
@@ -389,7 +391,7 @@ export function CardDetailScreen({
                   onChangeText={setCreditRate}
                   placeholder={t('לא פורסם — הזן ידנית')}
                   placeholderTextColor="#94A3B8"
-                  style={inputStyle()}
+                  style={inputStyle}
                   value={creditRate}
                 />
                 <AppText className={LABEL_CLASS}>{t('ריבית תשלומים (%)')}</AppText>
@@ -399,7 +401,7 @@ export function CardDetailScreen({
                   onChangeText={setInstallmentRate}
                   placeholder={t('לא פורסם — הזן ידנית')}
                   placeholderTextColor="#94A3B8"
-                  style={inputStyle()}
+                  style={inputStyle}
                   value={installmentRate}
                 />
                 <AppText className={LABEL_CLASS}>{t('ריבית הלוואה (%)')}</AppText>
@@ -409,7 +411,7 @@ export function CardDetailScreen({
                   onChangeText={setCardLoanRate}
                   placeholder={t('לא פורסם — הזן ידנית')}
                   placeholderTextColor="#94A3B8"
-                  style={inputStyle()}
+                  style={inputStyle}
                   value={cardLoanRate}
                 />
                 <AppText className={LABEL_CLASS}>{t('עמלת המרה (%)')}</AppText>
@@ -417,7 +419,7 @@ export function CardDetailScreen({
                   className={INPUT_CLASS}
                   keyboardType="decimal-pad"
                   onChangeText={setFxCommission}
-                  style={inputStyle()}
+                  style={inputStyle}
                   value={fxCommission}
                 />
                 <AppText className={LABEL_CLASS}>{t('דמי כרטיס חודשיים (₪)')}</AppText>
@@ -425,7 +427,7 @@ export function CardDetailScreen({
                   className={INPUT_CLASS}
                   keyboardType="decimal-pad"
                   onChangeText={setMonthlyFee}
-                  style={inputStyle()}
+                  style={inputStyle}
                   value={monthlyFee}
                 />
 
@@ -449,7 +451,7 @@ export function CardDetailScreen({
               className={INPUT_CLASS}
               keyboardType="decimal-pad"
               onChangeText={setFeeOriginal}
-              style={inputStyle()}
+              style={inputStyle}
               value={feeOriginal}
             />
             <AppText className={LABEL_CLASS}>{t('אחוז הנחה (0–100)')}</AppText>
@@ -457,7 +459,7 @@ export function CardDetailScreen({
               className={INPUT_CLASS}
               keyboardType="decimal-pad"
               onChangeText={setFeeDiscount}
-              style={inputStyle()}
+              style={inputStyle}
               value={feeDiscount}
             />
             {effectiveFeePreview !== null ? (
@@ -469,10 +471,7 @@ export function CardDetailScreen({
                 })}
               </AppText>
             ) : null}
-            <View
-              className="mt-3 min-h-[48px] flex-row items-center justify-between"
-              style={rtl.row}
-            >
+            <RtlRow className="mt-3 min-h-[48px] items-center justify-between">
               <AppText className="me-3 flex-1 text-base text-slate-700 dark:text-slate-200">
                 {t('לא ידוע — תזכיר שנתי')}
               </AppText>
@@ -484,7 +483,7 @@ export function CardDetailScreen({
                 }}
                 value={annualReminder}
               />
-            </View>
+            </RtlRow>
             {!annualReminder ? (
               <>
                 <AppText className={LABEL_CLASS}>
@@ -524,15 +523,12 @@ export function CardDetailScreen({
             <AppText className="mt-5 text-lg font-extrabold text-slate-900 dark:text-white">
               {t('חשבון מט"ח')}
             </AppText>
-            <View
-              className="mt-2 min-h-[48px] flex-row items-center justify-between"
-              style={rtl.row}
-            >
+            <RtlRow className="mt-2 min-h-[48px] items-center justify-between">
               <AppText className="text-base text-slate-700 dark:text-slate-200">
                 {t('כרטיס מחובר לחשבון מט"ח')}
               </AppText>
               <Switch onValueChange={setHasForeignAccount} value={hasForeignAccount} />
-            </View>
+            </RtlRow>
             {hasForeignAccount ? (
               <>
                 <AppText className={LABEL_CLASS}>{t('מטבע (USD/EUR/GBP)')}</AppText>
@@ -542,7 +538,7 @@ export function CardDetailScreen({
                   onChangeText={setForeignCurrency}
                   placeholder="USD"
                   placeholderTextColor="#94A3B8"
-                  style={inputStyle()}
+                  style={inputStyle}
                   value={foreignCurrency}
                 />
                 <AppText className={LABEL_CLASS}>{t('עמלת המרה בנקאית (%)')}</AppText>
@@ -550,7 +546,7 @@ export function CardDetailScreen({
                   className={INPUT_CLASS}
                   keyboardType="decimal-pad"
                   onChangeText={setBankFx}
-                  style={inputStyle()}
+                  style={inputStyle}
                   value={bankFx}
                 />
               </>
@@ -564,7 +560,7 @@ export function CardDetailScreen({
               onChangeText={setIssuanceDate}
               placeholder="2024-01-01"
               placeholderTextColor="#94A3B8"
-              style={inputStyle()}
+              style={inputStyle}
               value={issuanceDate}
             />
 
@@ -603,7 +599,7 @@ export function CardDetailScreen({
               </AppText>
             </Pressable>
           </View>
-        </ScrollView>
+        </RtlScrollView>
       </KeyboardAvoidingView>
     </SafeAreaView>
   );

@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
-import { Linking, Pressable, ScrollView, View } from 'react-native';
+import { Linking, Pressable, View } from 'react-native';
 
 import { AppText } from '../components/AppText';
+import { RtlRow, RtlScreen, RtlScrollView } from '../components/rtl';
 import { useTheme } from '../hooks/useTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import type { IssuerContact, ProblemType } from '../types/contact.types';
-import { rtl } from '../utils/rtlStyles';
 
 const PROBLEM_OPTIONS: readonly {
   readonly id: ProblemType;
@@ -54,14 +54,8 @@ export function ContactScreen(): React.ReactElement {
   const script = SCRIPTS[selectedProblem];
 
   return (
-    <View
-      className="flex-1 bg-slate-50 dark:bg-app-dark"
-      style={rtl.screen}
-    >
-      <ScrollView
-        contentContainerStyle={rtl.scrollInner}
-        style={rtl.scrollOuter}
-      >
+    <RtlScreen className="bg-slate-50 dark:bg-app-dark">
+      <RtlScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}>
       <View className="min-h-full w-full p-5 dark:bg-app-dark">
         <AppText
           className="mb-[18px] text-[26px] font-extrabold text-slate-900 dark:text-white"
@@ -70,10 +64,7 @@ export function ContactScreen(): React.ReactElement {
           {t('צור קשר עם חברת האשראי')}
         </AppText>
 
-        <View
-          className="mb-[18px] w-full flex-row flex-wrap gap-2 rtl:flex-row"
-          style={rtl.row}
-        >
+        <RtlRow className="mb-[18px] w-full flex-wrap gap-2">
           {PROBLEM_OPTIONS.map(option => {
             const isSelected = option.id === selectedProblem;
 
@@ -97,7 +88,7 @@ export function ContactScreen(): React.ReactElement {
               </Pressable>
             );
           })}
-        </View>
+        </RtlRow>
 
         <View className="w-full gap-3">
           {ISSUER_CONTACTS.map((issuer: IssuerContact): React.ReactElement => (
@@ -150,7 +141,7 @@ export function ContactScreen(): React.ReactElement {
           ))}
         </View>
       </View>
-      </ScrollView>
-    </View>
+      </RtlScrollView>
+    </RtlScreen>
   );
 }
