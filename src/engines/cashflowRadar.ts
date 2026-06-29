@@ -195,11 +195,27 @@ function noChargeReturnRisk(): ChargeReturnRisk {
 function getObligationsDueBeforeBilling(
   obligations: readonly Obligation[],
   billingDayOfMonth: number,
+  snapshotDate: Date,
 ): number {
+  const effectiveBillingDay = getEffectiveDayOfMonth(
+    { dayOfMonth: billingDayOfMonth } as Obligation,
+    snapshotDate.getUTCFullYear(),
+    snapshotDate.getUTCMonth() + 1,
+  );
+  const today = snapshotDate.getUTCDate();
+
+  // PROD-CASHFLOW-01: obligations on the billing day itself are included
+  // in the pre-billing outflow sum. Same-day ordering risk is accepted
+  // over the risk of understating חזרת חיוב probability.
   return obligations.reduce((sum: number, obligation: Obligation): number => {
+    const isBeforeOrOnBilling =
+      obligation.dayOfMonth <= effectiveBillingDay;
+    const isStillFuture = obligation.dayOfMonth >= today;
+
     if (
       !isValidDayOfMonth(obligation.dayOfMonth) ||
-      obligation.dayOfMonth >= billingDayOfMonth ||
+      !isBeforeOrOnBilling ||
+      !isStillFuture ||
       !isValidMonetaryAmount(obligation.amount)
     ) {
       return sum;
@@ -313,6 +329,7 @@ export function predictChargeReturn(
   cards: readonly CardInput[],
   obligations: readonly Obligation[],
   balance: number,
+  snapshotDate: Date = new Date(),
 ): ChargeReturnRisk {
   if (!isValidMonetaryAmount(balance)) {
     return noChargeReturnRisk();
@@ -324,15 +341,32 @@ export function predictChargeReturn(
       isValidMonetaryAmount(card.framework.currentBalance),
     )
     .slice()
-    .sort((left: CardInput, right: CardInput): number =>
-      left.billingCycle.billingDayOfMonth - right.billingCycle.billingDayOfMonth,
-    );
+    .sort((left: CardInput, right: CardInput): number => {
+      const leftBillingDay = getEffectiveDayOfMonth(
+        { dayOfMonth: left.billingCycle.billingDayOfMonth } as Obligation,
+        snapshotDate.getUTCFullYear(),
+        snapshotDate.getUTCMonth() + 1,
+      );
+      const rightBillingDay = getEffectiveDayOfMonth(
+        { dayOfMonth: right.billingCycle.billingDayOfMonth } as Obligation,
+        snapshotDate.getUTCFullYear(),
+        snapshotDate.getUTCMonth() + 1,
+      );
+
+      return leftBillingDay - rightBillingDay;
+    });
 
   for (const card of sortedCards) {
-    const billingDay = card.billingCycle.billingDayOfMonth;
+    const billingDayOfMonth = card.billingCycle.billingDayOfMonth;
+    const effectiveBillingDay = getEffectiveDayOfMonth(
+      { dayOfMonth: billingDayOfMonth } as Obligation,
+      snapshotDate.getUTCFullYear(),
+      snapshotDate.getUTCMonth() + 1,
+    );
     const obligationsBeforeBilling = getObligationsDueBeforeBilling(
       obligations,
-      billingDay,
+      billingDayOfMonth,
+      snapshotDate,
     );
     const projectedBalanceOnDate = balance - obligationsBeforeBilling;
     const chargeAmount = card.framework.currentBalance;
@@ -344,7 +378,7 @@ export function predictChargeReturn(
         chargeAmount,
         projectedBalanceOnDate,
         shortfall: chargeAmount - projectedBalanceOnDate,
-        billingDate: formatBillingDate(billingDay),
+        billingDate: formatBillingDate(effectiveBillingDay),
         reason: 'קיים סיכון לחזרת חיוב במועד החיוב של הכרטיס.',
         reasonAr: 'هناك خطر رجوع دفعة في موعد خصم البطاقة.',
       };
@@ -358,6 +392,21 @@ export function calculateMonthlyRisk(
   month: MonthInput,
   loanObligations: number = 0,
 ): RiskScore {
+  const { monthlyIncome } = month;
+
+  if (!monthlyIncome || monthlyIncome <= 0) {
+    return {
+      score: 100,
+      level: RiskLevel.Critical,
+      lowestProjectedBalance: 0,
+      lowestBalanceDate: '',
+      hasOverdraftRisk: false,
+      daysBelowDanger: 0,
+      reason: 'לא הוגדרה הכנסה חודשית חיובית — הסיכון התזרימי מרבי.',
+      reasonAr: 'لم يتم تحديد دخل شهري إيجابي — مخاطر التدفق النقدي قصوى.',
+    };
+  }
+
   const projection = getDailyProjection(month, loanObligations);
   const fallbackDay = projection[0];
   const lowestDay = projection.reduce(

@@ -354,6 +354,7 @@ describe('cashflowRadar', () => {
       })],
       [makeObligation({ amount: 600, dayOfMonth: 5 })],
       2_500,
+      new Date('2026-07-01T00:00:00.000Z'),
     );
 
     expect(risk.atRisk).toBe(true);
@@ -377,6 +378,80 @@ describe('cashflowRadar', () => {
     expect(risk.cardId).toBeNull();
   });
 
+  test('predictChargeReturn clamps billing day 31 to February 28', () => {
+    const risk = predictChargeReturn(
+      [
+        makeCard({
+          cardId: 'february-card',
+          framework: {
+            creditLimit: 20_000,
+            currentBalance: 2_000,
+          },
+          billingCycle: {
+            statementClosingDay: 25,
+            billingDayOfMonth: 31,
+          },
+        }),
+      ],
+      [makeObligation({ amount: 600, dayOfMonth: 27 })],
+      2_500,
+      new Date('2026-02-10T00:00:00.000Z'),
+    );
+
+    expect(risk).toBeDefined();
+    expect(risk.atRisk).toBe(true);
+    expect(risk.billingDate).toBe('day-28');
+  });
+
+  test('predictChargeReturn includes obligations due on the billing day', () => {
+    const risk = predictChargeReturn(
+      [
+        makeCard({
+          cardId: 'same-day-card',
+          framework: {
+            creditLimit: 20_000,
+            currentBalance: 2_000,
+          },
+          billingCycle: {
+            statementClosingDay: 5,
+            billingDayOfMonth: 10,
+          },
+        }),
+      ],
+      [makeObligation({ amount: 600, dayOfMonth: 10 })],
+      2_500,
+      new Date('2026-07-05T00:00:00.000Z'),
+    );
+
+    expect(risk.atRisk).toBe(true);
+    expect(risk.cardId).toBe('same-day-card');
+    expect(risk.shortfall).toBe(100);
+  });
+
+  test('predictChargeReturn excludes obligations already debited this month', () => {
+    const risk = predictChargeReturn(
+      [
+        makeCard({
+          cardId: 'past-obligation-card',
+          framework: {
+            creditLimit: 20_000,
+            currentBalance: 2_000,
+          },
+          billingCycle: {
+            statementClosingDay: 10,
+            billingDayOfMonth: 15,
+          },
+        }),
+      ],
+      [makeObligation({ amount: 600, dayOfMonth: 5 })],
+      2_500,
+      new Date('2026-07-10T00:00:00.000Z'),
+    );
+
+    expect(risk.atRisk).toBe(false);
+    expect(risk.cardId).toBeNull();
+  });
+
   test('calculateMonthlyRisk returns safe score for healthy cashflow', () => {
     const risk = calculateMonthlyRisk(makeMonth({
       openingBalance: 5_000,
@@ -388,6 +463,28 @@ describe('cashflowRadar', () => {
     expect(risk.score).toBe(0);
     expect(risk.level).toBe(RiskLevel.Safe);
     expect(risk.hasOverdraftRisk).toBe(false);
+  });
+
+  test('calculateMonthlyRisk returns maximum risk for zero income', () => {
+    const risk = calculateMonthlyRisk(
+      makeMonth({
+        monthlyIncome: 0,
+      }),
+    );
+
+    expect(risk.score).toBe(100);
+    expect(risk.level).toBe(RiskLevel.Critical);
+  });
+
+  test('calculateMonthlyRisk returns maximum risk for negative income', () => {
+    const risk = calculateMonthlyRisk(
+      makeMonth({
+        monthlyIncome: -500,
+      }),
+    );
+
+    expect(risk.score).toBe(100);
+    expect(risk.level).toBe(RiskLevel.Critical);
   });
 
   test('calculateMonthlyRisk returns critical score for overdraft and charge return risk', () => {
