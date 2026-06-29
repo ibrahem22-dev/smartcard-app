@@ -1,6 +1,6 @@
 # SmartCard — AGENTS.md
 ### Codex Build Instructions | Replaces Agents 1, 3, 4, 5, 7, 9
-### Last updated: June 28, 2026 — M3 ✅ complete · Features A1–F1 + 22–29 · RTL/LTR Strategy ratified
+### Last updated: June 29, 2026 — M3 ✅ complete · Features A1–F1 + 22–29 · RTL/LTR Strategy ratified · Tiers finalized · MULTI-USER-01 Option B · Marketing & GTM Agent10 added
 
 > This file is your only instruction source. Read it fully before every task.
 > Every rule is a hard DO or DO NOT. When two statements conflict, the
@@ -72,8 +72,11 @@ SmartCard (final name candidate: **MyCard**) is an Israeli FinTech mobile app �
 - `/src/security/` — only place touching keychain or DEK.
 - MMKV keys = constants in `keys.ts`. Profile keys = `profile_{id}:field`. Never inline strings.
 - Screens → hooks → engines. Never screen → engine directly (except pure type imports).
-- **Max profiles per device = 3** (not 5 — ratified in M3 polish session June 27).
-- `useThemeStore` owns ThemePreference (`'system' | 'light' | 'dark'`) in MMKV key `app:theme_preference`.
+- **Max profiles per tier:** Free = 1, Plus = 3, Pro = 5 (ratified June 29 — tier-based, not flat limit).
+- `useThemeStore` owns ThemePreference (`'system' | 'light' | 'dark' | 'bank'`) in MMKV key `app:theme_preference`.
+- `/src/data/categories.json` — static category DB (Agent 2 task DATA-CATEGORIES-01).
+- `/src/data/merchants.json` — confirmed merchant discount DB Tier 1 (Agent 2 task DATA-MERCHANTS-01).
+- `/src/security/migrations/` — DEK migration scripts. `2026-06-M5-profiles.ts` handles keySchemeVersion 1→2 for per-profile DEK.
 
 ---
 
@@ -245,6 +248,44 @@ type CardFeeInfo = {
 **Updated `purchase.types.ts` (M4 — CREDIT-INSTALL-01):** add `PaymentMode = 'regular' | 'credit_installment'`
 
 **New `wallet.types.ts` (M4 — PAY-NOW-01):** `WalletStatus = 'added' | 'not_added' | 'unknown'`; MMKV key: `card:wallet_status:{cardId}`
+
+**Updated `card.types.ts` (M4 — CARD-NICKNAME-01):** add to CardInput:
+```ts
+nickname?: string              // כינוי — user-defined label (always optional)
+last4?: string                 // last 4 digits (optional, not required)
+// Display priority: nickname → nickname + "••••" + last4 → issuer + club name
+```
+
+**New `merchant.types.ts` (M4 — MERCHANT-CONTRIB-01):**
+```ts
+type MerchantBenefit = {
+  merchantName: string
+  cardIssuer: 'Max' | 'Isracard' | 'CAL'
+  club: string
+  benefitType: 'discount' | 'cashback' | 'points'
+  value: number                // percent or points multiplier
+  conditions?: string          // e.g., "בקנייה מעל ₪200"
+  validFrom?: string           // ISO date — seasonal benefits
+  validUntil?: string          // ISO date
+  tier: 'official' | 'community_verified' | 'community_pending'
+  confirmations?: number       // community confirmation count
+  lastUpdated: string          // ISO date
+}
+
+type BenefitSubmission = {
+  merchantName: string
+  cardIssuer: 'Max' | 'Isracard' | 'CAL'
+  club: string
+  benefitType: 'discount' | 'cashback' | 'points'
+  value: number
+  conditions?: string
+  sourceUrl?: string
+  submittedBy: string          // user ID (internal only)
+  status: 'pending' | 'community_verified' | 'official_verified' | 'rejected'
+  confirmations: number
+  submittedAt: string
+}
+```
 
 **⚠️ VERDICT UNION:** `'approved' | 'warning' | 'blocked' | 'wait_24h'` — canonical. Legacy `'approve'|'warn'|'block'` BANNED.
 
@@ -418,18 +459,29 @@ Disclaimer: "לצורך הדגמה בלבד — לא ייעוץ פיננסי"
 **Dark Mode (UI-DARKMODE-01 ✅ M3 done):** bg `#141414` · surfaces `#1E1E1E` · brand on badges/cards only · NativeWind `dark:` utilities. `tailwind.config.js` uses `darkMode: 'class'` (not `'media'`) so `useThemeStore` controls the active class on root.
 
 **Dark Mode User Preference (DARKMODE-PREF-01 — M3 polish, pending):**
-`useThemeStore` exposes `ThemePreference: 'system' | 'light' | 'dark'`. Default = `'system'`.
+`useThemeStore` exposes `ThemePreference: 'system' | 'light' | 'dark' | 'bank'`. Default = `'system'`.
 Logic in App.tsx:
 ```ts
-const systemScheme = useColorScheme()           // from React Native
+const systemScheme = useColorScheme()
 const { themePreference } = useThemeStore()
+const { subscriptionTier } = useSubscriptionStore()   // 'free' | 'plus' | 'pro'
+
+const isBankThemeAllowed = subscriptionTier === 'plus' || subscriptionTier === 'pro'
+
 const activeTheme =
+  themePreference === 'bank' && isBankThemeAllowed ? 'bank' :
+  themePreference === 'bank' && !isBankThemeAllowed ? systemScheme ?? 'light' :
   themePreference === 'system' ? systemScheme :
   themePreference === 'light'  ? 'light' : 'dark'
-// Apply className="dark" on root View when activeTheme === 'dark'
 ```
-SettingsScreen picker: 3 options — `תלוי מכשיר (אוטומטי)` / `בהיר` / `כהה`.
-MMKV key: `app:theme_preference`. On first install: `'system'` default — no prompt needed.
+SettingsScreen picker: **4 options** —
+- `תלוי מכשיר (אוטומטי)` (default)
+- `בהיר`
+- `כהה`
+- `מראה הבנק 👑` — FeatureGate `'pro_only'` for Free users (grayed + "Plus/Pro בלבד" badge)
+
+Free users with 'bank' selected: bank accent visible on cards/badges ONLY (Layer 2+3) — NOT as full background.
+MMKV key: `app:theme_preference`. On first install: `'system'` default.
 
 **Cross-Platform iOS/Android Rules (apply from M3 polish onwards):**
 
@@ -453,7 +505,89 @@ Layer 1: bank bg (לאומי=blue, הפועלים=red, דיסקונט=purple, מ
 Layer 2: company accent (Max=`#FF6B00`, Isracard=`#0057B7`, CAL=`#6B21A8`)
 Layer 3: club badge chip on card components
 
-**Onboarding (ONBOARD-IMPROVE-01 — M3 polish):** top 4 banks + expandable 12-bank list.
+**Onboarding (ONBOARD-IMPROVE-01 — M3 polish ✅ + updated June 29):**
+- top 4 banks + expandable 12-bank list ✅ (done)
+- **Updated minimum for registration:** bank selection + income ONLY — app opens immediately after these two.
+- All other onboarding questions (cards, הוראות קבע, etc.) → appear as contextual CTAs inside the app post-login.
+- Progress bar visible from Home showing setup completion %.
+- "הוסף עכשיו" / "מאוחר יותר" buttons on each contextual CTA.
+
+**Registration & Auth Flow (AUTH-REGISTER-01 — M5):**
+Full registration screen sequence (replaces anonymous local-only flow from M3):
+```
+Step 1: Name + Email + Phone (phone optional at reg, required for SMS OTP upgrade)
+Step 2: Email OTP verification (6-digit code, 10-min expiry)
+Step 3: PIN setup (6-digit)
+Step 4: Biometric prompt (optional — "הפעל זיהוי ביומטרי?")
+→ App opens
+```
+- "המשך ללא חשבון" button on Step 1 → local-only mode (no cloud, no recovery)
+- Account recovery via Email OTP → PIN reset only. Financial data stays local until Cloud Sync (Phase 4).
+- SMS OTP: Plus + Pro only (shown as FeatureGate 'pro_only' for Free users in Settings).
+- Implementation: Supabase Auth (Email OTP provider). Phase 4+ for full cloud sync.
+
+**Card Nickname & Last 4 Digits (CARD-NICKNAME-01 — M4):**
+- `nickname?: string` — always available to all tiers, always optional.
+- Auto-suggest options on first add: "כרטיס המזומן" / "כרטיס הקניות" / "כרטיס הצבור".
+- `last4?: string` — optional 4-digit string, not validated as real card number.
+- Display priority on all cards/screens:
+  1. `nickname` only (if no last4)
+  2. `"[nickname] ••••[last4]"` (if both)
+  3. `"כרטיס [issuer] [club]"` (if neither)
+- Optional card color picker: 6 preset colors stored in `card:color:{cardId}` MMKV key.
+- Files: extend `card.types.ts` (nickname, last4, color), update `CardsScreen.tsx` + `CardDetailScreen.tsx`.
+
+**Club Not Found / אחר (CLUB-OTHER-01 — M4):**
+Three-layer handling when user's club is not in the list:
+- **Layer 1 — Immediate fallback:** "אחר +" option in club picker. User types club name freely.
+  Recommendations: generic Visa/Mastercard/Amex logic with advisory "הוסף מועדון ספציפי לקבלת המלצות מדויקות".
+- **Layer 2 — Request form:** "לא מצאת את המועדון שלך?" → form: club name + card name + optional URL.
+  Goes to admin queue (Supabase table `club_requests`).
+- **Layer 3 — Auto-threshold:** 10 unique users request same club → Agent 2 researches → Ibrahim reviews → all requesters notified "המועדון שלך נוסף! 🎉".
+- **Fuzzy search:** club picker uses fuzzy match — "מקס" → "Max", "ויזה כאל" → "CAL Visa".
+- MMKV key for custom club name: `card:custom_club:{cardId}`.
+
+**Cloud Sync (CLOUD-SYNC-01 — M4/Phase 4):**
+- Backend: Supabase (Phase 4+). Available to Plus + Pro tiers only.
+- Sync scope: cards list, user profile, installments, הוראות קבע, loans. Does NOT sync DEK, PIN, or raw balance.
+- Prerequisite for SHARED-01 (חשבון משותף) — CLOUD-SYNC-01 must be complete before SHARED-01 starts.
+- UI: Settings → "גיבוי ענן" — toggle on/off + last sync timestamp.
+- On first enable: full local→cloud push. On subsequent launches: delta sync.
+- FeatureGate 'pro_only' for Free users.
+
+**Merchant Contribution (MERCHANT-CONTRIB-01 — M5):**
+Community-driven merchant discount database. Three-stage validation pipeline:
+
+Stage 1 — Instant algorithmic filter:
+- Submitter is Plus/Pro user? (rejects anonymous spam)
+- Card exists in DB?
+- Benefit value is plausible (0–50%)?
+- Fails any check → rejected immediately with feedback.
+
+Stage 2 — Community confirmation:
+- 3 independent Plus/Pro users with same card confirm → status = `'community_verified'`
+- Only Plus/Pro users can confirm others' submissions.
+
+Stage 3 — Ibrahim manual review:
+- Weekly digest email → approve/reject → status = `'official_verified'`
+
+Contributor gamification:
+- 1st verified submission → "SmartCard Contributor" badge (stored in `user:badges` MMKV key)
+- 5 verified submissions → 1 month Plus free (via RevenueCat promotional entitlement)
+- 10 verified submissions → "Top Contributor" badge + 2 months Plus free
+
+Submission UI: "חסר מידע?" button on BenefitsScreen/DecisionScreen.
+Form fields: merchant name (searchable) · card/club · benefit type · value · conditions (optional) · source URL (optional).
+After submit: "תודה! נבדוק ונעדכן תוך 7 ימים" toast.
+
+Display in app:
+- `tier: 'official'` → ✅ מאומת (green)
+- `tier: 'community_verified'` (3–4 confirmations) → ⭐⭐ מדווח
+- `tier: 'community_verified'` (5+ confirmations) → ⭐⭐⭐ מאומת מקהילה
+- `tier: 'community_pending'` → ⏳ בבדיקה
+
+Seasonal benefits: `validFrom` + `validUntil` stored per entry. App shows "בתוקף עד [date]" badge.
+Supabase tables needed: `benefit_submissions`, `merchant_confirmations`, `contributor_stats`.
 
 **No financial data in logs.** `babel-plugin-transform-remove-console` before M5.
 
@@ -547,6 +681,44 @@ Pre-purchase decision tool · FinGuard+הטבות combined · manual-first · He
 
 **✅ Feature 29 — PAY-NOW-01 (June 28):** "לשלם עכשיו" button on DecisionScreen · opens Google Wallet (Android) or Apple Wallet (iOS) via `Linking.openURL` · cannot pre-select specific card (platform API restriction) · MMKV `card:wallet_status:{cardId}` tracks presence · M4 task.
 
+**✅ Dark Mode 4-option picker (June 29):** ThemePreference = `'system' | 'light' | 'dark' | 'bank'` · Bank Theme = Plus + Pro exclusive (FeatureGate 'pro_only' for Free) · Free users see bank accent on badges/cards only (Layer 2+3, not full bg) · default = `'system'` · Settings picker shows 4 rows · DARKMODE-PREF-01 task updated.
+
+**✅ Subscription tiers final table (June 29):**
+- Free: 5 checks/month, 2 cards, 1 profile, Email OTP only.
+- Plus ₪29/month: unlimited checks, 5 cards, 3 profiles, SMS OTP, Cloud Backup, Bank Theme, Benefits, QR Share, Per-Profile PIN, Interest Calculator, Discount Reminders.
+- Pro ₪49/month: everything in Plus + 5 profiles, חשבון משותף, Document Parser (Phase 5), Data Export, Priority Support.
+
+**✅ MULTI-USER-01 Architecture — Option B per-profile DEK (June 29):**
+Each profile gets independent DEK + PIN verifier:
+- MMKV keys: `profile_{id}:dek` + `profile_{id}:pin_verifier` per profile.
+- `keySchemeVersion` 1 → 2 migration on upgrade.
+- `profiles.json` registry (encrypted, in secure store).
+- Re-auth required on EVERY profile switch — no grace period.
+- DEK zeroed in memory before loading next profile's DEK.
+- Migration file: `src/security/migrations/2026-06-M5-profiles.ts`.
+- Per-profile biometric: deferred to Phase 4.
+- MULTI-USER-01 task is now UNBLOCKED — Codex can implement.
+
+**✅ Cloud Sync prerequisite (June 29):** CLOUD-SYNC-01 must be completed before SHARED-01 can start. Cloud Sync = Plus + Pro. חשבון משותף = Pro only.
+
+**✅ Card Nickname + optional last 4 (June 29):** כינוי always available to all tiers, always optional. Last 4 optional. Display priority: nickname → nickname+last4 → issuer+club. Auto-suggest on first add. Color picker optional.
+
+**✅ Club "אחר" + Request Club (June 29):** 3-layer: immediate "אחר" fallback with generic recommendations → Request form → auto-threshold at 10 unique requests triggers Agent 2 research. Fuzzy search on club picker.
+
+**✅ MERCHANT-CONTRIB-01 community pipeline (June 29):** 3-stage: algorithmic filter → community confirmation (3 Plus/Pro) → Ibrahim weekly review. Gamification: badge + free Plus months. Seasonal benefit dates. Supabase-backed.
+
+**✅ Progressive onboarding minimum (June 29):** Minimum mandatory at registration = bank + income ONLY. App opens immediately. All other data collected via contextual CTAs post-login with progress bar.
+
+**✅ AUTH-REGISTER-01 (June 29):** Name+Email+Phone → Email OTP → PIN → Biometric → App. "המשך ללא חשבון" for local-only mode. SMS OTP = Plus+Pro. Account recovery via Email OTP (PIN reset only). Supabase Auth. M5 task.
+
+**✅ Promo codes — PROMO-CODE-01 (June 29):**
+- `SMARTCARD-TEAM`: Plus 6 months free, max 150 uses, for work colleagues.
+- `SMARTCARD-IL`: Plus 1 month free, max 500 uses, for LinkedIn audience.
+- Implementation: RevenueCat Promotional Entitlements (Ibrahim creates in RevenueCat dashboard).
+- M5 task.
+
+**✅ Tier feature placement (June 29):** QR-SHARE-01 → Plus only · MULTI-USER-01 (multi-profile) → Plus (3 profiles) / Pro (5 profiles) · חשבון משותף → Pro only · CLOUD-SYNC-01 → Plus + Pro · Bank Theme → Plus + Pro · SMS OTP → Plus + Pro · Contributor gamification (free months) → any tier can submit, Plus/Pro can confirm.
+
 **✅ Feature 26 — Document parser (June 27):** deferred to Phase 5 pending sample document evaluation · if PDF is machine-readable → feasible · OCR adds Phase 6 complexity.
 
 **✅ Feature 27 base (June 27):** discount reminder system in M4 · `expo-notifications` local only · notification 30 days + 7 days + on expiry if date known · annual anniversary reminder if date unknown.
@@ -568,7 +740,7 @@ Pre-purchase decision tool · FinGuard+הטבות combined · manual-first · He
   ✅ ONBOARD-IMPROVE-01 · LANG-01 · GLOSSARY-01 · LOCK-UI-01 · UI-THEME-01 (hook + visual)
   ✅ PROFILE-01 · PROFILE-02 · UI-DARKMODE-01 · INSTALL-IMPORT-01
   ⏳ DARKMODE-PREF-01 — 3-option picker (system/light/dark) — pending
-  ⚠️ MULTI-USER-01 — deferred pending Agent 6 architecture decision (keyVault + per-profile PIN conflict)
+  ✅ MULTI-USER-01 — architecture decision: Option B (per-profile DEK). Codex task now UNBLOCKED.
   ⏳ M3 polish close commit — pending Blocks 13-15 completion
 - **M4 — Full scope:** ❌ not started. Scope: loanEngine · LoansScreen · card_rates.json · CardDetailScreen · interestCalculator · DiscountReminder · FX recommendation · benefitsMatcher · BenefitsScreen · QR share.
 - **M5 — Beta Release:** ❌ not started.
@@ -594,10 +766,12 @@ Pick the first task not ✅ and whose blockers are clear.
 8. ✅ **PROFILE-02** — `ProfileSwitcher` + SettingsScreen + HomeScreen avatar strip. Done.
 9. ✅ **UI-DARKMODE-01** — `#141414` bg + `#1E1E1E` surfaces + NativeWind `dark:` + `darkMode:'class'` in tailwind.config. Done.
 10. ✅ **INSTALL-IMPORT-01** — `InstallmentImportScreen` + CRUD + cashflowRadar integration. Done.
-11. ⚠️ **MULTI-USER-01** — DEFERRED. Architecture conflict: per-profile PIN vs single DEK. Requires Agent 6 design decision before Codex can implement.
-12. **DARKMODE-PREF-01** ← NEW — `useThemeStore` + ThemePreference 3-option picker in SettingsScreen.
-    Files: `src/store/useThemeStore.ts` (extend or new), `src/store/keys.ts` (add `app:theme_preference`), App.tsx (combine `useColorScheme` + stored pref), `src/screens/SettingsScreen.tsx` (3-option picker).
-    Done when: picker shows 3 options; `'system'` default; toggling between light/dark/auto works without restart; tsc clean.
+11. **MULTI-USER-01** ← NOW UNBLOCKED — Architecture = Option B (per-profile DEK). See §11 for full spec.
+    Files: `src/security/keyVault.ts` (per-profile DEK functions), `src/security/migrations/2026-06-M5-profiles.ts` (new), `src/screens/LockScreen.tsx` (profile selector cards), `src/store/useProfileStore.ts` (extend).
+    Done when: each profile has own DEK + pin_verifier; switching profiles requires full re-auth; DEK zeroed before next load; migration runs on upgrade; tsc clean.
+12. **DARKMODE-PREF-01** ← UPDATED — `useThemeStore` + ThemePreference **4-option** picker in SettingsScreen.
+    Files: `src/store/useThemeStore.ts` (extend), `src/store/keys.ts` (add `app:theme_preference`), App.tsx (combine `useColorScheme` + stored pref + tier check), `src/screens/SettingsScreen.tsx` (4-option picker with FeatureGate on 'bank').
+    Done when: picker shows 4 options; Bank Theme option shows FeatureGate 'pro_only' for Free users; Plus/Pro see full bank bg; `'system'` default; toggling works without restart; tsc clean.
 13. **M3 polish close** — `npx tsc --noEmit` + device test + Agent 5 gate (submit pinVerifier + useProfileStore + LockScreen + useTheme) + `git commit -m "feat: M3 polish complete"`. *Unblocks M4.*
 
 ### M4 (after task #12)
@@ -618,18 +792,26 @@ Pick the first task not ✅ and whose blockers are clear.
 27. **PAY-NOW-01** — `src/screens/DecisionScreen.tsx` + `src/types/wallet.types.ts` + `src/store/keys.ts`. Done when: "לשלם עכשיו" button visible on DecisionScreen after recommendation; bottom sheet shows card name + wallet name; `Linking.openURL` opens correct Wallet per platform; MMKV `card:wallet_status:{cardId}` tracks presence; first-tap dialog asks user to confirm wallet status; tsc clean.
 28. **ENGINE-05** — `src/engines/benefitsMatcher.ts` + tests. Done when: findBestCard + calculateMissedSavings; jest 100%; zero network; tsc clean.
 29. **BENEFITS-UI-01** — BenefitsScreen + SavingsTracker (FeatureGate → `'live'`). Done when: renders with real benefitsDB; tsc clean.
-30. **QR-SHARE-01** — `src/screens/ProfileShareScreen.tsx`. Done when: QR encodes encrypted profile; scan imports profile; no cloud; tsc clean.
+30. **QR-SHARE-01** — `src/screens/ProfileShareScreen.tsx`. FeatureGate = Plus tier only. Done when: QR encodes encrypted profile; scan imports profile; no cloud; Free users see FeatureGate 'pro_only' wall; tsc clean.
+30a. **CARD-NICKNAME-01** — extend `src/types/card.types.ts` (nickname, last4, color) + `src/screens/CardDetailScreen.tsx` (nickname + last4 input) + `src/screens/CardsScreen.tsx` (display logic). Done when: nickname saves/displays per priority logic; last4 optional; color picker saves to MMKV; tsc clean.
+30b. **CLOUD-SYNC-01** — `src/services/cloudSync.ts` (new) + `src/screens/SettingsScreen.tsx` (Cloud Sync toggle). FeatureGate = Plus + Pro. Done when: Plus/Pro can enable sync; Free sees FeatureGate wall; last sync timestamp shows; tsc clean. *Prerequisite for SHARED-01.*
+30c. **DATA-CATEGORIES-01** *(Agent 2 task)* — `src/data/categories.json`. Categories: grocery/clothing/fuel/pharmacy/restaurants/electricity/online/travel. Each entry: id, nameHe, nameAr, icon (emoji). Done when: JSON covers 8+ categories with Hebrew + Arabic labels.
+30d. **DATA-MERCHANTS-01** *(Agent 2 task)* — `src/data/merchants.json`. Research official Max, Isracard, CAL websites for confirmed merchant discounts. Add ONLY confirmed entries with source URL. Each entry: merchantName, cardIssuer, club, benefitType, value, conditions?, validFrom?, validUntil?, tier='official', lastUpdated. Done when: covers top 20+ merchants across all 3 issuers; all have official source.
 31. **M4 close** — `npx jest --coverage` (target 90%+) + `npx tsc --noEmit` + Agent 5 M4 gate + Agent 1 financial validation + `git commit -m "feat: M4 complete"`.
 
 ### M5 (after task #31)
 32. **EAS-01** — EAS build config + keystore. Done when: `eas build --platform android` succeeds.
-33. **PAYWALL-01** — paywall screen + RevenueCat (Free/Plus/Pro). Done when: FeatureGate reads subscription status; tsc clean.
-34. **LEGAL-01** — Privacy Policy HTML *(Agent 6 writes content → hosted GitHub Pages)*. Done when: URL live; linked in Play Console.
-35. **STORE-01** — Play Store submission + Data Safety form. Done when: APK uploaded; Hebrew listing; Data Safety complete.
+33. **PAYWALL-01** — paywall screen + RevenueCat (Free/Plus ₪29/Pro ₪49). FeatureGates read `subscriptionTier` from `useSubscriptionStore`. Done when: tier gates work for all features; tsc clean.
+34. **AUTH-REGISTER-01** — full registration flow (Name+Email+Phone → Email OTP → PIN → Biometric). "המשך ללא חשבון" button. SMS OTP FeatureGate = Plus+Pro. Supabase Auth integration. Done when: registration + OTP verify + PIN setup complete; local-only mode works; tsc clean.
+35. **PROMO-CODE-01** — RevenueCat promotional entitlements for `SMARTCARD-TEAM` (Plus 6mo, max 150) and `SMARTCARD-IL` (Plus 1mo, max 500). UI: Settings → "קוד קידום מכירות". Done when: valid code unlocks Plus entitlement; expired/overused codes rejected with message; tsc clean.
+36. **MERCHANT-CONTRIB-01** — benefit submission form + Supabase `benefit_submissions` table + community confirmation flow + gamification badges. Done when: submission form works; Plus/Pro users can confirm; Ibrahim receives weekly digest; contributor badges stored; tsc clean.
+37. **LEGAL-01** — Privacy Policy HTML *(Agent 10 writes content → hosted on mycard.co.il or GitHub Pages)*. Done when: URL live; linked in Play Console + App Store.
+38. **STORE-01** — Play Store submission + Data Safety form + App Store submission. Done when: APK + IPA uploaded; Hebrew listing; Data Safety complete.
 
 ### Phase 4 (post-Beta — do NOT implement before M5 ships)
-- **AUTH-OTP-01** — Email OTP via Supabase Auth
-- **SHARED-01** — חשבון משותף real-time sync
+- **AUTH-FULL-01** — Full cloud account sync (financial data to Supabase) after CLOUD-SYNC-01 foundation
+- **SHARED-01** — חשבון משותף real-time sync (Pro only). Requires CLOUD-SYNC-01 complete.
+- **BIOMETRIC-PER-PROFILE-01** — per-profile biometric (deferred from MULTI-USER-01 Option B)
 
 ### Phase 5
 - **DOCUMENT-PARSER-01** — PDF card document analysis (Feature 26) — pending sample document evaluation

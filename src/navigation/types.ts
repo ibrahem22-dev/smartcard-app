@@ -85,6 +85,7 @@ export type RootStackParamList = {
   Lock: undefined;
   Onboarding: undefined;
   Authenticated: NavigatorScreenParams<AuthenticatedStackParamList> | undefined;
+  Paywall: undefined;
 };
 
 declare global {

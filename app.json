@@ -3,14 +3,17 @@
     "name": "SmartCard",
     "slug": "smartcard",
     "scheme": "smartcard",
-    "version": "0.1.0",
+    "version": "1.0.0",
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "ios": {
-      "supportsTablet": false
+      "supportsTablet": false,
+      "bundleIdentifier": "com.smartcard.app",
+      "buildNumber": "1"
     },
     "android": {
-      "package": "com.smartcard.app"
+      "package": "com.smartcard.app",
+      "versionCode": 1
     },
     "plugins": [
       "expo-asset",

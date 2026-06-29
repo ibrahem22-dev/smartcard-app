@@ -19,6 +19,14 @@ export enum CardNetwork {
   Diners = 'diners',
 }
 
+export type ForeignCurrencyType =
+  | 'USD'
+  | 'EUR'
+  | 'GBP'
+  | 'JPY'
+  | 'CHF'
+  | 'other';
+
 /** The single primary classification cardRoleEngine assigns to a card. */
 export enum CardRole {
   Daily = 'daily',
@@ -43,6 +51,7 @@ export interface CardBillingCycle {
  *  by the engines (creditLimit - currentBalance) and intentionally NOT stored,
  *  to avoid a second source of truth. */
 export interface CardCreditFramework {
+  /** Security boundary: engine inputs silently cap this value at ₪9,999,999. */
   readonly creditLimit: number;    // total framework (₪)
   readonly currentBalance: number; // amount already charged this cycle (₪)
 }
@@ -103,7 +112,7 @@ export interface CardInput {
   readonly cardRates?: CardRates;
   readonly cardFee?: CardFeeInfo;
   readonly hasForeignCurrencyAccount?: boolean;
-  readonly foreignCurrencyType?: string;
+  readonly foreignCurrencyType?: ForeignCurrencyType;
   /** Bank foreign-exchange commission as a percentage. */
   readonly bankFxCommission?: number;
   /** ISO 8601 date. */

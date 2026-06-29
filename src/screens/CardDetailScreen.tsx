@@ -26,6 +26,7 @@ import {
   type CardFeeInfo,
   type CardInput,
   type CardRates,
+  type ForeignCurrencyType,
 } from '../types/card.types';
 
 type CardDetailScreenProps = NativeStackScreenProps<
@@ -41,6 +42,27 @@ const ISSUER_LABELS: Record<CardIssuer, string> = {
 
 function todayISO(): string {
   return new Date().toISOString().slice(0, 10);
+}
+
+function parseForeignCurrencyType(
+  value: string,
+): ForeignCurrencyType | undefined {
+  switch (value.trim().toUpperCase()) {
+    case 'USD':
+      return 'USD';
+    case 'EUR':
+      return 'EUR';
+    case 'GBP':
+      return 'GBP';
+    case 'JPY':
+      return 'JPY';
+    case 'CHF':
+      return 'CHF';
+    case 'OTHER':
+      return 'other';
+    default:
+      return undefined;
+  }
 }
 
 function formatLocalISO(date: Date): string {
@@ -252,9 +274,9 @@ export function CardDetailScreen({
     }
 
     if (hasForeignAccount) {
-      const trimmedCurrency = foreignCurrency.trim().toUpperCase();
-      if (trimmedCurrency !== '') {
-        updates = { ...updates, foreignCurrencyType: trimmedCurrency };
+      const parsedForeignCurrency = parseForeignCurrencyType(foreignCurrency);
+      if (parsedForeignCurrency !== undefined) {
+        updates = { ...updates, foreignCurrencyType: parsedForeignCurrency };
       }
       const parsedBankFx = parseBounded(bankFx, 0, 10);
       if (parsedBankFx !== null) {

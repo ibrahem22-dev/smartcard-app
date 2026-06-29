@@ -2,6 +2,7 @@ import {
   CardRole,
   type CardInput,
   type CardRecommendation,
+  type ForeignCurrencyType,
 } from '../types/card.types';
 import { type Currency, PurchaseCategory } from '../types/purchase.types';
 import type { UserProfile } from '../types/user.types';
@@ -21,8 +22,7 @@ export function getEffectiveFxCommission(
 ): number {
   if (card.hasForeignCurrencyAccount === true) {
     if (
-      purchaseCurrency !== undefined &&
-      card.foreignCurrencyType === (purchaseCurrency as string)
+      isMatchingForeignCurrency(card.foreignCurrencyType, purchaseCurrency)
     ) {
       return 0;
     }
@@ -44,6 +44,16 @@ const DEFAULT_REASON_HE = 'הכרטיס מתאים לרכישה זו';
 const DEFAULT_REASON_AR = 'البطاقة مناسبة لهذا الشراء';
 
 const INVALID_CARD_SCORE = -Infinity;
+
+function isMatchingForeignCurrency(
+  foreignCurrencyType: ForeignCurrencyType | undefined,
+  purchaseCurrency: Currency | undefined,
+): boolean {
+  return (
+    purchaseCurrency !== undefined &&
+    foreignCurrencyType === purchaseCurrency
+  );
+}
 
 function isValidRateFraction(value: number): boolean {
   return Number.isFinite(value) && value >= 0 && value <= 1;
@@ -147,8 +157,7 @@ function scoreCard(
 
     const matchedForeignAccount =
       card.hasForeignCurrencyAccount === true &&
-      purchaseCurrency !== undefined &&
-      card.foreignCurrencyType === (purchaseCurrency as string);
+      isMatchingForeignCurrency(card.foreignCurrencyType, purchaseCurrency);
 
     if (matchedForeignAccount) {
       // מט"ח account in the purchase currency → no conversion fee → rank first.

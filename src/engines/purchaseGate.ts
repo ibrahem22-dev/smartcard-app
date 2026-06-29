@@ -87,16 +87,22 @@ function getCreditUtilizationAfterPurchase(
 ): number | null {
   const card = getSelectedCard(input, gateInput);
 
+  if (card === undefined) {
+    return null;
+  }
+
+  const { creditLimit } = card.framework;
+  const safeLimit = Math.min(creditLimit ?? 0, 9_999_999);
+
   if (
-    card === undefined ||
-    !isValidMonetaryAmount(card.framework.creditLimit) ||
+    !isValidMonetaryAmount(safeLimit) ||
     !Number.isFinite(card.framework.currentBalance) ||
     card.framework.currentBalance < 0
   ) {
     return null;
   }
 
-  return (card.framework.currentBalance + input.amount) / card.framework.creditLimit;
+  return (card.framework.currentBalance + input.amount) / safeLimit;
 }
 
 export function evaluatePurchase(

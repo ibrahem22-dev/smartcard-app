@@ -153,6 +153,7 @@ export function ProfileShareScreen({
                   className="min-h-[50px] items-center justify-center rounded-lg bg-blue-600 px-4"
                   disabled={share.isBusy}
                   onPress={(): void => {
+                    // SEC: pinHash exclusion enforced in profileShareCodec.ts — see Agent 5 traceability
                     void share.generateExport();
                   }}
                 >
