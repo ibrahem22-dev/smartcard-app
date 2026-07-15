@@ -25,7 +25,6 @@ export type BiometricUnlockResult = UnlockResult;
 
 export interface KeyVault {
   isInitialized(): Promise<boolean>;
-  initializeOnFirstLaunch(): Promise<void>;
   unlockWithBiometric(): Promise<BiometricUnlockResult>;
   unlockWithPin(pin: string): Promise<UnlockResult>;
   getEncryptedStorage(): EncryptedStorageHandle;

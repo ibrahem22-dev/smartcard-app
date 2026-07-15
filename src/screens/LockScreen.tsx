@@ -1,47 +1,381 @@
-// /src/screens/LockScreen.tsx
-//
-// Placeholder lock screen shown whenever AuthGate is not UNLOCKED.
-// English-only placeholder copy for the skeleton stage; localized Hebrew/Arabic
-// copy lands in the M3 UX copy pass (do not author RTL literals here yet).
-//
-// The "debug unlock" button is TEMPORARY scaffolding so the authenticated tree
-// can be exercised before AUTH-01 wires real biometric/PIN auth. It calls the
-// auth context (which calls keyVault.unlock()) and lets AuthGate re-register
-// the authenticated branch.
+import React, { useState } from 'react';
+import {
+  Alert,
+  KeyboardAvoidingView,
+  Platform,
+  Pressable,
+  ScrollView,
+  StyleSheet,
+  TextInput,
+  View,
+} from 'react-native';
+import { SafeAreaView } from 'react-native-safe-area-context';
 
-import React from 'react';
-import { Pressable, View } from 'react-native';
-
+import { authenticateWithPin, enrollPin } from '../auth';
 import { AppText } from '../components/AppText';
-import { useAuth } from '../navigation/authContext';
+import { useAppDirection } from '../hooks/useAppDirection';
 import { useTranslation } from '../hooks/useTranslation';
+import { useAuth } from '../navigation/authContext';
+import { shouldShowPinSetup } from '../navigation/authGatePolicy';
 
+/**
+ * Lock / PIN-setup uses StyleSheet (not NativeWind) for critical surfaces.
+ * Device smoke (T-15) showed NativeWind title/input styles failing to paint
+ * on this screen while other screens were fine.
+ */
 export function LockScreen(): React.ReactElement {
-  const auth = useAuth();
   const { t } = useTranslation();
+  const authContext = useAuth();
+  const { isRTL, textAlign, writingDirection } = useAppDirection();
+  const [pin, setPin] = useState('');
+  const [pinConfirmation, setPinConfirmation] = useState('');
+  const [unlockPin, setUnlockPin] = useState('');
+  const [setupError, setSetupError] = useState<string | null>(null);
+  const [unlockError, setUnlockError] = useState<string | null>(null);
+  const [resetError, setResetError] = useState<string | null>(null);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isUnlocking, setIsUnlocking] = useState(false);
+
+  const isPinSetup = shouldShowPinSetup(
+    authContext.isBootstrapping,
+    authContext.hasLocalVault,
+  );
+
+  function sanitizePin(value: string): string {
+    return value.replace(/\D/g, '').slice(0, 6);
+  }
+
+  async function savePin(): Promise<void> {
+    if (pin.length !== 6 || pinConfirmation.length !== 6) {
+      setSetupError(t('הזן PIN בן 6 ספרות.'));
+      return;
+    }
+
+    if (pin !== pinConfirmation) {
+      setSetupError(t('ערכי ה-PIN אינם תואמים.'));
+      return;
+    }
+
+    setSetupError(null);
+    setIsSaving(true);
+
+    try {
+      await enrollPin(pin);
+      setPin('');
+      setPinConfirmation('');
+      await authContext.evaluate();
+    } catch {
+      setSetupError(t('לא הצלחנו לשמור את ה-PIN המקומי. נסה שוב.'));
+    } finally {
+      setIsSaving(false);
+    }
+  }
+
+  async function unlockWithPin(): Promise<void> {
+    if (unlockPin.length !== 6) {
+      setUnlockError(t('הזן את ה-PIN בן 6 הספרות שלך.'));
+      return;
+    }
+
+    setUnlockError(null);
+    setIsUnlocking(true);
+
+    try {
+      const result = await authenticateWithPin(unlockPin);
+      if (!result.ok) {
+        const retrySeconds =
+          result.retryAfterMs === undefined
+            ? null
+            : Math.ceil(result.retryAfterMs / 1000);
+        setUnlockError(
+          result.reason === 'locked_out' && retrySeconds !== null
+            ? t('נסה שוב בעוד {{seconds}} שניות.', {
+                seconds: retrySeconds,
+              })
+            : t('PIN שגוי.'),
+        );
+        return;
+      }
+
+      setUnlockPin('');
+      await authContext.evaluate();
+    } catch {
+      setUnlockError(t('לא הצלחנו לפתוח את הכספת המקומית. נסה שוב.'));
+    } finally {
+      setIsUnlocking(false);
+    }
+  }
+
+  function confirmLocalReset(): void {
+    Alert.alert(
+      t('לאפס את הכספת המקומית?'),
+      t(
+        'לא ניתן לשחזר נתונים פיננסיים מוצפנים מקומיים אחרי איפוס ב-MVP. פעולה זו מוחקת רק נתונים מקומיים במכשיר זה; אין נתונים פיננסיים בענן למחיקה.',
+      ),
+      [
+        { text: t('ביטול'), style: 'cancel' },
+        {
+          text: t('איפוס'),
+          style: 'destructive',
+          onPress: (): void => {
+            void resetLocalVault();
+          },
+        },
+      ],
+    );
+  }
+
+  async function resetLocalVault(): Promise<void> {
+    setResetError(null);
+    const result = await authContext.resetLocalVault();
+    if (!result.ok) {
+      setResetError(t('לא הצלחנו לאפס את הכספת המקומית. נסה שוב.'));
+    }
+  }
+
+  if (authContext.isBootstrapping) {
+    return <SafeAreaView style={styles.root} />;
+  }
+
+  if (isPinSetup) {
+    return (
+      <SafeAreaView
+        key={isRTL ? 'pin-setup-rtl' : 'pin-setup-ltr'}
+        style={styles.root}
+      >
+        <KeyboardAvoidingView
+          behavior={Platform.OS === 'ios' ? 'padding' : undefined}
+          style={styles.flex}
+        >
+          <ScrollView
+            contentContainerStyle={styles.scrollContent}
+            keyboardShouldPersistTaps="handled"
+          >
+            <View style={styles.form}>
+              <View style={styles.copyBlock}>
+                <AppText style={styles.title}>{t('צור PIN מקומי')}</AppText>
+                <AppText style={styles.subtitle}>
+                  {t('ה-PIN הוא אימות הגישה העיקרי לכספת SmartCard המקומית שלך.')}
+                </AppText>
+              </View>
+
+              <TextInput
+                accessibilityLabel={t('PIN')}
+                autoFocus
+                keyboardType="number-pad"
+                maxLength={6}
+                onChangeText={(value): void => setPin(sanitizePin(value))}
+                placeholder={t('PIN')}
+                placeholderTextColor="#94A3B8"
+                secureTextEntry
+                style={[
+                  styles.input,
+                  { textAlign, writingDirection },
+                ]}
+                value={pin}
+              />
+
+              <TextInput
+                accessibilityLabel={t('אימות PIN')}
+                keyboardType="number-pad"
+                maxLength={6}
+                onChangeText={(value): void =>
+                  setPinConfirmation(sanitizePin(value))
+                }
+                placeholder={t('אימות PIN')}
+                placeholderTextColor="#94A3B8"
+                secureTextEntry
+                style={[
+                  styles.input,
+                  { textAlign, writingDirection },
+                ]}
+                value={pinConfirmation}
+              />
+
+              {setupError !== null ? (
+                <AppText style={styles.error}>{setupError}</AppText>
+              ) : null}
+
+              <Pressable
+                accessibilityRole="button"
+                disabled={isSaving}
+                onPress={() => {
+                  void savePin();
+                }}
+                style={styles.primaryButton}
+              >
+                <AppText style={styles.primaryButtonText}>
+                  {isSaving ? t('שומר…') : t('שמור PIN')}
+                </AppText>
+              </Pressable>
+            </View>
+          </ScrollView>
+        </KeyboardAvoidingView>
+      </SafeAreaView>
+    );
+  }
 
   return (
-    <View className="flex-1 items-center justify-center bg-slate-900 p-6 dark:bg-app-dark">
-      <AppText
-        className="text-center text-[22px] font-bold text-white"
-        style={{ textAlign: 'center' }} // intentional center — not RTL content
+    <SafeAreaView
+      key={isRTL ? 'lock-rtl' : 'lock-ltr'}
+      style={styles.root}
+    >
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        keyboardShouldPersistTaps="handled"
       >
-        {t('אימות להמשך')}
-      </AppText>
-
-      {__DEV__ && auth.debugUnlock !== undefined ? (
-        <Pressable
-          accessibilityRole="button"
-          className="mt-10 rounded-[10px] bg-blue-600 px-6 py-3"
-          onPress={() => {
-            void auth.debugUnlock?.();
-          }}
-        >
-          <AppText className="text-center text-base font-semibold text-white">
-            {t('פתיחת נעילה לצורכי פיתוח')}
+        <View style={styles.form}>
+          <AppText align="center" style={styles.title}>
+            {t('פתיחת SmartCard')}
           </AppText>
-        </Pressable>
-      ) : null}
-    </View>
+
+          <TextInput
+            accessibilityLabel={t('PIN')}
+            autoFocus
+            keyboardType="number-pad"
+            maxLength={6}
+            onChangeText={(value): void => setUnlockPin(sanitizePin(value))}
+            placeholder={t('PIN')}
+            placeholderTextColor="#94A3B8"
+            secureTextEntry
+            style={[styles.input, styles.inputCentered]}
+            value={unlockPin}
+          />
+
+          {unlockError !== null ? (
+            <AppText align="center" style={styles.error}>
+              {unlockError}
+            </AppText>
+          ) : null}
+
+          <Pressable
+            accessibilityRole="button"
+            disabled={isUnlocking}
+            onPress={() => {
+              void unlockWithPin();
+            }}
+            style={styles.primaryButton}
+          >
+            <AppText style={styles.primaryButtonText}>
+              {isUnlocking ? t('פותח…') : t('פתח עם PIN')}
+            </AppText>
+          </Pressable>
+
+          <Pressable
+            accessibilityRole="button"
+            onPress={confirmLocalReset}
+            style={styles.secondaryButton}
+          >
+            <AppText align="center" style={styles.secondaryButtonText}>
+              {t('שכחת PIN או אפס כספת מקומית')}
+            </AppText>
+          </Pressable>
+
+          {resetError !== null ? (
+            <AppText align="center" style={styles.error}>
+              {resetError}
+            </AppText>
+          ) : null}
+
+          {__DEV__ && authContext.debugUnlock !== undefined ? (
+            <Pressable
+              accessibilityRole="button"
+              onPress={() => {
+                void authContext.debugUnlock?.();
+              }}
+              style={styles.devButton}
+            >
+              <AppText align="center" style={styles.primaryButtonText}>
+                {t('פתיחת נעילה לצורכי פיתוח')}
+              </AppText>
+            </Pressable>
+          ) : null}
+        </View>
+      </ScrollView>
+    </SafeAreaView>
   );
 }
+
+const styles = StyleSheet.create({
+  root: {
+    flex: 1,
+    backgroundColor: '#0F172A',
+  },
+  flex: {
+    flex: 1,
+  },
+  scrollContent: {
+    flexGrow: 1,
+    justifyContent: 'center',
+    paddingBottom: 32,
+  },
+  form: {
+    width: '100%',
+    gap: 20,
+    paddingHorizontal: 24,
+    paddingVertical: 32,
+  },
+  copyBlock: {
+    gap: 8,
+  },
+  title: {
+    color: '#FFFFFF',
+    fontSize: 28,
+    fontWeight: '800',
+  },
+  subtitle: {
+    color: '#CBD5E1',
+    fontSize: 16,
+    fontWeight: '500',
+  },
+  input: {
+    minHeight: 56,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: '#475569',
+    backgroundColor: '#1E293B',
+    paddingHorizontal: 16,
+    fontSize: 20,
+    letterSpacing: 8,
+    color: '#FFFFFF',
+  },
+  inputCentered: {
+    textAlign: 'center',
+  },
+  error: {
+    color: '#FCA5A5',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  primaryButton: {
+    minHeight: 52,
+    alignItems: 'center',
+    justifyContent: 'center',
+    borderRadius: 12,
+    backgroundColor: '#2563EB',
+    paddingHorizontal: 16,
+  },
+  primaryButtonText: {
+    color: '#FFFFFF',
+    fontSize: 16,
+    fontWeight: '800',
+  },
+  secondaryButton: {
+    minHeight: 44,
+    alignItems: 'center',
+    justifyContent: 'center',
+    paddingHorizontal: 16,
+  },
+  secondaryButtonText: {
+    color: '#CBD5E1',
+    fontSize: 14,
+    fontWeight: '700',
+  },
+  devButton: {
+    marginTop: 16,
+    borderRadius: 10,
+    backgroundColor: '#334155',
+    paddingHorizontal: 24,
+    paddingVertical: 12,
+  },
+});

@@ -23,7 +23,6 @@
 //   @noble/ciphers           AES-256-GCM envelope for the PIN-wrapped DEK (pure JS)
 //   @noble/hashes            Argon2id PIN KDF (pure JS)
 
-import { AppState, type AppStateStatus } from 'react-native';
 import * as SecureStore from 'expo-secure-store';
 import * as Crypto from 'expo-crypto';
 import { MMKV } from 'react-native-mmkv';
@@ -59,10 +58,8 @@ export interface EncryptedStorageHandle {
 }
 
 export interface KeyVault {
-  /** Does a DEK exist for this install? (KGET/KGEN idempotency check.) */
+  /** Does a complete PIN-enrolled local vault exist for this install? */
   isInitialized(): Promise<boolean>;
-  /** KGEN + KWRAP + KVER. Idempotent ظ¤ safe to call on every cold start. */
-  initializeOnFirstLaunch(): Promise<void>;
   unlockWithBiometric(): Promise<UnlockResult>;
   /** PIN-1..PIN-7 enforced here (KDF unwrap + shared-counter lockout). */
   unlockWithPin(pin: string): Promise<UnlockResult>;
@@ -257,8 +254,7 @@ export function createSecureProfileId(): string {
 const DEK_BYTES = 32; // 256-bit (KGEN-1)
 const GCM_NONCE_BYTES = 12;
 
-const SESSION_TIMEOUT_MS = 5 * 60 * 1000; // SESS-1
-const TERMINAL_FAILURE_COUNT = 10; // PIN-6
+const MAX_BACKOFF_FAILURES = 9;
 const PROFILE_ID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
 const MMKV_ID = 'smartcard.secure';
@@ -278,6 +274,8 @@ const SS = {
   keyScheme: 'sc.keySchemeVersion',
   kdf: 'sc.kdfVersion',
   lockout: 'sc.lockout', // shared failure counter (PIN-5)
+  wipePending: 'sc.wipePending', // fail-closed reset marker
+  setupPending: 'sc.setupPending', // fail-closed first-PIN setup marker
 } as const;
 
 // KWRAP-2 + KWRAP-3: auth-required + this-device-only. expo-secure-store maps
@@ -298,19 +296,25 @@ const META_OPTS: SecureStore.SecureStoreOptions = {
   keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
 };
 
+const VAULT_METADATA_ITEMS = [
+  [SS.pinEnvelope, META_OPTS],
+  [SS.pinSalt, META_OPTS],
+  [SS.pinPepper, META_OPTS],
+  [SS.keyScheme, META_OPTS],
+  [SS.kdf, META_OPTS],
+] as const;
+
+const VAULT_WIPE_ITEMS = [
+  [SS.dek, DEK_OPTS],
+  ...VAULT_METADATA_ITEMS,
+  [SS.lockout, META_OPTS],
+  [SS.setupPending, META_OPTS],
+] as const;
+
 // --- Session memory (MEM-1: DEK lives here ONLY, never persisted in the clear) -
 
 let dek: Uint8Array | null = null;
 let storage: MMKV | null = null;
-let backgroundedAtMonotonicMs: number | null = null;
-// HIGH-03 fix: a wall-clock companion to the monotonic background stamp. The
-// monotonic source (performance.now) may not advance while the process is
-// suspended in the background, which would fail OPEN (no timeout ظْ stays
-// unlocked). Recording Date.now() too lets the resume path take max(deltas).
-let backgroundedAtWallMs: number | null = null;
-// AC-7: holds the live AppState subscription so the session guard self-wires
-// (see module-load call at the bottom) instead of depending on the app shell.
-let sessionGuardUnsubscribe: (() => void) | null = null;
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
@@ -386,16 +390,13 @@ function parseLockoutState(raw: string | null): LockoutState {
     }
 
     if (isTerminalLock) {
-      const terminalLockedUntilMs = Number.isFinite(lockedUntilMs ?? NaN)
-        ? (lockedUntilMs ?? 0)
-        : 0;
       return {
-        tier: 'terminal',
-        failures,
+        tier: 'backoff',
+        failures: 9,
         lastFailureMonotonicMs,
         lastFailureWallMs,
-        lockedUntilMs: terminalLockedUntilMs > 0 ? terminalLockedUntilMs : 0,
-        isTerminalLock: true,
+        lockedUntilMs: 0,
+        isTerminalLock: false,
       };
     }
 
@@ -544,15 +545,7 @@ async function activeLockout(caller: LockoutCaller): Promise<
   const lockoutState = await readLockout();
 
   if (lockoutState.isTerminalLock) {
-    // PIN-6 terminal action (ratified AGENTS.md §9 / §11): indefinite PIN lockout at
-    // tier 10 with biometric as the recovery path. PIN stays blocked until
-    // wipeVault() or a successful biometric unlock (resetFailures). No wall-clock
-    // self-release — extended lock is recoverable via biometric only.
-    if (caller === 'biometric') {
-      return null;
-    }
-
-    return { ok: false, reason: 'locked_out' };
+    return { ok: false, reason: 'locked_out', retryAfterMs: delayForFailures(9) };
   }
 
   const { failures, lastFailureMonotonicMs, lastFailureWallMs } = lockoutState;
@@ -577,22 +570,10 @@ async function activeLockout(caller: LockoutCaller): Promise<
   return null;
 }
 
-/** Records a failed attempt, applying backoff or the terminal action. */
+/** Records a failed attempt, applying temporary escalating backoff only. */
 async function recordFailure(): Promise<Extract<UnlockResult, { ok: false }>> {
   const prev = await readLockout();
-  const failures = prev.failures + 1;
-
-  if (failures >= TERMINAL_FAILURE_COUNT) {
-    await writeLockout({
-      tier: 'terminal',
-      failures,
-      lastFailureMonotonicMs: monotonicNow(),
-      lastFailureWallMs: Date.now(),
-      lockedUntilMs: 0,
-      isTerminalLock: true,
-    });
-    return { ok: false, reason: 'locked_out' };
-  }
+  const failures = Math.min(prev.failures + 1, MAX_BACKOFF_FAILURES);
 
   const delay = delayForFailures(failures);
   // Stamp the failure instant in BOTH clocks; activeLockout() derives the window
@@ -649,26 +630,115 @@ function enterUnlocked(dekBytes: Uint8Array): void {
 }
 
 async function isInitialized(): Promise<boolean> {
-  // keySchemeVersion is the non-auth marker, so this never triggers a biometric
-  // prompt just to answer "is there a key?".
-  const scheme = await SecureStore.getItemAsync(SS.keyScheme, META_OPTS);
-  return scheme !== null;
+  // Never query the authentication-gated DEK here. A vault is only considered
+  // initialized after the complete non-secret PIN credential metadata exists.
+  const [wipePending, setupPending, ...metadata] = await Promise.all([
+    SecureStore.getItemAsync(SS.wipePending, META_OPTS),
+    SecureStore.getItemAsync(SS.setupPending, META_OPTS),
+    ...VAULT_METADATA_ITEMS.map(([key, options]) =>
+      SecureStore.getItemAsync(key, options),
+    ),
+  ]);
+  return (
+    wipePending !== null ||
+    setupPending !== null ||
+    metadata.every(value => value !== null)
+  );
 }
 
-async function initializeOnFirstLaunch(): Promise<void> {
-  if (await isInitialized()) {
-    return; // KGEN-3: generated exactly once per install; idempotent thereafter.
-  }
-  const fresh = await randomBytes(DEK_BYTES);
-  // KWRAP-1/2/3: DEK into the hardware keychain under auth-required flags.
-  await SecureStore.setItemAsync(SS.dek, toHex(fresh), DEK_OPTS);
-  // KVER / KWRAP-5: record scheme + KDF versions for future migration.
-  await SecureStore.setItemAsync(
-    SS.keyScheme,
-    String(KEY_SCHEME_VERSION),
-    META_OPTS,
+async function hasCompleteVaultMetadata(): Promise<boolean> {
+  const metadata = await Promise.all(
+    VAULT_METADATA_ITEMS.map(([key, options]) =>
+      SecureStore.getItemAsync(key, options),
+    ),
   );
-  await SecureStore.setItemAsync(SS.kdf, String(KDF_VERSION), META_OPTS);
+  return metadata.every(value => value !== null);
+}
+
+function isSixDigitPin(pin: string): boolean {
+  return /^\d{6}$/.test(pin);
+}
+
+async function deleteVaultMaterialAndVerify(): Promise<void> {
+  await Promise.all(
+    VAULT_WIPE_ITEMS.map(([key, options]) =>
+      SecureStore.deleteItemAsync(key, options),
+    ),
+  );
+
+  const remaining = await Promise.all(
+    VAULT_WIPE_ITEMS.map(([key, options]) =>
+      SecureStore.getItemAsync(key, options),
+    ),
+  );
+  if (remaining.some(value => value !== null)) {
+    throw new Error('LOCAL_VAULT_WIPE_VERIFICATION_FAILED');
+  }
+}
+
+async function initializeLocalVaultWithPin(pin: string): Promise<void> {
+  if (!isSixDigitPin(pin)) {
+    throw new Error('PIN_SETUP_REQUIRES_SIX_DIGITS');
+  }
+
+  if (dek !== null) {
+    await enrollPin(pin);
+    await resetFailures();
+    return;
+  }
+
+  if (await isInitialized()) {
+    throw new Error('PIN setup requires an unlocked local vault.');
+  }
+
+  const fresh = await randomBytes(DEK_BYTES);
+  let setupPepper: Uint8Array | null = null;
+  try {
+    const salt = await randomBytes(KDF_PARAMS.saltBytes);
+    setupPepper = await randomBytes(KDF_PARAMS.saltBytes);
+    const { keyHex } = await deriveKek(pin, salt, setupPepper);
+    const kek = fromHex(keyHex);
+    const envelope = await wrapDek(fresh, kek);
+    const pepperHex = toHex(setupPepper);
+    kek.fill(0);
+
+    // A pending marker makes an interrupted first setup a locked, explicit
+    // reset state instead of an apparently fresh or partially initialized vault.
+    await SecureStore.setItemAsync(SS.setupPending, '1', META_OPTS);
+    await resetFailures();
+    await SecureStore.setItemAsync(SS.pinSalt, toHex(salt), META_OPTS);
+    await SecureStore.setItemAsync(SS.pinPepper, pepperHex, META_OPTS);
+    await SecureStore.setItemAsync(SS.pinEnvelope, envelope, META_OPTS);
+    await SecureStore.setItemAsync(SS.dek, toHex(fresh), DEK_OPTS);
+    await SecureStore.setItemAsync(SS.kdf, String(KDF_VERSION), META_OPTS);
+    // This is the logical vault marker and is deliberately committed last.
+    await SecureStore.setItemAsync(
+      SS.keyScheme,
+      String(KEY_SCHEME_VERSION),
+      META_OPTS,
+    );
+    if (!(await hasCompleteVaultMetadata())) {
+      throw new Error('PIN_SETUP_VERIFICATION_FAILED');
+    }
+    await SecureStore.deleteItemAsync(SS.setupPending, META_OPTS);
+    if (await SecureStore.getItemAsync(SS.setupPending, META_OPTS) !== null) {
+      throw new Error('PIN_SETUP_VERIFICATION_FAILED');
+    }
+    setupPepper.fill(0);
+    setupPepper = null;
+    enterUnlocked(fresh);
+  } catch (error) {
+    fresh.fill(0);
+    setupPepper?.fill(0);
+    lock();
+    try {
+      await deleteVaultMaterialAndVerify();
+    } catch {
+      throw new Error('PIN_SETUP_CLEANUP_UNCERTAIN');
+    }
+    throw error;
+  }
+
 }
 
 /**
@@ -845,75 +915,20 @@ function lock(): void {
 }
 
 /**
- * PIN-6 terminal action. Destroying the DEK (and its PIN envelope) renders the
+ * Explicit local reset. Destroying the DEK (and its PIN envelope) renders the
  * MMKV ciphertext permanently unrecoverable.
  */
 async function wipeVault(): Promise<void> {
   lock();
-  await Promise.all([
-    SecureStore.deleteItemAsync(SS.dek, DEK_OPTS).catch(() => undefined),
-    SecureStore.deleteItemAsync(SS.pinEnvelope, META_OPTS).catch(
-      () => undefined,
-    ),
-    SecureStore.deleteItemAsync(SS.pinSalt, META_OPTS).catch(() => undefined),
-    SecureStore.deleteItemAsync(SS.pinPepper, META_OPTS).catch(() => undefined),
-    SecureStore.deleteItemAsync(SS.keyScheme, META_OPTS).catch(() => undefined),
-    SecureStore.deleteItemAsync(SS.kdf, META_OPTS).catch(() => undefined),
-    SecureStore.deleteItemAsync(SS.lockout, META_OPTS).catch(() => undefined),
-  ]);
-}
-
-/**
- * SESS-1/SESS-2/ZERO-1: AppState guard. On backgrounding, stamp a monotonic
- * timestamp; on foreground, if > 5 min elapsed, run ZERO (wipe in-memory DEK,
- * drop MMKV) so a re-auth is forced. Returns an unsubscribe fn.
- *
- * AC-7: this guard self-wires at module load (see the call at the bottom of the
- * file), so the 5-minute timeout no longer depends on the app shell remembering
- * to call it. The call is idempotent ظ¤ invoking it again (e.g. from a test or
- * the app shell) returns the existing unsubscribe instead of double-registering.
- *
- * NOTE: the privacy/blur overlay for the app-switcher snapshot (SESS-3 / AC-7)
- * is the one remaining piece that CANNOT live here ظ¤ it is a React render (plus,
- * on iOS, a native overlay window) and must be owned by the app shell. This
- * module owns all of the non-UI session/zeroization logic.
- */
-function startSessionGuard(): () => void {
-  if (sessionGuardUnsubscribe !== null) {
-    return sessionGuardUnsubscribe;
+  // Persist this first so any process death or deletion rejection stays on the
+  // locked/retry branch rather than entering fresh setup against an uncertain wipe.
+  await SecureStore.setItemAsync(SS.wipePending, '1', META_OPTS);
+  await deleteVaultMaterialAndVerify();
+  await SecureStore.deleteItemAsync(SS.wipePending, META_OPTS);
+  const wipePending = await SecureStore.getItemAsync(SS.wipePending, META_OPTS);
+  if (wipePending !== null) {
+    throw new Error('LOCAL_VAULT_WIPE_VERIFICATION_FAILED');
   }
-  const subscription = AppState.addEventListener(
-    'change',
-    (next: AppStateStatus) => {
-      if (next === 'active') {
-        // HIGH-03 fix: take the LARGER of the two elapsed measurements. The
-        // monotonic delta defends against wall-clock manipulation; the
-        // wall-clock delta defends against a monotonic clock that was frozen
-        // during background suspension (the fail-open case). If either says we
-        // exceeded the timeout, ZERO the session and force a re-auth.
-        if (
-          backgroundedAtMonotonicMs !== null &&
-          backgroundedAtWallMs !== null
-        ) {
-          const monotonicDelta = monotonicNow() - backgroundedAtMonotonicMs;
-          const wallClockDelta = Date.now() - backgroundedAtWallMs;
-          if (Math.max(monotonicDelta, wallClockDelta) > SESSION_TIMEOUT_MS) {
-            lock();
-          }
-        }
-        backgroundedAtMonotonicMs = null;
-        backgroundedAtWallMs = null;
-      } else {
-        backgroundedAtMonotonicMs = monotonicNow();
-        backgroundedAtWallMs = Date.now();
-      }
-    },
-  );
-  sessionGuardUnsubscribe = () => {
-    subscription.remove();
-    sessionGuardUnsubscribe = null;
-  };
-  return sessionGuardUnsubscribe;
 }
 
 // --- AC-4 / BIND-3: cold-start & deep-link routing gate -----------------------
@@ -966,22 +981,20 @@ function consumePendingDeepLink(): string | null {
 
 // --- Backward-compatible auth surface -----------------------------------------
 //
-// The navigation layer (authContext/AuthGate, ref STR-H01) consumes a tri-state
-// status plus unlock/lock. Kept here so that layer compiles and continues to use
-// REAL auth ظ¤ `unlock` delegates to the biometric path (no debug backdoor; BIND-1
-// holds). Migrate the navigation to the ┬د8 methods, then remove this block.
+// The navigation layer consumes the explicit tri-state status plus explicit
+// PIN/biometric unlock methods. There is intentionally no generic unlock alias:
+// PIN remains the MVP primary credential and biometrics are a named optional path.
 
 export type AuthStatus = 'LOCKED' | 'UNLOCKED' | 'UNKNOWN';
 
 interface KeyVaultModule extends KeyVault {
   enrollPin(pin: string): Promise<void>;
   enrollPin(profileId: string, pinHash: string): void;
+  initializeLocalVaultWithPin(pin: string): Promise<void>;
   verifyProfilePin(profileId: string, candidate: string): boolean;
   wipeVault(): Promise<void>;
-  startSessionGuard(): () => void;
   isUnlocked(): boolean;
   getAuthStatus(): Promise<AuthStatus>;
-  unlock(): Promise<void>;
   // AC-4 / BIND-3 routing gate (security module is the routing authority).
   canMountSecureNavigator(): boolean;
   captureDeepLink(url: string | null): { readonly deferred: boolean };
@@ -990,15 +1003,14 @@ interface KeyVaultModule extends KeyVault {
 
 export const keyVault: KeyVaultModule = {
   isInitialized,
-  initializeOnFirstLaunch,
   unlockWithBiometric,
   unlockWithPin,
   getEncryptedStorage,
   lock,
   enrollPin: enrollPinDispatcher,
+  initializeLocalVaultWithPin,
   verifyProfilePin,
   wipeVault,
-  startSessionGuard,
   canMountSecureNavigator,
   captureDeepLink,
   consumePendingDeepLink,
@@ -1006,12 +1018,4 @@ export const keyVault: KeyVaultModule = {
   async getAuthStatus() {
     return dek !== null && storage !== null ? 'UNLOCKED' : 'LOCKED';
   },
-  async unlock() {
-    await unlockWithBiometric();
-  },
 };
-
-// AC-7: self-wire the session/zeroization guard on import so the inactivity
-// timeout is active regardless of whether the app shell calls it. Idempotent, so
-// an explicit keyVault.startSessionGuard() elsewhere is still safe.
-startSessionGuard();

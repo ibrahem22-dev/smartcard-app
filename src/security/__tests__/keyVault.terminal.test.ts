@@ -3,10 +3,14 @@ type MmkvState = Map<string, Map<string, string>>;
 
 const mockSecureStoreState: SecureStoreState = new Map();
 const mockMmkvState: MmkvState = new Map();
+const mockDeleteFailures = new Map<string, Error>();
+const mockSetFailures = new Map<string, Error>();
 
 function resetStore(): void {
   mockSecureStoreState.clear();
   mockMmkvState.clear();
+  mockDeleteFailures.clear();
+  mockSetFailures.clear();
 }
 
 function mockSeedStorage(id: string): Map<string, string> {
@@ -44,9 +48,17 @@ jest.mock('react-native', () => ({
 jest.mock('expo-secure-store', () => ({
   getItemAsync: async (key: string) => mockSecureStoreState.get(key) ?? null,
   setItemAsync: async (key: string, value: string) => {
+    const failure = mockSetFailures.get(key);
+    if (failure !== undefined) {
+      throw failure;
+    }
     mockSecureStoreState.set(key, value);
   },
   deleteItemAsync: async (key: string) => {
+    const failure = mockDeleteFailures.get(key);
+    if (failure !== undefined) {
+      throw failure;
+    }
     mockSecureStoreState.delete(key);
   },
   WHEN_UNLOCKED_THIS_DEVICE_ONLY: 'WHEN_UNLOCKED_THIS_DEVICE_ONLY',
@@ -144,7 +156,7 @@ function seedTerminalLockout(lastFailureWallMs: number): void {
   );
 }
 
-describe('keyVault terminal lock behavior', () => {
+describe('keyVault temporary escalating lockout behavior', () => {
   beforeEach(() => {
     resetStore();
     jest.resetModules();
@@ -156,7 +168,7 @@ describe('keyVault terminal lock behavior', () => {
     mockSeedStorage('smartcard.secure');
   });
 
-  test('terminal lock blocks PIN after 10 failures', async () => {
+  test('legacy terminal metadata blocks PIN as maximum temporary backoff', async () => {
     setNow(1_000_000);
     const { keyVault } = loadKeyVault();
     seedTerminalLockout(1_000_000);
@@ -166,20 +178,25 @@ describe('keyVault terminal lock behavior', () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.reason).toBe('locked_out');
+      expect(result.retryAfterMs).toBeGreaterThan(0);
     }
   });
 
-  test('terminal lock does not block biometric recovery', async () => {
+  test('legacy terminal metadata blocks biometric during temporary backoff', async () => {
     setNow(1_000_000);
     const { keyVault } = loadKeyVault();
     seedTerminalLockout(1_000_000);
 
     const result = await keyVault.unlockWithBiometric();
 
-    expect(result.ok).toBe(true);
+    expect(result.ok).toBe(false);
+    if (!result.ok) {
+      expect(result.reason).toBe('locked_out');
+      expect(result.retryAfterMs).toBeGreaterThan(0);
+    }
   });
 
-  test('terminal lock survives app restart', async () => {
+  test('maximum temporary backoff survives app restart', async () => {
     setNow(0);
     seedTerminalLockout(1_000_000);
     let { keyVault } = loadKeyVault();
@@ -192,10 +209,11 @@ describe('keyVault terminal lock behavior', () => {
     expect(result.ok).toBe(false);
     if (!result.ok) {
       expect(result.reason).toBe('locked_out');
+      expect(result.retryAfterMs).toBeGreaterThan(0);
     }
   });
 
-test('terminal lock persists across restart until vault wipe', async () => {
+test('maximum temporary backoff expires without automatic wipe', async () => {
   setNow(2_000_000 + 24 * 60 * 60 * 1000 + 1);
   seedTerminalLockout(2_000_000);
   let { keyVault } = loadKeyVault();
@@ -204,10 +222,9 @@ test('terminal lock persists across restart until vault wipe', async () => {
   ({ keyVault } = loadKeyVault());
 
   const blocked = await keyVault.unlockWithPin('1234');
-  expect(blocked.ok).toBe(false);
-  if (!blocked.ok) {
-    expect(blocked.reason).toBe('locked_out');
-  }
+  expect(blocked.ok).toBe(true);
+  expect(mockSecureStoreState.has('sc.dek')).toBe(true);
+  expect(mockSecureStoreState.has('sc.dek.pinEnvelope')).toBe(true);
 
   await keyVault.wipeVault();
 
@@ -222,6 +239,122 @@ test('terminal lock persists across restart until vault wipe', async () => {
   if (!afterWipe.ok) {
     expect(afterWipe.reason).not.toBe('locked_out');
   }
+});
+
+describe('keyVault PIN-first setup and local wipe behavior', () => {
+  beforeEach(() => {
+    resetStore();
+    jest.resetModules();
+    mockSeedStorage('smartcard.security.meta');
+    mockSeedStorage('smartcard.secure');
+  });
+
+  test('clean module does not create a local vault before successful six-digit PIN setup', async () => {
+    const { keyVault } = loadKeyVault();
+
+    expect(await keyVault.isInitialized()).toBe(false);
+    expect(await keyVault.getAuthStatus()).toBe('LOCKED');
+    expect(keyVault.canMountSecureNavigator()).toBe(false);
+    expect(mockSecureStoreState.has('sc.dek')).toBe(false);
+    expect(mockSecureStoreState.has('sc.keySchemeVersion')).toBe(false);
+
+    await expect(keyVault.initializeLocalVaultWithPin('1234')).rejects.toThrow(
+      'PIN_SETUP_REQUIRES_SIX_DIGITS',
+    );
+    expect(mockSecureStoreState.has('sc.dek')).toBe(false);
+    expect(mockSecureStoreState.has('sc.keySchemeVersion')).toBe(false);
+  });
+
+  test('first-vault setup rolls back on a commit failure and does not claim a vault', async () => {
+    const { keyVault } = loadKeyVault();
+    mockSetFailures.set('sc.keySchemeVersion', new Error('commit failed'));
+
+    await expect(keyVault.initializeLocalVaultWithPin('123456')).rejects.toThrow(
+      'commit failed',
+    );
+
+    expect(mockSecureStoreState.has('sc.setupPending')).toBe(false);
+    expect(mockSecureStoreState.has('sc.dek')).toBe(false);
+    expect(mockSecureStoreState.has('sc.keySchemeVersion')).toBe(false);
+    expect(await keyVault.isInitialized()).toBe(false);
+    expect(keyVault.canMountSecureNavigator()).toBe(false);
+  });
+
+  test('an interrupted first-vault setup is locked until explicit reset', async () => {
+    mockSecureStoreState.set('sc.setupPending', '1');
+    const { keyVault } = loadKeyVault();
+
+    expect(await keyVault.isInitialized()).toBe(true);
+    expect(await keyVault.getAuthStatus()).toBe('LOCKED');
+    expect(keyVault.canMountSecureNavigator()).toBe(false);
+  });
+
+  test('successful PIN-first setup requires a fresh PIN unlock after module restart', async () => {
+    let { keyVault } = loadKeyVault();
+
+    await keyVault.initializeLocalVaultWithPin('123456');
+    expect(await keyVault.isInitialized()).toBe(true);
+    expect(keyVault.canMountSecureNavigator()).toBe(true);
+
+    jest.resetModules();
+    ({ keyVault } = loadKeyVault());
+
+    expect(await keyVault.getAuthStatus()).toBe('LOCKED');
+    expect(keyVault.canMountSecureNavigator()).toBe(false);
+    await expect(keyVault.unlockWithPin('123456')).resolves.toEqual({ ok: true });
+    expect(keyVault.canMountSecureNavigator()).toBe(true);
+  });
+
+  test('fresh module with persisted vault markers cannot mount authenticated navigation', async () => {
+    mockSecureStoreState.set('sc.dek', '0102030405060708090a0b0c0d0e0f10');
+    mockSecureStoreState.set('sc.pin.salt', '00112233445566778899aabbccddeeff');
+    mockSecureStoreState.set('sc.pin.pepper', 'ffeeddccbbaa99887766554433221100');
+    mockSecureStoreState.set('sc.dek.pinEnvelope', '00:00');
+    mockSecureStoreState.set('sc.keySchemeVersion', '1');
+    mockSecureStoreState.set('sc.kdfVersion', '2');
+
+    const { keyVault } = loadKeyVault();
+
+    expect(await keyVault.isInitialized()).toBe(true);
+    expect(await keyVault.getAuthStatus()).toBe('LOCKED');
+    expect(keyVault.canMountSecureNavigator()).toBe(false);
+  });
+
+  test('failed DEK deletion rejects local wipe and leaves the vault locked', async () => {
+    const { keyVault } = loadKeyVault();
+    mockSecureStoreState.set('sc.dek', '0102030405060708090a0b0c0d0e0f10');
+    mockSecureStoreState.set('sc.pin.salt', '00112233445566778899aabbccddeeff');
+    mockSecureStoreState.set('sc.pin.pepper', 'ffeeddccbbaa99887766554433221100');
+    mockSecureStoreState.set('sc.dek.pinEnvelope', '00:00');
+    mockSecureStoreState.set('sc.keySchemeVersion', '1');
+    mockSecureStoreState.set('sc.kdfVersion', '2');
+    mockDeleteFailures.set('sc.dek', new Error('delete failed'));
+
+    await expect(keyVault.wipeVault()).rejects.toThrow('delete failed');
+    expect(await keyVault.getAuthStatus()).toBe('LOCKED');
+    expect(keyVault.canMountSecureNavigator()).toBe(false);
+    expect(mockSecureStoreState.has('sc.dek')).toBe(true);
+    expect(mockSecureStoreState.has('sc.wipePending')).toBe(true);
+
+    jest.resetModules();
+    const { keyVault: coldKeyVault } = loadKeyVault();
+    expect(await coldKeyVault.isInitialized()).toBe(true);
+    expect(await coldKeyVault.getAuthStatus()).toBe('LOCKED');
+    expect(coldKeyVault.canMountSecureNavigator()).toBe(false);
+  });
+
+  test('successful local wipe verifies deletion before fresh setup is permitted', async () => {
+    const { keyVault } = loadKeyVault();
+
+    await keyVault.initializeLocalVaultWithPin('123456');
+    await keyVault.wipeVault();
+
+    expect(mockSecureStoreState.has('sc.dek')).toBe(false);
+    expect(mockSecureStoreState.has('sc.keySchemeVersion')).toBe(false);
+    expect(mockSecureStoreState.has('sc.wipePending')).toBe(false);
+    expect(await keyVault.isInitialized()).toBe(false);
+    expect(keyVault.canMountSecureNavigator()).toBe(false);
+  });
 });
 
   test('different pepper changes derived envelope key', async () => {
