@@ -16,8 +16,6 @@ import { ContactScreen } from '../../screens/ContactScreen';
 import { GlossaryScreen } from '../../screens/GlossaryScreen';
 import { InstallmentImportScreen } from '../../screens/InstallmentImportScreen';
 import { InterestCalculatorScreen } from '../../screens/InterestCalculatorScreen';
-import { LoansScreen } from '../../screens/LoansScreen';
-import { ProfileShareScreen } from '../../screens/ProfileShareScreen';
 import { SettingsScreen } from '../../screens/SettingsScreen';
 import { useAppDirection, useStackBackGlyph } from '../../hooks/useAppDirection';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -91,30 +89,12 @@ export function SettingsStack(): React.ReactElement {
         }}
       />
       <Stack.Screen
-        name="Loans"
-        component={LoansScreen}
-        options={{
-          headerShown: true,
-          headerTitleAlign: isRTL ? 'center' : 'left',
-          title: t('הלוואות ומשכנתא'),
-        }}
-      />
-      <Stack.Screen
         name="InterestCalculator"
         component={InterestCalculatorScreen}
         options={{
           headerShown: true,
           headerTitleAlign: isRTL ? 'center' : 'left',
           title: t('מחשבון ריבית'),
-        }}
-      />
-      <Stack.Screen
-        name="ProfileShare"
-        component={ProfileShareScreen}
-        options={{
-          headerShown: true,
-          headerTitleAlign: isRTL ? 'center' : 'left',
-          title: t('שיתוף פרופיל'),
         }}
       />
     </Stack.Navigator>

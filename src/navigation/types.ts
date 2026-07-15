@@ -18,6 +18,8 @@ import type {
 /** Home tab stack. */
 export type HomeStackParamList = {
   HomeRoot: undefined;
+  // Deferred (DECISIONS_DEFERRED.md #7): screen files retained and typed, but
+  // NOT registered in HomeStack and unreachable in MVP. See authMvpStaticContract.
   Benefits: undefined;
   SavingsTracker: undefined;
 };
@@ -36,6 +38,7 @@ export type PurchaseGateStackParamList = {
 /** Cards tab stack. */
 export type CardsStackParamList = {
   CardsRoot: undefined;
+  AddCard: undefined;
   CardDetail: { cardId: string };
   InterestCalculator: { cardId?: string } | undefined;
 };
@@ -51,8 +54,10 @@ export type SettingsStackParamList = {
   Contact: undefined;
   Glossary: undefined;
   InstallmentImport: undefined;
-  Loans: undefined;
   InterestCalculator: { cardId?: string } | undefined;
+  // Deferred (DECISIONS_DEFERRED.md #9/#12): screen files retained and typed,
+  // but NOT registered in SettingsStack and unreachable in MVP.
+  Loans: undefined;
   ProfileShare: undefined;
 };
 
@@ -82,7 +87,9 @@ export type AuthenticatedStackParamList = {
  * - 'Authenticated' when AuthGate reports UNLOCKED
  */
 export type RootStackParamList = {
-  Lock: undefined;
+  Lock: { mode?: 'unlock' | 'pin_setup' } | undefined;
+  Register: undefined;
+  OTPVerify: { email: string };
   Onboarding: undefined;
   Authenticated: NavigatorScreenParams<AuthenticatedStackParamList> | undefined;
   Paywall: undefined;

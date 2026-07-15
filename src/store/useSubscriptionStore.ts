@@ -1,7 +1,7 @@
 import { create } from 'zustand';
 
 import { keyVault } from '../security/keyVault';
-import { fetchSubscriptionTier } from '../services/revenueCat';
+import { fetchSubscriptionTier } from '../services/revenueCatClient';
 import type {
   SubscriptionState,
   SubscriptionStoreState,
