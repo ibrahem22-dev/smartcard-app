@@ -58,6 +58,9 @@ export function PurchaseGateScreen(): React.ReactElement {
     setAmount,
     isInternational,
     setIsInternational,
+    selectedCardId,
+    setSelectedCardId,
+    cards,
     verdict,
     decision,
     exchangeFeeWarning,
@@ -158,6 +161,47 @@ export function PurchaseGateScreen(): React.ReactElement {
                   </AppText>
                 </Pressable>
               </RtlRow>
+
+              {cards.length > 0 ? (
+                <View className="mb-5 w-full">
+                  <AppText
+                    className="mb-2 text-sm font-bold text-slate-700 dark:text-slate-200"
+                  >
+                    {t('בחר כרטיס', undefined, 'Choose a card')}
+                  </AppText>
+                  <RtlRow
+                    accessibilityRole="tablist"
+                    className="flex-wrap gap-2"
+                  >
+                    {cards.map(card => {
+                      const isSelected = card.cardId === selectedCardId;
+                      return (
+                        <Pressable
+                          accessibilityRole="button"
+                          accessibilityState={{ selected: isSelected }}
+                          className={`min-h-11 items-center justify-center rounded-md border px-3 ${
+                            isSelected
+                              ? 'border-blue-600 bg-white dark:border-blue-400 dark:bg-neutral-700'
+                              : 'border-transparent bg-slate-200 dark:bg-neutral-800'
+                          }`}
+                          key={card.cardId}
+                          onPress={(): void => setSelectedCardId(card.cardId)}
+                        >
+                          <AppText
+                            className={`text-center text-sm font-bold ${
+                              isSelected
+                                ? 'text-slate-900 dark:text-slate-50'
+                                : 'text-slate-600 dark:text-slate-300'
+                            }`}
+                          >
+                            {card.displayName}
+                          </AppText>
+                        </Pressable>
+                      );
+                    })}
+                  </RtlRow>
+                </View>
+              ) : null}
 
               <View className="mb-5 w-full">
                 <AppText

@@ -101,9 +101,10 @@ describe('evaluateInstallment', () => {
   test('purchase below danger threshold keeps installments unnecessary and approved', () => {
     const user = makeUser({ dangerThreshold: 2_000 });
     const card = makeCard();
+    const dangerThreshold = user.dangerThreshold ?? 0;
     const request = makeRequest({
       billingCardId: card.cardId,
-      totalAmount: user.dangerThreshold - 800,
+      totalAmount: dangerThreshold - 800,
       numPayments: 12,
     });
 
@@ -119,9 +120,10 @@ describe('evaluateInstallment', () => {
   test('purchase above danger threshold is affordable when split into installments', () => {
     const user = makeUser({ dangerThreshold: 2_000 });
     const card = makeCard();
+    const dangerThreshold = user.dangerThreshold ?? 0;
     const request = makeRequest({
       billingCardId: card.cardId,
-      totalAmount: user.dangerThreshold + 2_800,
+      totalAmount: dangerThreshold + 2_800,
       numPayments: 12,
     });
 

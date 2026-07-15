@@ -7,6 +7,7 @@ import {
 } from '../engines/cardRoleEngine';
 import { useCardsStore } from '../store/useCardsStore';
 import { useUserStore } from '../store/useUserStore';
+import type { CardInput } from '../types/card.types';
 import type {
   DecisionVerdict,
   FxComparisonRow,
@@ -14,14 +15,16 @@ import type {
   PurchaseGateInput,
   UsePurchaseGateResult,
 } from '../types/decision.types';
+import type { Obligation } from '../types/cashflow.types';
 import {
   Currency,
   PurchaseCategory,
   type PurchaseInput,
 } from '../types/purchase.types';
-import type { Obligation } from '../types/cashflow.types';
+import { mapImportedInstallmentsToObligations } from './mapImportedInstallmentsToObligations';
 
-const EMPTY_OBLIGATIONS: readonly Obligation[] = [];
+export { mapImportedInstallmentsToObligations } from './mapImportedInstallmentsToObligations';
+
 const EMPTY_FX_COMPARISON: readonly FxComparisonRow[] = [];
 const NO_CARDS_DECISION: PurchaseDecision = {
   verdict: 'blocked',
@@ -52,14 +55,32 @@ function buildPurchaseInput(
   };
 }
 
-export function usePurchaseGate(): UsePurchaseGateResult {
+export type UsePurchaseGateWithCardSelection = UsePurchaseGateResult & {
+  readonly selectedCardId: string;
+  readonly setSelectedCardId: (cardId: string) => void;
+  readonly cards: readonly CardInput[];
+};
+
+export function usePurchaseGate(): UsePurchaseGateWithCardSelection {
   const profile = useUserStore(state => state.profile);
   const cards = useCardsStore(state => state.cards);
+  const storeObligations = useCardsStore(state => state.obligations);
   const [amount, setAmount] = useState<number>(0);
   const [isInternational, setIsInternational] = useState<boolean>(false);
   const [decision, setDecision] = useState<PurchaseDecision | null>(null);
+  const [selectedCardIdState, setSelectedCardId] = useState<string | null>(null);
 
-  const selectedCardId = cards[0]?.cardId ?? '';
+  const selectedCardId =
+    selectedCardIdState !== null &&
+    cards.some((card: CardInput): boolean => card.cardId === selectedCardIdState)
+      ? selectedCardIdState
+      : (cards[0]?.cardId ?? '');
+
+  const obligations = useMemo(
+    (): readonly Obligation[] =>
+      mapImportedInstallmentsToObligations(storeObligations, cards),
+    [storeObligations, cards],
+  );
 
   const gateInput = useMemo<PurchaseGateInput>(
     (): PurchaseGateInput => ({
@@ -67,11 +88,11 @@ export function usePurchaseGate(): UsePurchaseGateResult {
       currentBalance: profile?.currentBalance ?? 0,
       remainingBalance: profile?.currentBalance ?? 0,
       monthlyIncome: profile?.monthlyIncome ?? 0,
-      obligations: EMPTY_OBLIGATIONS,
+      obligations,
       lastPurchaseDate: null,
       availableCards: cards,
     }),
-    [cards, profile?.currentBalance, profile?.monthlyIncome],
+    [cards, obligations, profile?.currentBalance, profile?.monthlyIncome],
   );
 
   // International FX-commission comparison. Currency defaults to USD (the most
@@ -137,6 +158,9 @@ export function usePurchaseGate(): UsePurchaseGateResult {
     setAmount,
     isInternational,
     setIsInternational,
+    selectedCardId,
+    setSelectedCardId,
+    cards,
     verdict: decision?.verdict ?? null,
     decision,
     exchangeFeeWarning: decision?.exchangeFeeWarning ?? null,

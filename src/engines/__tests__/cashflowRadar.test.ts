@@ -89,7 +89,7 @@ function makeMonth(overrides: Partial<MonthInput> = {}): MonthInput {
     monthlyIncome: user.monthlyIncome,
     incomeDayOfMonth: 1,
     obligations: [],
-    dangerThreshold: user.dangerThreshold,
+    dangerThreshold: user.dangerThreshold ?? 0,
     ...overrides,
   };
 }
