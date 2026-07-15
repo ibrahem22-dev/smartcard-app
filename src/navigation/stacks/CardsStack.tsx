@@ -11,6 +11,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { CardsScreen } from '../../screens/CardsScreen';
+import { AddCardScreen } from '../../screens/AddCardScreen';
 import { CardDetailScreen } from '../../screens/CardDetailScreen';
 import { InterestCalculatorScreen } from '../../screens/InterestCalculatorScreen';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -27,6 +28,17 @@ export function CardsStack(): React.ReactElement {
         name="CardsRoot"
         component={CardsScreen}
         options={{ title: 'Cards' }}
+      />
+      <Stack.Screen
+        name="AddCard"
+        component={AddCardScreen}
+        options={{
+          headerShown: true,
+          headerTitleAlign: 'center',
+          headerStyle: { backgroundColor: '#141414' },
+          headerTintColor: '#FFFFFF',
+          title: t('הוסף כרטיס'),
+        }}
       />
       <Stack.Screen
         name="CardDetail"

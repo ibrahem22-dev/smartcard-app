@@ -147,6 +147,7 @@ export function CardsScreen(): React.ReactElement {
         <Pressable
           accessibilityRole="button"
           className="min-h-[50px] items-center justify-center rounded-lg bg-blue-600"
+          onPress={(): void => navigation.navigate('AddCard')}
         >
           <AppText className="text-center text-base font-extrabold text-white">
             {t('הוסף כרטיס')}
