@@ -1,14 +1,22 @@
-import React from 'react';
-import { Alert, Pressable, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import {
+  Alert,
+  Modal,
+  Pressable,
+  TextInput,
+  View,
+} from 'react-native';
 import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 import { AppText } from '../components/AppText';
-import { RtlScrollView, RtlScreen } from '../components/rtl';
+import { RtlRow, RtlScrollView, RtlScreen } from '../components/rtl';
 import { ProfileSwitcher } from '../components/ProfileSwitcher';
+import { useAppDirection } from '../hooks/useAppDirection';
 import { useLanguage } from '../hooks/useLanguage';
 import { useTheme } from '../hooks/useTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import type { SettingsStackParamList } from '../navigation/types';
+import { redeemPromoCode } from '../services/revenueCat';
 import {
   useLanguageStore,
   type LanguageChoice,
@@ -23,11 +31,12 @@ type SettingsScreenProps = NativeStackScreenProps<
 
 const LANGUAGE_OPTIONS: readonly {
   readonly preference: LanguageChoice;
-  readonly label: string;
+  readonly labelKey: string;
 }[] = [
-  { preference: 'auto', label: 'Auto' },
-  { preference: 'he', label: 'עברית' },
-  { preference: 'en', label: 'English' },
+  { preference: 'auto', labelKey: 'שפת המכשיר אוטומטי' },
+  { preference: 'he', labelKey: 'עברית' },
+  { preference: 'ar', labelKey: 'العربية' },
+  { preference: 'en', labelKey: 'English' },
 ];
 
 function withOpacity(color: string, opacity: number): string {
@@ -52,7 +61,59 @@ export function SettingsScreen({
   const { t } = useTranslation();
   const activeProfile = useProfileStore(state => state.activeProfile);
   const deleteProfile = useProfileStore(state => state.deleteProfile);
+  const { isRTL, textAlign, writingDirection } = useAppDirection();
+  const [isPromoModalVisible, setIsPromoModalVisible] = useState(false);
+  const [promoCode, setPromoCode] = useState('');
+  const [promoError, setPromoError] = useState<string | null>(null);
+  const [isRedeemingPromo, setIsRedeemingPromo] = useState(false);
+  const [promoToast, setPromoToast] = useState<string | null>(null);
   const bankDividerColor = withOpacity(theme.bankColor, 0.3);
+
+  useEffect(() => {
+    if (promoToast === null) {
+      return undefined;
+    }
+
+    const timeout = setTimeout((): void => setPromoToast(null), 4_000);
+    return (): void => clearTimeout(timeout);
+  }, [promoToast]);
+
+  function openPromoModal(): void {
+    setPromoCode('');
+    setPromoError(null);
+    setIsPromoModalVisible(true);
+  }
+
+  function closePromoModal(): void {
+    if (!isRedeemingPromo) {
+      setIsPromoModalVisible(false);
+      setPromoError(null);
+    }
+  }
+
+  async function handlePromoRedemption(): Promise<void> {
+    setPromoError(null);
+    setIsRedeemingPromo(true);
+
+    try {
+      const result = await redeemPromoCode(promoCode);
+      if (!result.success) {
+        setPromoError(result.error ?? t('לא ניתן לממש את הקוד כעת'));
+        return;
+      }
+
+      const monthsGranted = result.monthsGranted ?? 0;
+      setIsPromoModalVisible(false);
+      setPromoCode('');
+      setPromoToast(
+        t('✅ מימשת {{count}} חודשים Plus בחינם! תהנה.', {
+          count: monthsGranted,
+        }),
+      );
+    } finally {
+      setIsRedeemingPromo(false);
+    }
+  }
 
   function confirmDeleteProfile(profile: AppProfile): void {
     if (activeProfile?.id === profile.id) {
@@ -74,12 +135,23 @@ export function SettingsScreen({
   }
 
   return (
-    <RtlScreen className="bg-slate-50 dark:bg-app-dark">
+    <RtlScreen safe className="bg-slate-50 dark:bg-app-dark">
       <RtlScrollView
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
       >
         <View className="w-full p-5">
+          {promoToast !== null ? (
+            <View className="mb-4 rounded-xl bg-green-100 px-4 py-3 shadow-sm dark:bg-green-950">
+              <AppText
+                align="center"
+                className="font-extrabold text-green-800 dark:text-green-200"
+              >
+                {promoToast}
+              </AppText>
+            </View>
+          ) : null}
+
           <AppText
             className="mb-[18px] text-[26px] font-extrabold text-slate-900 dark:text-white"
             style={{
@@ -95,6 +167,31 @@ export function SettingsScreen({
             mode="editor"
             onRequestDelete={confirmDeleteProfile}
           />
+
+          <AppText
+            className="mb-2 mt-6 text-base font-extrabold text-slate-700 dark:text-slate-200"
+            style={{
+              borderBottomColor: bankDividerColor,
+              borderBottomWidth: 1,
+            }}
+          >
+            {t('חשבון ומנוי')}
+          </AppText>
+
+          <Pressable
+            accessibilityRole="button"
+            className="mb-5 min-h-[50px] justify-center rounded-lg border border-violet-200 bg-violet-50 px-4 shadow-sm dark:border-violet-900 dark:bg-violet-950"
+            onPress={openPromoModal}
+          >
+            <RtlRow className="items-center justify-between">
+              <AppText className="text-base font-extrabold text-violet-800 dark:text-violet-200">
+                {t('קוד קידום מכירות 🎟️')}
+              </AppText>
+              <AppText className="text-xl text-violet-700 dark:text-violet-300">
+                ›
+              </AppText>
+            </RtlRow>
+          </Pressable>
 
           <AppText
             className="mb-2 mt-6 text-base font-extrabold text-slate-700 dark:text-slate-200"
@@ -140,7 +237,7 @@ export function SettingsScreen({
                         : 'text-slate-700 dark:text-slate-200'
                     }`}
                   >
-                    {option.label}
+                    {t(option.labelKey)}
                   </AppText>
                 </Pressable>
               );
@@ -170,30 +267,10 @@ export function SettingsScreen({
           <Pressable
             accessibilityRole="button"
             className="mb-3 min-h-[50px] items-center justify-center rounded-lg border border-blue-200 bg-blue-50 px-4 dark:border-blue-900 dark:bg-blue-950"
-            onPress={(): void => navigation.navigate('Loans')}
-          >
-            <AppText className="text-center text-base font-extrabold text-blue-700 dark:text-blue-200">
-              {t('הלוואות ומשכנתא')}
-            </AppText>
-          </Pressable>
-
-          <Pressable
-            accessibilityRole="button"
-            className="mb-3 min-h-[50px] items-center justify-center rounded-lg border border-blue-200 bg-blue-50 px-4 dark:border-blue-900 dark:bg-blue-950"
             onPress={(): void => navigation.navigate('InterestCalculator')}
           >
             <AppText className="text-center text-base font-extrabold text-blue-700 dark:text-blue-200">
               {t('מחשבון ריבית')}
-            </AppText>
-          </Pressable>
-
-          <Pressable
-            accessibilityRole="button"
-            className="mb-3 min-h-[50px] items-center justify-center rounded-lg border border-blue-200 bg-blue-50 px-4 shadow-sm dark:border-blue-900 dark:bg-blue-950"
-            onPress={(): void => navigation.navigate('ProfileShare')}
-          >
-            <AppText className="text-center text-base font-extrabold text-blue-700 dark:text-blue-200">
-              {t('שיתוף פרופיל')}
             </AppText>
           </Pressable>
 
@@ -208,6 +285,67 @@ export function SettingsScreen({
           </Pressable>
         </View>
       </RtlScrollView>
+
+      <Modal
+        animationType="fade"
+        onRequestClose={closePromoModal}
+        transparent
+        visible={isPromoModalVisible}
+      >
+        <View className="flex-1 items-center justify-center bg-black/60 px-5">
+          <View
+            className="w-full max-w-md gap-4 rounded-2xl bg-white p-5 shadow-lg dark:bg-dark-surface"
+            key={isRTL ? 'promo-modal-rtl' : 'promo-modal-ltr'}
+          >
+            <AppText className="text-xl font-extrabold text-slate-900 dark:text-white">
+              {t('קוד קידום מכירות 🎟️')}
+            </AppText>
+
+            <TextInput
+              autoCapitalize="characters"
+              autoCorrect={false}
+              className="min-h-[52px] rounded-xl border border-slate-300 bg-slate-50 px-4 text-base text-slate-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
+              editable={!isRedeemingPromo}
+              onChangeText={setPromoCode}
+              placeholder={t('הכנס קוד')}
+              placeholderTextColor="#94A3B8"
+              style={{ textAlign, writingDirection }}
+              value={promoCode}
+            />
+
+            {promoError !== null ? (
+              <AppText className="text-sm font-bold text-red-600 dark:text-red-300">
+                {promoError}
+              </AppText>
+            ) : null}
+
+            <RtlRow className="gap-3">
+              <Pressable
+                accessibilityRole="button"
+                className="min-h-[48px] flex-1 items-center justify-center rounded-xl border border-slate-300 px-4 dark:border-neutral-700"
+                disabled={isRedeemingPromo}
+                onPress={closePromoModal}
+              >
+                <AppText className="font-bold text-slate-700 dark:text-slate-200">
+                  {t('ביטול')}
+                </AppText>
+              </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                className="min-h-[48px] flex-1 items-center justify-center rounded-xl bg-violet-600 px-4 shadow-sm"
+                disabled={isRedeemingPromo}
+                onPress={() => {
+                  void handlePromoRedemption();
+                }}
+              >
+                <AppText className="font-extrabold text-white">
+                  {isRedeemingPromo ? t('מממש…') : t('מימוש')}
+                </AppText>
+              </Pressable>
+            </RtlRow>
+          </View>
+        </View>
+      </Modal>
     </RtlScreen>
   );
 }

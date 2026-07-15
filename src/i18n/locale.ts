@@ -3,8 +3,8 @@ import { MMKV } from 'react-native-mmkv';
 
 import { MMKV_KEYS } from '../store/keys';
 
-export type AppLanguage = 'en' | 'he';
-export type LanguageChoice = 'auto' | 'en' | 'he';
+export type AppLanguage = 'en' | 'he' | 'ar';
+export type LanguageChoice = 'auto' | 'en' | 'he' | 'ar';
 
 /** @deprecated Use LanguageChoice */
 export type LanguagePreference = LanguageChoice;
@@ -15,7 +15,9 @@ export type ResolvedLanguage = AppLanguage;
 const storage = new MMKV({ id: 'smartcard.preferences' });
 
 function isLanguageChoice(value: string): value is LanguageChoice {
-  return value === 'auto' || value === 'he' || value === 'en';
+  return (
+    value === 'auto' || value === 'he' || value === 'en' || value === 'ar'
+  );
 }
 
 export function readStoredLanguageChoice(): LanguageChoice | undefined {
@@ -28,9 +30,6 @@ export function readStoredLanguageChoice(): LanguageChoice | undefined {
   }
   if (stored === 'device') {
     return 'auto';
-  }
-  if (stored === 'ar') {
-    return 'he';
   }
   return undefined;
 }
@@ -47,6 +46,9 @@ export function getDeviceLanguage(): AppLanguage {
     if (code === 'en') {
       return 'en';
     }
+    if (code === 'ar') {
+      return 'ar';
+    }
     if (code === 'he' || code === 'iw') {
       return 'he';
     }
@@ -58,7 +60,13 @@ export function resolveLanguage(choice: LanguageChoice | undefined): AppLanguage
   if (!choice || choice === 'auto') {
     return getDeviceLanguage();
   }
-  return choice === 'en' ? 'en' : 'he';
+  if (choice === 'en') {
+    return 'en';
+  }
+  if (choice === 'ar') {
+    return 'ar';
+  }
+  return 'he';
 }
 
 /**
@@ -69,12 +77,16 @@ export function getNormalizedLocale(): AppLanguage {
   if (stored === 'en') {
     return 'en';
   }
-  if (stored === 'he' || stored === 'ar') {
+  if (stored === 'ar') {
+    return 'ar';
+  }
+  if (stored === 'he') {
     return 'he';
   }
   return getDeviceLanguage();
 }
 
 export function isRTLLocale(): boolean {
-  return getNormalizedLocale() === 'he';
+  const locale = getNormalizedLocale();
+  return locale === 'he' || locale === 'ar';
 }

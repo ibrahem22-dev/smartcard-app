@@ -18,12 +18,12 @@ export {
 
 /** @deprecated Use isLanguageRTL(language) */
 export function isRTLForLanguage(language: import('../i18n/locale').AppLanguage): boolean {
-  return language === 'he';
+  return language === 'he' || language === 'ar';
 }
 
 /** @deprecated Use getRowDirection(language) */
 export function getRowFlexDirection(
   language: import('../i18n/locale').AppLanguage,
 ): 'row-reverse' | 'row' {
-  return language === 'he' ? 'row-reverse' : 'row';
+  return language === 'he' || language === 'ar' ? 'row-reverse' : 'row';
 }

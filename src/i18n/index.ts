@@ -1,3 +1,4 @@
+import { arBySource } from './ar';
 import { enBySource } from './en';
 import { translateHebrew } from './he';
 import { getNormalizedLocale, type AppLanguage } from './locale';
@@ -16,6 +17,9 @@ const i18n = {
   t(key: string): string {
     if (currentLanguage === 'en') {
       return enBySource[key] ?? key;
+    }
+    if (currentLanguage === 'ar') {
+      return arBySource[key] ?? key;
     }
     return translateHebrew(key);
   },

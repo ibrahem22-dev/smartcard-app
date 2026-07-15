@@ -5,7 +5,7 @@ export type WritingDirection = 'rtl' | 'ltr';
 export type { AppLanguage };
 
 export function isLanguageRTL(language: AppLanguage): boolean {
-  return language === 'he';
+  return language === 'he' || language === 'ar';
 }
 
 export function getWritingDirection(language: AppLanguage): WritingDirection {

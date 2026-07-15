@@ -1,5 +1,6 @@
 import { useCallback } from 'react';
 
+import { arBySource } from '../i18n/ar';
 import { enBySource } from '../i18n/en';
 import { translateHebrew } from '../i18n/he';
 import { useLanguage, type AppLanguage } from './useLanguage';
@@ -38,6 +39,17 @@ function translateDynamicEnglish(source: string): string | undefined {
   return undefined;
 }
 
+function translateDynamicArabic(source: string): string | undefined {
+  const exchangeFeeMatch = source.match(
+    /^רכישה בחו"ל: בכרטיס זה עשויה לחול עמלת המרה של (.+)%\.$/,
+  );
+  if (exchangeFeeMatch !== null) {
+    return `شراء دولي: قد تُطبق على هذه البطاقة عمولة تحويل عملة بنسبة ${exchangeFeeMatch[1]}%.`;
+  }
+
+  return undefined;
+}
+
 export function useTranslation(): UseTranslationResult {
   const { language } = useLanguage();
 
@@ -53,7 +65,11 @@ export function useTranslation(): UseTranslationResult {
             enBySource[source] ??
             translateDynamicEnglish(source) ??
             source
-          : translateHebrew(source);
+          : language === 'ar'
+            ? arBySource[source] ??
+              translateDynamicArabic(source) ??
+              source
+            : translateHebrew(source);
 
       return interpolate(translated, values);
     },

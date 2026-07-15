@@ -16,8 +16,8 @@ export interface UserProfile {
   readonly monthlyIncome: number;
   /** ₪ current bank balance — required for danger-threshold logic. */
   readonly currentBalance: number;
-  /** ₪ user-defined warning level; מינוס/risk surfaces once balance nears this. */
-  readonly dangerThreshold: number;
+  /** ₪ user-defined warning level. Unknown until the user enters one. */
+  readonly dangerThreshold?: number;
 
   /** Unix epoch ms. */
   readonly createdAt: number;

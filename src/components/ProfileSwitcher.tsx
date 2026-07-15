@@ -25,6 +25,17 @@ function getInitials(displayName: string): string {
   return initials === '' ? '?' : initials;
 }
 
+/** Localize known i18n keys used as stored display names; leave custom names as-is. */
+function localizeProfileName(
+  displayName: string,
+  t: (source: string) => string,
+): string {
+  if (displayName === 'פרופיל מקומי' || displayName === 'Local profile') {
+    return t('פרופיל מקומי');
+  }
+  return displayName;
+}
+
 export function ProfileSwitcher({
   mode,
   activeBorderColor,
@@ -66,11 +77,12 @@ export function ProfileSwitcher({
         <RtlRow className="gap-3" style={{ alignItems: startAlign }}>
           {allProfiles.map(profile => {
             const isActive = activeProfile?.id === profile.id;
+            const visibleName = localizeProfileName(profile.displayName, t);
 
             return (
               <View className="w-20 items-center" key={profile.id}>
                 <Pressable
-                  accessibilityLabel={profile.displayName}
+                  accessibilityLabel={visibleName}
                   accessibilityRole="button"
                   accessibilityState={{ selected: isActive }}
                   className={`h-14 w-14 items-center justify-center rounded-full border-2 ${
@@ -89,7 +101,7 @@ export function ProfileSwitcher({
                     align="center"
                     className={`text-base font-black ${isActive ? 'text-blue-700 dark:text-blue-200' : 'text-slate-700 dark:text-slate-200'}`}
                   >
-                    {getInitials(profile.displayName)}
+                    {getInitials(visibleName)}
                   </AppText>
                 </Pressable>
                 <AppText
@@ -97,7 +109,7 @@ export function ProfileSwitcher({
                   className="mt-1 w-full text-xs font-bold text-slate-700 dark:text-slate-200"
                   numberOfLines={1}
                 >
-                  {profile.displayName}
+                  {visibleName}
                 </AppText>
               </View>
             );
@@ -125,6 +137,7 @@ export function ProfileSwitcher({
           {allProfiles.map(profile => {
             const isActive = activeProfile?.id === profile.id;
             const isEditing = editingProfileId === profile.id;
+            const visibleName = localizeProfileName(profile.displayName, t);
 
             return (
               <View
@@ -155,7 +168,7 @@ export function ProfileSwitcher({
                 ) : (
                   <RtlRow className="items-center gap-2">
                     <AppText className="flex-1 text-base font-extrabold text-slate-800 dark:text-slate-100">
-                      {profile.displayName}
+                      {visibleName}
                     </AppText>
                     <Pressable
                       accessibilityRole="button"

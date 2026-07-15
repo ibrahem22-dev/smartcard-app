@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect } from 'react';
 import { View } from 'react-native';
 import {
   DarkTheme,
@@ -11,7 +11,6 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import './global.css';
 import { useAppDirection } from './src/hooks/useAppDirection';
 import { RootNavigator } from './src/navigation/RootNavigator';
-import { keyVault } from './src/security/keyVault';
 import { useLanguageStore } from './src/store/useLanguageStore';
 import { getRootDirectionStyle } from './src/utils/direction';
 
@@ -40,20 +39,15 @@ function AppShell(): React.ReactElement {
 }
 
 export default function App(): React.ReactElement {
-  const [vaultReady, setVaultReady] = useState(false);
   const isHydrated = useLanguageStore(state => state.isHydrated);
   const hydrateLanguage = useLanguageStore(state => state.hydrateLanguage);
   const dir = useAppDirection();
 
   useEffect(() => {
-    hydrateLanguage();
-    keyVault
-      .initializeOnFirstLaunch()
-      .then(() => setVaultReady(true))
-      .catch(() => setVaultReady(true));
+    void hydrateLanguage();
   }, [hydrateLanguage]);
 
-  const showMainUi = vaultReady && isHydrated;
+  const showMainUi = isHydrated;
 
   return (
     <>

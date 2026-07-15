@@ -271,6 +271,8 @@ export const enBySource: Readonly<Record<string, string>> = {
   שפה: en.settings.languageTitle,
   'שפת המכשיר אוטומטי': en.settings.deviceLanguage,
   עברית: en.settings.hebrew,
+  العربية: 'Arabic',
+  English: 'English',
   'מילון פיננסי': en.settings.financialGlossary,
   'הוסף תשלומים קיימים': en.settings.importInstallments,
   'צור קשר עם חברת האשראי': en.contact.title,
@@ -284,6 +286,12 @@ export const enBySource: Readonly<Record<string, string>> = {
   סיום: en.common.finish,
   בקרוב: en.common.soon,
   'Pro בלבד': en.common.proOnly,
+  'הכנס קוד': 'Enter code',
+  מימוש: 'Redeem',
+  'מממש…': 'Redeeming…',
+  'לא ניתן לממש את הקוד כעת': 'Could not redeem the code right now',
+  '✅ מימשת {{count}} חודשים Plus בחינם! תהנה.':
+    '✅ Redeemed {{count}} months of Plus free! Enjoy.',
   'הוסף פרופיל': en.profile.add,
   'שמור שם': en.profile.saveName,
   'שינוי שם': en.profile.rename,
@@ -291,6 +299,17 @@ export const enBySource: Readonly<Record<string, string>> = {
   'כל הכרטיסים שנשמרו במכשיר.': en.cards.subtitle,
   'לא נמצאו כרטיסים': en.cards.empty,
   'הוסף כרטיס': en.cards.add,
+  'שם הכרטיס': 'Card name',
+  'חברת האשראי': 'Card issuer',
+  '4 ספרות אחרונות': 'Last 4 digits',
+  'חיוב נוכחי (₪)': 'Current balance (₪)',
+  'יום חיוב בחודש (אופציונלי)': 'Billing day of month (optional)',
+  'עמלת המרת מט"ח % (אופציונלי)': 'FX conversion fee % (optional)',
+  'שדות לא ידועים נשארים לא ידועים — האפליקציה לא תמציא ערך.':
+    'Unknown fields stay unknown — the app will not invent a value.',
+  'שמור כרטיס': 'Save card',
+  'יש למלא שם, מנפיק, 4 ספרות, מסגרת וחיוב תקינים. יום חיוב 1–31 ועמלת מט"ח 0–100% הם אופציונליים.':
+    'Enter a valid name, issuer, 4 digits, credit limit and balance. Billing day 1–31 and FX fee 0–100% are optional.',
   'מועדון לא ידוע 🔍': en.cards.unknownClub,
   'מועדון רגיל': en.cards.standardClub,
   'מסתיים ב-{{last4}}': en.cards.endingIn,
@@ -411,6 +430,44 @@ export const enBySource: Readonly<Record<string, string>> = {
   'השתמש בקוד': en.onboarding.useCode,
   'האימות לא הושלם. נסה שוב.': en.onboarding.authFailed,
   'לא הצלחנו להשלים את האימות. נסה שוב.': en.onboarding.authError,
+  אופציונלי: 'Optional',
+  'פרופיל מקומי': 'Local profile',
+  'יש להשלים את שדות ההגדרה המקומית לפני המשך.':
+    'Complete the local onboarding fields before continuing.',
+  'יש להשלים שלב זה לפני המשך.': 'Complete this step before continuing.',
+  'לא הצלחנו לשמור את ההגדרה המקומית. נסה שוב.':
+    'Could not save local onboarding. Try again.',
+  'הגדרת כרטיס ידנית מלאה נשארת מקומית ותאסוף את שדות הכרטיס הנדרשים לפני יצירת כרטיס לשימוש.':
+    'Full manual card setup stays local and will collect required card fields before creating a usable card.',
+  'הנתונים נשמרים רק בכספת המוצפנת המקומית. לא ניתן לשחזר אותם אם שוכחים את ה-PIN ומאפסים את הכספת.':
+    'Data is saved only in the local encrypted vault. It cannot be recovered if the PIN is forgotten and the vault is reset.',
+  // local PIN / lock screen
+  'צור PIN מקומי': 'Create local PIN',
+  'ה-PIN הוא אימות הגישה העיקרי לכספת SmartCard המקומית שלך.':
+    'This PIN is the primary credential for your local SmartCard vault.',
+  PIN: 'PIN',
+  'אימות PIN': 'Confirm PIN',
+  'שמור PIN': 'Save PIN',
+  'שומר…': 'Saving…',
+  'הזן PIN בן 6 ספרות.': 'Enter a 6 digit PIN.',
+  'ערכי ה-PIN אינם תואמים.': 'The PIN entries do not match.',
+  'לא הצלחנו לשמור את ה-PIN המקומי. נסה שוב.':
+    'Could not save the local PIN. Try again.',
+  'פתיחת SmartCard': 'Unlock SmartCard',
+  'פתח עם PIN': 'Unlock with PIN',
+  'פותח…': 'Unlocking…',
+  'הזן את ה-PIN בן 6 הספרות שלך.': 'Enter your 6 digit PIN.',
+  'PIN שגוי.': 'Incorrect PIN.',
+  'נסה שוב בעוד {{seconds}} שניות.': 'Try again in {{seconds}} seconds.',
+  'לא הצלחנו לפתוח את הכספת המקומית. נסה שוב.':
+    'Could not unlock the local vault. Try again.',
+  'שכחת PIN או אפס כספת מקומית': 'Forgot PIN or reset local vault',
+  'לאפס את הכספת המקומית?': 'Reset local vault?',
+  'לא ניתן לשחזר נתונים פיננסיים מוצפנים מקומיים אחרי איפוס ב-MVP. פעולה זו מוחקת רק נתונים מקומיים במכשיר זה; אין נתונים פיננסיים בענן למחיקה.':
+    'Encrypted local financial data cannot be recovered after reset in the MVP. This only wipes local data on this device; there is no cloud financial data to delete.',
+  איפוס: 'Reset',
+  'לא הצלחנו לאפס את הכספת המקומית. נסה שוב.':
+    'Could not reset the local vault. Try again.',
   לאומי: 'Leumi',
   הפועלים: 'Hapoalim',
   דיסקונט: 'Discount',
@@ -431,6 +488,53 @@ export const enBySource: Readonly<Record<string, string>> = {
   'הסברים כלליים למונחים נפוצים. המידע נועד להבנה בלבד ואינו ייעוץ פיננסי.':
     en.glossary.intro,
   'כיצד זה משפיע עליך?': en.glossary.impact,
+  'מסגרת אשראי': en.glossary.terms[0].title,
+  'הסכום המרבי שחברת האשראי מאפשרת לחייב בכרטיס בכל רגע. עסקאות שטרם נפרעו תופסות חלק מהמסגרת עד שמועד החיוב עובר והן משולמות.':
+    en.glossary.terms[0].explanation,
+  'לדוגמה: במסגרת של 10,000 ₪, חיובים פתוחים בסך 3,000 ₪ משאירים 7,000 ₪ זמינים במסגרת.':
+    en.glossary.terms[0].example,
+  'מצב שבו חיוב שהוצג לחשבון הבנק לא שולם, לרוב מפני שלא הייתה יתרה מספקת. החיוב עשוי לחזור לחברת האשראי ולגרור עמלות או טיפול נוסף.':
+    en.glossary.terms[1].explanation,
+  'לדוגמה: אם ביום החיוב נדרש תשלום של 2,000 ₪ ובחשבון אין סכום מספיק, הבנק עשוי להחזיר את החיוב.':
+    en.glossary.terms[1].example,
+  'ריבית דריבית': en.glossary.terms[2].title,
+  'ריבית שמחושבת גם על הסכום המקורי וגם על ריבית שכבר הצטברה. ככל שהתקופה ארוכה יותר, ההפרש לעומת ריבית פשוטה יכול לגדול.':
+    en.glossary.terms[2].explanation,
+  'לדוגמה: כאשר ריבית מתווספת ליתרה בכל תקופה, חישוב הריבית הבא מתבצע על היתרה החדשה והגבוהה יותר.':
+    en.glossary.terms[2].example,
+  'עמלת המרה': en.glossary.terms[3].title,
+  'עמלה שנגבית כאשר מבצעים עסקה במטבע שונה מהמטבע שבו מחויב החשבון. שיעור העמלה ותנאי ההמרה משתנים בין כרטיסים וחברות.':
+    en.glossary.terms[3].explanation,
+  'לדוגמה: רכישה בדולרים בכרטיס שמחויב בשקלים עשויה לכלול המרת מטבע ועמלה באחוז מסכום העסקה.':
+    en.glossary.terms[3].example,
+  תשלומים: en.glossary.terms[4].title,
+  'חלוקה של סכום רכישה למספר חיובים חודשיים. כל תשלום תופס חלק מההוצאות בחודשים הבאים, ולעיתים העסקה כוללת גם ריבית.':
+    en.glossary.terms[4].explanation,
+  'לדוגמה: רכישה של 1,200 ₪ ב־12 תשלומים תחויב בדרך כלל בכ־100 ₪ בכל חודש, לפני ריבית או עמלות אם קיימות.':
+    en.glossary.terms[4].example,
+  'חיוב נדחה': en.glossary.terms[5].title,
+  'עסקה שבה התשלום נדחה למועד מאוחר יותר במקום להיגבות מיד. בהתאם לסוג העסקה, הדחייה עשויה להיות ללא עלות או לכלול ריבית ועמלות.':
+    en.glossary.terms[5].explanation,
+  'לדוגמה: רכישה שמתבצעת היום אך מחויבת רק בעוד חודש היא חיוב נדחה עד למועד שנקבע.':
+    en.glossary.terms[5].example,
+  'מועד חיוב': en.glossary.terms[6].title,
+  'היום בחודש שבו חברת האשראי מרכזת את העסקאות ומחייבת את חשבון הבנק. עסקאות שבוצעו סמוך למועד עשויות להיכלל בחיוב הנוכחי או בחיוב הבא.':
+    en.glossary.terms[6].explanation,
+  'לדוגמה: בכרטיס שמועד החיוב שלו הוא ה־10 בחודש, סכום החיוב יורד בדרך כלל מחשבון הבנק בתאריך זה.':
+    en.glossary.terms[6].example,
+  מסלול: en.glossary.terms[7].title,
+  'מערכת תנאים שמגדירה כיצד מוצר פיננסי מתנהל לאורך זמן. המסלול יכול לקבוע ריבית, תקופה, הצמדה, עמלות או כללי שימוש.':
+    en.glossary.terms[7].explanation,
+  'לדוגמה: שני מסלולים לאותו מוצר יכולים להיות שונים בשיעור הריבית, במשך התקופה ובאופן שבו התשלום משתנה.':
+    en.glossary.terms[7].example,
+  מועדון: en.glossary.terms[8].title,
+  'שיוך של כרטיס אשראי לקבוצת לקוחות, ארגון או תוכנית הטבות. המועדון עשוי להציע הנחות והטבות בתנאים ובבתי עסק מוגדרים.':
+    en.glossary.terms[8].explanation,
+  'לדוגמה: כרטיס המשויך למועדון מסוים עשוי להעניק הנחה אצל שותפי המועדון, בכפוף לתנאי ההטבה.':
+    en.glossary.terms[8].example,
+  'חשבון ומנוי': 'Account & subscription',
+  'קוד קידום מכירות 🎟️': 'Promo code 🎟️',
+  'בחר כרטיס': 'Choose a card',
   בית: 'Home',
   'בדיקת קנייה': 'Purchase Gate',
   כרטיסים: 'Cards',
