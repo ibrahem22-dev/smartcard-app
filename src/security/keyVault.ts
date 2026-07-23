@@ -580,14 +580,25 @@ async function recordFailure(): Promise<Extract<UnlockResult, { ok: false }>> {
   // Elapsed = max(0, min(monotonicNow()-lastFailureMonotonicMs, Date.now()-lastFailureWallMs))
   // min(monotonic, wall): attacker's forward clock-set yields the smaller monotonic value.
   // max(0, ...): clamps negative elapsed on rollback. (HIGH-01)
-  await writeLockout({
-    tier: 'backoff',
-    failures: normalizeBackoffFailures(failures),
-    lastFailureMonotonicMs: monotonicNow(),
-    lastFailureWallMs: Date.now(),
-    lockedUntilMs: 0,
-    isTerminalLock: false,
-  });
+  await writeLockout(
+    failures >= 5
+      ? {
+          tier: 'backoff',
+          failures: normalizeBackoffFailures(failures),
+          lastFailureMonotonicMs: monotonicNow(),
+          lastFailureWallMs: Date.now(),
+          lockedUntilMs: 0,
+          isTerminalLock: false,
+        }
+      : {
+          tier: 'clear',
+          failures: normalizeClearFailures(failures),
+          lastFailureMonotonicMs: monotonicNow(),
+          lastFailureWallMs: Date.now(),
+          lockedUntilMs: 0,
+          isTerminalLock: false,
+        },
+  );
   return delay > 0
     ? { ok: false, reason: 'locked_out', retryAfterMs: delay }
     : { ok: false, reason: 'bad_credential' };

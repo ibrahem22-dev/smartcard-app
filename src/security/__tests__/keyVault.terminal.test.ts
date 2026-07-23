@@ -373,6 +373,99 @@ describe('keyVault PIN-first setup and local wipe behavior', () => {
     expect(firstKey.some((byte, index) => byte !== secondKey[index])).toBe(true);
   });
 
+  describe('recordFailure persisted lockout counter', () => {
+    type PersistedLockout = {
+      readonly tier: string;
+      readonly failures: number;
+    };
+
+    function readPersistedLockout(): PersistedLockout {
+      const raw = mockSecureStoreState.get('sc.lockout');
+      expect(raw).toBeDefined();
+      return JSON.parse(raw!) as PersistedLockout;
+    }
+
+    async function setupLockedVaultForFailureRecording(): Promise<
+      ReturnType<typeof loadKeyVault>['keyVault']
+    > {
+      const { keyVault } = loadKeyVault();
+      await keyVault.initializeLocalVaultWithPin('123456');
+      keyVault.lock();
+      // Missing pepper forces unlockWithPin into recordFailure() without mock-GCM
+      // identity decrypt falsely accepting every derived KEK.
+      mockSecureStoreState.delete('sc.pin.pepper');
+      return keyVault;
+    }
+
+    test('after 1 failure persists clear tier with failures === 1', async () => {
+      setNow(1_000_000);
+      const keyVault = await setupLockedVaultForFailureRecording();
+
+      const result = await keyVault.unlockWithPin('000000');
+
+      expect(result).toEqual({ ok: false, reason: 'bad_credential' });
+      const persisted = readPersistedLockout();
+      expect(persisted.tier).toBe('clear');
+      expect(persisted.failures).toBe(1);
+    });
+
+    test('after 4 failures persists clear tier with failures === 4', async () => {
+      setNow(1_000_000);
+      const keyVault = await setupLockedVaultForFailureRecording();
+
+      for (let attempt = 0; attempt < 3; attempt += 1) {
+        await keyVault.unlockWithPin('000000');
+      }
+      const result = await keyVault.unlockWithPin('000000');
+
+      expect(result).toEqual({ ok: false, reason: 'bad_credential' });
+      const persisted = readPersistedLockout();
+      expect(persisted.tier).toBe('clear');
+      expect(persisted.failures).toBe(4);
+    });
+
+    test('after 5 failures persists backoff tier with failures === 5 and 30s lockout', async () => {
+      setNow(1_000_000);
+      const keyVault = await setupLockedVaultForFailureRecording();
+
+      for (let attempt = 0; attempt < 4; attempt += 1) {
+        await keyVault.unlockWithPin('000000');
+      }
+      const result = await keyVault.unlockWithPin('000000');
+
+      expect(result).toEqual({
+        ok: false,
+        reason: 'locked_out',
+        retryAfterMs: 30_000,
+      });
+      const persisted = readPersistedLockout();
+      expect(persisted.tier).toBe('backoff');
+      expect(persisted.failures).toBe(5);
+    });
+
+    test('after 6 failures escalates persisted backoff to 60s', async () => {
+      setNow(1_000_000);
+      const keyVault = await setupLockedVaultForFailureRecording();
+
+      for (let attempt = 0; attempt < 4; attempt += 1) {
+        await keyVault.unlockWithPin('000000');
+      }
+      await keyVault.unlockWithPin('000000');
+      setNow(1_000_000 + 30_001);
+
+      const result = await keyVault.unlockWithPin('000000');
+
+      expect(result).toEqual({
+        ok: false,
+        reason: 'locked_out',
+        retryAfterMs: 60_000,
+      });
+      const persisted = readPersistedLockout();
+      expect(persisted.tier).toBe('backoff');
+      expect(persisted.failures).toBe(6);
+    });
+  });
+
   test('tiers 5-9 block both PIN and biometric', async () => {
     setNow(4_000_000);
     const { keyVault } = loadKeyVault();
