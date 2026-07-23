@@ -206,7 +206,7 @@ Extend — do not rewrite existing files.
 
 **Existing (all compile ✅):**
 - `card.types.ts` · `purchase.types.ts` · `installment.types.ts` · `cashflow.types.ts`
-- `benefit.types.ts` · `user.types.ts` · `feature.types.ts` · `decision.types.ts`
+- `user.types.ts` · `feature.types.ts` · `decision.types.ts`
 - `contact.types.ts` ✅ (committed — `ProblemType`, `IssuerContact`)
 
 **Extensions to `card.types.ts` (M4 — CARD-RATES-TYPES-01):**

@@ -1,8 +1,8 @@
 // /src/types/decision.types.ts
 
-import type { CardIssuer } from './card.types';
+import type { CardInput as UserCard, CardIssuer } from './card.types';
 import type { Obligation } from './cashflow.types';
-import type { Currency, PurchaseInput } from './purchase.types';
+import type { Currency } from './purchase.types';
 
 /** Final purchase verdict rendered by DecisionScreen. */
 export type DecisionVerdict =
@@ -37,7 +37,7 @@ export interface PurchaseGateInput {
 export interface FxComparisonRow {
   readonly cardId: string;
   readonly displayName: string;
-  /** Effective FX commission as a percentage (0 for a matched מט"ח account). */
+  /** Effective FX commission as a percentage (0 for a matched foreign-currency account). */
   readonly commission: number;
 }
 
@@ -51,7 +51,7 @@ export interface UsePurchaseGateResult {
   readonly exchangeFeeWarning: string | null;
   /**
    * FX-commission comparison for an international purchase. Empty unless
-   * isInternational is true AND ≥2 cards have cardRates defined.
+   * isInternational is true AND two or more cards have cardRates defined.
    */
   readonly fxComparison: readonly FxComparisonRow[];
   readonly evaluate: () => DecisionVerdict;
@@ -71,14 +71,14 @@ export interface RecommendedCard {
 
 /**
  * Output of a purchase decision, consumed directly by DecisionScreen (M3).
- * Every field maps to something the UI displays — no engine-internal fields.
+ * Every field maps to something the UI displays; no engine-internal fields.
  */
 export interface PurchaseDecision {
   readonly verdict: DecisionVerdict;
 
   /** Reasoning shown to the user, one field per language. */
-  readonly reason: string; // Hebrew
-  readonly reasonAr: string; // Arabic
+  readonly reason: string;
+  readonly reasonAr: string;
   readonly exchangeFeeWarning?: string;
 
   /**
@@ -88,29 +88,9 @@ export interface PurchaseDecision {
   readonly recommendedCard: RecommendedCard | null;
 
   /**
-   * ₪ the user saves by following the recommendation vs. their default card.
+   * The user saves by following the recommendation vs. their default card.
    * 0 when there is no saving to surface.
    */
   readonly savingsAmount: number;
   readonly currency: Currency;
-}
-
-// ── الـ imports المُصحَّحة ──────────────────────────────────────────
-// UserCard      -> CardInput   (aliased to keep usage sites untouched)
-// PurchaseInput -> Purchase    (aliased likewise)
-// CardRecommendation: لا يوجد نوع مقابل — تم توجيه alternatives للنوع المحلي RecommendedCard (الخيار A)
-import type { CardInput as UserCard } from './card.types';
-import type { Benefit } from './benefit.types';
-
-export interface DecisionContext {
-  readonly purchaseInput: PurchaseInput;
-  readonly availableCards: readonly UserCard[];
-  readonly activeBenefits: readonly Benefit[];
-}
-
-export interface DecisionSummary {
-  readonly primary: PurchaseDecision;
-  readonly alternatives: readonly RecommendedCard[]; // ⚠️ كان CardRecommendation (غير موجود) — راجع الخيار B
-  readonly context: DecisionContext;
-  readonly timestamp: number;
 }
