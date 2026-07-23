@@ -15,3 +15,10 @@ export function getNextPrivacyOverlayVisible(
 
   return currentVisible;
 }
+
+export function shouldPreventScreenCapture(
+  appState: AppStateStatus,
+  isUnlocked: boolean,
+): boolean {
+  return appState !== 'active' || !isUnlocked;
+}
