@@ -13,3 +13,17 @@ ios/
 android/
 תעריפון ועמלות/
 תיעוד ועמלות/
+
+# Local QA / device-evidence trees (do not land in app commits).
+scripts/
+qa_evidence/
+
+# ---------------------------------------------------------------------------
+# INTENTIONAL MANUAL EXCLUSION (no ignore patterns — do not auto-gitignore):
+#   src/screens/auth/
+#   src/services/supabase.ts
+# Deferred-scope scaffolding (Supabase / LOCK-016 / LOCK-018). Kept untracked
+# on purpose until an explicit Project Owner decision to commit them when the
+# Supabase phase opens. Absence of ignore rules here is deliberate, not an
+# oversight — agents must not add patterns for these paths without Owner OK.
+# ---------------------------------------------------------------------------
