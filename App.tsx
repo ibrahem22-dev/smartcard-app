@@ -31,8 +31,12 @@ function DirectionSplash(): React.ReactElement {
 function AppShell(): React.ReactElement {
   const dir = useAppDirection();
 
+  // T-24: do NOT key this View (or NavigationContainer) on directionKey.
+  // Remounting unmounts AuthProvider → bootstrap UNKNOWN/LOCK flash even when
+  // the in-memory DEK/session is still valid. Direction updates via style +
+  // RtlRow/AppText; TabNavigator may remount tabs without remounting auth.
   return (
-    <View key={dir.directionKey} style={getRootDirectionStyle(dir.language)}>
+    <View style={getRootDirectionStyle(dir.language)}>
       <RootNavigator />
     </View>
   );
@@ -41,7 +45,6 @@ function AppShell(): React.ReactElement {
 export default function App(): React.ReactElement {
   const isHydrated = useLanguageStore(state => state.isHydrated);
   const hydrateLanguage = useLanguageStore(state => state.hydrateLanguage);
-  const dir = useAppDirection();
 
   useEffect(() => {
     void hydrateLanguage();
@@ -60,7 +63,7 @@ export default function App(): React.ReactElement {
         <DirectionSplash />
       ) : (
         <SafeAreaProvider>
-          <NavigationContainer key={`nav-${dir.directionKey}`} theme={navigationTheme}>
+          <NavigationContainer theme={navigationTheme}>
             <AppShell />
           </NavigationContainer>
         </SafeAreaProvider>
