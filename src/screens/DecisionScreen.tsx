@@ -25,7 +25,16 @@ const VERDICT_LABELS: Record<DecisionVerdict, string> = {
   wait_24h: 'המתן 24 שעות ⏳',
 };
 
-const VERDICT_REASONS: Record<DecisionVerdict, string> = {
+/**
+ * Fallback copy, used ONLY when no engine reason reached this screen.
+ *
+ * MVP_SCOPE §4: "Decision reasons are shown from the actual engine output."
+ * This screen previously rendered these canned strings unconditionally, which
+ * discarded the engine's specific finding -- the user saw "the purchase may
+ * endanger your cashflow" instead of which obligation caused it and by how
+ * much. The engine reason now wins whenever it exists.
+ */
+const VERDICT_FALLBACK_REASONS: Record<DecisionVerdict, string> = {
   approved: 'הרכישה נראית מתאימה לתזרים הנוכחי.',
   warning: 'אפשר לבצע את הרכישה, אבל כדאי לשים לב למרווח הביטחון.',
   blocked: 'הרכישה עלולה לסכן את התזרים או את מסגרת האשראי.',
@@ -51,6 +60,14 @@ export function DecisionScreen({
   const { t } = useTranslation();
   const verdict = route.params.verdict;
   const fxComparison = route.params.fxComparison ?? [];
+  // §4: reasons come from the actual engine output. The canned per-verdict
+  // string is a fallback for the case where no reason was carried through.
+  const engineReason = route.params.reason;
+  const engineExchangeFeeWarning = route.params.exchangeFeeWarning;
+  const reasonText =
+    engineReason !== undefined && engineReason.trim() !== ''
+      ? engineReason
+      : t(VERDICT_FALLBACK_REASONS[verdict]);
 
   return (
     <RtlScreen safe className="bg-slate-50 dark:bg-app-dark">
@@ -69,8 +86,15 @@ export function DecisionScreen({
           <AppText
             className="mt-2.5 text-base leading-6 text-slate-800 dark:text-slate-100"
           >
-            {t(VERDICT_REASONS[verdict])}
+            {reasonText}
           </AppText>
+          {engineExchangeFeeWarning === undefined ? null : (
+            <AppText
+              className="mt-2 text-sm leading-5 text-slate-700 dark:text-slate-200"
+            >
+              {engineExchangeFeeWarning}
+            </AppText>
+          )}
         </View>
 
         <FeatureGate feature="ScoreSection">
@@ -113,7 +137,7 @@ export function DecisionScreen({
               {t('השוואת עמלות המרה')}
             </AppText>
             {fxComparison.map((rowItem, index): React.ReactElement => {
-              const isLowest = index === 0;
+              const isLowest = rowItem.verified && index === 0;
               return (
                 <RtlRow
                   className={`min-h-[44px] items-center justify-between rounded-md border px-2 ${
@@ -123,25 +147,41 @@ export function DecisionScreen({
                   }`}
                   key={rowItem.cardId}
                 >
-                  <AppText
-                    className={`text-base ${
-                      isLowest
-                        ? 'font-extrabold text-green-700 dark:text-green-200'
-                        : 'text-slate-700 dark:text-slate-200'
-                    }`}
-                  >
-                    {rowItem.displayName}
-                    {isLowest ? ` · ${t('הזול ביותר')}` : ''}
-                  </AppText>
-                  <AppText
-                    className={`text-base font-extrabold ${
-                      isLowest
-                        ? 'text-green-700 dark:text-green-200'
-                        : 'text-slate-900 dark:text-slate-50'
-                    }`}
-                  >
-                    {formatCommission(rowItem.commission)}
-                  </AppText>
+                  <View className="flex-1">
+                    <AppText
+                      className={`text-base ${
+                        isLowest
+                          ? 'font-extrabold text-green-700 dark:text-green-200'
+                          : 'text-slate-700 dark:text-slate-200'
+                      }`}
+                    >
+                      {rowItem.displayName}
+                      {isLowest ? ` · ${t('הזול ביותר')}` : ''}
+                    </AppText>
+                    {rowItem.verified ? (
+                      <AppText className="text-xs text-green-700 dark:text-green-300">
+                        {t('מאומת')}
+                        {rowItem.effectiveFrom !== null
+                          ? ` · ${t('בתוקף מ־')} ${rowItem.effectiveFrom}`
+                          : ''}
+                      </AppText>
+                    ) : null}
+                  </View>
+                  {rowItem.commission !== null ? (
+                    <AppText
+                      className={`text-base font-extrabold ${
+                        isLowest
+                          ? 'text-green-700 dark:text-green-200'
+                          : 'text-slate-900 dark:text-slate-50'
+                      }`}
+                    >
+                      {formatCommission(rowItem.commission)}
+                    </AppText>
+                  ) : (
+                    <AppText className="text-sm text-slate-400 dark:text-neutral-500">
+                      {t('טרם אומת')}
+                    </AppText>
+                  )}
                 </RtlRow>
               );
             })}

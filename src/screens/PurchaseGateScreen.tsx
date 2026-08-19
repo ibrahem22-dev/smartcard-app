@@ -84,9 +84,15 @@ export function PurchaseGateScreen(): React.ReactElement {
     }
 
     setAmount(parsedAmount);
-    const nextVerdict = evaluate();
+    // Carry the engine's own reason through to the Decision screen.
+    // MVP_SCOPE §4: reasons are shown from the actual engine output.
+    const nextDecision = evaluate();
     navigation.navigate('Decision', {
-      verdict: nextVerdict,
+      verdict: nextDecision.verdict,
+      reason: nextDecision.reason,
+      ...(nextDecision.exchangeFeeWarning === undefined
+        ? {}
+        : { exchangeFeeWarning: nextDecision.exchangeFeeWarning }),
       fxComparison,
     });
   }

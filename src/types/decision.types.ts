@@ -37,8 +37,14 @@ export interface PurchaseGateInput {
 export interface FxComparisonRow {
   readonly cardId: string;
   readonly displayName: string;
-  /** Effective FX commission as a percentage (0 for a matched foreign-currency account). */
-  readonly commission: number;
+  /** Verified foreign-purchase commission as a percentage. `null` when the card
+   *  has no verified data — the UI shows "not yet confirmed", never a silent
+   *  default (DATA_AUTHORITY §1). */
+  readonly commission: number | null;
+  /** True when `commission` comes from the production-approved verified dataset. */
+  readonly verified: boolean;
+  /** ISO effective date of the source tariff for verified rows; null otherwise. */
+  readonly effectiveFrom: string | null;
 }
 
 export interface UsePurchaseGateResult {
@@ -54,7 +60,16 @@ export interface UsePurchaseGateResult {
    * isInternational is true AND two or more cards have cardRates defined.
    */
   readonly fxComparison: readonly FxComparisonRow[];
-  readonly evaluate: () => DecisionVerdict;
+  /**
+   * Evaluate and return the FULL decision.
+   *
+   * This returned only a `DecisionVerdict`, which meant a caller had no
+   * synchronous access to the engine's reason -- `setDecision` is React state
+   * and is not readable in the same tick. DecisionScreen therefore fell back
+   * to a canned per-verdict sentence, breaking MVP_SCOPE §4 "decision reasons
+   * are shown from the actual engine output".
+   */
+  readonly evaluate: () => PurchaseDecision;
 }
 
 /**

@@ -30,6 +30,13 @@ export type PurchaseGateStackParamList = {
   PurchaseGateRoot: { amount?: number; category?: string } | undefined;
   Decision: {
     verdict: DecisionVerdict;
+    /**
+     * The engine's own reason for this verdict. MVP_SCOPE §4 requires the
+     * screen show actual engine output; without carrying it here the screen
+     * can only render a canned per-verdict sentence.
+     */
+    reason?: string;
+    exchangeFeeWarning?: string;
     fxComparison?: readonly FxComparisonRow[];
   };
   Contact: undefined;

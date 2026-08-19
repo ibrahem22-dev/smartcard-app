@@ -181,7 +181,12 @@ describe('purchaseGate.evaluatePurchase', () => {
     expect(result.verdict).toBe('wait_24h');
   });
 
-  test('essential purchase stays warning instead of wait_24h in 5-15% range', (): void => {
+  // MVP_SCOPE §7.4 superseded the former buffer bands (blocked <5%,
+  // wait_24h 5-15%, warning <=20%). The threshold is now a single
+  // "warning below 10% of monthly income", so a buffer AT 10% or above is
+  // approved. These two cases previously asserted the old bands.
+
+  test('essential purchase at exactly a 10% buffer is approved', (): void => {
     const result = evaluatePurchase(
       makePurchase({ amount: 9_000, isEssential: true }),
       makeGateInput({
@@ -191,11 +196,12 @@ describe('purchaseGate.evaluatePurchase', () => {
       }),
     );
 
-    expect(result.verdict).toBe('warning');
+    // buffer 1_000 / income 10_000 = 10%, which is not BELOW the threshold.
+    expect(result.verdict).toBe('approved');
   });
 
-  test('returns warning when buffer is 5-20% of income', (): void => {
-    const result = evaluatePurchase(
+  test('warns only once the buffer falls below 10% of income', (): void => {
+    const atThreshold = evaluatePurchase(
       makePurchase({ amount: 8_500 }),
       makeGateInput({
         currentBalance: 20_000,
@@ -203,8 +209,19 @@ describe('purchaseGate.evaluatePurchase', () => {
         monthlyIncome: 10_000,
       }),
     );
+    // buffer 1_500 / 10_000 = 15% -> above threshold.
+    expect(atThreshold.verdict).toBe('approved');
 
-    expect(result.verdict).toBe('warning');
+    const belowThreshold = evaluatePurchase(
+      makePurchase({ amount: 9_500 }),
+      makeGateInput({
+        currentBalance: 20_000,
+        remainingBalance: 10_000,
+        monthlyIncome: 10_000,
+      }),
+    );
+    // buffer 500 / 10_000 = 5% -> below threshold.
+    expect(belowThreshold.verdict).toBe('warning');
   });
 
   test('skips exchange-fee warning when the purchase card is unknown', (): void => {

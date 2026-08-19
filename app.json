@@ -4,7 +4,6 @@
     "slug": "smartcard",
     "scheme": "smartcard",
     "version": "1.0.0",
-    "newArchEnabled": true,
     "orientation": "portrait",
     "userInterfaceStyle": "automatic",
     "ios": {

@@ -1,0 +1,312 @@
+{
+  "_meta": {
+    "note": "Maps a user card (issuer + displayName) to a curated-release FX slug. REVIEW/EXTEND matchNames with the Hebrew display names users actually enter. reviewNeeded=true means only the English card name is seeded.",
+    "reviewNeededCount": 16
+  },
+  "map": {
+    "max-max-back-total": {
+      "issuer": "max",
+      "cardName": "MAX Back Total",
+      "matchNames": [
+        "MAX Back Total",
+        "max back total",
+        "מקס בק טוטאל"
+      ],
+      "reviewNeeded": false
+    },
+    "max-maxback-crypto": {
+      "issuer": "max",
+      "cardName": "MAXBack CRYPTO",
+      "matchNames": [
+        "MAXBack CRYPTO",
+        "מקס בק קריפטו"
+      ],
+      "reviewNeeded": false
+    },
+    "max-dreamcard-vip": {
+      "issuer": "max",
+      "cardName": "DREAMCARD VIP",
+      "matchNames": [
+        "DREAMCARD VIP",
+        "דרים קארד"
+      ],
+      "reviewNeeded": false
+    },
+    "max-max-first": {
+      "issuer": "max",
+      "cardName": "FIRST",
+      "matchNames": [
+        "FIRST",
+        "מקס פירסט"
+      ],
+      "reviewNeeded": false
+    },
+    "max-behatsdaa": {
+      "issuer": "max",
+      "cardName": "בהצדעה",
+      "matchNames": [
+        "בהצדעה"
+      ],
+      "reviewNeeded": true
+    },
+    "max-max-executive": {
+      "issuer": "max",
+      "cardName": "MAX Executive",
+      "matchNames": [
+        "MAX Executive"
+      ],
+      "reviewNeeded": true
+    },
+    "max-kranot": {
+      "issuer": "max",
+      "cardName": "קרנות",
+      "matchNames": [
+        "קרנות"
+      ],
+      "reviewNeeded": true
+    },
+    "max-mymax": {
+      "issuer": "max",
+      "cardName": "MyMAX",
+      "matchNames": [
+        "MyMAX"
+      ],
+      "reviewNeeded": true
+    },
+    "max-max-1824": {
+      "issuer": "max",
+      "cardName": "MAX 1824",
+      "matchNames": [
+        "MAX 1824",
+        "מקס 1824"
+      ],
+      "reviewNeeded": false
+    },
+    "max-reut": {
+      "issuer": "max",
+      "cardName": "רעות תקני לי",
+      "matchNames": [
+        "רעות תקני לי"
+      ],
+      "reviewNeeded": true
+    },
+    "max-i-need-it": {
+      "issuer": "max",
+      "cardName": "כזה אני רוצה I Need It",
+      "matchNames": [
+        "כזה אני רוצה I Need It"
+      ],
+      "reviewNeeded": true
+    },
+    "max-max-business": {
+      "issuer": "max",
+      "cardName": "MAX Business",
+      "matchNames": [
+        "MAX Business"
+      ],
+      "reviewNeeded": true
+    },
+    "max-wincard-plus": {
+      "issuer": "max",
+      "cardName": "WINCARD+",
+      "matchNames": [
+        "WINCARD+"
+      ],
+      "reviewNeeded": true
+    },
+    "max-max-pinukim": {
+      "issuer": "max",
+      "cardName": "MAX פינוקים",
+      "matchNames": [
+        "MAX פינוקים"
+      ],
+      "reviewNeeded": true
+    },
+    "max-all-club-business": {
+      "issuer": "max",
+      "cardName": "ALL CLUB Business",
+      "matchNames": [
+        "ALL CLUB Business"
+      ],
+      "reviewNeeded": true
+    },
+    "max-hebrew-university-alumni": {
+      "issuer": "max",
+      "cardName": "בוגרי האוניברסיטה העברית",
+      "matchNames": [
+        "בוגרי האוניברסיטה העברית"
+      ],
+      "reviewNeeded": true
+    },
+    "max-max-back": {
+      "issuer": "max",
+      "cardName": "MAX BACK",
+      "matchNames": [
+        "MAX BACK",
+        "MAX Back",
+        "מקס בק"
+      ],
+      "reviewNeeded": false
+    },
+    "card-amex-platinacard": {
+      "issuer": "isracard",
+      "cardName": "American Express Platinum",
+      "matchNames": [
+        "American Express Platinum",
+        "amex platinum",
+        "אמקס פלטינום",
+        "אמריקן אקספרס פלטינום"
+      ],
+      "reviewNeeded": false
+    },
+    "cal-365-vip": {
+      "issuer": "cal",
+      "cardName": "Cal365 VIP",
+      "matchNames": [
+        "Cal365 VIP",
+        "כאל 365"
+      ],
+      "reviewNeeded": false
+    },
+    "cal-mastercard-generic": {
+      "issuer": "cal",
+      "cardName": "Mastercard",
+      "matchNames": [
+        "Mastercard"
+      ],
+      "reviewNeeded": true
+    },
+    "cal-miles-and-more": {
+      "issuer": "cal",
+      "cardName": "Miles & More",
+      "matchNames": [
+        "Miles & More",
+        "מיילס אנד מור"
+      ],
+      "reviewNeeded": false
+    },
+    "cal-mycal": {
+      "issuer": "cal",
+      "cardName": "My Cal",
+      "matchNames": [
+        "My Cal"
+      ],
+      "reviewNeeded": true
+    },
+    "cal-visa-generic": {
+      "issuer": "cal",
+      "cardName": "Visa",
+      "matchNames": [
+        "Visa"
+      ],
+      "reviewNeeded": true
+    },
+    "cal-diners-club": {
+      "issuer": "cal",
+      "cardName": "Diners Club",
+      "matchNames": [
+        "Diners",
+        "Diners Club",
+        "diners club",
+        "דיינרס"
+      ],
+      "reviewNeeded": false
+    },
+    "cal-fixnet": {
+      "issuer": "cal",
+      "cardName": "CalFixnet",
+      "matchNames": [
+        "CalFixnet",
+        "fixnet"
+      ],
+      "reviewNeeded": false
+    },
+    "cal-paybox": {
+      "issuer": "cal",
+      "cardName": "PayBox",
+      "matchNames": [
+        "PayBox",
+        "paybox",
+        "פייבוקס"
+      ],
+      "reviewNeeded": false
+    },
+    "cal-cashcal-hno": {
+      "issuer": "cal",
+      "cardName": "CashCal H&O",
+      "matchNames": [
+        "CashCal H&O"
+      ],
+      "reviewNeeded": true
+    },
+    "cal-diners-extra-home": {
+      "issuer": "cal",
+      "cardName": "Diners Extra Home",
+      "matchNames": [
+        "Diners Extra Home"
+      ],
+      "reviewNeeded": true
+    },
+    "cal-yesh": {
+      "issuer": "cal",
+      "cardName": "יש",
+      "matchNames": [
+        "yesh",
+        "יש"
+      ],
+      "reviewNeeded": false
+    },
+    "cal-carrefour": {
+      "issuer": "cal",
+      "cardName": "Carrefour club",
+      "matchNames": [
+        "Carrefour",
+        "Carrefour club",
+        "carrefour",
+        "קרפור"
+      ],
+      "reviewNeeded": false
+    },
+    "cal-shufersal-visa": {
+      "issuer": "cal",
+      "cardName": "שופרסל Visa",
+      "matchNames": [
+        "shufersal",
+        "שופרסל",
+        "שופרסל Visa",
+        "שופרסל ויזה"
+      ],
+      "reviewNeeded": false
+    },
+    "cal-shufersal-shop-and-fly": {
+      "issuer": "cal",
+      "cardName": "שופרסל SHOP&FLY",
+      "matchNames": [
+        "shufersal shop and fly",
+        "שופרסל SHOP&FLY"
+      ],
+      "reviewNeeded": false
+    },
+    "card-amex-cashback": {
+      "issuer": "isracard",
+      "cardName": "American Express CashBack Premium",
+      "matchNames": [
+        "American Express CashBack Premium",
+        "amex cashback",
+        "אמריקן אקספרס קאשבק"
+      ],
+      "reviewNeeded": false
+    },
+    "card-amex-flycard": {
+      "issuer": "isracard",
+      "cardName": "American Express FLY CARD PREMIUM",
+      "matchNames": [
+        "American Express FLY CARD PREMIUM",
+        "fly card",
+        "fly card premium",
+        "פלייקארד"
+      ],
+      "reviewNeeded": false
+    }
+  }
+}

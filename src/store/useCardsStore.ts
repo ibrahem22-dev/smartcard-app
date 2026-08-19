@@ -34,6 +34,14 @@ import type { ImportedInstallment } from '../types/installment.types';
 import { cancelDiscountReminders } from '../services/notificationScheduler';
 import { isValidMonetaryAmount } from '../utils/monetary';
 import { MMKV_KEYS } from './keys';
+import {
+  HYDRATING,
+  NOT_HYDRATED,
+  describeHydrationError,
+  hydrated,
+  hydrationFailed,
+  type HydrationState,
+} from './hydration';
 
 // ---------------------------------------------------------------------------
 
@@ -50,6 +58,8 @@ export interface CardEntry {
 // ---------------------------------------------------------------------------
 
 interface CardsState {
+  /** Whether `cards`/`entries`/`obligations` reflect storage yet. */
+  hydration: HydrationState;
   /** Plain card array — the view engines and UI components consume. */
   cards: UserCard[];
 
@@ -174,21 +184,46 @@ export const useCardsStore = create<CardsState>()((set) => ({
   entries: [],
   obligations: [],
   transactions: [],
+  hydration: NOT_HYDRATED,
 
   hydrate() {
-    const handle = keyVault.getEncryptedStorage();
-    const activeProfileId = handle.getString(MMKV_KEYS.activeProfileId);
-    if (activeProfileId === undefined) {
-      set({ entries: [], cards: [], obligations: [] });
-      return;
+    set({ hydration: HYDRATING });
+    try {
+      const handle = keyVault.getEncryptedStorage();
+      const activeProfileId = handle.getString(MMKV_KEYS.activeProfileId);
+      if (activeProfileId === undefined) {
+        // No active profile is a KNOWN empty result, not a failure.
+        set({
+          entries: [],
+          cards: [],
+          obligations: [],
+          hydration: hydrated(new Date().toISOString()),
+        });
+        return;
+      }
+      const entries = parseEntries(
+        handle.getString(MMKV_KEYS.profileCards(activeProfileId)),
+      );
+      const obligations = parseObligations(
+        handle.getString(MMKV_KEYS.profileCardObligations(activeProfileId)),
+      );
+      set({
+        entries,
+        cards: entries.map((e) => e.card),
+        obligations,
+        hydration: hydrated(new Date().toISOString()),
+      });
+    } catch (error: unknown) {
+      // The vault can be locked (AUTH-07). Leaving `cards: []` behind without
+      // recording the failure is what made a locked vault look like a user
+      // with no cards.
+      set({
+        entries: [],
+        cards: [],
+        obligations: [],
+        hydration: hydrationFailed(describeHydrationError(error)),
+      });
     }
-    const entries = parseEntries(
-      handle.getString(MMKV_KEYS.profileCards(activeProfileId)),
-    );
-    const obligations = parseObligations(
-      handle.getString(MMKV_KEYS.profileCardObligations(activeProfileId)),
-    );
-    set({ entries, cards: entries.map((e) => e.card), obligations });
   },
 
   hydrateProfile(profileId: string) {

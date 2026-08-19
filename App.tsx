@@ -54,11 +54,8 @@ export default function App(): React.ReactElement {
 
   return (
     <>
-      <StatusBar
-        style="light"
-        backgroundColor="#141414"
-        translucent={false}
-      />
+      {/* SDK 57 edge-to-edge no longer supports status-bar color/translucency. */}
+      <StatusBar style="light" />
       {!showMainUi ? (
         <DirectionSplash />
       ) : (

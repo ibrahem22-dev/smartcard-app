@@ -6,12 +6,15 @@ import type {
 import type { PurchaseInput } from '../types/purchase.types';
 import { Currency } from '../types/purchase.types';
 import { isValidMonetaryAmount } from '../utils/monetary';
+import {
+  PURCHASE_GATE_RULES,
+  evaluateCashflowVerdict,
+} from './purchaseGateRules';
 
-const APPROVED_BUFFER_RATIO = 0.2;
-const WARNING_MIN_BUFFER_RATIO = 0.05;
-const WAIT_24H_MAX_BUFFER_RATIO = 0.15;
-const BLOCKED_UTILIZATION_RATIO = 0.9;
-const WARNING_UTILIZATION_RATIO = 0.7;
+// Cashflow thresholds now come from MVP_SCOPE §7.4 via purchaseGateRules.
+// The former local constants (blocked <5%, wait_24h 5-15%, approved >20%)
+// contradicted §7.4 and were superseded by the Owner decision.
+const { blockedUtilizationRatio, warningUtilizationRatio } = PURCHASE_GATE_RULES;
 
 function buildDecision(
   verdict: PurchaseDecision['verdict'],
@@ -161,7 +164,7 @@ export function evaluatePurchase(
 
   if (
     creditUtilization !== null &&
-    creditUtilization > BLOCKED_UTILIZATION_RATIO
+    creditUtilization > blockedUtilizationRatio
   ) {
     return buildDecision(
       'blocked',
@@ -172,36 +175,52 @@ export function evaluatePurchase(
     );
   }
 
-  const postPurchaseBuffer = gateInput.remainingBalance - input.amount;
-  const bufferRatio = postPurchaseBuffer / gateInput.monthlyIncome;
+  // MVP_SCOPE §7.4 cashflow verdict. Obligations still due this month are
+  // charged against the projected balance, so a purchase the user can afford
+  // today but not after the 28th is caught.
+  const cashflow = evaluateCashflowVerdict({
+    remainingBalance: gateInput.remainingBalance,
+    monthlyIncome: gateInput.monthlyIncome,
+    purchaseAmount: input.amount,
+    isEssential: input.isEssential,
+    obligations: gateInput.obligations,
+    todayDayOfMonth: new Date(gateInput.snapshotDate).getDate(),
+  });
 
-  if (bufferRatio < WARNING_MIN_BUFFER_RATIO) {
+  if (cashflow.verdict === 'blocked') {
     return buildDecision(
       'blocked',
-      'מרווח הביטחון אחרי הרכישה נמוך מ-5% מההכנסה.',
-      'هامش الأمان بعد الشراء أقل من 5% من الدخل.',
+      `היתרה הצפויה אחרי הרכישה והתחייבויות החודש שלילית (₪${cashflow.projectedBalance.toFixed(2)}).`,
+      `الرصيد المتوقع بعد الشراء والالتزامات الشهرية سالب (₪${cashflow.projectedBalance.toFixed(2)}).`,
       input.currency,
       exchangeFeeWarning,
     );
   }
 
-  if (
-    !input.isEssential &&
-    bufferRatio >= WARNING_MIN_BUFFER_RATIO &&
-    bufferRatio <= WAIT_24H_MAX_BUFFER_RATIO
-  ) {
+  if (cashflow.verdict === 'warning') {
+    return buildDecision(
+      'warning',
+      'מרווח הביטחון אחרי הרכישה נמוך מ-10% מההכנסה החודשית.',
+      'هامش الأمان بعد الشراء أقل من 10% من الدخل الشهري.',
+      input.currency,
+      exchangeFeeWarning,
+    );
+  }
+
+  if (cashflow.verdict === 'wait_24h') {
     return buildDecision(
       'wait_24h',
-      'הרכישה אינה חיונית ומרווח הביטחון צפוף. כדאי להמתין 24 שעות.',
-      'الشراء غير ضروري وهامش الأمان ضيق. من الأفضل الانتظار 24 ساعة.',
+      'רכישה לא חיונית בגובה 25% ומעלה מההכנסה החודשית. כדאי להמתין 24 שעות.',
+      'شراء غير ضروري بقيمة 25% أو أكثر من الدخل الشهري. من الأفضل الانتظار 24 ساعة.',
       input.currency,
       exchangeFeeWarning,
     );
   }
 
+  // Utilisation guard is additional to §7.4, not a competing cashflow rule.
   if (
     creditUtilization !== null &&
-    creditUtilization > WARNING_UTILIZATION_RATIO
+    creditUtilization > warningUtilizationRatio
   ) {
     return buildDecision(
       'warning',
@@ -212,20 +231,10 @@ export function evaluatePurchase(
     );
   }
 
-  if (bufferRatio <= APPROVED_BUFFER_RATIO) {
-    return buildDecision(
-      'warning',
-      'מרווח הביטחון אחרי הרכישה הוא 5%-20% מההכנסה.',
-      'هامش الأمان بعد الشراء بين 5% و20% من الدخل.',
-      input.currency,
-      exchangeFeeWarning,
-    );
-  }
-
   return buildDecision(
     'approved',
-    'מרווח הביטחון אחרי הרכישה גבוה מ-20% מההכנסה.',
-    'هامش الأمان بعد الشراء أعلى من 20% من الدخل.',
+    'הרכישה בתוך מרווח הביטחון וההתחייבויות הידועות של החודש.',
+    'الشراء ضمن هامش الأمان والالتزامات المعروفة لهذا الشهر.',
     input.currency,
     exchangeFeeWarning,
   );

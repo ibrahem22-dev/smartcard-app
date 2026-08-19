@@ -588,6 +588,9 @@ export const enBySource: Readonly<Record<string, string>> = {
   // FX comparison (DecisionScreen — FX-RECOMMEND-01)
   'השוואת עמלות המרה': 'FX commission comparison',
   'הזול ביותר': 'Lowest',
+  'מאומת': 'Verified',
+  'טרם אומת': 'Not yet confirmed',
+  'בתוקף מ־': 'Effective from',
   // Card detail screen (CARD-DETAIL-01)
   'הכרטיס לא נמצא': 'Card not found',
   'יום חיוב (1–31) וסכום מסגרת חייבים להיות תקינים.':

@@ -26,8 +26,8 @@
 import * as SecureStore from 'expo-secure-store';
 import * as Crypto from 'expo-crypto';
 import { MMKV } from 'react-native-mmkv';
-import { gcm } from '@noble/ciphers/aes';
-import { argon2idAsync } from '@noble/hashes/argon2';
+import { gcm } from '@noble/ciphers/aes.js';
+import { argon2idAsync } from '@noble/hashes/argon2.js';
 
 import type { UserProfile } from '../types/user.types';
 import { MMKV_KEYS } from '../store/keys';
