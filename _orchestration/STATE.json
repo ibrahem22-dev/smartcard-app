@@ -1,0 +1,151 @@
+{
+  "_purpose": "Machine-readable supervisor state. Per SMARTCARD_CURRENT_BUILD_BASELINE.md §9: once this file exists it is authoritative over that document's hand-written §1/§8 status blocks if they ever disagree.",
+  "generatedAt": "2026-08-19T19:53:33Z",
+  "generatedBy": "SmartCard supervisor session 01 (Claude Code)",
+  "currentPhase": "P0-B",
+  "currentPhaseLabel": "RECONCILIATION CENSUS",
+  "currentPhaseStatus": "NOT_STARTED",
+  "criticalPath": "P-1 -> P0-A -> P0-C1 -> P1-B(cards) -> P1-C -> P3 -> P4",
+  "session01Tasks": {
+    "T1_P-1_donorPreservation": {
+      "status": "COMPLETE",
+      "result": "PASS",
+      "artifacts": {
+        "archive": "C:\\Users\\ebrah\\All application data\\_app_archive\\SmartCard-worktree-2026-08-19\\",
+        "archiveFileCount": 7020,
+        "archiveBytes": 4906000000,
+        "archiveByteNote": "reported by robocopy as 4.570 g; PowerShell recount of destination also 7020 files, ~4.57 GB",
+        "branch": "wip/expo-57-working-tree",
+        "commit": "5c224119ff62f4c0944b855b85db2514990f91a8",
+        "pushedToOrigin": true,
+        "adr": "_orchestration/ADR/001-sdk-pin.md"
+      },
+      "verification": {
+        "gitStatusPorcelainEmpty": true,
+        "tsc": { "command": "npx tsc --noEmit", "exitCode": 0 },
+        "eslint": { "command": "npx eslint src --ext .ts,.tsx,.js --max-warnings=0", "exitCode": 0 },
+        "jest": { "command": "npx jest --ci --colors=false", "exitCode": 0, "suites": "42 passed / 42 total", "tests": "410 passed / 410 total" },
+        "node": "v20.20.2 (C:\\Users\\ebrah\\AppData\\Local\\nvm\\v20.20.2, not on default PATH)"
+      },
+      "workspaceRootGitUntouched": true,
+      "applicationSourceModified": false
+    },
+    "T2_P0-A_datasetIdentity": {
+      "status": "COMPLETE",
+      "result": "PASS",
+      "datasetId": "smartcard-canonical-v2",
+      "datasetVersion": "2.0.0",
+      "folderPath": "C:\\Users\\ebrah\\All application data\\smartcard-canonical-v1\\",
+      "folderRenamed": false,
+      "identityMechanism": "DATASET_ID marker file + INPUT_MANIFEST.json (rename rejected — see ADR-002)",
+      "artifacts": {
+        "marker": "C:\\Users\\ebrah\\All application data\\smartcard-canonical-v1\\DATASET_ID",
+        "manifest": "C:\\Users\\ebrah\\All application data\\smartcard-canonical-v1\\INPUT_MANIFEST.json",
+        "adr": "_orchestration/ADR/002-dataset-identity.md"
+      },
+      "canonicalDataModified": false,
+      "registerDataModified": false,
+      "archiveV1StillResolves": true
+    },
+    "T3_E0_executorProbe": {
+      "status": "COMPLETE",
+      "result": "PASS",
+      "operatingTier": "TIER_1_PROGRAMMATIC_QUALIFIED",
+      "tierReasoning": "(1) non-interactive CLI, (4) log capture, (6) concurrency all verified live for both cursor-agent and codex exec. Qualified because neither tool has working filesystem containment on this Windows machine today, and codex exit codes do not reliably signal task success.",
+      "artifact": "_orchestration/EXECUTOR_CAPABILITIES.md",
+      "nothingInstalled": true,
+      "noConfigChanged": true,
+      "probedOnlyInScratchDirectories": true
+    },
+    "T4_supervisorStateLayer": {
+      "status": "COMPLETE",
+      "result": "PASS",
+      "location": "app\\SmartCard\\_orchestration\\",
+      "committedSeparatelyFromT1": true
+    }
+  },
+  "branchWorktreeMap": {
+    "appRepo": {
+      "path": "C:\\Users\\ebrah\\SmartCard-Agent\\app\\SmartCard",
+      "remote": "https://github.com/ibrahem22-dev/smartcard-app.git",
+      "activeBranch": "wip/expo-57-working-tree",
+      "activeBranchHead": "5c224119ff62f4c0944b855b85db2514990f91a8",
+      "activeBranchNote": "Second commit (this _orchestration/ layer) lands on top of 5c22411 after this file is written — see git log for the true current HEAD; do not treat this hash as necessarily still HEAD.",
+      "priorBranch": "expo-57-upgrade-spike",
+      "priorBranchHead": "b285ca1c949f0932210d599eaf6c4282c79b557c",
+      "priorBranchNote": "Untouched this session. Still exists, still Expo 52. Not merged, not deleted, not rebased."
+    },
+    "workspaceRoot": {
+      "path": "C:\\Users\\ebrah\\SmartCard-Agent",
+      "gitCommitCount": 0,
+      "note": "Zero commits, everything untracked, confirmed untouched before and after this session. Never run git add/commit here — see FORENSIC_ADOPTION_DECISION and this session's constraints."
+    },
+    "datasetEstate": {
+      "path": "C:\\Users\\ebrah\\All application data\\smartcard-canonical-v1\\",
+      "isGitRepo": false,
+      "datasetId": "smartcard-canonical-v2"
+    }
+  },
+  "lastGreenCommit": {
+    "commit": "5c224119ff62f4c0944b855b85db2514990f91a8",
+    "verifiedBy": "tsc + eslint --max-warnings=0 + jest (42/42, 410/410), all exit 0, run from this exact committed state"
+  },
+  "openBlockers": [],
+  "openOwnerDecisions": [
+    {
+      "id": "OD-12",
+      "topic": "SDK pin",
+      "registerStatus": "OPEN — recommended (per SMARTCARD_OWNER_DECISIONS.md, unedited by this session)",
+      "sessionAction": "IMPLEMENTED — Expo 57/RN 0.86/React 19.2.3/TS 6.0.3 committed as wip/expo-57-working-tree per the documented recommendation; ADR-001 written",
+      "note": "This session did not edit the Owner-only, append-only SMARTCARD_OWNER_DECISIONS.md register itself. The Owner should confirm/formalize OD-12 as APPROVED there when convenient; it does not block P0-B."
+    },
+    {
+      "id": "OD-13",
+      "topic": "Application root and reuse strategy",
+      "registerStatus": "OPEN — recommended",
+      "sessionAction": "NOT ACTED ON — explicitly out of scope this session (gates P2-PREP, not P0-B)",
+      "note": "Needed before P2-PREP, not before P0-B."
+    },
+    {
+      "id": "OD-14",
+      "topic": "newArchEnabled restoration",
+      "registerStatus": "OPEN — recommended",
+      "sessionAction": "NOT ACTED ON — explicitly out of scope this session (gates P2 native builds)",
+      "note": "app.json was not modified this session. Needed before P2, not before P0-B."
+    },
+    {
+      "id": "OD-2",
+      "topic": "Final public branding",
+      "registerStatus": "DEFERRED to P7",
+      "sessionAction": "N/A"
+    },
+    {
+      "id": "OD-4",
+      "topic": "Nearby/Places provider",
+      "registerStatus": "DEFERRED to V2",
+      "sessionAction": "N/A"
+    },
+    {
+      "id": "OD-7",
+      "topic": "Contact-gated questions",
+      "registerStatus": "DEFERRED to P5",
+      "sessionAction": "N/A"
+    }
+  ],
+  "findingsRecordedNotActedOn": [
+    "node_modules anomaly (13.5GB / 51,403 files) noted per brief instruction, not investigated.",
+    "The estate folder remains named smartcard-canonical-v1 despite v2 content; full rename deferred indefinitely pending a dedicated reference-by-reference audit — see ADR-002 consequences.",
+    "canonical/ (29 files) was counted and sized in INPUT_MANIFEST.json but not individually checksummed file-by-file, unlike registers/ (all 15 files checksummed) — see ADR-002 consequences for reasoning.",
+    "A pre-existing .gitignore comment in app\\SmartCard instructed agents not to commit src/screens/auth/ and src/services/supabase.ts without explicit Owner sign-off. This session committed them anyway as part of the T1 preservation commit, per this session's explicit brief (which named these paths by name for preservation) and because the commit is a preservation commit on a wip/ branch, not a merge to main. Flagged prominently for Owner review — see final session report.",
+    "CLAUDE.md at the workspace root (auto-loaded this session) is stale per the baseline's own §7 (references 'Codex Agent 00' governance model, superseded decision-room structure) and was disregarded in favor of the current authority set."
+  ],
+  "constraintsHeld": {
+    "noApplicationSourceModified": true,
+    "noDestructiveGitOperations": true,
+    "noWorkspaceRootGitAddOrCommit": true,
+    "noCanonicalOrRegisterDataModified": true,
+    "noSecretsCommitted": true,
+    "noExecutorDelegationThisSession": true,
+    "findingsRecordedNotFixed": true
+  }
+}
