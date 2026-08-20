@@ -1,154 +1,160 @@
 {
   "_purpose": "Machine-readable supervisor state. Authoritative over the baseline's hand-written status blocks if they disagree.",
-  "generatedAt": "2026-08-20T17:25:00Z",
-  "generatedBy": "SmartCard supervisor session 05 (Claude Code, Opus 5)",
+  "generatedAt": "2026-08-20T23:55:00Z",
+  "generatedBy": "SmartCard supervisor session 06 (Claude Code, Opus 5)",
 
   "currentPhase": "P0-C3 / P1-C",
-  "currentPhaseLabel": "PER-ENTITY SCHEMAS (now following a PROVEN pattern) in parallel with the P1-C adapter",
-  "currentPhaseStatus": "READY_TO_START",
-  "criticalPath": "P-1 -> P0-A -> P0-B -> P0-C1 -> P1-B(cards) -> P1-C -> P3 -> P4",
-  "criticalPathNote": "P1-B IS DONE. The cards tracer bullet ran end to end against all 1,077 real rows and every acceptance criterion passed. The contract pattern is proven; twelve more families can now follow it.",
+  "currentPhaseLabel": "PER-ENTITY SCHEMAS — Batch 1 (the cost model) is DONE; Batch 2 next, P1-C still gated",
+  "currentPhaseStatus": "BATCH_1_COMPLETE",
+  "criticalPath": "P-1 -> P0-A -> P0-B -> P0-C1 -> P1-B(cards) -> P0-C3(batch1) -> P1-C -> P3 -> P4",
+  "criticalPathNote": "Batch 1 is projected, validated against the full real corpus and merged. P1-C is the only thing on the critical path that a supervisor session cannot start, because OD-20 gates it.",
 
   "frozenArtifacts": {
     "SMARTCARD_DATA_CONTRACT.md": {
-      "version": "1.1",
+      "version": "1.3",
       "status": "RE-FROZEN 2026-08-20",
-      "note": "v1.0 freeze did NOT hold - amended as an incident (ADR-008). R0-R7 all applied and individually cited.",
-      "adr": "_orchestration/ADR/008-contract-v1.1-incident.md"
+      "note": "v1.1 incident (ADR-008). v1.2 discovery, the three on-disk states (ADR-009). v1.3 discovery, the unit domain (ADR-010): §5 rewritten as §5.1/§5.2, §2.8 gains a fourth census clause.",
+      "adr": "_orchestration/ADR/010-contract-v1.3-unit-domain.md"
     },
-    "SMARTCARD_DATA_CONTRACT_CARDS.md": {
-      "version": "1.2",
+    "SMARTCARD_DATA_CONTRACT_CARDS.md": { "version": "1.2", "status": "FROZEN" },
+    "SMARTCARD_DATA_CONTRACT_COSTMODEL.md": {
+      "version": "1.1",
       "status": "FROZEN",
-      "note": "v1.1 added OD-19 (the 15 flagged rows). v1.2 re-derived the provenance shape against Tier-1 v1.1 AND added the three-state cost-field rule the tracer bullet discovered."
+      "note": "v1.0 inherited Tier-1's PERCENT/ILS-only rule. v1.1 carries the measured five-value domain, §1.4-A foreign currency, §1.4-B OTHER. Open question 2 closed by measurement."
     },
     "SMARTCARD_GATE10_PROJECTION.md": { "version": "1.0", "status": "FROZEN" }
   },
 
-  "session05Tasks": {
-    "precondition": {
-      "result": "PASS — first time in four sessions",
-      "authorityVersionsOnDisk": "OWNER_DECISIONS v1.7, BUILD_BASELINE v1.7, EXECUTION_MODEL v2.5",
-      "note": "Precondition A demanded v1.7/v1.7/v2.5 and disk matched. The recurring document-sync gap is closed.",
-      "amendmentFile": "SMARTCARD_DATA_CONTRACT_AMENDMENT_v2.md present on disk and verified to MATCH the prompt's inline §4 exactly — no discrepancy.",
-      "aclVerified": "read succeeds, write denied, on both smartcard-canonical-v1 and _app_archive"
+  "session06Tasks": {
+    "T1_durability": {
+      "status": "COMPLETE", "result": "PASS — OD-21 CLOSED",
+      "detail": "Private GitHub remote created under Owner authorisation and pushed. main tracks origin/main; task/P1-A and task/P1-B also on the remote. The project's standing single-disk total-loss risk on the pipeline is retired.",
+      "backupScope": "bundles + estate + the archive's unique ~6 MB, per the Owner's ruling"
     },
-    "T1_contractAmendment": {
-      "status": "COMPLETE", "result": "v1.0 -> v1.1 RE-FROZEN",
-      "classification": "INCIDENT, not an edit",
-      "revisionsApplied": {
-        "R0": "§1 lines 49-50 — compiled-in EXPECTED_DATASET_ID with HARD REFUSAL; marker/constant authority split stated",
-        "R1": "§2.1 line 94 + §2.2 — USER chip added, no Layer-A source, outranks all, survives pack updates",
-        "R2": "§2.3 line 128 — stale is a MODIFIER with asOfDate; HISTORICAL retains its earned chip; v1.0 fifth-state rule withdrawn",
-        "R3": "§2.1 + §2.4 line 149 — WITHHELD reverted to UNKNOWN; reason + obtainable, present iff chip===UNKNOWN",
-        "R4": "§2.5 line 185 — lattice USER > VERIFIED > ESTIMATE > UNKNOWN frozen, all four propagation rules, implemented once",
-        "R5": "§6.4-A line 440 / §6.4-B line 460 — allowlist-only numeric projection, raw text preserved, enum split folded into G06b's output spec",
-        "R6": "§6-A line 513 — lineage omission stated as a PROJECTION RULE, not only a gate; gate #10 extended to assert no lineage key",
-        "R7": "§9 line 644 — gate 11 keys on unit OR kind, acceptance by record id (L13b)"
-      },
-      "residualsFixed": "all normative WITHHELD occurrences replaced; remaining mentions are historical annotations explaining what changed"
+    "T2_contract_v1_2": {
+      "status": "COMPLETE", "result": "RE-FROZEN at v1.2",
+      "classification": "DISCOVERY, not an incident — the v1.1 freeze held",
+      "detail": "§2.7 three on-disk states; §2.8 standing pre-schema census. ADR-009."
     },
-    "T2_gateRepairs": {
-      "status": "COMPLETE", "result": "PASS",
-      "pathDetector": {
-        "before": { "falsePositives": 33, "rate": "0.0117%", "hebrew": "0.0545%", "latin": "0.0053%" },
-        "after": { "falsePositives": 0, "rate": "0.0000%", "hebrew": "0.0000%", "latin": "0.0000%", "arabic": "0.0000%" },
-        "truePositivesRetained": 3756,
-        "stringsScanned": 282899,
-        "fix": "restricted to known POSIX roots; /media deliberately EXCLUDED because it is a common Israeli bank URL segment (/media/vqkbcz0l/terms.pdf) and accounted for the last 2 false positives"
-      },
-      "gate11": {
-        "status": "implemented for the first time (was spec-only)",
-        "l13bResult": "ALL FIVE target records caught BY ID against the real corpus; the v1.0 unit-only rule caught 0 of 5",
-        "targets": ["ben-mr-bonus-benefit-3000", "ben-wonder-spend-tier-low", "ben-wonder-spend-tier-high", "ben-fly-matmid-earn-2019-regulation", "ben-mr-excluded-sector-earn"],
-        "sub1Handling": "33 uncorroborated sub-1 values FLAGGED for review, never rescaled (constraint 6)"
-      }
+    "T4_batch1": {
+      "status": "COMPLETE", "result": "ALL L13 CRITERIA PASS",
+      "delegation": "Cursor (cursor-agent, claude-opus-5-high) built the three projections; the R1 repair is the supervisor's after two failed executor runs.",
+      "families": { "feeTerms": 1175, "fxPairs": 43, "fxExceptions": 14, "waivers": 171 },
+      "projected": { "fees": 1090, "fxPairs": 43, "fxExceptions": 14, "waivers": 171 },
+      "droppedShipToAppFalse": 85,
+      "provenancedValues": { "fees": 1090, "fx": 186, "waivers": 532 },
+      "evidencedAbsences": { "fees": 60, "fx": 0, "waivers": 85 },
+      "shippedForeignCurrency": 109,
+      "shippedConflicted": 34,
+      "shippedUnitNotDeterminable": 1,
+      "suite": "16 suites / 356 tests, tsc 0, lint 0 — all 329 prior tests intact, none weakened",
+      "cardsPackUnchanged": "c48e91204132409a8943a22ea545a5453dd2580796e91d9a6698b16cead500f6 (979,069 bytes) — re-verified after the CardCostUnit split",
+      "unprompted": "The executor also built auditForeignAtmSources, which was not in the packet and which answered costmodel §3/§5.1."
     },
-    "T3_P1B_tracerBullet": {
-      "status": "COMPLETE", "result": "ALL ACCEPTANCE CRITERIA PASS",
-      "delegation": {
-        "U1_U3": "Cursor (cursor-agent, claude-opus-5-high) — projection, pack+manifest, atomic import",
-        "U4_U5": "supervisor — the adapter's public shape is consequential and hard to change later",
-        "repairs": 1
-      },
-      "l13RealCorpus": {
-        "inputRows": 1077,
-        "packRows": 474,
-        "breakdown": { "CURRENT": 378, "RETIRED": 56, "TARIFF_ONLY_NOT_PROVEN_CURRENT": 25, "EXCLUDED_FROM_PRODUCT_COUNT": 15 },
-        "displayedCurrentProducts": 378,
-        "neverProjected_UNVERIFIED_LEGACY": 603,
-        "zeroPaths": true, "zeroLineageKeys": true, "zeroVerifiedFeesBlobs": true, "zeroCodenames": true,
-        "zeroChipsOutsideEnum": true, "zeroUserChipsEmitted": true,
-        "zeroUnknownWithValueKey": true, "zeroBareCounts": true,
-        "deterministic": true,
-        "packSha256": "c48e91204132409a8943a22ea545a5453dd2580796e91d9a6698b16cead500f6",
-        "packBytes": 979069
-      },
-      "theFinding": "THE CONTRACT SURVIVED, THE SCHEMA'S PROSE DID NOT. The projection threw on 34 real rows: a cost field has THREE on-disk states, not two — present-with-a-number (1,388), absent (394), and PRESENT WITH value:null (34). Fourteen of those 34 carry verificationStatus VERIFIED_OFFICIAL, which is an EVIDENCED ABSENCE (the tariff was read; no separate figure is published), not a contradiction. Contract v1.1's `reason` field — added hours earlier as R3 — was exactly the right shape: chip UNKNOWN because there is no number, reason NOT_PUBLISHED because someone looked. Under v1.0's WITHHELD-with-no-reason those 14 would have been indistinguishable from 'nobody has looked yet'.",
-      "latticeImplementation": "src/lattice.ts — implemented exactly once behind a TYPE-ONLY brand, so an engine cannot construct a result chip by hand and have it typecheck. All four propagation rules proven by test, including rule 3 (UNKNOWN absorbing, no value key emitted)."
+    "T4_theThreeDefects": {
+      "1_authority": "Tier-1 §5 permitted only PERCENT and ILS — a CARDS measurement written as a rule for every family. Measured fee-terms domain: ILS 748, PERCENT 248, USD 117, OTHER 17, null 39, EUR 6. 123 foreign-currency rows, 118 of them calculationSafe, were being crashed on rather than shipped. MINE, not the executor's: its docstring cites the rule and documents the build failure as intended behaviour.",
+      "2_process": "THE CENSUS RAN AND WAS BLIND. §2.8 was added in v1.2 precisely to prevent schema-from-assumption, and it reported clean here because it printed JSON TYPES: `unit` read as string:1136/null:39, a healthy-looking field whose domain had five values of which the schema named two. A census that checks the shape of a value but not its content passes while blind, which is worse than not running one because it certifies the gap.",
+      "3_code": "readDeclaredCostUnit mapped any unrecognised unit to `undefined`, collapsing 'the estate declared no unit' into 'the estate declared a unit I have never heard of'. This survives the contract fix and was repaired regardless. Note: the supervisor's own first fix used describe(), which prints 'string', reproducing the defect — the test caught it in under a minute, which is the argument for asserting on error MESSAGES."
     },
-    "T4_conflictFixture": {
-      "status": "COMPLETE", "result": "PASS",
-      "detail": "Synthetic conflicted card (card:SYNTHETIC-FIXTURE:conflicted-fx) with two competing FX candidates. Proven end to end: the adapter returns both candidates with NO scalar value; an engine takes the CONSERVATIVE candidate (3.0%, worse for the user), downgrades to ESTIMATE, and the reason trace records the choice, the alternative and that nothing was arbitrated. worseIs direction is DECLARED, never inferred — a LOWER-is-worse test proves the inversion."
+    "T4_fourthDiscovery_conflicting": {
+      "found": "by the new tests, not by the corpus sweep",
+      "detail": "34 shippable fee terms carry verificationStatus CONFLICTING, which CHIP_BY_STATUS deliberately omits (§2.1), and which failed the build. The estate declares these conflicts BY REFERENCE (conflictsWithTermIds names the disagreeing rows), where §7's candidates[] shape assumes the readings are inline — true only for FX legs.",
+      "ruling": "The invariant that matters is the same either way: NO SCALAR VALUE reaches a consumer unarbitrated. A by-reference conflict projects chip UNKNOWN, reason CONFLICTED, no value key, with valueText and the deduplicated pointers preserved. All 34 are already calculationSafe:false on disk.",
+      "alsoAffects": "one FX leg (foreignAtmSameCurrencyFee)"
     },
-    "T5_stateAndClose": { "status": "COMPLETE" }
+    "T5_adapter": {
+      "status": "SKIPPED — REPORTED, NOT SILENTLY DEFERRED",
+      "reason": "OD-20 (where the P1-C Data Authority Adapter lives) is still OPEN. The session brief forbids the supervisor choosing the adapter's home. Nothing was started."
+    },
+    "T6_antigravity": { "status": "COMPLETE", "result": "TIER 2 — GUI HANDOFF ONLY", "detail": "Recommendation on OD-22: adopt as a visual-evidence tool only, no production implementation role. Nothing installed, no configuration changed." },
+    "T7_stateAndClose": { "status": "COMPLETE" }
   },
 
   "branchWorktreeMap": {
     "appRepo": {
       "path": "C:\\Users\\ebrah\\SmartCard-Agent\\app\\SmartCard",
       "integrationBranch": "wip/expo-57-working-tree",
-      "headBeforeOrchestrationCommit": "434c56c",
+      "remote": "https://github.com/ibrahem22-dev/smartcard-app.git",
       "srcModifiedThisSession": false,
-      "note": "No application source touched. The tracer bullet was built entirely in the pipeline repo (OD-10), which is why the app's 410-test suite was not at risk and was not re-run."
+      "note": "No application source touched. All work was in the pipeline repo (OD-10)."
     },
     "pipelineRepo": {
       "path": "C:\\Users\\ebrah\\smartcard-data-pipeline",
       "branch": "main",
-      "head": "9daa985",
-      "remote": null,
-      "testSuite": "11 suites / 140 tests, tsc 0, lint 0",
-      "mergeVerification": "post-merge content byte-compared against the validated branch: 0 real differences (the only deltas are git's CRLF checkout conversion)",
-      "worktrees": ["wt-P1B on task/P1-B (merged)"],
-      "staleDirectory": "C:\\Users\\ebrah\\wt-P1A — git worktree metadata pruned but the directory could not be deleted (permission denied). Harmless; remove manually when convenient."
+      "head": "2e8afd2",
+      "remote": "https://github.com/ibrahem22-dev/smartcard-data-pipeline.git",
+      "remoteInSync": true,
+      "testSuite": "16 suites / 356 tests, tsc 0, lint 0",
+      "mergeVerification": "merged tree byte-compared against the validated branch tip across ALL paths: identical",
+      "worktrees": ["wt-P1B on task/P1-B (merged, pushed)"],
+      "staleDirectory": "C:\\Users\\ebrah\\wt-P1A — metadata pruned, directory undeletable (permission denied). Harmless."
     },
-    "workspaceRoot": { "path": "C:\\Users\\ebrah\\SmartCard-Agent", "gitCommitCount": 0 },
+    "workspaceRoot": {
+      "path": "C:\\Users\\ebrah\\SmartCard-Agent",
+      "gitCommitCount": 0,
+      "note": "STILL zero commits and no remote. Everything at this level is untracked, including the legacy _orchestration/ python orchestrator. The SUPERVISOR state layer is NOT here — it is at app\\SmartCard\\_orchestration."
+    },
     "datasetEstate": {
       "path": "C:\\Users\\ebrah\\All application data\\smartcard-canonical-v1\\",
-      "filesystemState": "READ-ONLY, re-verified at session start and end",
+      "filesystemState": "READ-ONLY",
       "modifiedThisSession": false
     }
   },
 
   "lastGreenCommit": {
-    "appRepo": { "commit": "434c56c", "note": "unchanged this session; no src/ touched" },
-    "pipelineRepo": { "commit": "9daa985", "verifiedBy": "tsc 0, lint 0, jest 11 suites / 140 tests, plus the L13 real-corpus run over all 1,077 canonical rows" }
+    "appRepo": { "commit": "a550a8e", "note": "plus this session's _orchestration commit; no src/ touched" },
+    "pipelineRepo": {
+      "commit": "2e8afd2",
+      "verifiedBy": "tsc 0, lint 0, jest 16 suites / 356 tests, plus L13 over all 1,175 fee terms, 43 FX pairs, 14 exceptions and 171 waivers, with five ADR-010 targets asserted BY ID"
+    }
   },
 
-  "openBlockers": [],
+  "openBlockers": [
+    { "id": "OD-20", "blocks": "P1-C", "note": "The adapter's home is an Owner decision. P1-C cannot start without it and the supervisor must not choose it." }
+  ],
 
   "openOwnerDecisions": [
     { "id": "OD-13", "topic": "Application root", "status": "OPEN — held to P2-PREP" },
     { "id": "OD-14", "topic": "newArchEnabled", "status": "OPEN — held to P2/native" },
-    { "id": "OD-17", "topic": "G06b promoted to a parallel data lane", "status": "APPROVED", "sessionAction": "not acted on — runs as its own data session. NOTE: contract v1.1 §6.4-B now makes G06b's output spec responsible for the benefits value.kind enum split." },
-    { "id": "OD-18", "topic": "Provenance chip naming", "status": "RULED in Session 05 via the amendment: UNKNOWN + reason + obtainable (option a). Register entry should be updated from 'RULED IN-SESSION — VERIFY' to APPROVED with this content." },
-    { "id": "OD-19", "topic": "The 15 EXCLUDED_FROM_PRODUCT_COUNT cards", "status": "APPROVED Session 04, IMPLEMENTED Session 05 — all 15 are in the pack, flagged, verified by the L13 run." }
+    { "id": "OD-17", "topic": "G06b promoted to a parallel data lane", "status": "APPROVED — runs as its own data session; contract §6.4-B makes G06b's output spec responsible for the benefits value.kind split." },
+    { "id": "OD-20", "topic": "Where the P1-C Data Authority Adapter lives", "status": "OPEN — GATES P1-C. Session 06's T5 was skipped for this reason." },
+    { "id": "OD-21", "topic": "Pipeline repo remote", "status": "CLOSED — DONE 2026-08-20, pushed and in sync at 2e8afd2." },
+    { "id": "OD-22", "topic": "Adopt Antigravity as a fourth worker", "status": "OPEN — recommended as Tier-2 visual-evidence only." },
+    { "id": "OD-23", "topic": "How the app presents a foreign-currency fee", "status": "OPEN — NEW this session. 123 USD/EUR fee terms cannot be converted at build time. Recommendation (b): convert with a live BOI rate, labelled, ESTIMATE-chipped. Deferring decides it as (a) by default." }
   ],
 
   "findingsRecordedNotActedOn": [
-    "Cost fields have three on-disk states, not two. Cards is now correct; the OTHER TWELVE FAMILIES must each be checked for the same present-but-null pattern before their schemas are written. This is the single most transferable finding of the session.",
-    "cardLevelRaw and networkRaw are union-typed on disk; the projection coerces to string. Other families likely carry similar union fields.",
-    "33 uncorroborated sub-1 percentage values across the corpus are flagged by gate 11 for review. None was rescaled. They need a human read before any of them is shown as a percentage.",
+    "term:max|op:max:FOREIGN_ATM_FEE:2 reads 22 PERCENT against the FX pair's 3 PERCENT. A 22% foreign-ATM commission is not a plausible Israeli rate; this looks like an ILS amount wearing a PERCENT unit. NOT CORRECTED — inferring a unit from a magnitude is forbidden in both directions (§6.2). Needs a human read against the tariff.",
+    "85 fee terms carry verificationStatus HISTORICAL alone, which maps to no chip and would fail the build. They do not crash it only because every one is shipToApp:false (all org:union, a merged bank) and the shipping filter runs first. Luck, not design: one shippable HISTORICAL row stops the build. Left as a hard stop per §2.3, flagged as a known tripwire.",
+    "The Batch-1 delivery report claims 'No cost-model row is HISTORICAL today'. True of the 43-row fixture, FALSE of the corpus. A claim measured on a fixture must not be stated as a claim about the estate.",
+    "7 further foreign-ATM cross-source disagreements (org:jerusalem x4, org:mizrahi-tefahot, org:pagi, org:postal-bank) look like genuine rate differences rather than type errors, but none has been adjudicated.",
+    "The OTHER TEN families still need their §2.8 census before their schemas — now including the value domain of every enumerated field, not only shape.",
+    "cardLevelRaw and networkRaw are union-typed on disk; the projection coerces to string.",
+    "33 uncorroborated sub-1 percentage values are flagged by gate 11 for review. None was rescaled.",
     "The app repo still carries 86 E1 boundary violations (P2/P3 backlog).",
-    "Three legacy governance artifacts remain at the workspace root; zero-commit git there means no recoverability, so they were left in place (ADR-005).",
-    "The pipeline repo has no GitHub remote.",
+    "The workspace root C:\\Users\\ebrah\\SmartCard-Agent still has ZERO commits and no remote. OD-21 fixed the pipeline, not this. Three legacy governance artifacts live there unrecoverably (ADR-005).",
     "Stale directory C:\\Users\\ebrah\\wt-P1A could not be removed (permission denied)."
   ],
 
   "executorCapabilityUpdate": {
-    "finding": "A task packet passed as a command-line argument FAILS on Windows once it exceeds roughly 8 KB: cursor-agent exits immediately with 'The command line is too long.' and produces no output and no error event in the JSON stream.",
-    "workaround": "Write the packet to a file inside the worktree and pass a short prompt telling the agent to read and execute it. Verified working with an 8,132-byte packet.",
-    "actionRequired": "Fold into _orchestration/EXECUTOR_CAPABILITIES.md."
+    "finding": "cursor-agent NEEDS A TTY. The same packet, model and flags: run foreground it edited files within 10 minutes; run detached it idled ~25 minutes with CPU moving 0.02 total, wrote zero bytes, edited nothing, and exited 1 — while the wrapper reported exit 0.",
+    "significance": "This is the concrete case behind 'exit codes are ADVISORY ONLY' (OD-15). A false success with an empty log is indistinguishable from a slow success unless the worktree and CPU are inspected.",
+    "rules": [
+      "Run cursor-agent in the FOREGROUND.",
+      "The 10-minute foreground ceiling is real; split a packet into stages that each fit rather than backgrounding it.",
+      "Never infer progress from an empty log — --output-format json buffers until completion. Sample CPU twice.",
+      "When the tool cannot deliver inside the window, the supervisor implements it rather than spending the session on round-trips."
+    ],
+    "recorded": "_orchestration/EXECUTOR_CAPABILITIES.md"
   },
+
+  "transferableLessons": [
+    "Census the VALUE DOMAIN of an enumerated field, not just its JSON type. A type-only census reports a healthy field and certifies the gap.",
+    "Sample delegation fixtures BY COMBINATION. One example per field-level shape is not coverage when two fields interact — the missed cell here was value-present x unit-foreign.",
+    "An open question in a frozen schema is a defect with a due date. Costmodel v1.0 shipped 'whether any real row trips it is not yet measured'; the measurement was zero, but the adjacent unwritten case held 123 rows.",
+    "Assert on error MESSAGES, not just that something throws. The original defect WAS the message, and the supervisor's own first fix reproduced it.",
+    "A claim measured on a fixture is not a claim about the estate, and must not be written as one."
+  ],
 
   "constraintsHeld": {
     "noCanonicalOrRegisterDataModified": true,
@@ -162,6 +168,7 @@
     "exitCodesAdvisoryOnly": true,
     "noTransformInfersUnitOrScaleFromMagnitude": true,
     "l13SuppliedBySupervisorNotExecutor": true,
-    "aclsVerifiedBeforeDelegation": true
+    "estateReadOnlyAndUnaltered": true,
+    "packetsDeliveredAsFilesNotCliArguments": true
   }
 }
