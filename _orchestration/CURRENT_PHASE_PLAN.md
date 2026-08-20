@@ -1,90 +1,86 @@
 # CURRENT PHASE PLAN
 
-Source of sequencing truth: `SMARTCARD_DEVELOPMENT_EXECUTION_MODEL.md` v2.4 §15–§18.
+Source of sequencing truth: `SMARTCARD_DEVELOPMENT_EXECUTION_MODEL.md` v2.5 §15–§19.
 
-## ⛔ THE ONE THING BLOCKING EVERYTHING
-
-**`TIER1_CONVENTIONS_OWNER_RULING.md` does not exist on disk.**
-
-Expected at `C:\Users\ebrah\All application data\`. Referenced by name in the baseline (line 8), the
-Owner register (lines 12, 66) and the Session 04 prompt — but never placed. A filesystem-wide search
-returns nothing. The `R0`–`R6` tokens in the Execution Model are an **unrelated risk register**.
-
-Until it lands, the dependency chain below cannot start:
+## The tracer bullet flew
 
 ```
-TIER1_CONVENTIONS_OWNER_RULING.md on disk
-   └─> Tier-1 contract amendment to v1.1   (an INCIDENT: needs an ADR)
-          └─> P1-B cards tracer bullet     (provenance shape must be final first)
-                 └─> P1-C adapter          (its signature IS the provenance shape)
-                        └─> P0-C3+         (twelve more families)
+✅ P-1 · P0-A · P0-B · D0 · E1 · P0-C1 · P0-C2 · gate-#10 spec · P1-A
+✅ S05 T1  contract v1.0 → v1.1 RE-FROZEN, R0–R7 applied (INCIDENT, ADR-008)
+✅ S05 T2  path detector 33 → 0 false positives; gate 11 built and proven BY ID
+✅ S05 T3  P1-B CARDS TRACER BULLET — every acceptance criterion passed on real data
+✅ S05 T4  conflict path proven by synthetic fixture
 ```
 
-**Why this is a hard block, not caution.** Session 04's audit found the contract was frozen without
-R1 (`USER` chip), R2 (`STALE` as a modifier) and R3 (`obtainable`) — the three the brief itself
-flags as structural. Projecting cards now bakes a provenance record with no `USER` state and `STALE`
-as a peer rather than a modifier into the pack format, the adapter signature and the engine result
-type. Every one of the thirteen families would then need re-projecting and re-goldening. That is
-exactly the "Tier-1 convention churn after projection begins" risk the Execution Model rates
-CRITICAL.
+**`catalog.pack`: 474 rows · 378 displayed-current · deterministic · 979,069 bytes ·
+sha256 `c48e9120…`** — built from all 1,077 canonical rows, with zero paths, zero `lineage` keys,
+zero legacy rows and zero bare counts.
 
-## Where things stand
+**The pattern is proven. Twelve more families may now follow it.**
 
-```
-✅ P-1 · P0-A · P0-B · D0 · E1 · P0-C1 (frozen) · P0-C2 (cards schema) · gate-#10 spec · P1-A
-✅ S04 T1  contract audited — freeze did NOT incorporate R0–R6
-✅ S04 T2  OD-18 ruling recovered — finding: it was never given (ADR-007)
-✅ S04 T3  OD-19 approved; 15/15 passed integrity; cards schema → v1.1
-✅ S04 T6  L13 real-corpus sweep — two defects found, both recorded
-⛔ S04 T4  P1-B tracer bullet    DEFERRED — blocked above
-⛔ S04 T5  conflict fixture      DEFERRED — shape depends on R2/R4
-```
+## Next — two lanes, genuinely parallel
 
-## What the Owner must do to unblock
+### Lane C — P0-C3+ per-entity schemas
+Fees first: it is the largest path-leak surface (1,676 of 1,951) and the tracer bullet's cost values
+resolve through it. Then FX · waivers · billing · interest · clubs/programmes · relationships ·
+benefits · stacking · merchants · content · conflicts.
 
-1. **Place `TIER1_CONVENTIONS_OWNER_RULING.md`** at `All application data\` — or restate R0–R6.
-2. **Rule OD-18.** It was never ruled (ADR-007). Options unchanged: (a) keep `UNKNOWN`, add
-   `obtainable` — the register's recommendation; (b) rename to `WITHHELD`, add `obtainable`. The
-   frozen contract currently implements (b) by accident. Best ruled *together* with R0–R6, since R3
-   covers the same ground and both then land in one amendment incident.
-3. **Correct the register** — two entries are wrong on disk:
-   - OD-18: `⚠️ RULED IN-SESSION — VERIFY` → **`OPEN`**
-   - OD-19: `OPEN — recommended` → **`APPROVED`** (ruled Session 04)
-4. **Consider bundling two amendments found by measurement**, so the contract is opened once:
-   - Gate 11 must key on `unit: "PERCENT"` **or** `kind: "PERCENTAGE"` — as frozen it catches **0 of
-     the 5** real rows that would render `"3000%"`.
-   - The Tier-1 contract should state the `lineage` omission itself (today it lives only in the
-     gate-#10 spec and the cards schema), and gate #10 should assert **no `lineage` key survives**,
-     not merely that its values look clean.
+> **⚠️ Carry this forward — it is the session's most transferable finding.**
+> Cards revealed that a value field has **three** on-disk states, not two: present-with-a-number,
+> absent, and **present with `value: null`**. On cards that was 34 rows, 14 of them carrying
+> `VERIFIED_OFFICIAL` — an *evidenced absence*, not a contradiction. **Check every remaining family
+> for the same pattern before writing its schema.** A schema that models only present/absent will
+> throw on first contact, exactly as this one did.
 
-## Then — the sequence resumes
+### Lane I — P1-C adapter
+`src/adapter/read-cards.ts` in the pipeline repo is the **reference implementation of the public
+shape**, proven end to end. P1-C ports that shape into the application. Its two load-bearing
+properties:
+- **Provenance is a first-class return value, never a side channel.** There is deliberately no
+  `getFxCommission(cardId): number` — you cannot obtain a number without the chip that qualifies it.
+- **`src/lattice.ts` is the only place a result chip may be produced**, behind a type-only brand. An
+  engine that tries to construct one by hand does not typecheck. That is contract §2.5's
+  "implemented exactly once" made structural rather than aspirational.
 
-**P1-B cards tracer bullet.** Everything it needs is ready except the provenance shape: the cards
-schema is at v1.1 with the filter settled (474 rows in `catalog.pack`, 378 displayed as current),
-the gate-#10 rules are specified, and P1-A's framework is merged and green.
+### Lane D — G06b (OD-17 approved, its own data session)
+Note contract **§6.4-B**: G06b's output spec now owns the benefits `value.kind` enum split. Doing it
+separately would mean touching the same records twice.
 
-Its acceptance criteria stand as written in the Session 04 brief §7, plus one addition from T6:
-**every gate that requires a built pack (2, 3, 4, 6, 7, 8, 9, and gate 10's round-trip assertion)
-gets its own L13 real-corpus run the moment a pack exists.** That is an acceptance criterion, not a
-follow-up.
+## What the Owner should decide before P0-C3 / P1-C
 
-**Then in parallel:** P1-C adapter · P0-C3+ per-entity schemas (fees first — largest path-leak
-surface) · the G06b data lane (OD-17 approved, runs as its own session).
+| # | Item | Why now |
+|---|---|---|
+| 1 | Update the register: **OD-18 → APPROVED** with the v1.1 content (`UNKNOWN` + `reason` + `obtainable`), **OD-19 → APPROVED** | Both are ruled and implemented; the register still shows OD-18 as "RULED IN-SESSION — VERIFY" |
+| 2 | **Where does the P1-C adapter live** — port into `app/SmartCard/src/`, or keep the pipeline reference and wire later? | Touching app `src/` puts the 410-test suite in play; worth a deliberate call rather than drift |
+| 3 | **A remote for `smartcard-data-pipeline`** | It is local-only. Everything built in Sessions 03–05 exists on one disk. |
+| 4 | The **33 uncorroborated sub-1 percentages** gate 11 flags | They need a human read before any is rendered as a percentage. None was rescaled. |
+
+None blocks Lane C.
 
 ## Standing state
 
-- **Frozen, and not to be edited casually:** `SMARTCARD_DATA_CONTRACT.md` v1.0,
-  `SMARTCARD_DATA_CONTRACT_CARDS.md` **v1.1**, `SMARTCARD_GATE10_PROJECTION.md` v1.0. Changes are
-  incidents requiring an ADR.
-- Estate and archive are filesystem read-only (ADR-003); re-verified Session 04.
-- `wip/expo-57-working-tree` is the interim integration branch (ADR-004). No `main`, deliberately.
-- Pipeline repo at `C:\Users\ebrah\smartcard-data-pipeline`, **no remote yet**, untouched in S04.
+- **Frozen:** `SMARTCARD_DATA_CONTRACT.md` **v1.1** · `SMARTCARD_DATA_CONTRACT_CARDS.md` **v1.2** ·
+  `SMARTCARD_GATE10_PROJECTION.md` v1.0. Changes are incidents requiring an ADR.
+- Estate and archive are filesystem read-only (ADR-003), re-verified.
+- App repo: `wip/expo-57-working-tree` is the interim integration branch (ADR-004). **No application
+  source was touched in Session 05** — the whole tracer bullet lives in the pipeline repo per OD-10.
+- Pipeline repo at `C:\Users\ebrah\smartcard-data-pipeline`, `main` @ `9daa985`, **no remote**.
+- `C:\Users\ebrah\wt-P1A` is a stale directory git could not delete; harmless.
 
-## The lesson this session paid for, again
+## Executor capability — new, fold into EXECUTOR_CAPABILITIES.md
 
-Three sessions running, the newest authority set has not reached `All application data\` before the
-session began. Session 02 flagged it; Session 03 froze the contract against v1.3 because of it;
-Session 04 could not audit that freeze because the ruling never arrived. **The gap is not in the
-decisions — it is in getting them onto disk before the session that needs them.** A decision that
-lives only in a chat transcript, or in a document that was written but not placed, is not yet a
-decision this project can act on.
+**A task packet passed as a command-line argument fails on Windows past ~8 KB.** `cursor-agent`
+exits immediately with `The command line is too long.`, writes no JSON error event, and creates
+nothing — it looks exactly like a hang. Deliver packets as a **file in the worktree** plus a short
+"read and execute" prompt. Verified with an 8,132-byte packet.
+
+## The lesson this session actually paid for
+
+Session 04 refused to amend the contract from reconstructed authority, and was right to. The fix was
+not better drafting — it was **delivering the authority inline in the prompt** instead of by
+reference to a file that might not exist. Preconditions passed for the first time in four sessions.
+
+And the tracer bullet did its job: the contract survived contact with implementation, but the
+schema's *prose* did not, and one field added hours earlier (`reason`, R3) turned out to be exactly
+what the real data needed. That is the argument for running one family end to end before writing
+twelve more schemas, and it paid for itself on the first day.

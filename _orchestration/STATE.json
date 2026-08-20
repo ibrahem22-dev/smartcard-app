@@ -1,144 +1,167 @@
 {
-  "_purpose": "Machine-readable supervisor state. Per SMARTCARD_CURRENT_BUILD_BASELINE.md \u00a79: authoritative over that document's hand-written status blocks if they ever disagree.",
-  "generatedAt": "2026-08-20T11:05:00Z",
-  "generatedBy": "SmartCard supervisor session 04 (Claude Code, Opus 5)",
+  "_purpose": "Machine-readable supervisor state. Authoritative over the baseline's hand-written status blocks if they disagree.",
+  "generatedAt": "2026-08-20T17:25:00Z",
+  "generatedBy": "SmartCard supervisor session 05 (Claude Code, Opus 5)",
 
-  "currentPhase": "P0-C1-AMENDMENT",
-  "currentPhaseLabel": "TIER-1 CONTRACT AMENDMENT (blocked on the missing ruling document)",
-  "currentPhaseStatus": "BLOCKED_ON_OWNER_ARTIFACT",
-  "criticalPath": "P-1 -> P0-A -> P0-B -> P0-C1 -> [P0-C1 AMENDMENT] -> P1-B(cards) -> P1-C -> P3 -> P4",
-  "criticalPathNote": "P1-B was NOT started. The frozen contract is missing three structural revisions that determine the provenance shape P1-B would bake into the pack format, the adapter signature and the engine result type.",
+  "currentPhase": "P0-C3 / P1-C",
+  "currentPhaseLabel": "PER-ENTITY SCHEMAS (now following a PROVEN pattern) in parallel with the P1-C adapter",
+  "currentPhaseStatus": "READY_TO_START",
+  "criticalPath": "P-1 -> P0-A -> P0-B -> P0-C1 -> P1-B(cards) -> P1-C -> P3 -> P4",
+  "criticalPathNote": "P1-B IS DONE. The cards tracer bullet ran end to end against all 1,077 real rows and every acceptance criterion passed. The contract pattern is proven; twelve more families can now follow it.",
 
-  "sessionOutcome": "PARTIAL BY DESIGN. Both preconditions failed; the Owner directed the unblocked subset. T1 (audit, observation-only), T2, T3 and T6 completed. T4 (tracer bullet) and T5 (conflict fixture) deferred - not attempted, not partially done.",
-
-  "blockingArtifact": {
-    "file": "TIER1_CONVENTIONS_OWNER_RULING.md",
-    "expectedAt": "C:\\Users\\ebrah\\All application data\\TIER1_CONVENTIONS_OWNER_RULING.md",
-    "status": "DOES NOT EXIST ANYWHERE ON DISK",
-    "searchPerformed": "find /c/Users/ebrah -maxdepth 4 -iname '*TIER1*' -o -iname '*OWNER_RULING*' -> no result",
-    "referencedBy": [
-      "SMARTCARD_CURRENT_BUILD_BASELINE.md line 8",
-      "SMARTCARD_OWNER_DECISIONS.md lines 12 and 66",
-      "the Session 04 prompt \u00a71 item 6"
-    ],
-    "note": "The R0-R6 tokens in SMARTCARD_DEVELOPMENT_EXECUTION_MODEL.md lines 736-741 are an UNRELATED risk register, not the Tier-1 revisions.",
-    "blocks": ["contract amendment to v1.1", "P1-B projection", "P1-C adapter signature", "P0-C3+ per-entity schemas"]
+  "frozenArtifacts": {
+    "SMARTCARD_DATA_CONTRACT.md": {
+      "version": "1.1",
+      "status": "RE-FROZEN 2026-08-20",
+      "note": "v1.0 freeze did NOT hold - amended as an incident (ADR-008). R0-R7 all applied and individually cited.",
+      "adr": "_orchestration/ADR/008-contract-v1.1-incident.md"
+    },
+    "SMARTCARD_DATA_CONTRACT_CARDS.md": {
+      "version": "1.2",
+      "status": "FROZEN",
+      "note": "v1.1 added OD-19 (the 15 flagged rows). v1.2 re-derived the provenance shape against Tier-1 v1.1 AND added the three-state cost-field rule the tracer bullet discovered."
+    },
+    "SMARTCARD_GATE10_PROJECTION.md": { "version": "1.0", "status": "FROZEN" }
   },
 
-  "preconditionCheck": {
-    "A_authorityVersions": {
-      "result": "FAIL",
-      "required": "OWNER_DECISIONS v1.6 / BUILD_BASELINE v1.6 / EXECUTION_MODEL v2.4",
-      "onDisk": "OWNER_DECISIONS v1.5 / BUILD_BASELINE v1.5 / EXECUTION_MODEL v2.4",
-      "note": "The brief is internally inconsistent: its \u00a71 reading list says v1.5/v1.5/v2.4, matching disk on the first two, while Precondition A demands v1.6/v1.6.",
-      "secondFailure": "TIER1_CONVENTIONS_OWNER_RULING.md absent - see blockingArtifact"
+  "session05Tasks": {
+    "precondition": {
+      "result": "PASS — first time in four sessions",
+      "authorityVersionsOnDisk": "OWNER_DECISIONS v1.7, BUILD_BASELINE v1.7, EXECUTION_MODEL v2.5",
+      "note": "Precondition A demanded v1.7/v1.7/v2.5 and disk matched. The recurring document-sync gap is closed.",
+      "amendmentFile": "SMARTCARD_DATA_CONTRACT_AMENDMENT_v2.md present on disk and verified to MATCH the prompt's inline §4 exactly — no discrepancy.",
+      "aclVerified": "read succeeds, write denied, on both smartcard-canonical-v1 and _app_archive"
     },
-    "B_od19Approved": {
-      "result": "FAIL against disk, RESOLVED in session",
-      "onDisk": "OD-19 recorded as 'OPEN - recommended', 'gates P1-B'",
-      "resolution": "The Owner ruled in session: APPROVED - ship the 15 flagged, subject to the per-row integrity check."
-    },
-    "estateAclVerified": "PASS - read succeeds, write denied, on both smartcard-canonical-v1 and _app_archive"
-  },
-
-  "session04Tasks": {
-    "T1_contractAudit": {
-      "status": "COMPLETE (observation only)",
-      "result": "THE FREEZE DID NOT INCORPORATE THE RULING",
-      "report": "_orchestration/reports/T1-contract-audit-R0-R6.md",
-      "verdicts": {
-        "R0_datasetIdAssertion": "APPLIED (contract \u00a71 line 40) - almost certainly coincidental, it matches the Session 02 draft",
-        "R1_userChip": "NOT_APPLIED - no USER state anywhere in the contract",
-        "R2_staleAsModifier": "NOT_APPLIED - STALE frozen as a fifth peer state (\u00a72.1 lines 80, 85), no stale flag, no asOfDate",
-        "R3_obtainableAndNaming": "NOT_APPLIED - obtainable absent; contract uses WITHHELD, which is OD-18 option (b), not the recommended (a)",
-        "R4_lattice": "PARTIAL - no-upgrade rule and ESTIMATE downgrade present; no ordered lattice (impossible without USER), not four named rules, no single-implementation requirement",
-        "R5_benefits": "PARTIAL - closed enum, deterministic classification and gate 12 present; raw-text preservation and the G06b schema-split note absent",
-        "R6_lineageOmission": "PARTIAL - Rule D omits lineage in the GATE10 spec and the cards schema, but the Tier-1 contract never mentions lineage, and gate #10 has no key-level assertion (only value patterns)"
+    "T1_contractAmendment": {
+      "status": "COMPLETE", "result": "v1.0 -> v1.1 RE-FROZEN",
+      "classification": "INCIDENT, not an edit",
+      "revisionsApplied": {
+        "R0": "§1 lines 49-50 — compiled-in EXPECTED_DATASET_ID with HARD REFUSAL; marker/constant authority split stated",
+        "R1": "§2.1 line 94 + §2.2 — USER chip added, no Layer-A source, outranks all, survives pack updates",
+        "R2": "§2.3 line 128 — stale is a MODIFIER with asOfDate; HISTORICAL retains its earned chip; v1.0 fifth-state rule withdrawn",
+        "R3": "§2.1 + §2.4 line 149 — WITHHELD reverted to UNKNOWN; reason + obtainable, present iff chip===UNKNOWN",
+        "R4": "§2.5 line 185 — lattice USER > VERIFIED > ESTIMATE > UNKNOWN frozen, all four propagation rules, implemented once",
+        "R5": "§6.4-A line 440 / §6.4-B line 460 — allowlist-only numeric projection, raw text preserved, enum split folded into G06b's output spec",
+        "R6": "§6-A line 513 — lineage omission stated as a PROJECTION RULE, not only a gate; gate #10 extended to assert no lineage key",
+        "R7": "§9 line 644 — gate 11 keys on unit OR kind, acceptance by record id (L13b)"
       },
-      "amendmentMade": false,
-      "amendmentReason": "The ruling text is unavailable. Reconstructing R0-R6 from the brief's one-line summaries and amending a frozen contract on that basis is the exact error class this session was convened to prevent."
+      "residualsFixed": "all normative WITHHELD occurrences replaced; remaining mentions are historical annotations explaining what changed"
     },
-    "T2_od18Recovery": {
-      "status": "COMPLETE",
-      "result": "NEGATIVE FINDING - the ruling the register believes exists was never given",
-      "adr": "_orchestration/ADR/007-od18-ruling-recovery.md",
-      "detail": "Session 03 asked the Owner three questions: how to proceed, ESTIMATE/calculationSafe, and the PERCENT overload fix. None was OD-18's question (UNKNOWN + obtainable vs WITHHELD). The register conflated the Tier-1 DRAFT's two open items with OD-18, which was raised in register v1.4 and which Session 03 never saw because it ran against v1.3.",
-      "consequence": "The frozen contract adopts WITHHELD - option (b), which the register does not recommend - and omits obtainable entirely, which OD-18 says BOTH options must carry. Register line 441 names the one unacceptable outcome: 'the chip enum and the spec disagreeing.' That is the current state.",
-      "registerCorrectionRequired": "OD-18 status must change from 'RULED IN-SESSION - VERIFY' to OPEN, not be filled in."
-    },
-    "T3_od19CardsAmendment": {
-      "status": "COMPLETE",
-      "result": "ALL 15 SHIP",
-      "integrityCheck": "15 of 15 PASS, 0 excluded. Both distinct lifecycleBasis values are pure counting statements: 'countedInCurrentProducts=false in source' (13) and 'includedInBankCardCount=false in source' (2). Every row carries all three names, nameArStatus OFFICIAL_ISSUER_PUBLICATION, populated FX and foreign-ATM values with VERIFIED_OFFICIAL or CORROBORATED status, and a verified-registry entry - the same evidence quality as a shippable CURRENT card.",
-      "schemaAmended": "SMARTCARD_DATA_CONTRACT_CARDS.md v1.0 -> v1.1",
-      "filterArithmetic": {
-        "totalRows": 1077,
-        "neverProjected_UNVERIFIED_LEGACY": 603,
-        "rowsInCatalogPack": 474,
-        "breakdown": { "CURRENT": 378, "RETIRED": 56, "TARIFF_ONLY_NOT_PROVEN_CURRENT": 25, "EXCLUDED_FROM_PRODUCT_COUNT": 15 },
-        "appDisplayedCurrentProducts": 378,
-        "rule": "isSelectable (474) and counted-as-current (378) are two DIFFERENT predicates. Any surface that conflates them is wrong."
+    "T2_gateRepairs": {
+      "status": "COMPLETE", "result": "PASS",
+      "pathDetector": {
+        "before": { "falsePositives": 33, "rate": "0.0117%", "hebrew": "0.0545%", "latin": "0.0053%" },
+        "after": { "falsePositives": 0, "rate": "0.0000%", "hebrew": "0.0000%", "latin": "0.0000%", "arabic": "0.0000%" },
+        "truePositivesRetained": 3756,
+        "stringsScanned": 282899,
+        "fix": "restricted to known POSIX roots; /media deliberately EXCLUDED because it is a common Israeli bank URL segment (/media/vqkbcz0l/terms.pdf) and accounted for the last 2 false positives"
+      },
+      "gate11": {
+        "status": "implemented for the first time (was spec-only)",
+        "l13bResult": "ALL FIVE target records caught BY ID against the real corpus; the v1.0 unit-only rule caught 0 of 5",
+        "targets": ["ben-mr-bonus-benefit-3000", "ben-wonder-spend-tier-low", "ben-wonder-spend-tier-high", "ben-fly-matmid-earn-2019-regulation", "ben-mr-excluded-sector-earn"],
+        "sub1Handling": "33 uncorroborated sub-1 values FLAGGED for review, never rescaled (constraint 6)"
       }
     },
-    "T4_tracerBullet": { "status": "DEFERRED", "reason": "Blocked by T1. Projecting now would bake a provenance record with no USER state, STALE as a peer rather than a modifier, and no obtainable flag into the pack format, the adapter signature and the engine result type - then require re-projection and re-goldening of all thirteen families once the ruling lands. That is the CRITICAL-rated 'Tier-1 convention churn after projection begins' risk." },
-    "T5_conflictFixture": { "status": "DEFERRED", "reason": "The fixture's provenance shape depends on R2 (STALE modifier) and R4 (lattice). Building it against the current shape would need rebuilding after the amendment." },
-    "T6_l13Sweep": {
-      "status": "COMPLETE",
-      "report": "_orchestration/reports/T6-L13-real-corpus-sweep.md",
-      "stringsScanned": 282899,
-      "results": {
-        "pathDetector": { "truePositives": 3756, "falsePositives": 33, "fpRate": "0.0117%", "byScript": { "Latin": "0.0053% (13/243518)", "Hebrew": "0.0545% (20/36714)", "Arabic": "0.0000% (0/2667)" }, "finding": "Hebrew FP rate is 10.3x Latin. All 33 come from one pattern (absolute filesystem path) firing on prose that quotes a URL path fragment such as /private/ or /ae/ar. Session 03's R2 repair fixed the space-slash case but not this one, because it sampled only fees[].notes.", "severity": "LOW - all 33 fields are internal prose or evidence quotes, excluded from packs by Rule E, so effective FP rate on pack content is 0%. Fix verified but NOT applied (non-blocking)." },
-        "gate11_percentRange": { "verdict": "SPECIFICATION DEFECT", "detail": "Contract \u00a76.3 keys the range gate on unit:'PERCENT'. All 5 rows that would render 3000%/400%/200%/190%/180% carry unit:undefined and are typed by value.kind instead. Gate 11 catches 0 of 5. Only 20 of 206 benefits percentage rows carry a unit field at all.", "mitigated": "Yes - gate 12 is kind-based and remaps them before rendering, so nothing ships wrong today.", "recommendedAmendment": "gate 11 keys on unit:'PERCENT' OR kind:'PERCENTAGE'" },
-        "gate12_benefitsKind": { "verdict": "CLEAN", "detail": "206 rows: 67 PERCENTAGE, 9 remapped, 130 WITHHELD, 0 unrecognised. The contract's mapping is exhaustive over the real corpus." },
-        "gate5_conflictResolution": { "verdict": "CLEAN", "detail": "97 conflicts, all PRESERVED_NOT_ARBITRATED, 0 violations." },
-        "gate1_legacyRows": { "verdict": "CLEAN", "detail": "603 + 474 = 1077 exactly; partition total and non-overlapping." }
+    "T3_P1B_tracerBullet": {
+      "status": "COMPLETE", "result": "ALL ACCEPTANCE CRITERIA PASS",
+      "delegation": {
+        "U1_U3": "Cursor (cursor-agent, claude-opus-5-high) — projection, pack+manifest, atomic import",
+        "U4_U5": "supervisor — the adapter's public shape is consequential and hard to change later",
+        "repairs": 1
       },
-      "notYetTestable": "Gates 2,3,4,6,7,8,9 and gate 10's round-trip assertion require a built pack. Each must get its own L13 run once P1-B produces one - an acceptance criterion for P1-B, not an optional follow-up."
+      "l13RealCorpus": {
+        "inputRows": 1077,
+        "packRows": 474,
+        "breakdown": { "CURRENT": 378, "RETIRED": 56, "TARIFF_ONLY_NOT_PROVEN_CURRENT": 25, "EXCLUDED_FROM_PRODUCT_COUNT": 15 },
+        "displayedCurrentProducts": 378,
+        "neverProjected_UNVERIFIED_LEGACY": 603,
+        "zeroPaths": true, "zeroLineageKeys": true, "zeroVerifiedFeesBlobs": true, "zeroCodenames": true,
+        "zeroChipsOutsideEnum": true, "zeroUserChipsEmitted": true,
+        "zeroUnknownWithValueKey": true, "zeroBareCounts": true,
+        "deterministic": true,
+        "packSha256": "c48e91204132409a8943a22ea545a5453dd2580796e91d9a6698b16cead500f6",
+        "packBytes": 979069
+      },
+      "theFinding": "THE CONTRACT SURVIVED, THE SCHEMA'S PROSE DID NOT. The projection threw on 34 real rows: a cost field has THREE on-disk states, not two — present-with-a-number (1,388), absent (394), and PRESENT WITH value:null (34). Fourteen of those 34 carry verificationStatus VERIFIED_OFFICIAL, which is an EVIDENCED ABSENCE (the tariff was read; no separate figure is published), not a contradiction. Contract v1.1's `reason` field — added hours earlier as R3 — was exactly the right shape: chip UNKNOWN because there is no number, reason NOT_PUBLISHED because someone looked. Under v1.0's WITHHELD-with-no-reason those 14 would have been indistinguishable from 'nobody has looked yet'.",
+      "latticeImplementation": "src/lattice.ts — implemented exactly once behind a TYPE-ONLY brand, so an engine cannot construct a result chip by hand and have it typecheck. All four propagation rules proven by test, including rule 3 (UNKNOWN absorbing, no value key emitted)."
     },
-    "T7_stateAndClose": { "status": "COMPLETE" }
+    "T4_conflictFixture": {
+      "status": "COMPLETE", "result": "PASS",
+      "detail": "Synthetic conflicted card (card:SYNTHETIC-FIXTURE:conflicted-fx) with two competing FX candidates. Proven end to end: the adapter returns both candidates with NO scalar value; an engine takes the CONSERVATIVE candidate (3.0%, worse for the user), downgrades to ESTIMATE, and the reason trace records the choice, the alternative and that nothing was arbitrated. worseIs direction is DECLARED, never inferred — a LOWER-is-worse test proves the inversion."
+    },
+    "T5_stateAndClose": { "status": "COMPLETE" }
   },
 
   "branchWorktreeMap": {
-    "appRepo": { "path": "C:\\Users\\ebrah\\SmartCard-Agent\\app\\SmartCard", "integrationBranch": "wip/expo-57-working-tree", "headBeforeOrchestrationCommit": "89053df", "note": "Interim integration branch per ADR-004 until OD-13 resolves." },
-    "pipelineRepo": { "path": "C:\\Users\\ebrah\\smartcard-data-pipeline", "branch": "main", "head": "b3caa69", "remote": null, "note": "Untouched this session - no P1-B work was done." },
+    "appRepo": {
+      "path": "C:\\Users\\ebrah\\SmartCard-Agent\\app\\SmartCard",
+      "integrationBranch": "wip/expo-57-working-tree",
+      "headBeforeOrchestrationCommit": "434c56c",
+      "srcModifiedThisSession": false,
+      "note": "No application source touched. The tracer bullet was built entirely in the pipeline repo (OD-10), which is why the app's 410-test suite was not at risk and was not re-run."
+    },
+    "pipelineRepo": {
+      "path": "C:\\Users\\ebrah\\smartcard-data-pipeline",
+      "branch": "main",
+      "head": "9daa985",
+      "remote": null,
+      "testSuite": "11 suites / 140 tests, tsc 0, lint 0",
+      "mergeVerification": "post-merge content byte-compared against the validated branch: 0 real differences (the only deltas are git's CRLF checkout conversion)",
+      "worktrees": ["wt-P1B on task/P1-B (merged)"],
+      "staleDirectory": "C:\\Users\\ebrah\\wt-P1A — git worktree metadata pruned but the directory could not be deleted (permission denied). Harmless; remove manually when convenient."
+    },
     "workspaceRoot": { "path": "C:\\Users\\ebrah\\SmartCard-Agent", "gitCommitCount": 0 },
-    "datasetEstate": { "path": "C:\\Users\\ebrah\\All application data\\smartcard-canonical-v1\\", "filesystemState": "READ-ONLY, re-verified this session", "modifiedThisSession": false }
+    "datasetEstate": {
+      "path": "C:\\Users\\ebrah\\All application data\\smartcard-canonical-v1\\",
+      "filesystemState": "READ-ONLY, re-verified at session start and end",
+      "modifiedThisSession": false
+    }
   },
 
-  "lastGreenCommit": { "commit": "89053df", "verifiedBy": "Session 03 post-merge: tsc 0, eslint --max-warnings=0 exit 0, jest 42 suites / 410 tests. No code changed in Session 04." },
+  "lastGreenCommit": {
+    "appRepo": { "commit": "434c56c", "note": "unchanged this session; no src/ touched" },
+    "pipelineRepo": { "commit": "9daa985", "verifiedBy": "tsc 0, lint 0, jest 11 suites / 140 tests, plus the L13 real-corpus run over all 1,077 canonical rows" }
+  },
 
-  "openBlockers": [
-    { "id": "BLOCK-1", "blocker": "TIER1_CONVENTIONS_OWNER_RULING.md does not exist on disk", "blocks": "contract amendment -> P1-B -> P1-C -> P0-C3+", "resolution": "Owner places the file at All application data\\, or restates R0-R6" }
-  ],
+  "openBlockers": [],
 
   "openOwnerDecisions": [
-    { "id": "OD-13", "topic": "Application root", "status": "OPEN - held to P2-PREP", "sessionAction": "not acted on" },
-    { "id": "OD-14", "topic": "newArchEnabled", "status": "OPEN - held to P2/native", "sessionAction": "not acted on" },
-    { "id": "OD-17", "topic": "Promote G06b out of P5c", "status": "APPROVED (register v1.5)", "sessionAction": "not acted on - runs as its own data session, explicitly out of scope" },
-    { "id": "OD-18", "topic": "Provenance chip naming: UNKNOWN + obtainable, vs WITHHELD", "status": "OPEN - NEVER RULED (register wrongly shows 'RULED IN-SESSION')", "sessionAction": "ADR-007 records the negative finding and the required register correction", "neededBy": "the contract amendment - rule it together with R0-R6, since R3 covers the same ground" },
-    { "id": "OD-19", "topic": "Ship the 15 EXCLUDED_FROM_PRODUCT_COUNT cards flagged", "status": "APPROVED in session 04", "sessionAction": "Integrity check performed (15/15 pass); cards schema amended to v1.1", "registerCorrectionRequired": "OPEN -> APPROVED" }
+    { "id": "OD-13", "topic": "Application root", "status": "OPEN — held to P2-PREP" },
+    { "id": "OD-14", "topic": "newArchEnabled", "status": "OPEN — held to P2/native" },
+    { "id": "OD-17", "topic": "G06b promoted to a parallel data lane", "status": "APPROVED", "sessionAction": "not acted on — runs as its own data session. NOTE: contract v1.1 §6.4-B now makes G06b's output spec responsible for the benefits value.kind enum split." },
+    { "id": "OD-18", "topic": "Provenance chip naming", "status": "RULED in Session 05 via the amendment: UNKNOWN + reason + obtainable (option a). Register entry should be updated from 'RULED IN-SESSION — VERIFY' to APPROVED with this content." },
+    { "id": "OD-19", "topic": "The 15 EXCLUDED_FROM_PRODUCT_COUNT cards", "status": "APPROVED Session 04, IMPLEMENTED Session 05 — all 15 are in the pack, flagged, verified by the L13 run." }
   ],
 
   "findingsRecordedNotActedOn": [
-    "Path detector: 0.0117% FP on real corpus (Hebrew 0.0545%, 10.3x Latin). Fix verified, not applied - non-blocking because Rule E excludes all 33 affected fields from packs.",
-    "Gate 11 catches 0 of the 5 real >100 PERCENT rows because it keys on unit rather than kind. Covered today by gate 12. Amend with R0-R6.",
-    "Arabic detector competence unproven: 0 TP and 0 FP across 2,667 Arabic strings. Add Arabic positive fixtures at P1-B.",
-    "Contract \u00a71's 'read identity from the DATASET_ID marker' and \u00a71's compiled-in literal assertion coexist correctly but are never reconciled in the text; one clarifying sentence when next opened.",
-    "GATE10 spec \u00a75.2 lists 5 negative fixtures while the implementation tests 11 - the six real corpus strings added in the Session 03 R2 repair were never back-ported into the spec.",
-    "86 E1 boundary violations remain the P2/P3 backlog.",
-    "Three legacy governance artifacts remain at the workspace root (zero-commit git = no recoverability). See ADR-005."
+    "Cost fields have three on-disk states, not two. Cards is now correct; the OTHER TWELVE FAMILIES must each be checked for the same present-but-null pattern before their schemas are written. This is the single most transferable finding of the session.",
+    "cardLevelRaw and networkRaw are union-typed on disk; the projection coerces to string. Other families likely carry similar union fields.",
+    "33 uncorroborated sub-1 percentage values across the corpus are flagged by gate 11 for review. None was rescaled. They need a human read before any of them is shown as a percentage.",
+    "The app repo still carries 86 E1 boundary violations (P2/P3 backlog).",
+    "Three legacy governance artifacts remain at the workspace root; zero-commit git there means no recoverability, so they were left in place (ADR-005).",
+    "The pipeline repo has no GitHub remote.",
+    "Stale directory C:\\Users\\ebrah\\wt-P1A could not be removed (permission denied)."
   ],
+
+  "executorCapabilityUpdate": {
+    "finding": "A task packet passed as a command-line argument FAILS on Windows once it exceeds roughly 8 KB: cursor-agent exits immediately with 'The command line is too long.' and produces no output and no error event in the JSON stream.",
+    "workaround": "Write the packet to a file inside the worktree and pass a short prompt telling the agent to read and execute it. Verified working with an 8,132-byte packet.",
+    "actionRequired": "Fold into _orchestration/EXECUTOR_CAPABILITIES.md."
+  },
 
   "constraintsHeld": {
     "noCanonicalOrRegisterDataModified": true,
     "noDestructiveGitOperations": true,
     "noWorkspaceRootGitAddOrCommit": true,
-    "srcModified": false,
+    "appSrcModified": false,
     "noSecretsCommitted": true,
+    "noSigningKeyInExecutorEnvironment": true,
     "findingsRecordedNotFixed": true,
-    "noExecutorDelegationThisSession": true,
-    "noTransformInfersUnitFromMagnitude": true,
-    "aclsVerifiedAtStart": true,
-    "frozenContractNotAmendedWithoutTheRuling": true
+    "everyExecutorClaimIndependentlyVerified": true,
+    "exitCodesAdvisoryOnly": true,
+    "noTransformInfersUnitOrScaleFromMagnitude": true,
+    "l13SuppliedBySupervisorNotExecutor": true,
+    "aclsVerifiedBeforeDelegation": true
   }
 }
