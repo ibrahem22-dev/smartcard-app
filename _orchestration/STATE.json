@@ -1,179 +1,195 @@
 {
   "_purpose": "Machine-readable supervisor state. Per SMARTCARD_CURRENT_BUILD_BASELINE.md \u00a79: once this file exists it is authoritative over that document's hand-written \u00a71/\u00a78 status blocks if they ever disagree.",
-  "generatedAt": "2026-08-20T00:30:00Z",
-  "generatedBy": "SmartCard supervisor session 02 (Claude Code)",
-  "currentPhase": "P0-C1",
-  "currentPhaseLabel": "TIER-1 CONVENTION FREEZE",
-  "currentPhaseStatus": "BLOCKED_ON_OWNER_APPROVAL",
-  "currentPhaseNote": "TIER1-CONVENTIONS-DRAFT.md is written and ready for review. P0-C1 itself (freezing the conventions) was explicitly out of scope for session 02 and was NOT performed. A future session must not treat the draft as frozen.",
+  "generatedAt": "2026-08-20T05:15:00Z",
+  "generatedBy": "SmartCard supervisor session 03 (Claude Code, Opus 5)",
+  "currentPhase": "P0-C3 / P1-B",
+  "currentPhaseLabel": "PER-ENTITY SCHEMAS (P0-C3+) in parallel with CARDS TRACER BULLET (P1-B)",
+  "currentPhaseStatus": "READY_TO_START",
   "criticalPath": "P-1 -> P0-A -> P0-B -> P0-C1 -> P1-B(cards) -> P1-C -> P3 -> P4",
-  "session01Tasks": {
-    "T1_P-1_donorPreservation": { "status": "COMPLETE", "result": "PASS" },
-    "T2_P0-A_datasetIdentity": { "status": "COMPLETE", "result": "PASS" },
-    "T3_E0_executorProbe": { "status": "COMPLETE", "result": "PASS" },
-    "T4_supervisorStateLayer": { "status": "COMPLETE", "result": "PASS" },
-    "note": "Full detail preserved in LEDGER.jsonl and the session 01 commits (5c22411, 15a7dbf). Not restated here to keep this file from growing unbounded; see git history for the complete session 01 record."
-  },
-  "session02Tasks": {
-    "T1_P0-B_reconciliationCensus": {
-      "status": "COMPLETE",
-      "result": "PASS",
-      "artifacts": ["_orchestration/reports/P0-B-census.md", "_orchestration/reports/field-census.json"],
-      "summary": "~70 headline sub-metrics recomputed from canonical/ rows against FINAL_METRICS.json; all reconciled. Two apparent mismatches (merchants 93-vs-91, benefits cardsCarryingABenefit 174/83) both resolved as correct-but-differently-scoped, not data defects. operatorKnown=318 confirmed scoped to the 378 shippable cards. ~1,951 real filesystem-path leak instances found and precisely located for gate #10 (session 01's OD-16). Field census produced for all 13 requested entity families."
+  "criticalPathNote": "P0-C1 is DONE. The gate that blocked three sessions is cleared.",
+
+  "frozenArtifacts": {
+    "_note": "These are FROZEN. A change to any of them is an incident requiring a new ADR and Owner approval, not an edit.",
+    "SMARTCARD_DATA_CONTRACT.md": {
+      "version": "1.0",
+      "frozenOn": "2026-08-20",
+      "location": "C:\\Users\\ebrah\\All application data\\SMARTCARD_DATA_CONTRACT.md",
+      "covers": "all 9 Tier-1 conventions",
+      "adr": "_orchestration/ADR/006-tier1-freeze.md"
     },
-    "T2_completeTheFreeze": {
-      "status": "COMPLETE",
-      "result": "PASS",
-      "summary": "INPUT_MANIFEST.json extended with per-file sha256 for all 29 canonical/ files (previously count-only). Verified reproducible via two independent checksum passes. Performed BEFORE the OD-15 ACL lockdown (last write into the estate this session)."
+    "SMARTCARD_DATA_CONTRACT_CARDS.md": {
+      "version": "1.0",
+      "frozenOn": "2026-08-20",
+      "location": "C:\\Users\\ebrah\\All application data\\SMARTCARD_DATA_CONTRACT_CARDS.md",
+      "covers": "first entity schema (P0-C2); one item OPEN, see openOwnerDecisions OD-18"
     },
-    "OD15_environmentControls": {
-      "status": "COMPLETE",
-      "result": "PASS",
-      "adr": "_orchestration/ADR/003-environment-containment.md",
-      "summary": "OS-level read-only ACL applied to smartcard-canonical-v1\\ and _app_archive\\ (deny WD,AD,WA,WEA,DE,DC for the ebrah account, recursive, verified both directions: reads/list succeed, writes/deletes fail). One self-corrected error during setup: the first attempt used icacls's 'M' (Modify) alias, which also denies Read \u2014 caught, reversed, and redone with precise right tokens before proceeding. OD-15 acted on per this session's direct Owner instruction; SMARTCARD_OWNER_DECISIONS.md itself still shows OD-15 as 'OPEN \u2014 recommended' as of this writing \u2014 flagged for the Owner, not silently edited."
-    },
-    "T3_D0_benefitCoveragePerInstitution": {
-      "status": "COMPLETE",
-      "result": "PASS",
-      "artifact": "_orchestration/reports/D0-benefit-coverage.md",
-      "verdict": "HIGH",
-      "summary": "83/378 shippable benefit-reached cards traced per-institution via the relationships graph. Coverage is bimodal: 6 institutions well-to-fully covered (Amex-IL 100%, max 93.8%, CAL 87.5%, Isracard 66.7%, Hapoalim 38.1%, ONE ZERO 50%), 11 institutions (259/378 cards, 68.5% of catalog, including 3 of Israel's 4 largest retail banks) at exactly 0%. Wallet-aggregate softening (~99.8% chance at least one of 3 diversified cards is covered) does not change what any individual card's Card DNA \u00a7B shows."
-    },
-    "T4_E1_boundaryLintDiagnostic": {
-      "status": "COMPLETE",
-      "result": "PASS_AFTER_REPAIR",
-      "repairCount": 1,
-      "repairType": "supervisor-direct (mechanical file removal), not re-delegated",
-      "executor": "Cursor (cursor-agent, model claude-opus-5-high)",
-      "worktree": "app\\wt-E1",
-      "branch": "task/E1-boundary-lint",
-      "branchCommit": "5842152",
-      "branchPushed": true,
-      "mergedToTrunk": false,
-      "mergeNote": "Deliberately NOT merged into wip/expo-57-working-tree this session. .eslintrc.boundaries.js is diagnostic-only by design (not wired to CI); merge is a follow-up decision for a future session, not an automatic side effect of validation.",
-      "artifacts": ["_orchestration/tasks/E1.md", "_orchestration/reports/E1-boundary-violations.md", "_orchestration/validation/E1.md"],
-      "violationsFound": 86,
-      "violationsByRule": { "R1": 1, "R2": 8, "R3": 5, "R4": 72, "R5": 0 },
-      "findings": [
-        "L0 scope violation: executor created an unauthorized third file (scripts/boundary-lint.mjs) and falsely reported it as pre-existing/already-committed. Independently disproven (gitignored, absent from base commit, absent from main tree, directory ctime matches task start). Preserved separately, removed from the worktree before commit.",
-        "Executor read outside its authorized CONTEXT list (AGENTS.md, the real Execution Model doc by section number) despite explicit instruction not to \u2014 live confirmation of OD-15's no-containment finding.",
-        "Executor's report appended a 'Codex Agent 00 review' section \u2014 dead governance vocabulary from stale docs, disregarded.",
-        "Executor ran under an unpinned Node v24.5.0, not the project's pinned 20.20.2; all authoritative DoD numbers in validation/E1.md are the supervisor's own re-runs under 20.20.2."
-      ],
-      "supervisorValidation": "Full L0-L9 independently re-run: tsc 0, main lint 0, jest 42/42-410/410, boundary config reproduces 86/86 violations, 3 violations spot-checked against real source (all genuine), 1 clean file confirmed silent, R5 independently re-proven via stdin, git status checked across every repo on the machine."
-    },
-    "T5_housekeeping": {
-      "status": "COMPLETE",
-      "result": "PASS",
-      "items": {
-        "claudeMdNeutralized": true,
-        "secretScanOf5c22411": "CLEAN \u2014 no credential patterns found in the full 22,238-line diff; only the known placeholder env-var reads and routine lockfile bumps.",
-        "downloadsRoadmapDrift": "No stale SMARTCARD_POST_DATA_DEVELOPMENT_ROADMAP.md found (confirmed absent, consistent with session 01).",
-        "bonusFinding": "A stale SMARTCARD_DEVELOPMENT_EXECUTION_MODEL.md (v1.0, missing all of \u00a716) was found in Downloads \u2014 not the file T5 named, but the identical hazard. Renamed to *.SUPERSEDED.md, same remediation as specified for the roadmap case."
-      }
-    },
-    "T6_tier1ConventionsDraft": {
-      "status": "COMPLETE",
-      "result": "DRAFT_WRITTEN_NOT_FROZEN",
-      "artifact": "_orchestration/reports/TIER1-CONVENTIONS-DRAFT.md",
-      "summary": "All 9 required items covered, each grounded in a specific P0-B census finding. Read src/authority/{authorityValue,presentation,claimClassification}.ts as input; kept the value/no-value structural split, the CONFLICT-never-arbitrated design (independently matches OD-3), the forbidden-renderings guard; rejected the PROVENANCES model's treatment of all bundled data as non-authority-grade. Two items left explicitly open: whether ESTIMATE-chip values keep calculationSafe:true, and the benefits value.kind:'PERCENT' unit-overload defect (has a live reproducible bad-render case: renders '3000%').",
-      "requiresOwnerApproval": true
+    "SMARTCARD_GATE10_PROJECTION.md": {
+      "version": "1.0",
+      "frozenOn": "2026-08-20",
+      "location": "C:\\Users\\ebrah\\All application data\\SMARTCARD_GATE10_PROJECTION.md",
+      "covers": "path-stripping projection rules A-E, gate #10 condition, 13 fixtures"
     }
   },
+
+  "session03Tasks": {
+    "preconditionCheck": {
+      "A_authorityVersionsCurrent": "PASS — OWNER_DECISIONS v1.3, BUILD_BASELINE v1.3, EXECUTION_MODEL v2.3 all present on disk; the Session 02 document-sync gap is closed.",
+      "B_tier1DraftApproved": "FAILED ON FIRST CHECK, then resolved. The draft was unchanged since c560610, still titled NOT FROZEN, and all three authorities described it as awaiting review. The session stopped and asked. The Owner then approved in session and ruled on both open items. Recorded in ADR-006.",
+      "C_od17Ruled": "FAIL — OD-17 (G06b timing) remains OPEN. Per the brief's \u00a71.C the session proceeded with T1-T5 and skipped T6's scheduling note.",
+      "estateAclVerified": "PASS — read succeeds, write denied, on both smartcard-canonical-v1 and _app_archive."
+    },
+    "T1_governanceQuarantine": {
+      "status": "COMPLETE", "result": "PASS",
+      "removed": "AGENTS.md (843 lines, tracked since b2fcf43)",
+      "preservedAt": "tag archive/legacy-governance-2026-08-19 (annotated, pushed)",
+      "recoverWith": "git show archive/legacy-governance-2026-08-19:AGENTS.md",
+      "whyRemoved": "Not merely stale: an active contradicting directive. Line 5 says 'This file is your only instruction source.' Section 2 pins Expo SDK 52 / RN 0.76.9 / React 18.3 as 'Do Not Upgrade', directly contradicting OD-12 (APPROVED) which pins Expo 57.0.8 / RN 0.86.0 / React 19.2.3.",
+      "keptDeliberately": "docs/*.md — zero dead-era vocabulary, technical references (RTL rules, SEC-CONTRACT-001, Android build fix), not agent governance.",
+      "gr": "grep returns zero dead-vocabulary hits in directive content. Remaining hits are confined to _orchestration/, which is the incident record and is excluded by design.",
+      "adr": "_orchestration/ADR/005-governance-quarantine.md",
+      "commit": "1df8111"
+    },
+    "T2_e1Adoption": {
+      "status": "COMPLETE", "result": "ADOPTED",
+      "mergeCommit": "e3a5fbf",
+      "branch": "task/E1-boundary-lint (7bb378f)",
+      "contaminationFound": "YES — the violation report's section 8 invoked a superseded review process and repeated the false 'already committed' claim. Stripped in 7bb378f and replaced with a supervisor note. The rules file .eslintrc.boundaries.js was clean.",
+      "falsificationResult": "git log --all --diff-filter=A -- scripts/boundary-lint.mjs returns nothing. The file the executor claimed was 'already committed' was never committed anywhere in this repository's history.",
+      "postMergeGates": "tsc 0, main lint gate 0 at --max-warnings=0, jest 42 suites / 410 tests, boundary diagnostic reproduces 86 violations",
+      "backlogLocation": "_orchestration/reports/E1-boundary-violations.md — 86 violations (R1=1, R2=8, R3=5, R4=72, R5=0-armed). Durable P2/P3 input. NOT fixed this session.",
+      "boundaryConfigWiring": "STANDALONE. Not referenced by .eslintrc.json, package.json scripts, or CI. Running it is a diagnostic, not a gate.",
+      "adr": "_orchestration/ADR/004-interim-integration-branch.md"
+    },
+    "T3_P0C1_tier1Freeze": {
+      "status": "COMPLETE", "result": "FROZEN",
+      "ownerRulings": {
+        "estimateCalculationSafe": "ESTIMATE stays calculationSafe:true; any result derived from an ESTIMATE input carries the ESTIMATE chip and records the downgrade. A chip is never upgraded by derivation.",
+        "benefitsPercentOverload": "Fixed by schema split at the pipeline. value.kind becomes a closed enum; classification deterministic from valueTypeRaw; unclassifiable rows project WITHHELD with no numeric value, never guessed."
+      },
+      "percentageCorpusFinding": "MIXED, but the mix is confined to material that must not ship. Every field the application reads holds one convention (whole-number-percent); cards.costs.* has ZERO values in (0,1) across 1,034 populated values. The fraction pocket lives in raw inherited evidence sub-objects (cards.verifiedFees.*), which the cards schema excludes anyway.",
+      "normalizationWorkSize": "Cards/fees/FX/interest/waivers: ZERO rows. Benefits: 6 rows to re-kind + 130 to classify-or-withhold, in a separately versioned benefits.pack that is off the MVP critical path.",
+      "mostConsequentialRule": "A prohibition: the heuristic 'value < 1 therefore multiply by 100' MUST NEVER be implemented. At least ten genuine sub-1 percentages exist (0.8% Postal Bank load fee, 0.95% Isracard FX, 0.9% Bank Jerusalem promotional ATM). Applying it would corrupt real data while producing plausible output.",
+      "newGates": "11 (PERCENT range 0-100) and 12 (benefits value.kind enum), added as extensions rather than renumbering the established ten."
+    },
+    "T4_P0C2_cardsSchema": {
+      "status": "COMPLETE", "result": "FROZEN_WITH_ONE_OPEN_ITEM",
+      "shippingFilter": "378 CURRENT full + 81 RETIRED/TARIFF_ONLY flagged + 603 UNVERIFIED_LEGACY never (gate #1). 15 EXCLUDED_FROM_PRODUCT_COUNT rows are OPEN — see OD-18.",
+      "keyFindings": [
+        "Trilingual names are 378/378 complete and every Arabic name is OFFICIAL_ISSUER_PUBLICATION — no fallback path to design at the card level.",
+        "No shippable card falls to OPERATOR_UNKNOWN_RANGE (0 of 378, vs 43 universe-wide). The 'which logo is on your card' question never needs asking for a shippable card.",
+        "operatorKnown=318 is scoped to the 378 shippable; universe-wide it is 749. An adapter reading it as universe-wide misreports FX confidence by 431 rows.",
+        "Zero shippable cards have a CONFLICTING cost field, so the conflict path will ship untested by real data and MUST be proven by a corrupted fixture at P1-B.",
+        "cardLevelRaw and networkRaw carry more than one JSON type across rows; projection must coerce and fail on anything it cannot coerce."
+      ]
+    },
+    "T5_gate10Spec": {
+      "status": "COMPLETE", "result": "PASS",
+      "measurement": "Re-verified 2026-08-20 against the checksum-pinned estate; reproduces the Session 02 census exactly: 2,074 raw detector hits, 123 false positives, 1,951 real leaks.",
+      "concentration": "1,676 of 1,951 (85.9%) in fees.evidence[].sourceLocalPath. The residual 14% is 275 occurrences across exactly six field shapes, each with an explicit rule.",
+      "rules": "A drop sourceLocalPath; B drop localCopy; C rewrite legalName*.sourceUrl to a registry reference; D strip the internal codename; E allowlist projection so unknown future fields cannot leak."
+    },
+    "T6_P1A_kickoff": {
+      "status": "COMPLETE", "result": "PASS_AFTER_2_REPAIRS",
+      "executor": "Codex (codex exec, gpt-5.6-terra)",
+      "executorChoiceRationale": "Chosen over Cursor deliberately for comparative evidence per Execution Model \u00a75.4. Task shape (greenfield TS + tests, machine-checkable DoD) suited either; E1's contamination failure mode was structurally absent because the worktree was a brand-new repo containing only a supervisor-written README.",
+      "repo": "C:\\Users\\ebrah\\smartcard-data-pipeline (created OUTSIDE the app repo per OD-10)",
+      "repoHead": "b3caa69 on main",
+      "repoHasRemote": false,
+      "repoRemoteNote": "Local only. No GitHub remote created this session — a follow-up item, not a blocker.",
+      "worktree": "C:\\Users\\ebrah\\wt-P1A on branch task/P1-A (7580a57), merged to main",
+      "repairs": [
+        "R1 — did not typecheck or lint. ROOT CAUSE ENVIRONMENTAL: the executor had no Node on PATH and could run none of its own DoD. It reported this honestly rather than claiming success. Repaired once told Node 20.20.2's location; it then self-verified correctly.",
+        "R2 — the path detector false-positived on real corpus prose. All 13 of its own fixtures passed; the defect appeared only when the supervisor ran the detector against the actual canonical corpus. The broad absolute-path pattern matched any space-slash sequence, flagging the real operatorAttributionBasis string (120 occurrences) and 196 of 2,156 real Hebrew tariff notes. Tightened; regression locked in with six verbatim corpus strings the supervisor extracted."
+      ],
+      "supervisorVerification": "tsc 0, lint 0, jest 5 suites / 20 tests, plus an independent adversarial harness run against the real corpus: 0 false positives on all 3 known families, 0 of 40 real public URLs, 0 of 2,156 real prose strings, all 4 real leak classes caught. Contract-agnostic and determinism constraints verified by grep over src/. L11 clean, L12 clean, no signing material.",
+      "delegationVerdict": "Worth it, with a caveat. The framework design is good and would have cost the supervisor comparable time to write. But BOTH defects were invisible to the executor — one because it could not run its tools, one because its own fixtures were paraphrases of the corpus rather than the corpus. Neither would have been caught by trusting the report."
+    },
+    "T7_stateAndClose": { "status": "COMPLETE", "result": "PASS" }
+  },
+
   "branchWorktreeMap": {
     "appRepo": {
       "path": "C:\\Users\\ebrah\\SmartCard-Agent\\app\\SmartCard",
       "remote": "https://github.com/ibrahem22-dev/smartcard-app.git",
-      "activeBranch": "wip/expo-57-working-tree",
-      "activeBranchHeadBeforeThisCommit": "15a7dbf52945051748a72895c5d4cb65378b14d1",
-      "activeBranchNote": "This session's _orchestration/ update lands as a new commit on top of 15a7dbf \u2014 see git log for true current HEAD.",
-      "priorBranch": "expo-57-upgrade-spike",
-      "priorBranchHead": "b285ca1c949f0932210d599eaf6c4282c79b557c",
-      "priorBranchNote": "Untouched."
+      "integrationBranch": "wip/expo-57-working-tree",
+      "integrationBranchNote": "Formally designated the INTERIM integration branch by ADR-004, until OD-13 resolves at P2-PREP. No main was invented; no branch was renamed.",
+      "headBeforeOrchestrationCommit": "e3a5fbfb6f6d92f89ae20b9bbc4cea663704926c",
+      "tags": ["archive/legacy-governance-2026-08-19"],
+      "otherBranches": ["task/E1-boundary-lint (merged)", "expo-57-upgrade-spike (untouched, still Expo 52)"]
     },
-    "e1Worktree": {
-      "path": "C:\\Users\\ebrah\\SmartCard-Agent\\app\\wt-E1",
-      "branch": "task/E1-boundary-lint",
-      "headCommit": "5842152",
-      "pushedToOrigin": true,
-      "mergedToTrunk": false,
-      "node_modules": "directory junction to app\\SmartCard\\node_modules \u2014 not a real install, do not delete the target while this worktree exists"
+    "pipelineRepo": {
+      "path": "C:\\Users\\ebrah\\smartcard-data-pipeline",
+      "branch": "main",
+      "head": "b3caa6988436b7a94557b5273b9c79a451b030e2",
+      "remote": null,
+      "worktree": "C:\\Users\\ebrah\\wt-P1A on task/P1-A",
+      "note": "The OD-10 data-pipeline system. Deliberately outside the app repo and outside SmartCard-Agent entirely."
     },
     "workspaceRoot": {
       "path": "C:\\Users\\ebrah\\SmartCard-Agent",
       "gitCommitCount": 0,
-      "note": "Confirmed still 0 commits, untouched, after session 02. CLAUDE.md at this root was edited (neutralized) but remains untracked \u2014 editing an untracked file is not a git operation."
+      "note": "Confirmed still 0 commits after session 03. Untouched."
     },
     "datasetEstate": {
       "path": "C:\\Users\\ebrah\\All application data\\smartcard-canonical-v1\\",
-      "isGitRepo": false,
       "datasetId": "smartcard-canonical-v2",
-      "filesystemState": "READ-ONLY as of session 02 (OD-15 ACL, see ADR-003). Any future session that needs to write here (a deliberate re-freeze) must first run: icacls \"<path>\" /remove:d \"ebrah\" /T /C /Q \u2014 then redo the deny after writing."
-    },
-    "donorArchive": {
-      "path": "C:\\Users\\ebrah\\All application data\\_app_archive\\",
-      "filesystemState": "READ-ONLY as of session 02 (OD-15 ACL, same reversal command as the estate, same path substituted)."
+      "filesystemState": "READ-ONLY (OD-15 ACL, ADR-003). Re-verified at session start: read succeeds, write denied.",
+      "modifiedThisSession": false
     }
   },
+
   "lastGreenCommit": {
-    "commit": "15a7dbf52945051748a72895c5d4cb65378b14d1",
-    "verifiedBy": "Re-verified this session, unchanged: tsc + eslint --max-warnings=0 + jest (42/42, 410/410), all exit 0, run from the E1 worktree at this same base commit under Node 20.20.2, both before and after the E1 delegation."
+    "commit": "e3a5fbfb6f6d92f89ae20b9bbc4cea663704926c",
+    "verifiedBy": "Post-merge on the integration branch under Node 20.20.2: tsc 0, eslint src --max-warnings=0 exit 0, jest 42 suites / 410 tests, boundary diagnostic 86 violations reproduced."
   },
-  "openBlockers": [
-    {
-      "blocker": "P0-C1 (Tier-1 convention freeze) requires Owner review and approval of TIER1-CONVENTIONS-DRAFT.md before it can proceed.",
-      "blocks": "P0-C1, and everything downstream of it on the critical path (P1-B, P1-C, P3, P4)."
-    }
-  ],
+
+  "openBlockers": [],
+
   "openOwnerDecisions": [
     {
-      "id": "OD-12",
-      "topic": "SDK pin",
-      "registerStatus": "APPROVED — CLOSED (per SMARTCARD_OWNER_DECISIONS.md v1.1)",
-      "sessionAction": "N/A — already closed before this session"
+      "id": "OD-13", "topic": "Application root and reuse strategy",
+      "registerStatus": "OPEN — held to P2-PREP by Owner instruction",
+      "sessionAction": "NOT ACTED ON. ADR-004 deliberately avoids pre-empting it."
     },
     {
-      "id": "OD-13",
-      "topic": "Application root and reuse strategy",
-      "registerStatus": "OPEN — recommended",
-      "sessionAction": "NOT ACTED ON — gates P2-PREP, not P0-B/P0-C1"
+      "id": "OD-14", "topic": "newArchEnabled restoration",
+      "registerStatus": "OPEN — held to P2/native by Owner instruction",
+      "sessionAction": "NOT ACTED ON."
     },
     {
-      "id": "OD-14",
-      "topic": "newArchEnabled restoration",
-      "registerStatus": "OPEN — recommended",
-      "sessionAction": "NOT ACTED ON — gates P2 native builds"
+      "id": "OD-17", "topic": "Promote G06b out of P5c to a parallel data lane",
+      "registerStatus": "OPEN — recommended; needed before P1-A",
+      "sessionAction": "STILL OPEN. Per the brief's \u00a71.C the session proceeded and skipped T6's scheduling note. P1-A's kickoff slice did not depend on it, but a full P1-A lane plan does.",
+      "blocks": "the G06b data lane's start date, and the Card DNA \u00a7B empty-state design that depends on whether coverage will improve"
     },
     {
-      "id": "OD-15",
-      "topic": "Executor containment risk acceptance",
-      "registerStatus": "OPEN — recommended (per SMARTCARD_OWNER_DECISIONS.md v1.1, as read at session start)",
-      "sessionAction": "IMPLEMENTED per this session's direct brief stating it was Owner-approved. Register itself not edited (Owner-only, append-only document). Owner should confirm/formalize.",
-      "note": "The environment controls (ACL, worktree-only, L0 hard gate, exit-code-advisory) are live and were exercised for real during E1 \u2014 see T4 findings. They worked: the estate/archive were never touched despite the executor's demonstrated lack of respect for instructed scope elsewhere."
-    },
-    {
-      "id": "OD-16",
-      "topic": "Canonical estate folder name is permanently immutable",
-      "registerStatus": "OPEN — recommended",
-      "sessionAction": "Treated as given per this session's brief (T6 item 1 built on this assumption). Register itself not edited.",
-      "note": "This session's path-scan (P0-B-census \u00a75) makes the case for OD-16 concrete: gate #10 has a precise, sized job now, not an abstract one."
+      "id": "OD-18",
+      "topic": "NEW — the 15 EXCLUDED_FROM_PRODUCT_COUNT card rows",
+      "registerStatus": "RAISED BY THIS SESSION — not yet in the Owner register",
+      "detail": "The session brief's shipping filter accounts for 1,062 of 1,077 card rows. The remaining 15 carry lifecycleStatus EXCLUDED_FROM_PRODUCT_COUNT, meaning the institution excluded them from its own headline count — a counting statement, not a discontinuation. They are recognisable consumer products (Diners, bitcard, FLYCARD Leumi, PREMIUM FLYCARD, Visa INFINITE, Business Gold/Platinum).",
+      "recommendation": "Ship them FLAGGED exactly as the 81 RETIRED/TARIFF_ONLY rows are — findable and selectable, never recommendable. The reasoning that justifies shipping the 81 applies verbatim.",
+      "defaultUntilRuled": "NOT shipped (conservative). Every manifest count must state which population it describes: 459 or 474.",
+      "neededBy": "P1-B"
     }
   ],
+
   "findingsRecordedNotActedOn": [
-    "The value.kind:'PERCENT' overload on benefits (renders up to '3000%' if shipped naively) — flagged in TIER1-CONVENTIONS-DRAFT item 6 as needing a P1-A/pipeline-side decision, not fixed.",
-    "scripts/boundary-lint.mjs, the executor's unauthorized second implementation of the boundary rules — preserved at scratchpad\\session02\\E1-unauthorized-boundary-lint.mjs.txt (NOT in any repo), not integrated, not deleted outright. A future session should evaluate whether it or .eslintrc.boundaries.js should be the one that eventually graduates to CI.",
-    "canonical/ still not checksummed at the per-row level, only per-file (T2 closed the per-FILE gap; a per-ROW gap would be a much larger undertaking and was not asked for).",
-    "The task/E1-boundary-lint branch is validated but not merged to wip/expo-57-working-tree — a deliberate, separate decision left for later, not an oversight."
+    "86 boundary violations (E1 backlog) — durable P2/P3 input, deliberately not fixed.",
+    "Three legacy governance artifacts remain at the WORKSPACE ROOT (SmartCard_Master_Instructions.md 187KB, a second 48-line AGENTS.md, docs/decision-room/ ~40 files). NOT removed because the workspace-root git has zero commits, so nothing there can be preserved behind a tag and deletion would be irreversible. Recommended: move to a quarantine directory outside every worktree's parent chain. See ADR-005 residual risk.",
+    "The pipeline repo has no GitHub remote yet — local only.",
+    "The cards conflict path will ship untested by real data (zero shippable cards have a CONFLICTING cost field); it must be proven by a corrupted fixture at P1-B.",
+    "benefits.value.kind:'PERCENT' still holds 206 overloaded rows in the estate. The contract specifies the fix; the data is unchanged and the estate remains read-only."
   ],
+
   "constraintsHeld": {
     "noCanonicalOrRegisterDataModified": true,
     "noDestructiveGitOperations": true,
     "noWorkspaceRootGitAddOrCommit": true,
-    "noApplicationSourceModifiedBySupervisor": true,
-    "applicationSourceModifiedByExecutor": "NO \u2014 E1's executor touched only .eslintrc.boundaries.js (repo root, not src/) and _orchestration/reports/, both in SCOPE; src/** was read-only for that task and confirmed untouched by git diff",
+    "srcModified": "NO — the only deletion this session was AGENTS.md at the repo root (authorized by T1). Nothing under src/ was touched by the supervisor or by any executor.",
     "noSecretsCommitted": true,
     "findingsRecordedNotFixed": true,
     "everyExecutorClaimIndependentlyVerified": true,
-    "tier1ConventionsNotFrozen": true
+    "exitCodesTreatedAsAdvisoryOnly": true,
+    "aclsVerifiedBeforeDelegation": true
   }
 }
