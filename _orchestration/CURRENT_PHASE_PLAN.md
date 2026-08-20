@@ -1,76 +1,90 @@
 # CURRENT PHASE PLAN
 
-Source of sequencing truth: `SMARTCARD_DEVELOPMENT_EXECUTION_MODEL.md` v2.3 §15–§17.
-This file is a working excerpt for quick resume, not a replacement.
+Source of sequencing truth: `SMARTCARD_DEVELOPMENT_EXECUTION_MODEL.md` v2.4 §15–§18.
 
-## The design phase is over
+## ⛔ THE ONE THING BLOCKING EVERYTHING
+
+**`TIER1_CONVENTIONS_OWNER_RULING.md` does not exist on disk.**
+
+Expected at `C:\Users\ebrah\All application data\`. Referenced by name in the baseline (line 8), the
+Owner register (lines 12, 66) and the Session 04 prompt — but never placed. A filesystem-wide search
+returns nothing. The `R0`–`R6` tokens in the Execution Model are an **unrelated risk register**.
+
+Until it lands, the dependency chain below cannot start:
 
 ```
-✅ P-1    Donor preservation          commits 5c22411 + 15a7dbf
-✅ P0-A   Dataset identity + freeze   DATASET_ID + INPUT_MANIFEST (per-file sha256)
-✅ E0     Executor capability probe   Tier 1, qualified
-✅ P0-B   Reconciliation census       ~70 metrics reconciled; gate #10 sized
-✅ D0     Benefit coverage            verdict HIGH
-✅ E1     Boundary-lint diagnostic    86-violation backlog, ADOPTED and merged
-✅ P0-C1  TIER-1 CONVENTION FREEZE    ← THE GATE, CLEARED 2026-08-20
-✅ P0-C2  Cards entity schema         frozen, one item open (OD-18)
-✅ —      Gate #10 projection spec    rules A–E, 13 fixtures
-✅ P1-A   Pipeline infrastructure     kickoff slice merged (b3caa69), 2 repairs
+TIER1_CONVENTIONS_OWNER_RULING.md on disk
+   └─> Tier-1 contract amendment to v1.1   (an INCIDENT: needs an ADR)
+          └─> P1-B cards tracer bullet     (provenance shape must be final first)
+                 └─> P1-C adapter          (its signature IS the provenance shape)
+                        └─> P0-C3+         (twelve more families)
 ```
 
-**Everything after this point is building, not deciding.**
+**Why this is a hard block, not caution.** Session 04's audit found the contract was frozen without
+R1 (`USER` chip), R2 (`STALE` as a modifier) and R3 (`obtainable`) — the three the brief itself
+flags as structural. Projecting cards now bakes a provenance record with no `USER` state and `STALE`
+as a peer rather than a modifier into the pack format, the adapter signature and the engine result
+type. Every one of the thirteen families would then need re-projecting and re-goldening. That is
+exactly the "Tier-1 convention churn after projection begins" risk the Execution Model rates
+CRITICAL.
 
-## Next — two lanes, genuinely parallel
+## Where things stand
 
-### Lane C — P0-C3+ per-entity schemas (supervisor direct)
-Twelve families remain, following the pattern `SMARTCARD_DATA_CONTRACT_CARDS.md` established:
-fees · FX · waivers · billing · interest · clubs/programmes · relationships · benefits · stacking ·
-merchants · content · conflicts.
+```
+✅ P-1 · P0-A · P0-B · D0 · E1 · P0-C1 (frozen) · P0-C2 (cards schema) · gate-#10 spec · P1-A
+✅ S04 T1  contract audited — freeze did NOT incorporate R0–R6
+✅ S04 T2  OD-18 ruling recovered — finding: it was never given (ADR-007)
+✅ S04 T3  OD-19 approved; 15/15 passed integrity; cards schema → v1.1
+✅ S04 T6  L13 real-corpus sweep — two defects found, both recorded
+⛔ S04 T4  P1-B tracer bullet    DEFERRED — blocked above
+⛔ S04 T5  conflict fixture      DEFERRED — shape depends on R2/R4
+```
 
-Order by what P1-B needs first. Cards is done; **fees is the natural second** — it is the largest
-path-leak surface (1,676 of 1,951) and the tracer bullet's cost values resolve through it.
+## What the Owner must do to unblock
 
-### Lane I — P1-B cards tracer bullet (delegable)
-End-to-end: read estate → project → gate → pack → manifest → verify. The infrastructure is built
-and the contract is frozen, so this should need no new decisions. It **must** include:
-- the ten data gates plugged into the P1-A framework, each with its corrupted fixture
-- gate #10's round-trip assertion: zero detector hits across every output pack
-- **a corrupted fixture for the conflict path** — zero shippable cards have a `CONFLICTING` cost
-  field, so that path ships untested by real data unless a fixture proves it
+1. **Place `TIER1_CONVENTIONS_OWNER_RULING.md`** at `All application data\` — or restate R0–R6.
+2. **Rule OD-18.** It was never ruled (ADR-007). Options unchanged: (a) keep `UNKNOWN`, add
+   `obtainable` — the register's recommendation; (b) rename to `WITHHELD`, add `obtainable`. The
+   frozen contract currently implements (b) by accident. Best ruled *together* with R0–R6, since R3
+   covers the same ground and both then land in one amendment incident.
+3. **Correct the register** — two entries are wrong on disk:
+   - OD-18: `⚠️ RULED IN-SESSION — VERIFY` → **`OPEN`**
+   - OD-19: `OPEN — recommended` → **`APPROVED`** (ruled Session 04)
+4. **Consider bundling two amendments found by measurement**, so the contract is opened once:
+   - Gate 11 must key on `unit: "PERCENT"` **or** `kind: "PERCENTAGE"` — as frozen it catches **0 of
+     the 5** real rows that would render `"3000%"`.
+   - The Tier-1 contract should state the `lineage` omission itself (today it lives only in the
+     gate-#10 spec and the cards schema), and gate #10 should assert **no `lineage` key survives**,
+     not merely that its values look clean.
 
-## Blocked on the Owner before P1-B
+## Then — the sequence resumes
 
-| ID | Question | Default if unanswered |
-|---|---|---|
-| **OD-18** *(new)* | Do the 15 `EXCLUDED_FROM_PRODUCT_COUNT` cards ship flagged, like the 81 RETIRED/TARIFF_ONLY? Recommended: yes. | NOT shipped. Manifest counts must say 459 or 474. |
-| **OD-17** | Does G06b move out of P5c into a parallel data lane now? Recommended: yes, start after P0-C1. | Stays at P5c; the evidenced empty state becomes a designed MVP surface. |
+**P1-B cards tracer bullet.** Everything it needs is ready except the provenance shape: the cards
+schema is at v1.1 with the filter settled (474 rows in `catalog.pack`, 378 displayed as current),
+the gate-#10 rules are specified, and P1-A's framework is merged and green.
 
-Neither blocks Lane C. OD-18 blocks the cards pack's final row count; OD-17 blocks the G06b lane's
-start date.
+Its acceptance criteria stand as written in the Session 04 brief §7, plus one addition from T6:
+**every gate that requires a built pack (2, 3, 4, 6, 7, 8, 9, and gate 10's round-trip assertion)
+gets its own L13 real-corpus run the moment a pack exists.** That is an acceptance criterion, not a
+follow-up.
 
-## Standing state a future session must re-confirm before trusting anything
+**Then in parallel:** P1-C adapter · P0-C3+ per-entity schemas (fees first — largest path-leak
+surface) · the G06b data lane (OD-17 approved, runs as its own session).
 
-- **Three documents are FROZEN** at `All application data\`: `SMARTCARD_DATA_CONTRACT.md`,
-  `SMARTCARD_DATA_CONTRACT_CARDS.md`, `SMARTCARD_GATE10_PROJECTION.md`. Changing any of them is an
-  **incident** requiring a new ADR and Owner approval — not an edit.
-- The canonical estate and `_app_archive\` are filesystem read-only (ADR-003). Verify with `icacls`
-  before assuming a write will work; the reversal command is in ADR-003.
-- `wip/expo-57-working-tree` is the **interim integration branch** (ADR-004) until OD-13 resolves.
-  There is no `main` in the app repo, deliberately.
-- The pipeline lives at `C:\Users\ebrah\smartcard-data-pipeline` — a **separate repo, outside the
-  app repo** (OD-10). It has **no GitHub remote yet**.
-- `AGENTS.md` is gone from the app repo working line by design (ADR-005). It is at tag
-  `archive/legacy-governance-2026-08-19`. **Do not restore it** — it pins Expo 52 and contradicts
-  OD-12.
-- Three legacy governance artifacts still sit at the **workspace root** and were deliberately not
-  removed (zero-commit git = no recoverability). See ADR-005 residual risk.
+## Standing state
 
-## The two lessons the delegation record has now paid for twice
+- **Frozen, and not to be edited casually:** `SMARTCARD_DATA_CONTRACT.md` v1.0,
+  `SMARTCARD_DATA_CONTRACT_CARDS.md` **v1.1**, `SMARTCARD_GATE10_PROJECTION.md` v1.0. Changes are
+  incidents requiring an ADR.
+- Estate and archive are filesystem read-only (ADR-003); re-verified Session 04.
+- `wip/expo-57-working-tree` is the interim integration branch (ADR-004). No `main`, deliberately.
+- Pipeline repo at `C:\Users\ebrah\smartcard-data-pipeline`, **no remote yet**, untouched in S04.
 
-1. **An executor's report is a hypothesis.** Two delegations, two materially wrong self-reports —
-   E1 claimed a file was "already committed" when it had created it; P1-A shipped code that did not
-   compile because it could not run its own tools. Both were caught only by independent re-running.
-2. **Fixtures written by the implementer test the implementer's understanding.** P1-A's 13 fixtures
-   all passed while the detector false-positived on 9% of real prose. The defect surfaced only when
-   the supervisor ran it against the **actual corpus**. For any gate, test against real data, not
-   against a paraphrase of it.
+## The lesson this session paid for, again
+
+Three sessions running, the newest authority set has not reached `All application data\` before the
+session began. Session 02 flagged it; Session 03 froze the contract against v1.3 because of it;
+Session 04 could not audit that freeze because the ruling never arrived. **The gap is not in the
+decisions — it is in getting them onto disk before the session that needs them.** A decision that
+lives only in a chat transcript, or in a document that was written but not placed, is not yet a
+decision this project can act on.
