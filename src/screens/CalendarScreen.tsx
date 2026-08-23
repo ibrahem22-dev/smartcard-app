@@ -5,6 +5,8 @@ import { AppText } from '../components/AppText';
 import { RtlRow, RtlScreen } from '../components/rtl';
 import { useCashflowCalendar } from '../hooks/useCashflowCalendar';
 import { useTheme } from '../hooks/useTheme';
+import { useMoney } from '../hooks/useMoney';
+import { TABULAR_NUMERALS } from '../utils/money';
 import { useTranslation } from '../hooks/useTranslation';
 import type { CashflowCalendarCharge } from '../types/cashflow.types';
 import { BORDER, ROLE_SURFACE_BG, SURFACE, TEXT } from '../theme/tokens';
@@ -24,13 +26,17 @@ function getRiskRowClassName(riskLevel: number): string {
   return `${ROLE_SURFACE_BG.positive}`;
 }
 
-function formatAmount(amount: number): string {
-  return `${amount.toLocaleString('he-IL')} ₪`;
-}
+// The formatter is no longer defined here. A7: exactly one exists, in src/utils/money.ts, and
+// it reaches this screen through useMoney() so it formats in the language the reader chose.
 
+// THE FORMATTER ARRIVES AS AN ARGUMENT. This function sits outside the component tree, which is
+// exactly why the version it replaces hardcoded 'he-IL': a module-level function cannot ask what
+// language the reader chose, so its author picked one. Passing it in is what makes the choice the
+// reader's.
 function renderCharge(
   item: CashflowCalendarCharge,
   companyAccent: string,
+  money: (value: number) => string,
 ): React.ReactElement {
   return (
     <RtlRow
@@ -50,8 +56,11 @@ function renderCharge(
           {item.cardName}
         </AppText>
       </View>
-      <AppText className={`me-3.5 min-w-24 text-[17px] font-black ${TEXT.heading}`}>
-        {formatAmount(item.amount)}
+      <AppText
+        className={`me-3.5 min-w-24 text-[17px] font-black ${TEXT.heading}`}
+        style={TABULAR_NUMERALS}
+      >
+        {money(item.amount)}
       </AppText>
     </RtlRow>
   );
@@ -59,6 +68,7 @@ function renderCharge(
 
 export function CalendarScreen(): React.ReactElement {
   const theme = useTheme();
+  const { money } = useMoney();
   const { t } = useTranslation();
   const charges = useCashflowCalendar();
 
@@ -81,7 +91,7 @@ export function CalendarScreen(): React.ReactElement {
         `${item.date}-${item.cardName}-${item.amount}`
       }
       renderItem={({ item }): React.ReactElement =>
-        renderCharge(item, theme.companyAccent)
+        renderCharge(item, theme.companyAccent, money)
       }
       style={{
         flex: 1,

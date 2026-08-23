@@ -10,6 +10,8 @@ import { FeatureGate } from '../components/FeatureGate';
 import { RtlRow, RtlScreen, RtlScrollView } from '../components/rtl';
 import { useTheme } from '../hooks/useTheme';
 import { useTranslation } from '../hooks/useTranslation';
+import { useMoney } from '../hooks/useMoney';
+import { TABULAR_NUMERALS } from '../utils/money';
 import type { PurchaseGateStackParamList } from '../navigation/types';
 import type { DecisionVerdict } from '../types/decision.types';
 import { BORDER, ROLE_BORDER, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
@@ -52,15 +54,14 @@ const VERDICT_CLASSES: Record<DecisionVerdict, string> = {
   wait_24h: `${ROLE_SURFACE_BG.advisory} ${ROLE_BORDER.advisory}`,
 };
 
-function formatCommission(value: number): string {
-  return `${value.toLocaleString('he-IL', { maximumFractionDigits: 2 })}%`;
-}
+// formatCommission lived here. A7: one formatter — percent() from useMoney().
 
 export function DecisionScreen({
   navigation,
   route,
 }: DecisionScreenProps): React.ReactElement {
   const theme = useTheme();
+  const { percent } = useMoney();
   const { t } = useTranslation();
   const verdict = route.params.verdict;
   const fxComparison = route.params.fxComparison ?? [];
@@ -144,7 +145,7 @@ export function DecisionScreen({
                   className={`min-h-[44px] items-center justify-between rounded-md border px-2 ${
                     isLowest
                       ? `shadow-sm ${ROLE_BORDER.positive} ${ROLE_SURFACE_BG.positive}`
-                      : 'border-transparent border-t-slate-200 dark:border-t-neutral-700'
+                      : `border-transparent ${BORDER.topHairline}`
                   }`}
                   key={rowItem.cardId}
                 >
@@ -175,8 +176,9 @@ export function DecisionScreen({
                           ? `${ROLE_TEXT.positive}`
                           : `${TEXT.heading}`
                       }`}
+                      style={TABULAR_NUMERALS}
                     >
-                      {formatCommission(rowItem.commission)}
+                      {percent(rowItem.commission)}
                     </AppText>
                   ) : (
                     <AppText className={`text-sm ${TEXT.muted}`}>

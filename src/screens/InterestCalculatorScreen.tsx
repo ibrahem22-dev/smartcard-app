@@ -12,6 +12,8 @@ import { AppText } from '../components/AppText';
 import { RtlRow, RtlScreen, RtlScrollView } from '../components/rtl';
 import { useAppDirection } from '../hooks/useAppDirection';
 import { useInterestResult } from '../hooks/useInterestResult';
+import { useMoney } from '../hooks/useMoney';
+import { TABULAR_NUMERALS } from '../utils/money';
 import { useTranslation } from '../hooks/useTranslation';
 import { useCardsStore } from '../store/useCardsStore';
 import type { CardInput } from '../types/card.types';
@@ -40,9 +42,7 @@ function parseRate(value: string): number | null {
   return Number.isFinite(parsed) && parsed >= 0 && parsed <= 30 ? parsed : null;
 }
 
-function formatILS(amount: number): string {
-  return `${amount.toLocaleString('he-IL', { maximumFractionDigits: 2 })} ₪`;
-}
+// formatILS lived here and hardcoded 'he-IL'. A7: one formatter, in src/utils/money.ts.
 
 const INPUT_CLASS =
   `min-h-[48px] rounded-lg border px-4 text-base ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`;
@@ -50,6 +50,9 @@ const LABEL_CLASS = `mb-1 mt-3 text-sm font-bold ${TEXT.body}`;
 
 export function InterestCalculatorScreen(): React.ReactElement {
   const { t } = useTranslation();
+  // Destructured as money only: this screen already has a local amount — the parsed input —
+  // and shadowing it with a formatter would be a rename waiting to be misread.
+  const { money, amount: formatDigits } = useMoney();
   const { textAlign, writingDirection } = useAppDirection();
   const route = useRoute();
   const initialCardId = (route.params as { cardId?: string } | undefined)?.cardId;
@@ -207,24 +210,33 @@ export function InterestCalculatorScreen(): React.ReactElement {
                   <AppText className={`text-sm font-bold ${TEXT.secondary}`}>
                     {t('תשלום חודשי')}
                   </AppText>
-                  <AppText className={`text-sm font-extrabold ${TEXT.heading}`}>
-                    {formatILS(result.monthlyPayment)}
+                  <AppText
+                    className={`text-sm font-extrabold ${TEXT.heading}`}
+                    style={TABULAR_NUMERALS}
+                  >
+                    {money(result.monthlyPayment)}
                   </AppText>
                 </RtlRow>
                 <RtlRow className="mt-1 items-center justify-between">
                   <AppText className={`text-sm font-bold ${TEXT.secondary}`}>
                     {t('סך הריבית')}
                   </AppText>
-                  <AppText className={`text-sm font-extrabold ${ROLE_TEXT.advisory}`}>
-                    {formatILS(result.totalInterest)}
+                  <AppText
+                    className={`text-sm font-extrabold ${ROLE_TEXT.advisory}`}
+                    style={TABULAR_NUMERALS}
+                  >
+                    {money(result.totalInterest)}
                   </AppText>
                 </RtlRow>
                 <RtlRow className="mt-1 items-center justify-between">
                   <AppText className={`text-sm font-bold ${TEXT.secondary}`}>
                     {t('עלות כוללת')}
                   </AppText>
-                  <AppText className={`text-sm font-extrabold ${TEXT.heading}`}>
-                    {formatILS(result.totalCost)}
+                  <AppText
+                    className={`text-sm font-extrabold ${TEXT.heading}`}
+                    style={TABULAR_NUMERALS}
+                  >
+                    {money(result.totalCost)}
                   </AppText>
                 </RtlRow>
 
@@ -251,16 +263,14 @@ export function InterestCalculatorScreen(): React.ReactElement {
                     <AppText className={`flex-1 text-xs ${TEXT.body}`}>
                       {row.month}
                     </AppText>
-                    <AppText className={`flex-1 text-xs ${TEXT.body}`}>
-                      {row.principal.toLocaleString('he-IL', { maximumFractionDigits: 0 })}
+                    <AppText className={`flex-1 text-xs ${TEXT.body}`} style={TABULAR_NUMERALS}>
+                      {formatDigits(row.principal, 0)}
                     </AppText>
-                    <AppText className={`flex-1 text-xs ${TEXT.body}`}>
-                      {row.interest.toLocaleString('he-IL', { maximumFractionDigits: 0 })}
+                    <AppText className={`flex-1 text-xs ${TEXT.body}`} style={TABULAR_NUMERALS}>
+                      {formatDigits(row.interest, 0)}
                     </AppText>
-                    <AppText className={`flex-1 text-xs ${TEXT.body}`}>
-                      {row.remainingBalance.toLocaleString('he-IL', {
-                        maximumFractionDigits: 0,
-                      })}
+                    <AppText className={`flex-1 text-xs ${TEXT.body}`} style={TABULAR_NUMERALS}>
+                      {formatDigits(row.remainingBalance, 0)}
                     </AppText>
                   </RtlRow>
                 ))}

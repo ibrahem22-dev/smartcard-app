@@ -623,7 +623,7 @@ export const enBySource: Readonly<Record<string, string>> = {
   'דמי כרטיס והנחה': 'Card fee & discount',
   'דמי כרטיס מקוריים (₪)': 'Original card fee (₪)',
   'אחוז הנחה (0–100)': 'Discount percent (0–100)',
-  'דמי כרטיס בפועל: {{amount}} ₪': 'Effective card fee: {{amount}} ₪',
+  'דמי כרטיס בפועל: {{amount}}': 'Effective card fee: {{amount}}',
   'תאריך סיום הנחה (YYYY-MM-DD, אופציונלי)':
     'Discount end date (YYYY-MM-DD, optional)',
   'חשבון מט"ח': 'Foreign-currency account',

@@ -49,7 +49,24 @@ const TAILWIND_HUES = [
   'pink', 'rose',
 ];
 
-const COLOUR_PROPS = 'bg|text|border|ring|shadow|from|to|via|decoration|placeholder|divide|outline|accent|caret|fill|stroke';
+/**
+ * The properties a colour can be attached to — INCLUDING the directional and axis variants.
+ *
+ * The first version listed `border` and stopped, and `border-t-slate-200` walked straight through
+ * it: Tailwind writes a one-sided border as `border-t-`, `border-s-`, `border-x-`, and none of them
+ * is `border-`. The gate printed `0 raw colour outside the token module` while a screen was naming
+ * slate directly. It was found by a DIFFERENT gate — A7's tabular check reported the line for an
+ * unrelated reason and the hue was visible in the output.
+ *
+ * A check that is right about most spellings of a thing is wrong about the thing.
+ */
+const SIDES = 't|b|l|r|s|e|x|y';
+const COLOUR_PROPS = [
+  'bg', 'text', 'ring', 'shadow', 'from', 'to', 'via', 'decoration',
+  'placeholder', 'outline', 'accent', 'caret', 'fill', 'stroke',
+  'border(?:-(?:' + SIDES + '))?',
+  'divide(?:-(?:' + SIDES + '))?',
+].join('|');
 
 const HUE_CLASS = new RegExp('\\b(?:' + COLOUR_PROPS + ')-(?:' + TAILWIND_HUES.join('|') + ')-\\d{2,3}\\b', 'g');
 const HEX = /#[0-9a-fA-F]{3,8}\b/g;

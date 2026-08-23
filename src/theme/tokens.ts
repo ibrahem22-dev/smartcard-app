@@ -167,6 +167,12 @@ export const SURFACE = {
 export const BORDER = {
   hairline: 'border-slate-300 dark:border-neutral-700',
   subtle: 'border-slate-200 dark:border-neutral-800',
+  /**
+   * A single hairline along the top edge, for rows in a list that share a container. Named because
+   * `border-t-slate-200` is still a colour literal — Tailwind's one-sided variants spell the
+   * property differently and the A8 gate did not see them until this one turned up.
+   */
+  topHairline: 'border-t-slate-200 dark:border-t-neutral-700',
 } as const;
 
 /**

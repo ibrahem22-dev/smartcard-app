@@ -26,6 +26,8 @@ import {
   TRANSFER_FX_COMMISSION_MAX_PCT,
 } from '../config/financial';
 import { useAppDirection } from '../hooks/useAppDirection';
+import { useMoney } from '../hooks/useMoney';
+import { TABULAR_NUMERALS } from '../utils/money';
 import { resolveDatabaseRates } from '../authority/noSource';
 import { useTranslation } from '../hooks/useTranslation';
 import type { CardsStackParamList } from '../navigation/types';
@@ -115,6 +117,7 @@ export function CardDetailScreen({
   route,
 }: CardDetailScreenProps): React.ReactElement {
   const { t } = useTranslation();
+  const { money } = useMoney();
   const { textAlign, writingDirection } = useAppDirection();
   const card = useCardsStore(state =>
     state.cards.find(c => c.cardId === route.params.cardId),
@@ -496,12 +499,11 @@ export function CardDetailScreen({
               value={feeDiscount}
             />
             {effectiveFeePreview !== null ? (
-              <AppText className={`mt-1 text-sm font-bold ${TEXT.body}`}>
-                {t('דמי כרטיס בפועל: {{amount}} ₪', {
-                  amount: effectiveFeePreview.toLocaleString('he-IL', {
-                    maximumFractionDigits: 2,
-                  }),
-                })}
+              <AppText
+                className={`mt-1 text-sm font-bold ${TEXT.body}`}
+                style={TABULAR_NUMERALS}
+              >
+                {t('דמי כרטיס בפועל: {{amount}}', { amount: money(effectiveFeePreview) })}
               </AppText>
             ) : null}
             <RtlRow className="mt-3 min-h-[48px] items-center justify-between">

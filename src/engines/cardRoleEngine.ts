@@ -44,7 +44,7 @@ export function getEffectiveFxCommission(
 }
 
 const UNKNOWN_CLUB_REASON_HE = 'מועדון לא ידוע — ייתכן הטבות נוספות';
-const UNKNOWN_CLUB_REASON_AR = 'المועدون غير معروف — قد تتوفر مزايا إضافية';
+const UNKNOWN_CLUB_REASON_AR = 'النادي غير معروف — قد تتوفر مزايا إضافية';
 const DEFAULT_REASON_HE = 'הכרטיס מתאים לרכישה זו';
 const DEFAULT_REASON_AR = 'البطاقة مناسبة لهذا الشراء';
 

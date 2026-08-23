@@ -10,6 +10,8 @@ import {
 import { AppText } from '../components/AppText';
 import { RtlRow, RtlScreen, RtlScrollView } from '../components/rtl';
 import { useAppDirection } from '../hooks/useAppDirection';
+import { useMoney } from '../hooks/useMoney';
+import { TABULAR_NUMERALS } from '../utils/money';
 import { useCardsStore } from '../store/useCardsStore';
 import { useTranslation } from '../hooks/useTranslation';
 import type { ImportedInstallment } from '../types/installment.types';
@@ -25,6 +27,7 @@ function parseMonths(value: string): number | null {
 
 export function InstallmentImportScreen(): React.ReactElement {
   const { t } = useTranslation();
+  const { money } = useMoney();
   const { textAlign, writingDirection } = useAppDirection();
   const cards = useCardsStore(state => state.cards);
   const obligations = useCardsStore(state => state.obligations);
@@ -311,8 +314,9 @@ export function InstallmentImportScreen(): React.ReactElement {
                   </AppText>
                   <AppText
                     className={`mt-1 text-sm ${TEXT.secondary}`}
+                    style={TABULAR_NUMERALS}
                   >
-                    {obligation.monthlyPayment.toLocaleString('he-IL')} ₪ ·{' '}
+                    {money(obligation.monthlyPayment)} ·{' '}
                     {t('{{count}} חודשים נותרו', {
                       count: obligation.monthsRemaining,
                     })}
