@@ -20,6 +20,7 @@ import { SettingsScreen } from '../../screens/SettingsScreen';
 import { useAppDirection, useStackBackGlyph } from '../../hooks/useAppDirection';
 import { useTranslation } from '../../hooks/useTranslation';
 import type { SettingsStackParamList } from '../types';
+import { TEXT } from '../../theme/tokens';
 
 const Stack = createNativeStackNavigator<SettingsStackParamList>();
 
@@ -39,7 +40,7 @@ export function SettingsStack(): React.ReactElement {
         hitSlop={12}
         onPress={goBack}
       >
-        <AppText className="text-2xl text-white">{backGlyph}</AppText>
+        <AppText className={`text-2xl ${TEXT.onAccent}`}>{backGlyph}</AppText>
       </Pressable>
     ) : null;
 

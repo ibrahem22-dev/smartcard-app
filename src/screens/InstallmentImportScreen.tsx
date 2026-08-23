@@ -14,6 +14,7 @@ import { useCardsStore } from '../store/useCardsStore';
 import { useTranslation } from '../hooks/useTranslation';
 import type { ImportedInstallment } from '../types/installment.types';
 import { parseAmount } from '../utils/parseAmount';
+import { ACCENT, BORDER, ROLE_BORDER, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
 
 function parseMonths(value: string): number | null {
   const parsed = Number(value.trim());
@@ -143,37 +144,37 @@ export function InstallmentImportScreen(): React.ReactElement {
   const inputStyle = { textAlign, writingDirection };
 
   return (
-    <RtlScreen className="bg-slate-50 dark:bg-app-dark">
+    <RtlScreen className={`${SURFACE.page}`}>
       <RtlScrollView
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
       >
         <View className="w-full gap-3 p-5">
           <AppText
-            className="text-2xl font-black text-slate-900 dark:text-white"
+            className={`text-2xl font-black ${TEXT.heading}`}
           >
             {t('תשלומים קיימים')}
           </AppText>
 
           <AppText
-            className="text-sm font-bold text-slate-700 dark:text-slate-200"
+            className={`text-sm font-bold ${TEXT.body}`}
           >
             {t('שם בית העסק')}
           </AppText>
           <TextInput
-            className="min-h-[50px] rounded-lg border border-slate-300 bg-white px-4 text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
+            className={`min-h-[50px] rounded-lg border px-4 text-base ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`}
             onChangeText={setMerchantName}
             style={inputStyle}
             value={merchantName}
           />
 
           <AppText
-            className="text-sm font-bold text-slate-700 dark:text-slate-200"
+            className={`text-sm font-bold ${TEXT.body}`}
           >
             {t('סכום כולל (₪)')}
           </AppText>
           <TextInput
-            className="min-h-[50px] rounded-lg border border-slate-300 bg-white px-4 text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
+            className={`min-h-[50px] rounded-lg border px-4 text-base ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`}
             keyboardType="decimal-pad"
             onChangeText={setTotalAmountText}
             style={inputStyle}
@@ -181,12 +182,12 @@ export function InstallmentImportScreen(): React.ReactElement {
           />
 
           <AppText
-            className="text-sm font-bold text-slate-700 dark:text-slate-200"
+            className={`text-sm font-bold ${TEXT.body}`}
           >
             {t('חודשים שנותרו')}
           </AppText>
           <TextInput
-            className="min-h-[50px] rounded-lg border border-slate-300 bg-white px-4 text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
+            className={`min-h-[50px] rounded-lg border px-4 text-base ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`}
             keyboardType="number-pad"
             onChangeText={setMonthsRemainingText}
             style={inputStyle}
@@ -194,12 +195,12 @@ export function InstallmentImportScreen(): React.ReactElement {
           />
 
           <AppText
-            className="text-sm font-bold text-slate-700 dark:text-slate-200"
+            className={`text-sm font-bold ${TEXT.body}`}
           >
             {t('תשלום חודשי (₪)')}
           </AppText>
           <TextInput
-            className="min-h-[50px] rounded-lg border border-slate-300 bg-white px-4 text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
+            className={`min-h-[50px] rounded-lg border px-4 text-base ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`}
             keyboardType="decimal-pad"
             onChangeText={setMonthlyPaymentText}
             style={inputStyle}
@@ -207,7 +208,7 @@ export function InstallmentImportScreen(): React.ReactElement {
           />
 
           <AppText
-            className="text-sm font-bold text-slate-700 dark:text-slate-200"
+            className={`text-sm font-bold ${TEXT.body}`}
           >
             {t('כרטיס לחיוב')}
           </AppText>
@@ -220,14 +221,14 @@ export function InstallmentImportScreen(): React.ReactElement {
                   accessibilityState={{ selected: isSelected }}
                   className={`min-h-[46px] min-w-28 items-center justify-center rounded-lg border px-3 ${
                     isSelected
-                      ? 'border-blue-600 bg-blue-100 dark:border-blue-400 dark:bg-blue-950'
-                      : 'border-slate-300 bg-white dark:border-neutral-700 dark:bg-dark-surface'
+                      ? `${ACCENT.border} ${ACCENT.surfaceStrong}`
+                      : `${BORDER.hairline} ${SURFACE.card}`
                   }`}
                   key={card.cardId}
                   onPress={(): void => setBillingCardId(card.cardId)}
                 >
                   <AppText
-                    className="text-center text-sm font-extrabold text-slate-800 dark:text-slate-100"
+                    className={`text-center text-sm font-extrabold ${TEXT.heading}`}
                   >
                     {card.displayName} · {card.last4}
                   </AppText>
@@ -237,19 +238,19 @@ export function InstallmentImportScreen(): React.ReactElement {
           </RtlRow>
           {cards.length === 0 ? (
             <AppText
-              className="text-sm font-bold text-amber-700 dark:text-amber-300"
+              className={`text-sm font-bold ${ROLE_TEXT.advisory}`}
             >
               {t('יש להוסיף כרטיס לפני ייבוא תשלומים.')}
             </AppText>
           ) : null}
 
           <AppText
-            className="text-sm font-bold text-slate-700 dark:text-slate-200"
+            className={`text-sm font-bold ${TEXT.body}`}
           >
             {t('הערות (אופציונלי)')}
           </AppText>
           <TextInput
-            className="min-h-20 rounded-lg border border-slate-300 bg-white px-4 py-3 text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white"
+            className={`min-h-20 rounded-lg border px-4 py-3 text-base ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`}
             multiline
             onChangeText={setNotes}
             style={inputStyle}
@@ -258,7 +259,7 @@ export function InstallmentImportScreen(): React.ReactElement {
 
           {formError !== null ? (
             <AppText
-              className="text-sm font-bold text-red-600 dark:text-red-300"
+              className={`text-sm font-bold ${ROLE_TEXT.danger}`}
             >
               {formError}
             </AppText>
@@ -267,11 +268,11 @@ export function InstallmentImportScreen(): React.ReactElement {
           <RtlRow className="gap-2">
             <Pressable
               accessibilityRole="button"
-              className="min-h-[50px] flex-1 items-center justify-center rounded-lg bg-blue-600"
+              className={`min-h-[50px] flex-1 items-center justify-center rounded-lg ${ACCENT.solid}`}
               onPress={saveObligation}
             >
               <AppText
-                className="text-center text-base font-extrabold text-white"
+                className={`text-center text-base font-extrabold ${TEXT.onAccent}`}
               >
                 {editingId === null
                   ? t('הוסף תשלומים')
@@ -281,11 +282,11 @@ export function InstallmentImportScreen(): React.ReactElement {
             {editingId !== null ? (
               <Pressable
                 accessibilityRole="button"
-                className="min-h-[50px] items-center justify-center rounded-lg border border-slate-300 px-4 dark:border-neutral-700"
+                className={`min-h-[50px] items-center justify-center rounded-lg border px-4 ${BORDER.hairline}`}
                 onPress={resetForm}
               >
                 <AppText
-                  className="text-center text-base font-bold text-slate-700 dark:text-slate-200"
+                  className={`text-center text-base font-bold ${TEXT.body}`}
                 >
                   {t('ביטול')}
                 </AppText>
@@ -296,7 +297,7 @@ export function InstallmentImportScreen(): React.ReactElement {
           <View className="mt-4 gap-3">
             {obligations.map(obligation => (
               <View
-                className="rounded-lg border border-slate-300 bg-white p-4 dark:border-neutral-700 dark:bg-dark-surface"
+                className={`rounded-lg border p-4 ${BORDER.hairline} ${SURFACE.card}`}
                 key={obligation.installmentId}
               >
                 <Pressable
@@ -304,12 +305,12 @@ export function InstallmentImportScreen(): React.ReactElement {
                   onPress={(): void => beginEdit(obligation)}
                 >
                   <AppText
-                    className="text-lg font-extrabold text-slate-900 dark:text-white"
+                    className={`text-lg font-extrabold ${TEXT.heading}`}
                   >
                     {obligation.merchantName}
                   </AppText>
                   <AppText
-                    className="mt-1 text-sm text-slate-600 dark:text-slate-300"
+                    className={`mt-1 text-sm ${TEXT.secondary}`}
                   >
                     {obligation.monthlyPayment.toLocaleString('he-IL')} ₪ ·{' '}
                     {t('{{count}} חודשים נותרו', {
@@ -319,11 +320,11 @@ export function InstallmentImportScreen(): React.ReactElement {
                 </Pressable>
                 <Pressable
                   accessibilityRole="button"
-                  className="mt-3 min-h-[42px] items-center justify-center rounded-lg border border-red-300 bg-red-50 dark:border-red-900 dark:bg-red-950"
+                  className={`mt-3 min-h-[42px] items-center justify-center rounded-lg border ${ROLE_BORDER.danger} ${ROLE_SURFACE_BG.danger}`}
                   onPress={(): void => confirmDelete(obligation)}
                 >
                   <AppText
-                    className="text-center text-sm font-extrabold text-red-700 dark:text-red-200"
+                    className={`text-center text-sm font-extrabold ${ROLE_TEXT.danger}`}
                   >
                     {t('מחיקה')}
                   </AppText>

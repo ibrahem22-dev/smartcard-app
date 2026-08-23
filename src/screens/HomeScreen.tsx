@@ -11,6 +11,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import type { TabParamList } from '../navigation/types';
 import { useCardsStore } from '../store/useCardsStore';
 import { useProfileStore } from '../store/useProfileStore';
+import { ACCENT, BORDER, ROLE_BORDER, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
 
 const DAILY_TIPS: readonly string[] = [
   'שלם ביום חיוב כדי למקסם את תקופת האשראי',
@@ -40,7 +41,7 @@ export function HomeScreen(): React.ReactElement {
   }
 
   return (
-    <RtlScreen safe className="bg-slate-50 dark:bg-app-dark">
+    <RtlScreen safe className={`${SURFACE.page}`}>
       <RtlScrollView
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
@@ -65,27 +66,27 @@ export function HomeScreen(): React.ReactElement {
             </AppText>
           </View>
 
-          <View className="rounded-lg border border-slate-300 bg-white p-[18px] dark:border-neutral-700 dark:bg-dark-surface">
+          <View className={`rounded-lg border p-[18px] ${BORDER.hairline} ${SURFACE.card}`}>
             <AppText
-              className="text-lg font-extrabold text-slate-900 dark:text-white"
+              className={`text-lg font-extrabold ${TEXT.heading}`}
             >
               {t('טיפ היום')}
             </AppText>
             <AppText
-              className="mt-2 text-base leading-6 text-slate-700 dark:text-slate-200"
+              className={`mt-2 text-base leading-6 ${TEXT.body}`}
             >
               {t(getDailyTip())}
             </AppText>
           </View>
 
-          <View className="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-[18px] dark:border-sky-900 dark:bg-sky-950">
+          <View className={`mt-4 rounded-lg border p-[18px] ${ACCENT.borderSubtle} ${ACCENT.surface}`}>
             <AppText
-              className="text-lg font-extrabold text-slate-900 dark:text-white"
+              className={`text-lg font-extrabold ${TEXT.heading}`}
             >
               {t('חיובים קרובים')}
             </AppText>
             <AppText
-              className="mt-2 text-base font-bold text-sky-700 dark:text-sky-200"
+              className={`mt-2 text-base font-bold ${ACCENT.text}`}
             >
               {upcomingObligationsCount === 0
                 ? t('אין חיובים קרובים 📅')
@@ -96,14 +97,14 @@ export function HomeScreen(): React.ReactElement {
           </View>
 
           <FeatureGate feature="InternationalTravel">
-            <View className="mt-4 rounded-lg border border-orange-200 bg-orange-50 p-[18px] opacity-45 dark:border-orange-900 dark:bg-orange-950">
+            <View className={`mt-4 rounded-lg border p-[18px] opacity-45 ${ROLE_BORDER.advisory} ${ROLE_SURFACE_BG.advisory}`}>
               <AppText
-                className="text-lg font-extrabold text-orange-800 dark:text-orange-200"
+                className={`text-lg font-extrabold ${ROLE_TEXT.advisory}`}
               >
                 {t('נוסעים לחו"ל? ✈️')}
               </AppText>
               <AppText
-                className="mt-2 text-[15px] leading-[22px] text-orange-800 dark:text-orange-200"
+                className={`mt-2 text-[15px] leading-[22px] ${ROLE_TEXT.advisory}`}
               >
                 {t(
                   'בקרוב תוכלו לבדוק מראש איזה כרטיס עדיף לנסיעות ולחיובים במט"ח.',
@@ -115,13 +116,13 @@ export function HomeScreen(): React.ReactElement {
       </RtlScrollView>
 
       {/* rtl-ok: full-width footer dock spans both edges intentionally */}
-      <View className="absolute bottom-0 left-0 right-0 border-t border-slate-200 bg-white p-4 dark:border-neutral-800 dark:bg-dark-surface">
+      <View className={`absolute bottom-0 left-0 right-0 border-t p-4 ${BORDER.subtle} ${SURFACE.card}`}>
         <Pressable
           accessibilityRole="button"
-          className="min-h-[50px] items-center justify-center rounded-lg bg-blue-600"
+          className={`min-h-[50px] items-center justify-center rounded-lg ${ACCENT.solid}`}
           onPress={handleCheckPurchase}
         >
-          <AppText className="text-center text-base font-extrabold text-white">
+          <AppText className={`text-center text-base font-extrabold ${TEXT.onAccent}`}>
             {t('בדוק רכישה')}
           </AppText>
         </Pressable>

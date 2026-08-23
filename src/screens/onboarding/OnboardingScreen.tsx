@@ -18,6 +18,7 @@ import { useUserStore } from '../../store/useUserStore';
 import { CardIssuer } from '../../types/card.types';
 import type { AppProfile } from '../../types/profile.types';
 import type { UserProfile } from '../../types/user.types';
+import { ACCENT, BORDER, ROLE_TEXT, SURFACE, TEXT } from '../../theme/tokens';
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -52,16 +53,16 @@ function parsePositiveNumber(value: string): number | null {
 function optionClassName(isSelected: boolean): string {
   return `min-h-[52px] flex-1 basis-[45%] items-center justify-center rounded-lg border px-3 ${
     isSelected
-      ? 'border-blue-600 bg-blue-100 dark:border-blue-400 dark:bg-blue-950'
-      : 'border-slate-300 bg-white dark:border-neutral-700 dark:bg-neutral-900'
+      ? `${ACCENT.border} ${ACCENT.surfaceStrong}`
+      : `${BORDER.hairline} ${SURFACE.card}`
   }`;
 }
 
 function optionTextClassName(isSelected: boolean): string {
   return `text-center text-base font-extrabold ${
     isSelected
-      ? 'text-blue-700 dark:text-blue-200'
-      : 'text-slate-700 dark:text-slate-200'
+      ? `${ACCENT.text}`
+      : `${TEXT.body}`
   }`;
 }
 
@@ -169,7 +170,7 @@ export default function OnboardingScreen(): React.ReactElement {
     if (currentStep === 1) {
       return (
         <View className="w-full">
-          <AppText className="mb-5 text-2xl font-black text-slate-900 dark:text-white">
+          <AppText className={`mb-5 text-2xl font-black ${TEXT.heading}`}>
             {t('באיזה בנק אתה מנהל את החשבון?')}
           </AppText>
           <RtlRow className="w-full flex-wrap gap-3">
@@ -197,14 +198,14 @@ export default function OnboardingScreen(): React.ReactElement {
     if (currentStep === 2) {
       return (
         <View className="w-full">
-          <AppText className="mb-5 text-2xl font-black text-slate-900 dark:text-white">
+          <AppText className={`mb-5 text-2xl font-black ${TEXT.heading}`}>
             {t('פרטים פיננסיים')}
           </AppText>
-          <AppText className="mb-2 text-base font-extrabold text-slate-700 dark:text-slate-200">
+          <AppText className={`mb-2 text-base font-extrabold ${TEXT.body}`}>
             {t('הכנסה חודשית (₪)')}
           </AppText>
           <TextInput
-            className="min-h-[52px] rounded-lg border border-slate-300 bg-white px-4 text-lg text-slate-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
+            className={`min-h-[52px] rounded-lg border px-4 text-lg ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`}
             keyboardType="numeric"
             onChangeText={setIncomeText}
             placeholder={t('לדוגמה: 12000')}
@@ -212,11 +213,11 @@ export default function OnboardingScreen(): React.ReactElement {
             style={{ textAlign, writingDirection }}
             value={incomeText}
           />
-          <AppText className="mb-2 mt-5 text-base font-extrabold text-slate-700 dark:text-slate-200">
+          <AppText className={`mb-2 mt-5 text-base font-extrabold ${TEXT.body}`}>
             {t('יתרה נוכחית (₪)')}
           </AppText>
           <TextInput
-            className="min-h-[52px] rounded-lg border border-slate-300 bg-white px-4 text-lg text-slate-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
+            className={`min-h-[52px] rounded-lg border px-4 text-lg ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`}
             keyboardType="numeric"
             onChangeText={setBalanceText}
             placeholder={t('לדוגמה: 3500')}
@@ -231,10 +232,10 @@ export default function OnboardingScreen(): React.ReactElement {
     if (currentStep === 3) {
       return (
         <View className="w-full">
-          <AppText className="mb-5 text-2xl font-black text-slate-900 dark:text-white">
+          <AppText className={`mb-5 text-2xl font-black ${TEXT.heading}`}>
             {t('הוסף את הכרטיס הראשון שלך')}
           </AppText>
-          <AppText className="mb-2 text-base font-extrabold text-slate-700 dark:text-slate-200">
+          <AppText className={`mb-2 text-base font-extrabold ${TEXT.body}`}>
             {t('חברת כרטיס האשראי')}
           </AppText>
           <RtlRow className="w-full flex-wrap gap-3">
@@ -255,18 +256,18 @@ export default function OnboardingScreen(): React.ReactElement {
               );
             })}
           </RtlRow>
-          <AppText className="mb-2 mt-5 text-base font-extrabold text-slate-700 dark:text-slate-200">
+          <AppText className={`mb-2 mt-5 text-base font-extrabold ${TEXT.body}`}>
             {t('מועדון הכרטיס')}
           </AppText>
           <TextInput
-            className="min-h-[52px] rounded-lg border border-slate-300 bg-white px-4 text-lg text-slate-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
+            className={`min-h-[52px] rounded-lg border px-4 text-lg ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`}
             onChangeText={setClubText}
             placeholder={t('אופציונלי')}
             placeholderTextColor="#94A3B8"
             style={{ textAlign, writingDirection }}
             value={clubText}
           />
-          <AppText className="mt-3 text-sm font-bold text-slate-500 dark:text-slate-400">
+          <AppText className={`mt-3 text-sm font-bold ${TEXT.muted}`}>
             {t(
               'הגדרת כרטיס ידנית מלאה נשארת מקומית ותאסוף את שדות הכרטיס הנדרשים לפני יצירת כרטיס לשימוש.',
             )}
@@ -277,14 +278,14 @@ export default function OnboardingScreen(): React.ReactElement {
 
     return (
       <View className="w-full">
-        <AppText className="mb-5 text-2xl font-black text-slate-900 dark:text-white">
+        <AppText className={`mb-5 text-2xl font-black ${TEXT.heading}`}>
           {t('אישור סיום')}
         </AppText>
-        <AppText className="mb-2 text-base font-extrabold text-slate-700 dark:text-slate-200">
+        <AppText className={`mb-2 text-base font-extrabold ${TEXT.body}`}>
           {t('מספר טלפון')}
         </AppText>
         <TextInput
-          className="min-h-[52px] rounded-lg border border-slate-300 bg-white px-4 text-lg text-slate-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
+          className={`min-h-[52px] rounded-lg border px-4 text-lg ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`}
           keyboardType="phone-pad"
           onChangeText={setPhoneText}
           placeholder="050-0000000"
@@ -292,10 +293,10 @@ export default function OnboardingScreen(): React.ReactElement {
           style={{ textAlign, writingDirection }}
           value={phoneText}
         />
-        <AppText className="mt-3 text-sm font-bold text-slate-500 dark:text-slate-400">
+        <AppText className={`mt-3 text-sm font-bold ${TEXT.muted}`}>
           {t('מספר טלפון - לשחזור חשבון בעתיד (אופציונלי)')}
         </AppText>
-        <AppText className="mt-3 text-sm font-bold text-slate-500 dark:text-slate-400">
+        <AppText className={`mt-3 text-sm font-bold ${TEXT.muted}`}>
           {t(
             'הנתונים נשמרים רק בכספת המוצפנת המקומית. לא ניתן לשחזר אותם אם שוכחים את ה-PIN ומאפסים את הכספת.',
           )}
@@ -309,11 +310,11 @@ export default function OnboardingScreen(): React.ReactElement {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={{ flex: 1, backgroundColor: '#F8FAFC' }}
     >
-      <RtlRow className="gap-2 border-b border-slate-200 bg-white px-5 py-4 dark:border-neutral-800 dark:bg-neutral-950">
+      <RtlRow className={`gap-2 border-b px-5 py-4 ${BORDER.subtle} ${SURFACE.card}`}>
         {STEPS.map(step => (
           <View
             className={`h-1.5 flex-1 rounded-full ${
-              step <= currentStep ? 'bg-blue-600' : 'bg-slate-200 dark:bg-neutral-700'
+              step <= currentStep ? `${ACCENT.solid}` : `${SURFACE.raised}`
             }`}
             key={step}
           />
@@ -327,20 +328,20 @@ export default function OnboardingScreen(): React.ReactElement {
         <View className="min-h-full w-full px-5 py-6">
           {renderStep()}
           {error !== null ? (
-            <AppText className="mt-5 text-sm font-bold text-red-600 dark:text-red-300">
+            <AppText className={`mt-5 text-sm font-bold ${ROLE_TEXT.danger}`}>
               {error}
             </AppText>
           ) : null}
         </View>
       </RtlScrollView>
 
-      <RtlRow className="gap-3 border-t border-slate-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-950">
+      <RtlRow className={`gap-3 border-t p-4 ${BORDER.subtle} ${SURFACE.card}`}>
         <Pressable
           accessibilityRole="button"
           className={`min-h-[50px] flex-1 items-center justify-center rounded-lg border ${
             currentStep === 1
-              ? 'border-slate-200 bg-slate-100 dark:border-neutral-800 dark:bg-neutral-900'
-              : 'border-slate-300 bg-white dark:border-neutral-700 dark:bg-neutral-900'
+              ? `${BORDER.subtle} ${SURFACE.sunken}`
+              : `${BORDER.hairline} ${SURFACE.card}`
           }`}
           disabled={currentStep === 1}
           onPress={goBack}
@@ -348,8 +349,8 @@ export default function OnboardingScreen(): React.ReactElement {
           <AppText
             className={`text-center text-base font-extrabold ${
               currentStep === 1
-                ? 'text-slate-400 dark:text-neutral-600'
-                : 'text-slate-700 dark:text-slate-100'
+                ? `${TEXT.muted}`
+                : `${TEXT.body}`
             }`}
           >
             {t('חזרה')}
@@ -359,12 +360,12 @@ export default function OnboardingScreen(): React.ReactElement {
         <Pressable
           accessibilityRole="button"
           className={`min-h-[50px] flex-[2] items-center justify-center rounded-lg ${
-            canContinue() ? 'bg-blue-600' : 'bg-slate-300 dark:bg-neutral-700'
+            canContinue() ? `${ACCENT.solid}` : `${SURFACE.raised}`
           }`}
           disabled={!canContinue()}
           onPress={handleNext}
         >
-          <AppText className="text-center text-base font-extrabold text-white">
+          <AppText className={`text-center text-base font-extrabold ${TEXT.onAccent}`}>
             {currentStep === 4 ? t('סיום') : t('המשך')}
           </AppText>
         </Pressable>

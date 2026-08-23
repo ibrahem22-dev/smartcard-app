@@ -12,6 +12,7 @@ import { CardIssuer } from '../types/card.types';
 import type { CardsStackParamList } from '../navigation/types';
 import { createManualCard } from '../utils/manualCard';
 import { parseAmount } from '../utils/parseAmount';
+import { ACCENT, BORDER, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
 
 type AddCardNavigation = NativeStackNavigationProp<
   CardsStackParamList,
@@ -101,18 +102,18 @@ export function AddCardScreen(): React.ReactElement {
 
   const inputStyle = { textAlign, writingDirection };
   const inputClass =
-    'min-h-[50px] rounded-lg border border-slate-300 bg-white px-4 text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white';
+    `min-h-[50px] rounded-lg border px-4 text-base ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`;
   const labelClass =
-    'text-sm font-bold text-slate-700 dark:text-slate-200';
+    `text-sm font-bold ${TEXT.body}`;
 
   return (
-    <RtlScreen className="bg-slate-50 dark:bg-app-dark">
+    <RtlScreen className={`${SURFACE.page}`}>
       <RtlScrollView
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
       >
         <View className="w-full gap-3 p-5">
-          <AppText className="text-2xl font-black text-slate-900 dark:text-white">
+          <AppText className={`text-2xl font-black ${TEXT.heading}`}>
             {t('הוסף כרטיס')}
           </AppText>
 
@@ -134,13 +135,13 @@ export function AddCardScreen(): React.ReactElement {
                   accessibilityState={{ selected: isSelected }}
                   className={`min-h-[46px] min-w-24 items-center justify-center rounded-lg border px-3 ${
                     isSelected
-                      ? 'border-blue-600 bg-blue-100 dark:border-blue-400 dark:bg-blue-950'
-                      : 'border-slate-300 bg-white dark:border-neutral-700 dark:bg-dark-surface'
+                      ? `${ACCENT.border} ${ACCENT.surfaceStrong}`
+                      : `${BORDER.hairline} ${SURFACE.card}`
                   }`}
                   key={option.value}
                   onPress={(): void => setIssuer(option.value)}
                 >
-                  <AppText className="text-center text-sm font-extrabold text-slate-800 dark:text-slate-100">
+                  <AppText className={`text-center text-sm font-extrabold ${TEXT.heading}`}>
                     {option.label}
                   </AppText>
                 </Pressable>
@@ -198,22 +199,22 @@ export function AddCardScreen(): React.ReactElement {
             style={inputStyle}
             value={feePercentText}
           />
-          <AppText className="text-xs font-bold text-slate-500 dark:text-slate-400">
+          <AppText className={`text-xs font-bold ${TEXT.muted}`}>
             {t('שדות לא ידועים נשארים לא ידועים — האפליקציה לא תמציא ערך.')}
           </AppText>
 
           {formError !== null ? (
-            <AppText className="text-sm font-bold text-red-600 dark:text-red-300">
+            <AppText className={`text-sm font-bold ${ROLE_TEXT.danger}`}>
               {formError}
             </AppText>
           ) : null}
 
           <Pressable
             accessibilityRole="button"
-            className="mt-2 min-h-[50px] items-center justify-center rounded-lg bg-blue-600"
+            className={`mt-2 min-h-[50px] items-center justify-center rounded-lg ${ACCENT.solid}`}
             onPress={saveCard}
           >
-            <AppText className="text-center text-base font-extrabold text-white">
+            <AppText className={`text-center text-base font-extrabold ${TEXT.onAccent}`}>
               {t('שמור כרטיס')}
             </AppText>
           </Pressable>

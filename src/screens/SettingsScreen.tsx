@@ -22,6 +22,7 @@ import {
 } from '../store/useLanguageStore';
 import { useProfileStore } from '../store/useProfileStore';
 import type { AppProfile } from '../types/profile.types';
+import { ACCENT, BORDER, PROMO, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
 
 type SettingsScreenProps = NativeStackScreenProps<
   SettingsStackParamList,
@@ -135,17 +136,17 @@ export function SettingsScreen({
   }
 
   return (
-    <RtlScreen safe className="bg-slate-50 dark:bg-app-dark">
+    <RtlScreen safe className={`${SURFACE.page}`}>
       <RtlScrollView
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
       >
         <View className="w-full p-5">
           {promoToast !== null ? (
-            <View className="mb-4 rounded-xl bg-green-100 px-4 py-3 shadow-sm dark:bg-green-950">
+            <View className={`mb-4 rounded-xl px-4 py-3 shadow-sm ${ROLE_SURFACE_BG.positive}`}>
               <AppText
                 align="center"
-                className="font-extrabold text-green-800 dark:text-green-200"
+                className={`font-extrabold ${ROLE_TEXT.positive}`}
               >
                 {promoToast}
               </AppText>
@@ -153,7 +154,7 @@ export function SettingsScreen({
           ) : null}
 
           <AppText
-            className="mb-[18px] text-[26px] font-extrabold text-slate-900 dark:text-white"
+            className={`mb-[18px] text-[26px] font-extrabold ${TEXT.heading}`}
             style={{
               borderBottomColor: bankDividerColor,
               borderBottomWidth: 1,
@@ -169,7 +170,7 @@ export function SettingsScreen({
           />
 
           <AppText
-            className="mb-2 mt-6 text-base font-extrabold text-slate-700 dark:text-slate-200"
+            className={`mb-2 mt-6 text-base font-extrabold ${TEXT.body}`}
             style={{
               borderBottomColor: bankDividerColor,
               borderBottomWidth: 1,
@@ -180,21 +181,21 @@ export function SettingsScreen({
 
           <Pressable
             accessibilityRole="button"
-            className="mb-5 min-h-[50px] justify-center rounded-lg border border-violet-200 bg-violet-50 px-4 shadow-sm dark:border-violet-900 dark:bg-violet-950"
+            className={`mb-5 min-h-[50px] justify-center rounded-lg border px-4 shadow-sm ${PROMO.border} ${PROMO.surface}`}
             onPress={openPromoModal}
           >
             <RtlRow className="items-center justify-between">
-              <AppText className="text-base font-extrabold text-violet-800 dark:text-violet-200">
+              <AppText className={`text-base font-extrabold ${PROMO.text}`}>
                 {t('קוד קידום מכירות 🎟️')}
               </AppText>
-              <AppText className="text-xl text-violet-700 dark:text-violet-300">
+              <AppText className={`text-xl ${PROMO.textSubtle}`}>
                 ›
               </AppText>
             </RtlRow>
           </Pressable>
 
           <AppText
-            className="mb-2 mt-6 text-base font-extrabold text-slate-700 dark:text-slate-200"
+            className={`mb-2 mt-6 text-base font-extrabold ${TEXT.body}`}
             style={{
               borderBottomColor: bankDividerColor,
               borderBottomWidth: 1,
@@ -213,8 +214,8 @@ export function SettingsScreen({
                   accessibilityState={{ checked: isSelected }}
                   className={`min-h-[48px] justify-center rounded-lg border px-4 ${
                     isSelected
-                      ? 'border-blue-600 bg-blue-100 dark:border-blue-400 dark:bg-blue-950'
-                      : 'border-slate-300 bg-white dark:border-neutral-700 dark:bg-dark-surface'
+                      ? `${ACCENT.border} ${ACCENT.surfaceStrong}`
+                      : `${BORDER.hairline} ${SURFACE.card}`
                   }`}
                   key={option.preference}
                   onPress={(): void => setLanguageChoice(option.preference)}
@@ -233,8 +234,8 @@ export function SettingsScreen({
                   <AppText
                     className={`text-base font-extrabold ${
                       isSelected
-                        ? 'text-blue-700 dark:text-blue-200'
-                        : 'text-slate-700 dark:text-slate-200'
+                        ? `${ACCENT.text}`
+                        : `${TEXT.body}`
                     }`}
                   >
                     {t(option.labelKey)}
@@ -246,40 +247,40 @@ export function SettingsScreen({
 
           <Pressable
             accessibilityRole="button"
-            className="mb-3 min-h-[50px] items-center justify-center rounded-lg border border-blue-200 bg-blue-50 px-4 dark:border-blue-900 dark:bg-blue-950"
+            className={`mb-3 min-h-[50px] items-center justify-center rounded-lg border px-4 ${ACCENT.borderSubtle} ${ACCENT.surface}`}
             onPress={(): void => navigation.navigate('Glossary')}
           >
-            <AppText className="text-center text-base font-extrabold text-blue-700 dark:text-blue-200">
+            <AppText className={`text-center text-base font-extrabold ${ACCENT.text}`}>
               {t('מילון פיננסי')}
             </AppText>
           </Pressable>
 
           <Pressable
             accessibilityRole="button"
-            className="mb-3 min-h-[50px] items-center justify-center rounded-lg border border-blue-200 bg-blue-50 px-4 dark:border-blue-900 dark:bg-blue-950"
+            className={`mb-3 min-h-[50px] items-center justify-center rounded-lg border px-4 ${ACCENT.borderSubtle} ${ACCENT.surface}`}
             onPress={(): void => navigation.navigate('InstallmentImport')}
           >
-            <AppText className="text-center text-base font-extrabold text-blue-700 dark:text-blue-200">
+            <AppText className={`text-center text-base font-extrabold ${ACCENT.text}`}>
               {t('הוסף תשלומים קיימים')}
             </AppText>
           </Pressable>
 
           <Pressable
             accessibilityRole="button"
-            className="mb-3 min-h-[50px] items-center justify-center rounded-lg border border-blue-200 bg-blue-50 px-4 dark:border-blue-900 dark:bg-blue-950"
+            className={`mb-3 min-h-[50px] items-center justify-center rounded-lg border px-4 ${ACCENT.borderSubtle} ${ACCENT.surface}`}
             onPress={(): void => navigation.navigate('InterestCalculator')}
           >
-            <AppText className="text-center text-base font-extrabold text-blue-700 dark:text-blue-200">
+            <AppText className={`text-center text-base font-extrabold ${ACCENT.text}`}>
               {t('מחשבון ריבית')}
             </AppText>
           </Pressable>
 
           <Pressable
             accessibilityRole="button"
-            className="min-h-[50px] items-center justify-center rounded-lg bg-slate-900 dark:bg-slate-100"
+            className={`min-h-[50px] items-center justify-center rounded-lg ${SURFACE.inverse}`}
             onPress={(): void => navigation.navigate('Contact')}
           >
-            <AppText className="text-center text-base font-extrabold text-white dark:text-slate-900">
+            <AppText className={`text-center text-base font-extrabold ${TEXT.inverse}`}>
               {t('צור קשר עם חברת האשראי')}
             </AppText>
           </Pressable>
@@ -294,17 +295,17 @@ export function SettingsScreen({
       >
         <View className="flex-1 items-center justify-center bg-black/60 px-5">
           <View
-            className="w-full max-w-md gap-4 rounded-2xl bg-white p-5 shadow-lg dark:bg-dark-surface"
+            className={`w-full max-w-md gap-4 rounded-2xl p-5 shadow-lg ${SURFACE.card}`}
             key={isRTL ? 'promo-modal-rtl' : 'promo-modal-ltr'}
           >
-            <AppText className="text-xl font-extrabold text-slate-900 dark:text-white">
+            <AppText className={`text-xl font-extrabold ${TEXT.heading}`}>
               {t('קוד קידום מכירות 🎟️')}
             </AppText>
 
             <TextInput
               autoCapitalize="characters"
               autoCorrect={false}
-              className="min-h-[52px] rounded-xl border border-slate-300 bg-slate-50 px-4 text-base text-slate-900 dark:border-neutral-700 dark:bg-neutral-900 dark:text-white"
+              className={`min-h-[52px] rounded-xl border px-4 text-base ${BORDER.hairline} ${SURFACE.page} ${TEXT.heading}`}
               editable={!isRedeemingPromo}
               onChangeText={setPromoCode}
               placeholder={t('הכנס קוד')}
@@ -314,7 +315,7 @@ export function SettingsScreen({
             />
 
             {promoError !== null ? (
-              <AppText className="text-sm font-bold text-red-600 dark:text-red-300">
+              <AppText className={`text-sm font-bold ${ROLE_TEXT.danger}`}>
                 {promoError}
               </AppText>
             ) : null}
@@ -322,23 +323,23 @@ export function SettingsScreen({
             <RtlRow className="gap-3">
               <Pressable
                 accessibilityRole="button"
-                className="min-h-[48px] flex-1 items-center justify-center rounded-xl border border-slate-300 px-4 dark:border-neutral-700"
+                className={`min-h-[48px] flex-1 items-center justify-center rounded-xl border px-4 ${BORDER.hairline}`}
                 disabled={isRedeemingPromo}
                 onPress={closePromoModal}
               >
-                <AppText className="font-bold text-slate-700 dark:text-slate-200">
+                <AppText className={`font-bold ${TEXT.body}`}>
                   {t('ביטול')}
                 </AppText>
               </Pressable>
               <Pressable
                 accessibilityRole="button"
-                className="min-h-[48px] flex-1 items-center justify-center rounded-xl bg-violet-600 px-4 shadow-sm"
+                className={`min-h-[48px] flex-1 items-center justify-center rounded-xl px-4 shadow-sm ${PROMO.solid}`}
                 disabled={isRedeemingPromo}
                 onPress={() => {
                   void handlePromoRedemption();
                 }}
               >
-                <AppText className="font-extrabold text-white">
+                <AppText className={`font-extrabold ${TEXT.onAccent}`}>
                   {isRedeemingPromo ? t('מממש…') : t('מימוש')}
                 </AppText>
               </Pressable>

@@ -17,6 +17,7 @@ import type { PurchaseGateStackParamList } from '../navigation/types';
 import { useCardsStore } from '../store/useCardsStore';
 import type { DecisionVerdict } from '../types/decision.types';
 import { parseAmount } from '../utils/parseAmount';
+import { ACCENT, BORDER, ROLE_BORDER, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
 
 type PurchaseGateNavigation = NativeStackNavigationProp<
   PurchaseGateStackParamList,
@@ -31,19 +32,19 @@ const VERDICT_CLASSES: Record<
   }
 > = {
   approved: {
-    banner: 'bg-green-100 border-green-600 dark:bg-green-950 dark:border-green-500',
+    banner: `${ROLE_SURFACE_BG.positive} ${ROLE_BORDER.positive}`,
     title: 'מאושר',
   },
   warning: {
-    banner: 'bg-amber-100 border-amber-600 dark:bg-amber-950 dark:border-amber-500',
+    banner: `${ROLE_SURFACE_BG.advisory} ${ROLE_BORDER.advisory}`,
     title: 'אזהרה',
   },
   blocked: {
-    banner: 'bg-red-100 border-red-600 dark:bg-red-950 dark:border-red-500',
+    banner: `${ROLE_SURFACE_BG.danger} ${ROLE_BORDER.danger}`,
     title: 'חסום',
   },
   wait_24h: {
-    banner: 'bg-orange-100 border-orange-500 dark:bg-orange-950 dark:border-orange-400',
+    banner: `${ROLE_SURFACE_BG.advisory} ${ROLE_BORDER.advisory}`,
     title: 'להמתין 24 שעות',
   },
 };
@@ -107,15 +108,15 @@ export function PurchaseGateScreen(): React.ReactElement {
   }
 
   return (
-    <RtlScreen className="bg-slate-50 dark:bg-app-dark">
+    <RtlScreen className={`${SURFACE.page}`}>
       <RtlScrollView
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="min-h-full w-full p-5 dark:bg-app-dark">
+        <View className={`min-h-full w-full p-5 ${SURFACE.pageDarkOnly}`}>
           <View className="mb-5 w-full items-stretch">
             <AppText
-              className="text-3xl font-extrabold text-slate-900 dark:text-slate-50"
+              className={`text-3xl font-extrabold ${TEXT.heading}`}
               style={[
                 {
                   textDecorationColor: theme.bankColor,
@@ -126,7 +127,7 @@ export function PurchaseGateScreen(): React.ReactElement {
               {t('בדיקת רכישה')}
             </AppText>
             <AppText
-              className="mt-1.5 text-base leading-6 text-slate-600 dark:text-slate-300"
+              className={`mt-1.5 text-base leading-6 ${TEXT.secondary}`}
             >
               {t('בדקו אם הרכישה מתאימה לתזרים הנוכחי.')}
             </AppText>
@@ -136,18 +137,18 @@ export function PurchaseGateScreen(): React.ReactElement {
             <>
               <RtlRow
                 accessibilityRole="tablist"
-                className="mb-6 gap-2 rounded-lg bg-slate-200 p-1 dark:bg-neutral-800"
+                className={`mb-6 gap-2 rounded-lg p-1 ${SURFACE.sunken}`}
               >
                 <Pressable
                   accessibilityRole="button"
                   accessibilityState={{ selected: !isInternational }}
                   className={`min-h-11 flex-1 items-center justify-center rounded-md ${
-                    !isInternational ? 'bg-white dark:bg-neutral-700' : ''
+                    !isInternational ? `${SURFACE.card}` : ''
                   }`}
                   onPress={(): void => setIsInternational(false)}
                 >
                   <AppText
-                    className={`text-center text-base font-bold ${ !isInternational ? 'text-slate-900 dark:text-slate-50' : 'text-slate-600 dark:text-slate-300' }`}
+                    className={`text-center text-base font-bold ${ !isInternational ? `${TEXT.heading}` : `${TEXT.secondary}` }`}
                   >
                     {t('בארץ 🇮🇱')}
                   </AppText>
@@ -156,12 +157,12 @@ export function PurchaseGateScreen(): React.ReactElement {
                   accessibilityRole="button"
                   accessibilityState={{ selected: isInternational }}
                   className={`min-h-11 flex-1 items-center justify-center rounded-md ${
-                    isInternational ? 'bg-white dark:bg-neutral-700' : ''
+                    isInternational ? `${SURFACE.card}` : ''
                   }`}
                   onPress={(): void => setIsInternational(true)}
                 >
                   <AppText
-                    className={`text-center text-base font-bold ${ isInternational ? 'text-slate-900 dark:text-slate-50' : 'text-slate-600 dark:text-slate-300' }`}
+                    className={`text-center text-base font-bold ${ isInternational ? `${TEXT.heading}` : `${TEXT.secondary}` }`}
                   >
                     {t('חו"ל ✈️')}
                   </AppText>
@@ -171,7 +172,7 @@ export function PurchaseGateScreen(): React.ReactElement {
               {cards.length > 0 ? (
                 <View className="mb-5 w-full">
                   <AppText
-                    className="mb-2 text-sm font-bold text-slate-700 dark:text-slate-200"
+                    className={`mb-2 text-sm font-bold ${TEXT.body}`}
                   >
                     {t('בחר כרטיס', undefined, 'Choose a card')}
                   </AppText>
@@ -187,8 +188,8 @@ export function PurchaseGateScreen(): React.ReactElement {
                           accessibilityState={{ selected: isSelected }}
                           className={`min-h-11 items-center justify-center rounded-md border px-3 ${
                             isSelected
-                              ? 'border-blue-600 bg-white dark:border-blue-400 dark:bg-neutral-700'
-                              : 'border-transparent bg-slate-200 dark:bg-neutral-800'
+                              ? `${ACCENT.border} ${SURFACE.card}`
+                              : `border-transparent ${SURFACE.sunken}`
                           }`}
                           key={card.cardId}
                           onPress={(): void => setSelectedCardId(card.cardId)}
@@ -196,8 +197,8 @@ export function PurchaseGateScreen(): React.ReactElement {
                           <AppText
                             className={`text-center text-sm font-bold ${
                               isSelected
-                                ? 'text-slate-900 dark:text-slate-50'
-                                : 'text-slate-600 dark:text-slate-300'
+                                ? `${TEXT.heading}`
+                                : `${TEXT.secondary}`
                             }`}
                           >
                             {card.displayName}
@@ -211,19 +212,19 @@ export function PurchaseGateScreen(): React.ReactElement {
 
               <View className="mb-5 w-full">
                 <AppText
-                  className="mb-2 text-sm font-bold text-slate-700 dark:text-slate-200"
+                  className={`mb-2 text-sm font-bold ${TEXT.body}`}
                 >
                   {t('סכום הרכישה')}
                 </AppText>
-                <RtlRow className="min-h-[54px] items-center rounded-lg border border-slate-300 bg-white px-3.5 dark:border-neutral-700 dark:bg-dark-surface">
+                <RtlRow className={`min-h-[54px] items-center rounded-lg border px-3.5 ${BORDER.hairline} ${SURFACE.card}`}>
                   <AppText
-                    className="ms-2 text-xl font-extrabold text-slate-900 dark:text-slate-50"
+                    className={`ms-2 text-xl font-extrabold ${TEXT.heading}`}
                   >
                     ₪
                   </AppText>
                   <TextInput
                     accessibilityLabel={t('סכום הרכישה')}
-                    className="min-h-[52px] flex-1 p-0 text-xl text-slate-900 dark:text-slate-50"
+                    className={`min-h-[52px] flex-1 p-0 text-xl ${TEXT.heading}`}
                     keyboardType="numeric"
                     onChangeText={handleAmountChange}
                     placeholder="0"
@@ -234,7 +235,7 @@ export function PurchaseGateScreen(): React.ReactElement {
                 </RtlRow>
                 {isAmountInvalid ? (
                   <AppText
-                    className="mt-1.5 text-sm font-bold text-red-600 dark:text-red-300"
+                    className={`mt-1.5 text-sm font-bold ${ROLE_TEXT.danger}`}
                   >
                     {t('סכום לא תקין')}
                   </AppText>
@@ -245,7 +246,7 @@ export function PurchaseGateScreen(): React.ReactElement {
                 accessibilityRole="button"
                 accessibilityState={{ disabled: isSubmitDisabled }}
                 className={`min-h-[50px] items-center justify-center rounded-lg ${
-                  isSubmitDisabled ? 'bg-slate-300 dark:bg-neutral-700' : 'bg-blue-600'
+                  isSubmitDisabled ? `${SURFACE.raised}` : `${ACCENT.solid}`
                 }`}
                 disabled={isSubmitDisabled}
                 onPress={handleEvaluate}
@@ -256,16 +257,16 @@ export function PurchaseGateScreen(): React.ReactElement {
                 }
               >
                 <AppText
-                  className="text-center text-base font-extrabold text-white"
+                  className={`text-center text-base font-extrabold ${TEXT.onAccent}`}
                 >
                   {t('בדוק רכישה')}
                 </AppText>
               </Pressable>
             </>
           ) : (
-            <View className="rounded-lg border border-amber-300 bg-amber-50 p-[18px] dark:border-amber-800 dark:bg-amber-950">
+            <View className={`rounded-lg border p-[18px] ${ROLE_BORDER.advisory} ${ROLE_SURFACE_BG.advisory}`}>
               <AppText
-                className="text-lg font-extrabold text-amber-900 dark:text-amber-100"
+                className={`text-lg font-extrabold ${ROLE_TEXT.advisory}`}
               >
                 {t('לא נמצאו כרטיסים — הוסף כרטיס תחילה')}
               </AppText>
@@ -275,19 +276,19 @@ export function PurchaseGateScreen(): React.ReactElement {
           <View className="mt-6 min-h-[150px] w-full">
             {verdictClass === null || decision === null ? (
               <AppText
-                className="rounded-lg border border-slate-300 bg-white p-[18px] text-base leading-6 text-slate-500 dark:border-neutral-700 dark:bg-dark-surface dark:text-slate-300"
+                className={`rounded-lg border p-[18px] text-base leading-6 ${BORDER.hairline} ${SURFACE.card} ${TEXT.muted}`}
               >
                 {t('ההחלטה תופיע כאן אחרי הבדיקה.')}
               </AppText>
             ) : (
               <View className={`rounded-lg border p-[18px] ${verdictClass.banner}`}>
                 <AppText
-                  className="text-xl font-extrabold text-slate-900 dark:text-slate-50"
+                  className={`text-xl font-extrabold ${TEXT.heading}`}
                 >
                   {t(verdictClass.title)}
                 </AppText>
                 <AppText
-                  className="mt-1.5 text-base leading-6 text-slate-800 dark:text-slate-100"
+                  className={`mt-1.5 text-base leading-6 ${TEXT.heading}`}
                 >
                   {t(decision.reason)}
                 </AppText>
@@ -296,7 +297,7 @@ export function PurchaseGateScreen(): React.ReactElement {
 
             {shouldShowExchangeWarning ? (
               <AppText
-                className="mt-3 rounded-lg bg-orange-50 p-3.5 text-sm leading-5 text-orange-800 dark:bg-orange-950 dark:text-orange-200"
+                className={`mt-3 rounded-lg p-3.5 text-sm leading-5 ${ROLE_SURFACE_BG.advisory} ${ROLE_TEXT.advisory}`}
               >
                 {t(exchangeFeeWarning)}
               </AppText>

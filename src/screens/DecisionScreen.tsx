@@ -12,6 +12,7 @@ import { useTheme } from '../hooks/useTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import type { PurchaseGateStackParamList } from '../navigation/types';
 import type { DecisionVerdict } from '../types/decision.types';
+import { BORDER, ROLE_BORDER, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
 
 type DecisionScreenProps = NativeStackScreenProps<
   PurchaseGateStackParamList,
@@ -45,10 +46,10 @@ const VERDICT_LABELS: Record<DecisionVerdict, string> = {
  */
 
 const VERDICT_CLASSES: Record<DecisionVerdict, string> = {
-  approved: 'bg-green-100 border-green-600 dark:bg-green-950 dark:border-green-500',
-  warning: 'bg-amber-100 border-amber-600 dark:bg-amber-950 dark:border-amber-500',
-  blocked: 'bg-red-100 border-red-600 dark:bg-red-950 dark:border-red-500',
-  wait_24h: 'bg-orange-100 border-orange-500 dark:bg-orange-950 dark:border-orange-400',
+  approved: `${ROLE_SURFACE_BG.positive} ${ROLE_BORDER.positive}`,
+  warning: `${ROLE_SURFACE_BG.advisory} ${ROLE_BORDER.advisory}`,
+  blocked: `${ROLE_SURFACE_BG.danger} ${ROLE_BORDER.danger}`,
+  wait_24h: `${ROLE_SURFACE_BG.advisory} ${ROLE_BORDER.advisory}`,
 };
 
 function formatCommission(value: number): string {
@@ -74,27 +75,27 @@ export function DecisionScreen({
     : t('לא התקבל נימוק ממנוע ההחלטות עבור התוצאה הזו.');
 
   return (
-    <RtlScreen safe className="bg-slate-50 dark:bg-app-dark">
+    <RtlScreen safe className={`${SURFACE.page}`}>
       <RtlScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}>
-      <View className="min-h-full w-full p-5 dark:bg-app-dark">
+      <View className={`min-h-full w-full p-5 ${SURFACE.pageDarkOnly}`}>
         <View
           className={`rounded-lg border p-5 ${VERDICT_CLASSES[verdict]}`}
           style={{ backgroundColor: theme.companyAccent }}
         >
           <AppText
-            className="text-3xl font-extrabold text-slate-900 dark:text-slate-50"
+            className={`text-3xl font-extrabold ${TEXT.heading}`}
             style={{ color: theme.bankColor }}
           >
             {t(VERDICT_LABELS[verdict])}
           </AppText>
           <AppText
-            className="mt-2.5 text-base leading-6 text-slate-800 dark:text-slate-100"
+            className={`mt-2.5 text-base leading-6 ${TEXT.heading}`}
           >
             {reasonText}
           </AppText>
           {engineExchangeFeeWarning === undefined ? null : (
             <AppText
-              className="mt-2 text-sm leading-5 text-slate-700 dark:text-slate-200"
+              className={`mt-2 text-sm leading-5 ${TEXT.body}`}
             >
               {engineExchangeFeeWarning}
             </AppText>
@@ -102,9 +103,9 @@ export function DecisionScreen({
         </View>
 
         <FeatureGate feature="ScoreSection">
-          <View className="mt-5 rounded-lg border border-slate-300 bg-white p-[18px] opacity-45 dark:border-neutral-700 dark:bg-dark-surface">
+          <View className={`mt-5 rounded-lg border p-[18px] opacity-45 ${BORDER.hairline} ${SURFACE.card}`}>
             <AppText
-              className="mb-3 text-lg font-extrabold text-slate-900 dark:text-slate-50"
+              className={`mb-3 text-lg font-extrabold ${TEXT.heading}`}
             >
               {t('ניקוד כרטיסים')}
             </AppText>
@@ -125,15 +126,15 @@ export function DecisionScreen({
               badge — the registry declares the feature and P2 is not deciding its future — but it
               now states what it is waiting for instead of showing two numbers it made up.
             */}
-            <AppText className="text-base text-slate-700 dark:text-slate-200">
+            <AppText className={`text-base ${TEXT.body}`}>
               {t('ניקוד הכרטיסים מגיע ממנוע ההחלטות, שאינו חלק מגרסה זו.')}
             </AppText>
           </View>
         </FeatureGate>
 
         {fxComparison.length > 0 ? (
-          <View className="mt-5 rounded-lg border border-slate-300 bg-white p-[18px] dark:border-neutral-700 dark:bg-dark-surface">
-            <AppText className="mb-3 text-lg font-extrabold text-slate-900 dark:text-slate-50">
+          <View className={`mt-5 rounded-lg border p-[18px] ${BORDER.hairline} ${SURFACE.card}`}>
+            <AppText className={`mb-3 text-lg font-extrabold ${TEXT.heading}`}>
               {t('השוואת עמלות המרה')}
             </AppText>
             {fxComparison.map((rowItem, index): React.ReactElement => {
@@ -142,7 +143,7 @@ export function DecisionScreen({
                 <RtlRow
                   className={`min-h-[44px] items-center justify-between rounded-md border px-2 ${
                     isLowest
-                      ? 'border-green-500 bg-green-50 shadow-sm dark:border-green-600 dark:bg-green-950'
+                      ? `shadow-sm ${ROLE_BORDER.positive} ${ROLE_SURFACE_BG.positive}`
                       : 'border-transparent border-t-slate-200 dark:border-t-neutral-700'
                   }`}
                   key={rowItem.cardId}
@@ -151,15 +152,15 @@ export function DecisionScreen({
                     <AppText
                       className={`text-base ${
                         isLowest
-                          ? 'font-extrabold text-green-700 dark:text-green-200'
-                          : 'text-slate-700 dark:text-slate-200'
+                          ? `font-extrabold ${ROLE_TEXT.positive}`
+                          : `${TEXT.body}`
                       }`}
                     >
                       {rowItem.displayName}
                       {isLowest ? ` · ${t('הזול ביותר')}` : ''}
                     </AppText>
                     {rowItem.verified ? (
-                      <AppText className="text-xs text-green-700 dark:text-green-300">
+                      <AppText className={`text-xs ${ROLE_TEXT.positive}`}>
                         {t('מאומת')}
                         {rowItem.effectiveFrom !== null
                           ? ` · ${t('בתוקף מ־')} ${rowItem.effectiveFrom}`
@@ -171,14 +172,14 @@ export function DecisionScreen({
                     <AppText
                       className={`text-base font-extrabold ${
                         isLowest
-                          ? 'text-green-700 dark:text-green-200'
-                          : 'text-slate-900 dark:text-slate-50'
+                          ? `${ROLE_TEXT.positive}`
+                          : `${TEXT.heading}`
                       }`}
                     >
                       {formatCommission(rowItem.commission)}
                     </AppText>
                   ) : (
-                    <AppText className="text-sm text-slate-400 dark:text-neutral-500">
+                    <AppText className={`text-sm ${TEXT.muted}`}>
                       {t('טרם אומת')}
                     </AppText>
                   )}
@@ -192,11 +193,11 @@ export function DecisionScreen({
 
         <Pressable
           accessibilityRole="button"
-          className="min-h-[50px] items-center justify-center rounded-lg bg-slate-900 dark:bg-slate-100"
+          className={`min-h-[50px] items-center justify-center rounded-lg ${SURFACE.inverse}`}
           onPress={(): void => navigation.navigate('Contact')}
         >
           <AppText
-            className="text-center text-base font-extrabold text-white dark:text-slate-900"
+            className={`text-center text-base font-extrabold ${TEXT.inverse}`}
           >
             {t('יש לך בעיה?')}
           </AppText>

@@ -7,6 +7,7 @@ import { useCashflowCalendar } from '../hooks/useCashflowCalendar';
 import { useTheme } from '../hooks/useTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import type { CashflowCalendarCharge } from '../types/cashflow.types';
+import { ROLE_SURFACE_BG, SURFACE, TEXT } from '../theme/tokens';
 
 function formatDisplayDate(date: string): string {
   const [year, month, day] = date.split('-');
@@ -15,12 +16,12 @@ function formatDisplayDate(date: string): string {
 
 function getRiskRowClassName(riskLevel: number): string {
   if (riskLevel >= 3) {
-    return 'bg-red-100 dark:bg-red-950';
+    return `${ROLE_SURFACE_BG.danger}`;
   }
   if (riskLevel === 2) {
-    return 'bg-amber-100 dark:bg-amber-950';
+    return `${ROLE_SURFACE_BG.advisory}`;
   }
-  return 'bg-green-100 dark:bg-green-950';
+  return `${ROLE_SURFACE_BG.positive}`;
 }
 
 function formatAmount(amount: number): string {
@@ -40,16 +41,16 @@ function renderCharge(
     >
       <View className="flex-1 items-stretch">
         <AppText
-          className="text-base font-extrabold text-slate-900 dark:text-white"
+          className={`text-base font-extrabold ${TEXT.heading}`}
           style={{ color: companyAccent }}
         >
           {formatDisplayDate(item.date)}
         </AppText>
-        <AppText className="mt-1 text-sm text-slate-600 dark:text-slate-300">
+        <AppText className={`mt-1 text-sm ${TEXT.secondary}`}>
           {item.cardName}
         </AppText>
       </View>
-      <AppText className="me-3.5 min-w-24 text-[17px] font-black text-slate-900 dark:text-white">
+      <AppText className={`me-3.5 min-w-24 text-[17px] font-black ${TEXT.heading}`}>
         {formatAmount(item.amount)}
       </AppText>
     </RtlRow>
@@ -63,8 +64,8 @@ export function CalendarScreen(): React.ReactElement {
 
   if (charges.length === 0) {
     return (
-      <RtlScreen className="items-center justify-center bg-slate-50 p-6 dark:bg-app-dark">
-        <AppText className="text-center text-lg font-extrabold text-slate-500 dark:text-slate-300">
+      <RtlScreen className={`items-center justify-center p-6 ${SURFACE.page}`}>
+        <AppText className={`text-center text-lg font-extrabold ${TEXT.muted}`}>
           {t('אין חיובים מתוכננים 📅')}
         </AppText>
       </RtlScreen>
@@ -73,7 +74,7 @@ export function CalendarScreen(): React.ReactElement {
 
   return (
     <FlatList
-      className="flex-1 bg-slate-50 dark:bg-app-dark"
+      className={`flex-1 ${SURFACE.page}`}
       contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 20, paddingTop: 20 }}
       data={charges}
       keyExtractor={(item: CashflowCalendarCharge): string =>
