@@ -42,16 +42,45 @@ jobs:
 
       - run: npx jest --ci
 
-      # The P2 ladder runs here too, and its verdict is read from PRINTED OUTPUT rather than from an
-      # exit code — exit codes are advisory in this project and have been observed false. While gates
-      # remain unwritten this step is expected to print P2-ALL INCOMPLETE, which is not a failure of
-      # CI and is not a pass either. `continue-on-error` keeps that honest: the run is recorded, the
-      # job is not failed by it, and the log says which gates are missing.
+      # PHASE 3 MADE THIS HARD. Gate 3 requires `BOUNDARY-LINT OK — 5 rules, 0 violations` **in CI
+      # at the pushed sha** — not on a laptop — so this step now fails the build.
       #
-      # At Phase 3 this becomes a hard step: F4 requires CI to run the whole ladder.
-      - name: P2 ladder (advisory until Phase 3 — F4 makes it hard)
-        continue-on-error: true
-        run: npm run p2:all
+      # THE VERDICT IS READ FROM PRINTED OUTPUT, never from an exit code: exit codes are advisory in
+      # this project and have been observed false. Two things are asserted, and they are different
+      # kinds of assertion on purpose:
+      #
+      #   1. A POSITIVE SENTINEL must be present. `grep -F` for the exact string the contract names.
+      #      Not "no failure text appeared" — an absent sentinel is a failure, which is what catches
+      #      a ladder that died before reaching the gate at all.
+      #   2. `P2-ALL FAILED` must be absent. Something ran and went red.
+      #
+      # WHAT IS STILL TOLERATED, and why this is not a softening: `P2-ALL INCOMPLETE` passes, because
+      # 38 of the 44 contracted gates are not written yet and a build that cannot go green until
+      # Phase 12 teaches everyone to ignore it. The moment an implemented gate goes red the build
+      # fails; the moment the last gate lands, INCOMPLETE stops appearing on its own. Nobody has to
+      # remember to edit this file — which is the point, because the hand-maintained list of "gates
+      # that count" is exactly the defect shape this campaign keeps finding.
+      - name: P2 ladder — hard on any implemented gate going red (F4, Gate 3)
+        run: |
+          set -o pipefail
+          npm run p2:all 2>&1 | tee ladder.log || true
+          echo "----- verdict, read from printed output -----"
+          if grep -qF 'P2-ALL FAILED' ladder.log; then
+            echo "CI FAILS: a gate that exists ran and went red."
+            grep -F 'P2-ALL FAILED' ladder.log
+            exit 1
+          fi
+          if ! grep -qF 'BOUNDARY-LINT OK — 5 rules, 0 violations' ladder.log; then
+            echo "CI FAILS: the Gate 3 sentinel was not printed."
+            echo "An absent sentinel is a failure, not a pass — the ladder may not have reached the gate."
+            exit 1
+          fi
+          echo "Gate 3 sentinel present, no gate red."
+
+      # The boundary rules are also proven to be capable of failing, here, in CI. A rule that has
+      # never been watched to fire is not a rule, and a control recorded only on a laptop is a claim.
+      - name: boundary rules are watched to fire (negative controls)
+        run: npm run p2:controls
 
       - name: upload the ladder report
         if: always()

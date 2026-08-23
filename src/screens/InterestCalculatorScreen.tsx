@@ -10,11 +10,8 @@ import { useRoute } from '@react-navigation/native';
 
 import { AppText } from '../components/AppText';
 import { RtlRow, RtlScreen, RtlScrollView } from '../components/rtl';
-import {
-  calculateCardLoan,
-  calculateInstallmentInterest,
-} from '../engines/interestCalculator';
 import { useAppDirection } from '../hooks/useAppDirection';
+import { useInterestResult } from '../hooks/useInterestResult';
 import { useTranslation } from '../hooks/useTranslation';
 import { useCardsStore } from '../store/useCardsStore';
 import type { CardInput } from '../types/card.types';
@@ -93,16 +90,7 @@ export function InterestCalculatorScreen(): React.ReactElement {
   const rate = parseRate(rateText);
   const rateInvalid = rateText.trim() !== '' && rate === null;
 
-  const result = useMemo<InterestResult | null>(() => {
-    if (amount === null || months === null || rate === null) return null;
-    try {
-      return activeTab === 'installment'
-        ? calculateInstallmentInterest(amount, months, rate)
-        : calculateCardLoan(amount, months, rate);
-    } catch {
-      return null;
-    }
-  }, [activeTab, amount, months, rate]);
+  const result = useInterestResult(activeTab, amount, months, rate);
 
   const inputStyle = { textAlign, writingDirection };
 

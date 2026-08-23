@@ -1,0 +1,94 @@
+{
+  "$comment": [
+    "NEGATIVE-CONTROL RECORD for the five §9.4 boundary rules. Gate 3 requires one per rule.",
+    "Regenerate with: node tools/p2/boundary-controls.mjs",
+    "tools/p2/gates/lint-boundaries.mjs READS this file and refuses to pass if any rule has no",
+    "control that fired — a check that has never failed is not yet a check.",
+    "Each injected control writes a real violation into files that did not exist, runs the real",
+    "rule, watches it fire, deletes them, and asserts the paths are absent again.",
+    "The entry marked foundInTree was not injected: it is the defect rule 2 caught in shipped code",
+    "once the line-based import scanner it depended on was replaced with a whole-source one."
+  ],
+  "recordedAt": "2026-08-23T22:16:07.465Z",
+  "sha": "550f4681ca4b89e25c7403f18787f03f2e6c26dd",
+  "ruleCount": 5,
+  "rulesProven": [
+    1,
+    2,
+    3,
+    4,
+    5
+  ],
+  "rulesWithoutAControl": [],
+  "allFired": true,
+  "allRestored": true,
+  "controls": [
+    {
+      "rule": 1,
+      "name": "an engine imports a screen and calls a network global",
+      "fired": true,
+      "restored": true,
+      "sawExactly": [
+        "src/engines/__negctl_rule1.ts:1 — imports a surface: src/screens/InterestCalculatorScreen.tsx",
+        "src/engines/__negctl_rule1.ts:3 — calls a network global: fetch("
+      ]
+    },
+    {
+      "rule": 2,
+      "name": "a screen imports a calculating engine module — wrapped across lines, as prettier writes it",
+      "fired": true,
+      "restored": true,
+      "sawExactly": [
+        "src/screens/__negctl_rule2.tsx:1 — imports a calculating module rather than its result type: src/engines/interestCalculator.ts"
+      ]
+    },
+    {
+      "rule": 2,
+      "name": "a screen reaches a calculating function through the engines barrel",
+      "fired": true,
+      "restored": true,
+      "sawExactly": [
+        "src/components/__negctl_rule2barrel.tsx:1 — imports a calculating function through the engines barrel: calculateInstallmentInterest (re-exported from src/engines/interestCalculator.ts)"
+      ]
+    },
+    {
+      "rule": 3,
+      "name": "a module outside data/adapter imports a raw JSON dataset and a DB driver",
+      "fired": true,
+      "restored": true,
+      "sawExactly": [
+        "src/utils/__negctl_rule3.ts:1 — imports a raw JSON dataset: src/utils/__negctl_dataset.json",
+        "src/utils/__negctl_rule3.ts:2 — imports a DB driver directly: expo-sqlite"
+      ]
+    },
+    {
+      "rule": 4,
+      "name": "a rate literal appears outside config/**",
+      "fired": true,
+      "restored": true,
+      "sawExactly": [
+        "src/engines/__negctl_rule4.ts:1 — financial literal outside config/**: 2.75 (foreignExchangeCommissionRate)"
+      ]
+    },
+    {
+      "rule": 5,
+      "name": "a vault value reaches track() — the boundary B6 will build in Phase 10",
+      "fired": true,
+      "restored": true,
+      "sawExactly": [
+        "src/utils/__negctl_rule5.ts:3 — a vault value reaches track(): export const negctl = () => track('opened', { pinHash });"
+      ]
+    },
+    {
+      "rule": 2,
+      "name": "FOUND IN THE TREE, not injected: InterestCalculatorScreen.tsx imported calculateCardLoan and calculateInstallmentInterest directly",
+      "fired": true,
+      "restored": true,
+      "foundInTree": true,
+      "sawExactly": [
+        "src/screens/InterestCalculatorScreen.tsx:13 — imports a calculating module rather than its result type: src/engines/interestCalculator.ts"
+      ],
+      "repairedBy": "WP-3.1 — src/hooks/useInterestResult.ts, the seam usePurchaseGate already established"
+    }
+  ]
+}
