@@ -6,6 +6,11 @@ import {
 } from '../types/card.types';
 import { type Currency, PurchaseCategory } from '../types/purchase.types';
 import type { UserProfile } from '../types/user.types';
+import {
+  CARD_ROLE_LOW_FOREIGN_FEE_MAX,
+  CARD_ROLE_CASHBACK_MIN_RATE,
+  CARD_ROLE_HIGH_FX_PCT,
+} from '../config/financial';
 
 /**
  * Effective foreign-exchange commission (%) for a card on an international
@@ -84,7 +89,7 @@ export function assignCardRole(card: CardInput, _userProfile: UserProfile): Card
 
   if (
     card.rewardCategories.includes(PurchaseCategory.Travel) ||
-    card.foreignTransactionFee <= 0.015
+    card.foreignTransactionFee <= CARD_ROLE_LOW_FOREIGN_FEE_MAX
   ) {
     return CardRole.Travel;
   }
@@ -101,7 +106,7 @@ export function assignCardRole(card: CardInput, _userProfile: UserProfile): Card
     return CardRole.Installments;
   }
 
-  if (card.cashbackRate >= 0.02) {
+  if (card.cashbackRate >= CARD_ROLE_CASHBACK_MIN_RATE) {
     return CardRole.Benefits;
   }
 
@@ -164,7 +169,7 @@ function scoreCard(
       score += 30;
       reasonsHe.push('חשבון מט"ח תואם — ללא עמלת המרה');
       reasonsAr.push('حساب عملات أجنبية مطابق — بدون رسوم تحويل');
-    } else if (fxPercent > 2) {
+    } else if (fxPercent > CARD_ROLE_HIGH_FX_PCT) {
       reasonsHe.push('עמלת המרה גבוהה מפחיתה את הציון');
       reasonsAr.push('رسوم تحويل عالية تقلل النتيجة');
     }

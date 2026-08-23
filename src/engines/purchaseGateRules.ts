@@ -13,19 +13,25 @@
  */
 
 import type { Obligation } from '../types/cashflow.types';
+import {
+  PURCHASE_WARNING_BUFFER_RATIO_OF_INCOME,
+  PURCHASE_WAIT_24H_RATIO_OF_INCOME,
+  PURCHASE_BLOCKED_UTILIZATION_RATIO,
+  PURCHASE_WARNING_UTILIZATION_RATIO,
+} from '../config/financial';
 
 export const PURCHASE_GATE_RULES = {
   /** §7.4 `warning` — post-purchase buffer below this share of monthly income. */
-  warningBufferRatioOfIncome: 0.1,
+  warningBufferRatioOfIncome: PURCHASE_WARNING_BUFFER_RATIO_OF_INCOME,
   /** §7.4 `wait_24h` — a single non-essential purchase at or above this share. */
-  wait24hPurchaseRatioOfIncome: 0.25,
+  wait24hPurchaseRatioOfIncome: PURCHASE_WAIT_24H_RATIO_OF_INCOME,
   /**
    * Credit-utilisation guards. §7.4 does not address utilisation; these are
    * retained from the existing engine as ADDITIONAL protection, not as a
    * competing definition of the cashflow verdicts.
    */
-  blockedUtilizationRatio: 0.9,
-  warningUtilizationRatio: 0.7,
+  blockedUtilizationRatio: PURCHASE_BLOCKED_UTILIZATION_RATIO,
+  warningUtilizationRatio: PURCHASE_WARNING_UTILIZATION_RATIO,
 } as const;
 
 export type PurchaseGateRules = typeof PURCHASE_GATE_RULES;

@@ -8,9 +8,10 @@ import type {
 import { RiskLevel } from '../types/cashflow.types';
 import type { CardInput } from '../types/card.types';
 import { isValidMonetaryAmount } from '../utils/monetary';
+import { CHARGE_RETURN_WINDOW_DAYS as CONFIG_CHARGE_RETURN_WINDOW_DAYS } from '../config/financial';
 
 const PROJECTION_DAYS = 30;
-const CHARGE_RETURN_WINDOW_DAYS = 7;
+const CHARGE_RETURN_WINDOW_DAYS = CONFIG_CHARGE_RETURN_WINDOW_DAYS;
 
 function isFiniteAmount(value: number): boolean {
   return Number.isFinite(value);

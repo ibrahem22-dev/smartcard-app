@@ -6,11 +6,17 @@ import type {
 } from '../types/installment.types';
 import { InstallmentWarningLevel } from '../types/installment.types';
 import { isValidMonetaryAmount } from '../utils/monetary';
+import {
+  INSTALLMENT_WARNING_RATIO_OF_INCOME,
+  INSTALLMENT_STRONG_WARNING_RATIO_OF_INCOME,
+  INSTALLMENT_BLOCKED_RATIO_OF_INCOME,
+} from '../config/financial';
 
 const MONTHS_TO_PROJECT = 3;
-const WARNING_THRESHOLD = 0.25;
-const STRONG_WARNING_THRESHOLD = 0.35;
-const BLOCKED_THRESHOLD = 0.5;
+// D5 — the thresholds live in config/financial.ts, where they can be read beside each other.
+const WARNING_THRESHOLD = INSTALLMENT_WARNING_RATIO_OF_INCOME;
+const STRONG_WARNING_THRESHOLD = INSTALLMENT_STRONG_WARNING_RATIO_OF_INCOME;
+const BLOCKED_THRESHOLD = INSTALLMENT_BLOCKED_RATIO_OF_INCOME;
 
 function isPositiveFinite(value: number): boolean {
   return Number.isFinite(value) && value > 0;

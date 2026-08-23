@@ -1,0 +1,110 @@
+{
+  "$comment": [
+    "RULE 4's EXPLICIT EXCEPTIONS — Execution Model §9.4: \"allowlist the genuine exceptions,",
+    "explicitly\". Criterion D5.",
+    "",
+    "AN ENTRY HERE IS NOT A SILENCED WARNING. It is the rule's output: a number a human looked at",
+    "and said 'this is not a rate, a fee or a threshold', with the reason attached. A reviewer reads",
+    "this file and sees exactly what the codebase claims about its own constants.",
+    "",
+    "THE TEST FOR BELONGING HERE: could this number, if wrong, tell a user something false about",
+    "their money? If yes it belongs in src/config/financial.ts, not in this file. Every entry below",
+    "answers no, and says why.",
+    "",
+    "A STALE ENTRY IS ITSELF A DEFECT and the scanner reports one. An exception for a literal that is",
+    "no longer there reads as a deliberate judgement about code that has moved on, and it would",
+    "silently cover the next literal that lands in the same file with the same value."
+  ],
+  "allow": [
+    {
+      "file": "src/engines/installmentGate.ts",
+      "literal": "2",
+      "identifier": "numPayments",
+      "why": "A COUNT, not a rate. `request.numPayments >= 2` says an installment plan needs at least two payments to be an installment plan — arithmetic about what the word means, not a threshold anyone chose. Moving it to config would suggest a product could set it to 3.",
+      "reviewedBy": "WP-2.4",
+      "reviewedAt": "2026-08-24"
+    },
+    {
+      "file": "src/engines/purchaseGate.ts",
+      "literal": "0.01",
+      "identifier": null,
+      "why": "DISPLAY COPY quoting the monetary bound, not the bound itself: the Hebrew and Arabic strings read '₪0.01 to ₪999,999'. The bound is MONETARY_MIN_ILS in src/config/financial.ts. This is a mirror in prose and could drift — see the note at the end of this file.",
+      "reviewedBy": "WP-2.4",
+      "reviewedAt": "2026-08-24"
+    },
+    {
+      "file": "src/i18n/ar.ts",
+      "literal": "0.01",
+      "identifier": null,
+      "why": "DISPLAY COPY. Arabic translations quoting the same monetary bound in validation messages. Six occurrences, all prose.",
+      "reviewedBy": "WP-2.4",
+      "reviewedAt": "2026-08-24"
+    },
+    {
+      "file": "src/i18n/en.ts",
+      "literal": "0.01",
+      "identifier": null,
+      "why": "DISPLAY COPY. English translations quoting the same monetary bound. Six occurrences, all prose.",
+      "reviewedBy": "WP-2.4",
+      "reviewedAt": "2026-08-24"
+    },
+    {
+      "file": "src/screens/CardsScreen.tsx",
+      "literal": "0.15",
+      "identifier": null,
+      "why": "AN OPACITY, passed to withOpacity() for a divider colour. A colour cannot be a rate.",
+      "reviewedBy": "WP-2.4",
+      "reviewedAt": "2026-08-24"
+    },
+    {
+      "file": "src/screens/SettingsScreen.tsx",
+      "literal": "0.15",
+      "identifier": null,
+      "why": "AN OPACITY, as above.",
+      "reviewedBy": "WP-2.4",
+      "reviewedAt": "2026-08-24"
+    },
+    {
+      "file": "src/screens/SettingsScreen.tsx",
+      "literal": "0.3",
+      "identifier": null,
+      "why": "AN OPACITY, passed to withOpacity() for the bank divider colour.",
+      "reviewedBy": "WP-2.4",
+      "reviewedAt": "2026-08-24"
+    },
+    {
+      "file": "src/security/keyVault.ts",
+      "literal": "2",
+      "identifier": "timeCost",
+      "why": "AN ARGON2 KDF PARAMETER. `timeCost` is the number of hashing iterations; it matched only because 'cost' is financial vocabulary. Changing it changes key derivation, and it belongs beside the crypto it governs — moving it to a financial config file would put a security parameter somewhere nobody auditing crypto would look.",
+      "reviewedBy": "WP-2.4",
+      "reviewedAt": "2026-08-24"
+    },
+    {
+      "file": "src/security/keyVault.ts",
+      "literal": "19456",
+      "identifier": "memoryCost",
+      "why": "AN ARGON2 KDF PARAMETER — 19 MiB of memory. Same reasoning as timeCost.",
+      "reviewedBy": "WP-2.4",
+      "reviewedAt": "2026-08-24"
+    }
+  ],
+  "$knownMirror": [
+    "THE ONE THING THIS ALLOWLIST DOES NOT SOLVE, STATED RATHER THAN LEFT TO BE FOUND.",
+    "",
+    "The display-copy entries above (purchaseGate.ts, ar.ts, en.ts) quote '₪0.01' and '₪999,999' as",
+    "literal text inside translated sentences. Those are the values of MONETARY_MIN_ILS and",
+    "MONETARY_MAX_ILS in src/config/financial.ts, written a second time in prose. If the bound ever",
+    "changes, fourteen strings across three files will say the old number and nothing will notice.",
+    "",
+    "This is the same shape as every mirror this campaign has found: one fact, two homes, no",
+    "comparison. It is NOT repaired here because the repair is interpolation into translated copy,",
+    "which is A7's territory (the Hebrew fall-through audit and the single money formatter) in Phase",
+    "5 — and doing it now would mean rewriting fourteen translated strings without the formatter that",
+    "is supposed to render them.",
+    "",
+    "It is recorded so that Phase 5 meets it as a named condition rather than a discovery, and so",
+    "that a reader of this allowlist knows the entries are a deferral of one specific repair and not",
+    "a judgement that prose can never be wrong."
+  ]
+}
