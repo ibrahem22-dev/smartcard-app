@@ -1,6 +1,6 @@
 {
   "$comment": "Written by src/screens/__tests__/screens.render.test.tsx. The population is derived from disk; every screen attempted is listed with its outcome, including the ones that could not mount. `rendered` counts screens that produced a non-empty tree.",
-  "generatedAt": "2026-08-23T20:53:48.010Z",
+  "generatedAt": "2026-08-23T21:00:10.438Z",
   "population": 21,
   "rendered": 20,
   "requiresFixture": 1,

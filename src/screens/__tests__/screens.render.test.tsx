@@ -79,7 +79,7 @@ describe('every screen on disk', () => {
       let error: string | null = null;
       let rendered = false;
       try {
-        // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require, import/no-dynamic-require
+        // eslint-disable-next-line @typescript-eslint/no-var-requires, global-require
         const mod = require(file) as Record<string, unknown>;
         const candidates = Object.keys(mod).filter((k) => typeof mod[k] === 'function');
         // Prefer the default export, then a component-shaped named export.
