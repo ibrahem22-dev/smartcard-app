@@ -107,3 +107,29 @@ export const CHARGE_RETURN_WINDOW_DAYS = 7;
  */
 export const TRANSFER_RATE_MAX_PCT = CONSUMER_CREDIT_ANNUAL_RATE_MAX_PCT;
 export const TRANSFER_FX_COMMISSION_MAX_PCT = 10;
+
+// ─────────────────────────────────────────────────────────────────────────────────────────────
+// INPUT BOUNDS FOR THE CARD FORM
+//
+// These were literals inside src/screens/CardDetailScreen.tsx, and four of them were literal
+// DUPLICATES of constants already defined above — a form validating an interest rate against a bare
+// `30` while CONSUMER_CREDIT_ANNUAL_RATE_MAX_PCT sat in this file saying the same thing. One fact,
+// two homes, no comparison. The E1 boundary lint's R4 flagged the two that were not duplicates; the
+// duplicates it could not see, because a repeated correct number does not look wrong until somebody
+// changes one of them.
+//
+// PROVENANCE: these are PRODUCT DECISIONS about what a person may type into a form, not statutory
+// limits. They bound input; they do not compute anything.
+
+/** A monthly card fee above this is treated as a typo rather than a fee. Product decision. */
+export const CARD_MONTHLY_FEE_MAX_ILS = 9_999;
+
+/** A percentage discount cannot exceed the whole. Arithmetic, not a product decision. */
+export const DISCOUNT_PERCENT_MAX = 100;
+
+/** A credit limit above this is treated as a typo. Product decision. */
+export const CREDIT_LIMIT_MAX_ILS = 9_999_999;
+
+/** Days in the longest month — a billing day outside this is not a date. */
+export const BILLING_DAY_MIN = 1;
+export const BILLING_DAY_MAX = 31;

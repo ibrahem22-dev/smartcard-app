@@ -29,6 +29,7 @@
  * the argument for writing more tests like it.
  */
 import { rankCardsAbroad } from '../fxAbroadEngine';
+import type { CardFxTriple, ResolvedFxAbroad } from '../../types/fxAbroad.types';
 import { resolveFxAbroad, NO_AUTHORITY_SOURCE } from '../../authority/noSource';
 import {
   CardIssuer,
@@ -103,13 +104,13 @@ describe('rankCardsAbroad — refuses rather than defaulting (D3)', () => {
       makeCard({ cardId: 'b', issuer: CardIssuer.Isracard, displayName: 'American Express Platinum' }),
     ];
 
-    const { ranked } = rankCardsAbroad(cards, 'purchase');
+    const { ranked } = rankCardsAbroad(cards, 'purchase', resolveFxAbroad);
 
     expect(ranked).toHaveLength(0);
   });
 
   test('an empty ranking is returned for cashWithdrawal too — no mode has a fallback', () => {
-    const { ranked } = rankCardsAbroad([makeCard()], 'cashWithdrawal');
+    const { ranked } = rankCardsAbroad([makeCard()], 'cashWithdrawal', resolveFxAbroad);
 
     expect(ranked).toHaveLength(0);
   });
@@ -117,13 +118,35 @@ describe('rankCardsAbroad — refuses rather than defaulting (D3)', () => {
   test('an all-unknown card list yields an empty ranking, never a default', () => {
     // UNCHANGED from before D3. It was the only test in this file asserting a refusal rather than
     // a figure, and it is the only one the removal did not touch.
-    const { ranked } = rankCardsAbroad([makeCard({ displayName: 'Unknown Card' })], 'purchase');
+    const { ranked } = rankCardsAbroad([makeCard({ displayName: 'Unknown Card' })], 'purchase', resolveFxAbroad);
 
     expect(ranked).toHaveLength(0);
   });
 
+  test('IT ACTUALLY RANKS when a resolver supplies data — the control for the four refusals', () => {
+    // Every other assertion in this describe block is `toHaveLength(0)`. All four would still pass
+    // if rankCardsAbroad returned an empty array unconditionally, so the block could not tell a
+    // correct refusal from a broken function. Injecting the resolver makes the positive case
+    // expressible for the first time, and this is it.
+    const cheap = makeCard({ cardId: 'cheap', displayName: 'Cheap Abroad' });
+    const dear = makeCard({ cardId: 'dear', displayName: 'Dear Abroad' });
+    const triple = (pct: number): CardFxTriple => ({
+      fxPurchasePct: { value: pct, unit: 'percent', verified: true },
+      fxCashWithdrawalForeign: { value: pct, unit: 'percent', verified: true },
+      fxCashWithdrawalDomestic: { value: pct, unit: 'percent', verified: true },
+    } as unknown as CardFxTriple);
+
+    const stub = (card: CardInput): ResolvedFxAbroad =>
+      ({ status: 'verified', triple: triple(card.cardId === 'cheap' ? 1.5 : 3.5) } as unknown as ResolvedFxAbroad);
+
+    const { ranked, unknown } = rankCardsAbroad([dear, cheap], 'purchase', stub);
+
+    expect(unknown).toHaveLength(0);
+    expect(ranked.map((r) => r.card.cardId)).toEqual(['cheap', 'dear']);
+  });
+
   test('an empty card list is empty, not an error', () => {
-    const { ranked } = rankCardsAbroad([], 'purchase');
+    const { ranked } = rankCardsAbroad([], 'purchase', resolveFxAbroad);
 
     expect(ranked).toHaveLength(0);
   });

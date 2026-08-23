@@ -62,6 +62,15 @@ export const run = async ({ root }) => {
     if (rec.sha) lines.push('  controls at sha ' + rec.sha);
   }
 
+  // WHAT THIS SENTINEL DOES NOT CLAIM, said here rather than left to be assumed. These are the
+  // five rules of Execution Model §9.4. They are NOT the only five boundary rules this repository
+  // has: `.eslintrc.boundaries.js` implements R1..R5 — the lint that produced the E1 backlog — and
+  // when these rules first ran clean, that one found 58 on the same tree. Criterion D7 and the gate
+  // `e1-backlog` own that lint. A reader who takes `0 violations` here as "no boundary violation
+  // exists anywhere" is reading more than it says, which is why it now says it.
+  lines.push("");
+  lines.push("  also required   e1-backlog (D7) runs .eslintrc.boundaries.js R1..R5; this gate is not that gate");
+
   if (violations.length) {
     problems.push(violations.length + ' boundary violation(s) across ' + new Set(violations.map((v) => v.rule)).size + ' rule(s)');
   }

@@ -15,6 +15,16 @@ import DateTimePicker, {
 
 import { AppText } from '../components/AppText';
 import { RtlRow, RtlScrollView } from '../components/rtl';
+import {
+  BILLING_DAY_MAX,
+  BILLING_DAY_MIN,
+  CARD_MONTHLY_FEE_MAX_ILS,
+  CONSUMER_CREDIT_ANNUAL_RATE_MAX_PCT,
+  CREDIT_LIMIT_MAX_ILS,
+  DISCOUNT_PERCENT_MAX,
+  MONETARY_MAX_ILS,
+  TRANSFER_FX_COMMISSION_MAX_PCT,
+} from '../config/financial';
 import { useAppDirection } from '../hooks/useAppDirection';
 import { resolveDatabaseRates } from '../authority/noSource';
 import { useTranslation } from '../hooks/useTranslation';
@@ -212,8 +222,8 @@ export function CardDetailScreen({
   }
 
   const effectiveFeePreview = ((): number | null => {
-    const original = parseBounded(feeOriginal, 0, 999_999);
-    const discount = parseBounded(feeDiscount, 0, 100);
+    const original = parseBounded(feeOriginal, 0, MONETARY_MAX_ILS);
+    const discount = parseBounded(feeDiscount, 0, DISCOUNT_PERCENT_MAX);
     if (original === null || discount === null) return null;
     return Math.round(original * (1 - discount / 100) * 100) / 100;
   })();
@@ -222,8 +232,8 @@ export function CardDetailScreen({
     if (card === undefined) return;
     setSaved(false);
 
-    const billing = parseBounded(billingDay, 1, 31);
-    const limit = parseBounded(creditLimit, 0, 9_999_999);
+    const billing = parseBounded(billingDay, BILLING_DAY_MIN, BILLING_DAY_MAX);
+    const limit = parseBounded(creditLimit, 0, CREDIT_LIMIT_MAX_ILS);
     if (billing === null || limit === null) {
       setSaveError(t('יום חיוב (1–31) וסכום מסגרת חייבים להיות תקינים.'));
       return;
@@ -236,11 +246,11 @@ export function CardDetailScreen({
     };
 
     if (hasRates) {
-      const credit = parseBounded(creditRate, 0, 30);
-      const installment = parseBounded(installmentRate, 0, 30);
-      const cardLoan = parseBounded(cardLoanRate, 0, 30);
-      const fx = parseBounded(fxCommission, 0, 10);
-      const mFee = parseBounded(monthlyFee, 0, 9_999);
+      const credit = parseBounded(creditRate, 0, CONSUMER_CREDIT_ANNUAL_RATE_MAX_PCT);
+      const installment = parseBounded(installmentRate, 0, CONSUMER_CREDIT_ANNUAL_RATE_MAX_PCT);
+      const cardLoan = parseBounded(cardLoanRate, 0, CONSUMER_CREDIT_ANNUAL_RATE_MAX_PCT);
+      const fx = parseBounded(fxCommission, 0, TRANSFER_FX_COMMISSION_MAX_PCT);
+      const mFee = parseBounded(monthlyFee, 0, CARD_MONTHLY_FEE_MAX_ILS);
       const hasInvalidEnteredRate =
         (creditRate.trim() !== '' && credit === null) ||
         (installmentRate.trim() !== '' && installment === null) ||
@@ -278,7 +288,7 @@ export function CardDetailScreen({
       if (parsedForeignCurrency !== undefined) {
         updates = { ...updates, foreignCurrencyType: parsedForeignCurrency };
       }
-      const parsedBankFx = parseBounded(bankFx, 0, 10);
+      const parsedBankFx = parseBounded(bankFx, 0, TRANSFER_FX_COMMISSION_MAX_PCT);
       if (parsedBankFx !== null) {
         updates = { ...updates, bankFxCommission: parsedBankFx };
       }
@@ -297,8 +307,8 @@ export function CardDetailScreen({
       };
     }
 
-    const original = parseBounded(feeOriginal, 0, 999_999);
-    const discount = parseBounded(feeDiscount, 0, 100);
+    const original = parseBounded(feeOriginal, 0, MONETARY_MAX_ILS);
+    const discount = parseBounded(feeDiscount, 0, DISCOUNT_PERCENT_MAX);
     if (original === null || discount === null) {
       setSaveError(t('אחוז ההנחה חייב להיות בין 0 ל-100 ודמי הכרטיס חייבים להיות תקינים.'));
       return;
