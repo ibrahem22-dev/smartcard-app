@@ -17,7 +17,7 @@ import type { PurchaseGateStackParamList } from '../navigation/types';
 import { useCardsStore } from '../store/useCardsStore';
 import type { DecisionVerdict } from '../types/decision.types';
 import { parseAmount } from '../utils/parseAmount';
-import { ACCENT, BORDER, ROLE_BORDER, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
+import { ACCENT, BORDER, CHROME, ROLE_BORDER, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
 
 type PurchaseGateNavigation = NativeStackNavigationProp<
   PurchaseGateStackParamList,
@@ -228,7 +228,7 @@ export function PurchaseGateScreen(): React.ReactElement {
                     keyboardType="numeric"
                     onChangeText={handleAmountChange}
                     placeholder="0"
-                    placeholderTextColor="#94A3B8"
+                    placeholderTextColor={CHROME.subtle}
                     style={{ textAlign, writingDirection }}
                     value={amountText}
                   />

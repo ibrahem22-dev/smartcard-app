@@ -31,7 +31,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import type { CardsStackParamList } from '../navigation/types';
 import { scheduleDiscountReminders } from '../services/notificationScheduler';
 import { useCardsStore } from '../store/useCardsStore';
-import { ACCENT, BORDER, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
+import { ACCENT, BORDER, CHROME, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
 import {
   CardIssuer,
   type CardFeeInfo,
@@ -423,7 +423,7 @@ export function CardDetailScreen({
                   keyboardType="decimal-pad"
                   onChangeText={setCreditRate}
                   placeholder={t('לא פורסם — הזן ידנית')}
-                  placeholderTextColor="#94A3B8"
+                  placeholderTextColor={CHROME.subtle}
                   style={inputStyle}
                   value={creditRate}
                 />
@@ -433,7 +433,7 @@ export function CardDetailScreen({
                   keyboardType="decimal-pad"
                   onChangeText={setInstallmentRate}
                   placeholder={t('לא פורסם — הזן ידנית')}
-                  placeholderTextColor="#94A3B8"
+                  placeholderTextColor={CHROME.subtle}
                   style={inputStyle}
                   value={installmentRate}
                 />
@@ -443,7 +443,7 @@ export function CardDetailScreen({
                   keyboardType="decimal-pad"
                   onChangeText={setCardLoanRate}
                   placeholder={t('לא פורסם — הזן ידנית')}
-                  placeholderTextColor="#94A3B8"
+                  placeholderTextColor={CHROME.subtle}
                   style={inputStyle}
                   value={cardLoanRate}
                 />
@@ -570,7 +570,7 @@ export function CardDetailScreen({
                   className={INPUT_CLASS}
                   onChangeText={setForeignCurrency}
                   placeholder="USD"
-                  placeholderTextColor="#94A3B8"
+                  placeholderTextColor={CHROME.subtle}
                   style={inputStyle}
                   value={foreignCurrency}
                 />
@@ -592,7 +592,7 @@ export function CardDetailScreen({
               className={INPUT_CLASS}
               onChangeText={setIssuanceDate}
               placeholder="2024-01-01"
-              placeholderTextColor="#94A3B8"
+              placeholderTextColor={CHROME.subtle}
               style={inputStyle}
               value={issuanceDate}
             />

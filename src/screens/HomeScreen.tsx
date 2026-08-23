@@ -11,7 +11,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import type { TabParamList } from '../navigation/types';
 import { useCardsStore } from '../store/useCardsStore';
 import { useProfileStore } from '../store/useProfileStore';
-import { ACCENT, BORDER, ROLE_BORDER, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
+import { ACCENT, BORDER, CHROME, ROLE_BORDER, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
 
 const DAILY_TIPS: readonly string[] = [
   'שלם ביום חיוב כדי למקסם את תקופת האשראי',
@@ -57,7 +57,7 @@ export function HomeScreen(): React.ReactElement {
             />
             <AppText
               className="mt-2 text-base font-extrabold"
-              style={{ color: '#FFFFFF' }}
+              style={{ color: CHROME.white }}
             >
               {activeProfile?.displayName === 'פרופיל מקומי' ||
               activeProfile?.displayName === 'Local profile'

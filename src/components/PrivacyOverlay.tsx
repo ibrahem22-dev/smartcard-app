@@ -10,6 +10,7 @@ import {
 } from 'react-native';
 
 import { useAuth } from '../navigation/authContext';
+import { CHROME } from '../theme/tokens';
 import {
   getNextPrivacyOverlayVisible,
   shouldPreventScreenCapture,
@@ -116,7 +117,7 @@ const styles = StyleSheet.create({
     left: 0,
     right: 0,
     bottom: 0,
-    backgroundColor: '#0A0A0A',
+    backgroundColor: CHROME.privacyScrim,
     zIndex: 9999,
   },
   image: {

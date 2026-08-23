@@ -9,6 +9,7 @@ import React from 'react';
 import { StyleSheet, View } from 'react-native';
 
 import { AppText } from '../AppText';
+import { CHROME } from '../../theme/tokens';
 
 interface ScreenPlaceholderProps {
   readonly title: string;
@@ -35,16 +36,16 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     padding: 24,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: CHROME.white,
   },
   title: {
     fontSize: 22,
     fontWeight: '700',
-    color: '#0F172A',
+    color: CHROME.ink,
   },
   subtitle: {
     marginTop: 8,
     fontSize: 15,
-    color: '#64748B',
+    color: CHROME.muted,
   },
 });

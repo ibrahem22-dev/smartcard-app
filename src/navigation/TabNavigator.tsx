@@ -19,6 +19,7 @@ import { PurchaseGateStack } from './stacks/PurchaseGateStack';
 import { SettingsStack } from './stacks/SettingsStack';
 import type { TabParamList } from './types';
 import { getTabsForDirection } from '../utils/direction';
+import { CHROME } from '../theme/tokens';
 
 const Tab = createBottomTabNavigator<TabParamList>();
 
@@ -66,12 +67,12 @@ export function TabNavigator(): React.ReactElement {
       key={directionKey}
       screenOptions={({ route }): BottomTabNavigationOptions => ({
         headerShown: false,
-        tabBarActiveTintColor: '#2563EB',
-        tabBarInactiveTintColor: '#94A3B8',
+        tabBarActiveTintColor: CHROME.accent,
+        tabBarInactiveTintColor: CHROME.subtle,
         tabBarLabel: t(LABELS[route.name]),
         tabBarStyle: {
-          backgroundColor: '#141414',
-          borderTopColor: '#262626',
+          backgroundColor: CHROME.appDark,
+          borderTopColor: CHROME.hairlineDark,
         },
         tabBarIcon: ({ color, size }) => (
           <Ionicons name={ICONS[route.name]} size={size} color={color} />

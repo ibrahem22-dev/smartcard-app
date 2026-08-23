@@ -20,7 +20,7 @@ import { SettingsScreen } from '../../screens/SettingsScreen';
 import { useAppDirection, useStackBackGlyph } from '../../hooks/useAppDirection';
 import { useTranslation } from '../../hooks/useTranslation';
 import type { SettingsStackParamList } from '../types';
-import { TEXT } from '../../theme/tokens';
+import { CHROME, TEXT } from '../../theme/tokens';
 
 const Stack = createNativeStackNavigator<SettingsStackParamList>();
 
@@ -57,8 +57,8 @@ export function SettingsStack(): React.ReactElement {
               renderBackButton(canGoBack, navigation.goBack)
           : (): null => null,
         headerShown: false,
-        headerStyle: { backgroundColor: '#141414' },
-        headerTintColor: '#FFFFFF',
+        headerStyle: { backgroundColor: CHROME.appDark },
+        headerTintColor: CHROME.white,
       })}
     >
       <Stack.Screen

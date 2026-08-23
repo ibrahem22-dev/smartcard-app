@@ -7,7 +7,7 @@ import { useCashflowCalendar } from '../hooks/useCashflowCalendar';
 import { useTheme } from '../hooks/useTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import type { CashflowCalendarCharge } from '../types/cashflow.types';
-import { ROLE_SURFACE_BG, SURFACE, TEXT } from '../theme/tokens';
+import { BORDER, ROLE_SURFACE_BG, SURFACE, TEXT } from '../theme/tokens';
 
 function formatDisplayDate(date: string): string {
   const [year, month, day] = date.split('-');
@@ -34,7 +34,7 @@ function renderCharge(
 ): React.ReactElement {
   return (
     <RtlRow
-      className={`mb-3 min-h-[82px] w-full items-center justify-between rounded-lg border border-slate-300 p-4 dark:border-neutral-700 ${getRiskRowClassName(
+      className={`mb-3 min-h-[82px] w-full items-center justify-between rounded-lg border p-4 ${BORDER.hairline} ${getRiskRowClassName(
         item.riskLevel,
       )}`}
       style={{ borderColor: companyAccent }}

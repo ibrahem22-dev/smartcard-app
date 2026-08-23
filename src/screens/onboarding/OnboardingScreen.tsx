@@ -18,7 +18,7 @@ import { useUserStore } from '../../store/useUserStore';
 import { CardIssuer } from '../../types/card.types';
 import type { AppProfile } from '../../types/profile.types';
 import type { UserProfile } from '../../types/user.types';
-import { ACCENT, BORDER, ROLE_TEXT, SURFACE, TEXT } from '../../theme/tokens';
+import { ACCENT, BORDER, CHROME, ROLE_TEXT, SURFACE, TEXT } from '../../theme/tokens';
 
 type Step = 1 | 2 | 3 | 4;
 
@@ -209,7 +209,7 @@ export default function OnboardingScreen(): React.ReactElement {
             keyboardType="numeric"
             onChangeText={setIncomeText}
             placeholder={t('לדוגמה: 12000')}
-            placeholderTextColor="#94A3B8"
+            placeholderTextColor={CHROME.subtle}
             style={{ textAlign, writingDirection }}
             value={incomeText}
           />
@@ -221,7 +221,7 @@ export default function OnboardingScreen(): React.ReactElement {
             keyboardType="numeric"
             onChangeText={setBalanceText}
             placeholder={t('לדוגמה: 3500')}
-            placeholderTextColor="#94A3B8"
+            placeholderTextColor={CHROME.subtle}
             style={{ textAlign, writingDirection }}
             value={balanceText}
           />
@@ -263,7 +263,7 @@ export default function OnboardingScreen(): React.ReactElement {
             className={`min-h-[52px] rounded-lg border px-4 text-lg ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`}
             onChangeText={setClubText}
             placeholder={t('אופציונלי')}
-            placeholderTextColor="#94A3B8"
+            placeholderTextColor={CHROME.subtle}
             style={{ textAlign, writingDirection }}
             value={clubText}
           />
@@ -289,7 +289,7 @@ export default function OnboardingScreen(): React.ReactElement {
           keyboardType="phone-pad"
           onChangeText={setPhoneText}
           placeholder="050-0000000"
-          placeholderTextColor="#94A3B8"
+          placeholderTextColor={CHROME.subtle}
           style={{ textAlign, writingDirection }}
           value={phoneText}
         />
@@ -308,7 +308,7 @@ export default function OnboardingScreen(): React.ReactElement {
   return (
     <KeyboardAvoidingView
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
-      style={{ flex: 1, backgroundColor: '#F8FAFC' }}
+      style={{ flex: 1, backgroundColor: CHROME.appLight }}
     >
       <RtlRow className={`gap-2 border-b px-5 py-4 ${BORDER.subtle} ${SURFACE.card}`}>
         {STEPS.map(step => (

@@ -3,21 +3,26 @@ import { useColorScheme } from 'react-native';
 import { useAuth } from '../navigation/authContext';
 import { useCardsStore } from '../store/useCardsStore';
 import { useUserStore } from '../store/useUserStore';
+import { BANK_BRAND, BRAND_NEUTRAL, ISSUER_BRAND } from '../theme/tokens';
 import { CardIssuer } from '../types/card.types';
 
-const NEUTRAL_COLOR = '#6B7280';
+/**
+ * THE ISSUER AND BANK COLOURS MOVED TO THE TOKEN MODULE (A8), and this file reads them.
+ *
+ * They are BRAND identity and not semantic: Bank Leumi's blue says nothing about whether using the
+ * card is a good idea. A8's second half is unqualified — *no raw colour literal outside the token
+ * module* — and makes no exception for a colour that carries no judgement, which is right: the next
+ * person to add an issuer would otherwise have added its hex here, and the token module would have
+ * been the one place colour lives except for the eight that were not.
+ */
+const NEUTRAL_COLOR = BRAND_NEUTRAL;
 
-const BANK_COLORS: Readonly<Record<string, string>> = {
-  לאומי: '#1D4ED8',
-  הפועלים: '#DC2626',
-  דיסקונט: '#7C3AED',
-  מזרחי: '#EA580C',
-};
+const BANK_COLORS: Readonly<Record<string, string>> = BANK_BRAND;
 
 const ISSUER_COLORS: Readonly<Record<CardIssuer, string>> = {
-  [CardIssuer.Max]: '#FF6B00',
-  [CardIssuer.Isracard]: '#0057B7',
-  [CardIssuer.Cal]: '#6B21A8',
+  [CardIssuer.Max]: ISSUER_BRAND.max,
+  [CardIssuer.Isracard]: ISSUER_BRAND.isracard,
+  [CardIssuer.Cal]: ISSUER_BRAND.cal,
 };
 
 export interface ThemeColors {

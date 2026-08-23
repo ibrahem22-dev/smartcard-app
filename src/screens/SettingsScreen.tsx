@@ -22,7 +22,7 @@ import {
 } from '../store/useLanguageStore';
 import { useProfileStore } from '../store/useProfileStore';
 import type { AppProfile } from '../types/profile.types';
-import { ACCENT, BORDER, PROMO, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
+import { ACCENT, BORDER, CHROME, PROMO, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
 
 type SettingsScreenProps = NativeStackScreenProps<
   SettingsStackParamList,
@@ -293,7 +293,7 @@ export function SettingsScreen({
         transparent
         visible={isPromoModalVisible}
       >
-        <View className="flex-1 items-center justify-center bg-black/60 px-5">
+        <View className={`flex-1 items-center justify-center px-5 ${SURFACE.modalScrim}`}>
           <View
             className={`w-full max-w-md gap-4 rounded-2xl p-5 shadow-lg ${SURFACE.card}`}
             key={isRTL ? 'promo-modal-rtl' : 'promo-modal-ltr'}
@@ -309,7 +309,7 @@ export function SettingsScreen({
               editable={!isRedeemingPromo}
               onChangeText={setPromoCode}
               placeholder={t('הכנס קוד')}
-              placeholderTextColor="#94A3B8"
+              placeholderTextColor={CHROME.subtle}
               style={{ textAlign, writingDirection }}
               value={promoCode}
             />

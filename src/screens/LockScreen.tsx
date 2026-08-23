@@ -17,6 +17,7 @@ import { useAppDirection } from '../hooks/useAppDirection';
 import { useTranslation } from '../hooks/useTranslation';
 import { useAuth } from '../navigation/authContext';
 import { shouldShowPinSetup } from '../navigation/authGatePolicy';
+import { CHROME } from '../theme/tokens';
 
 /**
  * Lock / PIN-setup uses StyleSheet (not NativeWind) for critical surfaces.
@@ -166,7 +167,7 @@ export function LockScreen(): React.ReactElement {
                 maxLength={6}
                 onChangeText={(value): void => setPin(sanitizePin(value))}
                 placeholder={t('PIN')}
-                placeholderTextColor="#94A3B8"
+                placeholderTextColor={CHROME.subtle}
                 secureTextEntry
                 style={[
                   styles.input,
@@ -183,7 +184,7 @@ export function LockScreen(): React.ReactElement {
                   setPinConfirmation(sanitizePin(value))
                 }
                 placeholder={t('אימות PIN')}
-                placeholderTextColor="#94A3B8"
+                placeholderTextColor={CHROME.subtle}
                 secureTextEntry
                 style={[
                   styles.input,
@@ -236,7 +237,7 @@ export function LockScreen(): React.ReactElement {
             maxLength={6}
             onChangeText={(value): void => setUnlockPin(sanitizePin(value))}
             placeholder={t('PIN')}
-            placeholderTextColor="#94A3B8"
+            placeholderTextColor={CHROME.subtle}
             secureTextEntry
             style={[styles.input, styles.inputCentered]}
             value={unlockPin}
@@ -299,7 +300,7 @@ export function LockScreen(): React.ReactElement {
 const styles = StyleSheet.create({
   root: {
     flex: 1,
-    backgroundColor: '#0F172A',
+    backgroundColor: CHROME.ink,
   },
   flex: {
     flex: 1,
@@ -319,12 +320,12 @@ const styles = StyleSheet.create({
     gap: 8,
   },
   title: {
-    color: '#FFFFFF',
+    color: CHROME.white,
     fontSize: 28,
     fontWeight: '800',
   },
   subtitle: {
-    color: '#CBD5E1',
+    color: CHROME.hairline,
     fontSize: 16,
     fontWeight: '500',
   },
@@ -332,18 +333,18 @@ const styles = StyleSheet.create({
     minHeight: 56,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: '#475569',
-    backgroundColor: '#1E293B',
+    borderColor: CHROME.inkDark,
+    backgroundColor: CHROME.surfaceDark,
     paddingHorizontal: 16,
     fontSize: 20,
     letterSpacing: 8,
-    color: '#FFFFFF',
+    color: CHROME.white,
   },
   inputCentered: {
     textAlign: 'center',
   },
   error: {
-    color: '#FCA5A5',
+    color: CHROME.dangerSoft,
     fontSize: 14,
     fontWeight: '700',
   },
@@ -352,11 +353,11 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     borderRadius: 12,
-    backgroundColor: '#2563EB',
+    backgroundColor: CHROME.accent,
     paddingHorizontal: 16,
   },
   primaryButtonText: {
-    color: '#FFFFFF',
+    color: CHROME.white,
     fontSize: 16,
     fontWeight: '800',
   },
@@ -367,14 +368,14 @@ const styles = StyleSheet.create({
     paddingHorizontal: 16,
   },
   secondaryButtonText: {
-    color: '#CBD5E1',
+    color: CHROME.hairline,
     fontSize: 14,
     fontWeight: '700',
   },
   devButton: {
     marginTop: 16,
     borderRadius: 10,
-    backgroundColor: '#334155',
+    backgroundColor: CHROME.inkMuted,
     paddingHorizontal: 24,
     paddingVertical: 12,
   },

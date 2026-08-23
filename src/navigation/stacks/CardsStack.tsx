@@ -16,6 +16,7 @@ import { CardDetailScreen } from '../../screens/CardDetailScreen';
 import { InterestCalculatorScreen } from '../../screens/InterestCalculatorScreen';
 import { useTranslation } from '../../hooks/useTranslation';
 import type { CardsStackParamList } from '../types';
+import { CHROME } from '../../theme/tokens';
 
 const Stack = createNativeStackNavigator<CardsStackParamList>();
 
@@ -35,8 +36,8 @@ export function CardsStack(): React.ReactElement {
         options={{
           headerShown: true,
           headerTitleAlign: 'center',
-          headerStyle: { backgroundColor: '#141414' },
-          headerTintColor: '#FFFFFF',
+          headerStyle: { backgroundColor: CHROME.appDark },
+          headerTintColor: CHROME.white,
           title: t('הוסף כרטיס'),
         }}
       />
@@ -46,8 +47,8 @@ export function CardsStack(): React.ReactElement {
         options={{
           headerShown: true,
           headerTitleAlign: 'center',
-          headerStyle: { backgroundColor: '#141414' },
-          headerTintColor: '#FFFFFF',
+          headerStyle: { backgroundColor: CHROME.appDark },
+          headerTintColor: CHROME.white,
           title: t('פרטי כרטיס'),
         }}
       />
@@ -57,8 +58,8 @@ export function CardsStack(): React.ReactElement {
         options={{
           headerShown: true,
           headerTitleAlign: 'center',
-          headerStyle: { backgroundColor: '#141414' },
-          headerTintColor: '#FFFFFF',
+          headerStyle: { backgroundColor: CHROME.appDark },
+          headerTintColor: CHROME.white,
           title: t('מחשבון ריבית'),
         }}
       />

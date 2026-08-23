@@ -155,6 +155,12 @@ export const SURFACE = {
    * light ground twice and change what the light theme looks like.
    */
   pageDarkOnly: 'dark:bg-app-dark',
+  /**
+   * The ground behind a modal. Black at 60% in both themes on purpose: a scrim is not a surface,
+   * it is the absence of one, and tinting it with the theme would make the dimming look like a
+   * colour choice rather than a removal of the page.
+   */
+  modalScrim: 'bg-black/60',
 } as const;
 
 /** Hairlines. `subtle` is the quieter of the two and separates items inside one surface. */
