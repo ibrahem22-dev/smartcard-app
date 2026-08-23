@@ -32,6 +32,31 @@ function isAllowlistedLine(line: string): boolean {
   return line.includes('rtl-ok');
 }
 
+/**
+ * A COMMENT IS NOT A CLASS NAME.
+ *
+ * This scan used to read whole lines, so a comment explaining why a component avoids `flex-row`
+ * was itself reported as using it. `ProvenanceChip.tsx` tripped it twice in one commit — once for
+ * the sentence naming the class it deliberately does not use, and once for the phrase
+ * "right-to-left", because `right-` is on the forbidden list.
+ *
+ * This is the same defect criterion D3's symbol check had in Phase 2, and it has the same cost: a
+ * check that punishes documentation pushes a codebase toward deleting its own explanations. Code is
+ * searched; comments are not.
+ *
+ * Block comments are left alone deliberately — stripping them here would need a parser, and a
+ * half-parser that loses track of a string containing "\/*" would start hiding real code.
+ */
+function codeOnly(line: string): string {
+  const at = line.indexOf('//');
+  if (at === -1) return line;
+  // A '//' inside a string literal is code. Counting quotes before it is crude and sufficient:
+  // an odd count means the '//' is inside an unterminated literal on this line.
+  const before = line.slice(0, at);
+  const quotes = (before.match(/['"`]/g) ?? []).length;
+  return quotes % 2 === 1 ? line : before;
+}
+
 function isScannableFile(filePath: string): boolean {
   if (!filePath.endsWith('.tsx') && !filePath.endsWith('.ts')) {
     return false;
@@ -80,8 +105,9 @@ describe('rtlNoHardcodedDirectionClasses', () => {
             return;
           }
 
+          const code = codeOnly(line);
           for (const pattern of FORBIDDEN_PATTERNS) {
-            if (pattern.test(line)) {
+            if (pattern.test(code)) {
               violations.push(`${relativePath}:${index + 1}: ${line.trim()}`);
               break;
             }

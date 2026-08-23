@@ -267,6 +267,11 @@ export const en = {
 } as const;
 
 export const enBySource: Readonly<Record<string, string>> = {
+  // A2 — the provenance chip. Four states plus the Stale modifier, one definition.
+  'הערך שלך': 'Your value',
+  'הערכה': 'Estimate',
+  'לא ידוע': 'Unknown',
+  'לא עדכני': 'Stale',
   הגדרות: en.settings.title,
   שפה: en.settings.languageTitle,
   'שפת המכשיר אוטומטי': en.settings.deviceLanguage,

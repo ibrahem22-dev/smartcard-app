@@ -10,6 +10,11 @@
 // {{bankName}}) and emojis are preserved verbatim.
 
 export const arBySource: Readonly<Record<string, string>> = {
+  // A2 — the provenance chip. Four states plus the Stale modifier, one definition.
+  'הערך שלך': 'قيمتك',
+  'הערכה': 'تقدير',
+  'לא ידוע': 'غير معروف',
+  'לא עדכני': 'غير محدَّث',
   // settings
   הגדרות: 'الإعدادات',
   שפה: 'اللغة',
