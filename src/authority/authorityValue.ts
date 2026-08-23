@@ -74,6 +74,20 @@ export interface ConflictCandidate<T> {
   readonly provenance: Provenance;
   readonly sourceId?: string | undefined;
   readonly observedAt?: string | undefined;
+  /**
+   * WHERE THIS READING APPLIES — criterion A3, which requires every competing reading to be shown
+   * "with its scope and its source".
+   *
+   * Two sources disagreeing about one number are often not disagreeing at all: one is quoting the
+   * rate for a card tier and the other for the whole issuer, or one covers purchases abroad and the
+   * other cash withdrawals. Showing both figures without saying what each one COVERS turns a
+   * difference of scope into an apparent contradiction, and a user reading two numbers with no
+   * scope has no way to tell which describes them.
+   *
+   * Optional because the pipeline does not always carry one, and a scope this app invented would be
+   * worse than none.
+   */
+  readonly scope?: string | undefined;
 }
 
 export interface HistoricalAuthority<T> {

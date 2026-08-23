@@ -267,6 +267,10 @@ export const en = {
 } as const;
 
 export const enBySource: Readonly<Record<string, string>> = {
+  // A3 — ConflictedValue. Every competing reading, with its scope and its source.
+  'מקור לא מזוהה': 'Unattributed source',
+  'הנתון הזה שנוי במחלוקת': 'This figure is disputed',
+  '{{label}} — הנתון הזה שנוי במחלוקת': '{{label}} — this figure is disputed',
   // A2 — the provenance chip. Four states plus the Stale modifier, one definition.
   'הערך שלך': 'Your value',
   'הערכה': 'Estimate',

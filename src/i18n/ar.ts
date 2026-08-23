@@ -10,6 +10,10 @@
 // {{bankName}}) and emojis are preserved verbatim.
 
 export const arBySource: Readonly<Record<string, string>> = {
+  // A3 — ConflictedValue. Every competing reading, with its scope and its source.
+  'מקור לא מזוהה': 'مصدر غير محدَّد',
+  'הנתון הזה שנוי במחלוקת': 'هذه القيمة محل خلاف',
+  '{{label}} — הנתון הזה שנוי במחלוקת': '{{label}} — هذه القيمة محل خلاف',
   // A2 — the provenance chip. Four states plus the Stale modifier, one definition.
   'הערך שלך': 'قيمتك',
   'הערכה': 'تقدير',
