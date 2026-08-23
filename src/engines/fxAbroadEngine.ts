@@ -5,7 +5,7 @@
 // the ranking; cards with no verified FX triple are surfaced separately as
 // unknown and contribute to no calculation (no silent default).
 
-import { resolveFxAbroad } from '../hooks/useFxAbroad';
+import { resolveFxAbroad } from '../authority/noSource';
 import type { CardInput } from '../types/card.types';
 import type {
   AbroadMode,

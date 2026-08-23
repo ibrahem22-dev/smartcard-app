@@ -4,7 +4,7 @@ import {
   calculateMissedSavings,
   findBestCard,
 } from '../engines/benefitsMatcher';
-import { CARD_RATES_BENEFITS_DB } from './useCardRatesDatabase';
+import { EMPTY_BENEFITS_DB } from '../authority/noSource';
 import { useCardsStore } from '../store/useCardsStore';
 import type {
   BenefitCategoryGroup,
@@ -67,7 +67,7 @@ export function useBenefitsOverview(): BenefitsOverview {
 
     const matches = transactions.flatMap(
       (transaction: Transaction): BenefitMatch[] =>
-        findBestCard([activeCard], transaction, CARD_RATES_BENEFITS_DB),
+        findBestCard([activeCard], transaction, EMPTY_BENEFITS_DB),
     );
     return groupMatches(matches);
   }, [activeCard, transactions]);
@@ -92,14 +92,14 @@ export function useSavingsOverview(): SavingsOverview {
     const missedSavings = calculateMissedSavings(
       cards,
       transactions,
-      CARD_RATES_BENEFITS_DB,
+      EMPTY_BENEFITS_DB,
     );
     const totalSaved = transactions.reduce(
       (total: number, transaction: Transaction): number => {
         const usedCardMatch = findBestCard(
           cards.filter(card => card.cardId === transaction.cardId),
           transaction,
-          CARD_RATES_BENEFITS_DB,
+          EMPTY_BENEFITS_DB,
         )[0];
         return total + (usedCardMatch?.estimatedSaving ?? 0);
       },

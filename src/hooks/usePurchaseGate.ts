@@ -2,7 +2,7 @@ import { useCallback, useMemo, useState } from 'react';
 
 import { evaluatePurchase } from '../engines/purchaseGate';
 import { recommendCard } from '../engines/cardRoleEngine';
-import { resolveFxAbroad } from './useFxAbroad';
+import { resolveFxAbroad } from '../authority/noSource';
 import { useCardsStore } from '../store/useCardsStore';
 import { useUserStore } from '../store/useUserStore';
 import type { CardInput } from '../types/card.types';

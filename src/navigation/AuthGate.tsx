@@ -15,7 +15,6 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { LockScreen } from '../screens/LockScreen';
 import OnboardingScreen from '../screens/onboarding/OnboardingScreen';
-import { PaywallScreen } from '../screens/PaywallScreen';
 import { AuthenticatedNavigator } from './AuthenticatedNavigator';
 import { useAuth } from './authContext';
 import { resolveAuthGateBranch } from './authGatePolicy';
@@ -75,11 +74,6 @@ export function AuthGate(): React.ReactElement {
       ) : (
         <RootStack.Screen name="Authenticated" component={AuthenticatedNavigator} />
       )}
-      <RootStack.Screen
-        name="Paywall"
-        component={PaywallScreen}
-        options={{ presentation: 'modal' }}
-      />
     </RootStack.Navigator>
   );
 }

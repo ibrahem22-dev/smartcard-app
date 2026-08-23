@@ -290,6 +290,7 @@ export const enBySource: Readonly<Record<string, string>> = {
   מימוש: 'Redeem',
   'מממש…': 'Redeeming…',
   'לא ניתן לממש את הקוד כעת': 'Could not redeem the code right now',
+  'מימוש קודים אינו זמין בגרסה זו.': 'Code redemption is not available in this build.',
   '✅ מימשת {{count}} חודשים Plus בחינם! תהנה.':
     '✅ Redeemed {{count}} months of Plus free! Enjoy.',
   'הוסף פרופיל': en.profile.add,

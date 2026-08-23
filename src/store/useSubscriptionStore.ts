@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 
 import { keyVault } from '../security/keyVault';
-import { fetchSubscriptionTier } from '../services/revenueCatClient';
 import type {
   SubscriptionState,
   SubscriptionStoreState,
@@ -51,9 +50,19 @@ export const useSubscriptionStore = create<SubscriptionStoreState>()(
         lastVerifiedAt: new Date().toISOString(),
       });
     },
+    /**
+     * B9 — THERE IS NO TIER SOURCE, AND THIS SAYS SO RATHER THAN GUESSING.
+     *
+     * This called RevenueCat. The paywall is unmounted and react-native-purchases is archived out
+     * of the dependency manifest, so there is nothing to refresh FROM. It deliberately does not
+     * invent a tier, does not reset to free, and does not throw: the persisted value the vault
+     * already holds stays authoritative, and a refresh is a no-op that states why.
+     *
+     * Billing is not P2 scope. Contract §9 sends purchase logging to P4.
+     */
     refreshTier: async (): Promise<void> => {
-      const tier = await fetchSubscriptionTier();
-      get().setTier(tier);
+      // No vendor SDK is reachable from this store by design (B9). Nothing to fetch.
+      return Promise.resolve();
     },
     isPlus: (): boolean => {
       const { currentTier } = get();

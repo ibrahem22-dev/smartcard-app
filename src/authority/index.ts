@@ -101,8 +101,17 @@ export type {
   ManualNumberPolicy,
 } from './manualInputBoundary';
 
+/**
+ * D3 — the non-authority bundled-data access point is GONE, and nothing replaces its exports here.
+ *
+ * `BUNDLED_DATASET_PROVENANCE` and `fxAbroadToAuthority` existed to dress a bundled JSON file up as
+ * an authority answer. There is no such thing to dress up any more: the datasets are archived out
+ * of the runtime and the adapter that replaces them is D1, in Phase 7.
+ *
+ * The seam that answers in the meantime is `./noSource`, and it answers UNKNOWN.
+ */
 export {
-  BUNDLED_DATASET_PROVENANCE,
-  fxAbroadToAuthority,
-} from './nonAuthorityDataAccess';
-export type { FxAuthorityTriple } from './nonAuthorityDataAccess';
+  NO_AUTHORITY_SOURCE,
+  NO_AUTHORITY_SOURCE_DETAIL,
+  EMPTY_BENEFITS_DB,
+} from './noSource';

@@ -16,7 +16,6 @@ import { useLanguage } from '../hooks/useLanguage';
 import { useTheme } from '../hooks/useTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import type { SettingsStackParamList } from '../navigation/types';
-import { redeemPromoCode } from '../services/revenueCat';
 import {
   useLanguageStore,
   type LanguageChoice,
@@ -96,20 +95,21 @@ export function SettingsScreen({
     setIsRedeemingPromo(true);
 
     try {
-      const result = await redeemPromoCode(promoCode);
-      if (!result.success) {
-        setPromoError(result.error ?? t('לא ניתן לממש את הקוד כעת'));
-        return;
-      }
-
-      const monthsGranted = result.monthsGranted ?? 0;
-      setIsPromoModalVisible(false);
-      setPromoCode('');
-      setPromoToast(
-        t('✅ מימשת {{count}} חודשים Plus בחינם! תהנה.', {
-          count: monthsGranted,
-        }),
+      /**
+       * B9 — REDEMPTION HAS NO PROVIDER, AND IT SAYS SO INSTEAD OF PRETENDING.
+       *
+       * This called RevenueCat. The paywall is unmounted and react-native-purchases is archived
+       * out of the dependency manifest, so there is nothing behind this control. It refuses with a
+       * reason rather than failing silently or, worse, reporting a success it cannot deliver.
+       *
+       * The control itself belongs to the Settings/More rework, which is P5b. It is left visible
+       * and honest rather than hidden: a hidden affordance that still exists in the code is how a
+       * dead path survives a fence.
+       */
+      setPromoError(
+        t('מימוש קודים אינו זמין בגרסה זו.'),
       );
+      return;
     } finally {
       setIsRedeemingPromo(false);
     }

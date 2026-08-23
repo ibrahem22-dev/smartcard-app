@@ -16,7 +16,7 @@ import DateTimePicker, {
 import { AppText } from '../components/AppText';
 import { RtlRow, RtlScrollView } from '../components/rtl';
 import { useAppDirection } from '../hooks/useAppDirection';
-import { useCardDatabaseRates } from '../hooks/useCardRatesDatabase';
+import { resolveDatabaseRates } from '../authority/noSource';
 import { useTranslation } from '../hooks/useTranslation';
 import type { CardsStackParamList } from '../navigation/types';
 import { scheduleDiscountReminders } from '../services/notificationScheduler';
@@ -111,7 +111,7 @@ export function CardDetailScreen({
   const updateCard = useCardsStore(state => state.updateCard);
 
   const rates: CardRates | undefined = card?.cardRates;
-  const databaseRates = useCardDatabaseRates(card);
+  const databaseRates = resolveDatabaseRates(card);
   const fee: CardFeeInfo | undefined = card?.cardFee;
 
   // --- editable state (initialized from the card) ---
