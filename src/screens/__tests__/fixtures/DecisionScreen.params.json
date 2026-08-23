@@ -1,0 +1,37 @@
+{
+  "$comment": [
+    "RENDER FIXTURE for DecisionScreen — supplied by WP-2.3, which the fixture register named as",
+    "the work package that would clear its entry.",
+    "",
+    "WHY THIS IS NOT THE HARNESS INVENTING AN ENGINE OUTPUT.",
+    "",
+    "The register's objection was that a verdict is an ENGINE OUTPUT, and contract §1 forbids P2",
+    "from computing judgements — so the render harness could not manufacture one on the fly without",
+    "inventing precisely the thing P2 may not derive.",
+    "",
+    "A committed fixture is a different act. It is test data, it lives under __tests__, it is",
+    "reviewable in a diff, and it is labelled as an input rather than presented as a finding. The",
+    "harness still passes EMPTY params to every other screen; only a screen with a declared fixture",
+    "gets one, and the declaration is what a reviewer checks.",
+    "",
+    "WHAT THE VALUES ARE FOR. `verdict` selects a label and a colour class — nothing computes from",
+    "it. `reason` is present so the screen renders the ENGINE-REASON path; the refusal path that",
+    "replaced VERDICT_FALLBACK_REASONS is exercised by the absence of this field, which is why the",
+    "second fixture below exists.",
+    "",
+    "`fxComparison` is deliberately EMPTY. Populating it would put fabricated FX percentages on a",
+    "rendered screen, which is the defect D6 just removed from this very file."
+  ],
+  "default": {
+    "verdict": "warning",
+    "reason": "FIXTURE — not an engine output. Present so the screen renders its engine-reason path.",
+    "fxComparison": []
+  },
+  "variants": {
+    "noEngineReason": {
+      "$why": "Exercises the D6 refusal path: with no reason, the screen must say no reason arrived rather than substitute a per-verdict sentence.",
+      "verdict": "blocked",
+      "fxComparison": []
+    }
+  }
+}

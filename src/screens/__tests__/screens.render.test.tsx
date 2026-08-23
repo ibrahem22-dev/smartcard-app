@@ -19,7 +19,7 @@
  * measuring the stubs.
  */
 import React from 'react';
-import { readdirSync, writeFileSync, mkdirSync, statSync } from 'fs';
+import { readdirSync, writeFileSync, mkdirSync, statSync, existsSync, readFileSync } from 'fs';
 import { join, relative } from 'path';
 import { renderScreen } from '../../../tools/p2/jest/renderScreen';
 
@@ -61,6 +61,21 @@ const REGISTER = require('./render-fixtures.json') as {
 };
 const requiresFixture = new Map(REGISTER.requiresFixture.map((e) => [e.screen, e]));
 
+/**
+ * A screen's declared render fixture, if it has one.
+ *
+ * Derived from the filename — `DecisionScreen.tsx` looks for
+ * `__tests__/fixtures/DecisionScreen.params.json` — so a fixture is picked up by existing, not by
+ * being added to a list here. `default` is what the screen is rendered with.
+ */
+const fixtureFor = (screenFile: string): Record<string, unknown> | null => {
+  const name = screenFile.split(/[\\/]/).pop()!.replace(/\.tsx$/, '');
+  const p = join(__dirname, 'fixtures', name + '.params.json');
+  if (!existsSync(p)) return null;
+  const parsed = JSON.parse(readFileSync(p, 'utf8')) as Record<string, unknown>;
+  return (parsed['default'] as Record<string, unknown>) ?? null;
+};
+
 type Outcome = {
   screen: string; export: string | null; rendered: boolean; error: string | null;
   requiresFixture: boolean; needs?: string; clearedBy?: string;
@@ -91,7 +106,8 @@ describe('every screen on disk', () => {
         // Rendered inside the providers App.tsx supplies — not stubbed. A component calling
         // useAuth() outside AuthProvider throws BY DESIGN, and that throw is the provider working,
         // not the screen failing.
-        const tree = renderScreen(Component);
+        const fixture = fixtureFor(file);
+        const tree = renderScreen(Component, fixture ?? {});
         // toJSON() being non-null is the proof a tree was actually produced; a component that
         // returns null renders "successfully" and shows nothing, which is not what E2 is asking.
         rendered = tree.toJSON() !== null;
@@ -108,6 +124,7 @@ describe('every screen on disk', () => {
         error,
         requiresFixture: Boolean(registered) && !rendered,
         ...(registered ? { needs: registered.needs, clearedBy: registered.clearedBy } : {}),
+        ...(fixtureFor(file) ? { fixture: 'declared' } : {}),
       });
       /**
        * THE ASSERTION HAS TO BE THE CLAIM. The first version of this line asserted only that

@@ -25,14 +25,21 @@ import { AuthProvider } from '../../../src/navigation/authContext';
 const Stack = createNativeStackNavigator();
 
 /**
- * Route params are deliberately EMPTY.
+ * Route params default to EMPTY, and the harness never guesses them.
  *
  * Filling them with plausible values would be inventing the screen's inputs, and a screen that
  * renders only because the harness guessed its parameters has not been shown to render — it has
- * been shown to render one guess. A screen that genuinely needs params fails here, is recorded with
- * its reason, and is given a real fixture by the phase that owns it.
+ * been shown to render one guess.
+ *
+ * A screen may instead DECLARE a fixture, at `src/screens/__tests__/fixtures/<Screen>.params.json`.
+ * That is a different act from guessing: the values are committed, reviewable in a diff, and
+ * labelled as inputs rather than presented as findings. Everything without a declared fixture still
+ * gets `{}`.
  */
-export const renderScreen = (Component: React.ComponentType<Record<string, unknown>>) =>
+export const renderScreen = (
+  Component: React.ComponentType<Record<string, unknown>>,
+  initialParams: Record<string, unknown> = {},
+) =>
   render(
     <SafeAreaProvider
       initialMetrics={{
@@ -46,7 +53,7 @@ export const renderScreen = (Component: React.ComponentType<Record<string, unkno
             <Stack.Screen
               name="ScreenUnderTest"
               component={Component as React.ComponentType<object>}
-              initialParams={{}}
+              initialParams={initialParams}
             />
           </Stack.Navigator>
         </NavigationContainer>

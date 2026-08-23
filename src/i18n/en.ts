@@ -290,6 +290,8 @@ export const enBySource: Readonly<Record<string, string>> = {
   מימוש: 'Redeem',
   'מממש…': 'Redeeming…',
   'לא ניתן לממש את הקוד כעת': 'Could not redeem the code right now',
+  'לא התקבל נימוק ממנוע ההחלטות עבור התוצאה הזו.': 'No reason was provided by the decision engine for this result.',
+  'ניקוד הכרטיסים מגיע ממנוע ההחלטות, שאינו חלק מגרסה זו.': 'Card scoring comes from the decision engine, which is not part of this build.',
   'מימוש קודים אינו זמין בגרסה זו.': 'Code redemption is not available in this build.',
   '✅ מימשת {{count}} חודשים Plus בחינם! תהנה.':
     '✅ Redeemed {{count}} months of Plus free! Enjoy.',

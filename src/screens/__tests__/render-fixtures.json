@@ -13,17 +13,13 @@
     "screen nobody wants to fix. `p2:gate -- render-harness` prints every entry on every run.",
     "",
     "AN ENTRY IS CLEARED by giving the screen a real fixture — a committed params file a reviewer",
-    "can read — not by deleting the line."
+    "can read — not by deleting the line.",
+    "",
+    "THE REGISTER IS CURRENTLY EMPTY. DecisionScreen was its only entry; WP-2.3 removed the two",
+    "invented scores and the canned per-verdict reasons from that screen (D6) and supplied the",
+    "fixture at __tests__/fixtures/DecisionScreen.params.json, which is exactly what the entry said",
+    "would clear it. The empty array is kept rather than the key being dropped: an absent register",
+    "and an empty one are different claims, and only one of them says \"nothing is waiting\"."
   ],
-  "requiresFixture": [
-    {
-      "screen": "src/screens/DecisionScreen.tsx",
-      "needs": "route.params.verdict",
-      "why": "DecisionScreen reads route.params.verdict, .fxComparison, .reason and .exchangeFeeWarning. A verdict is an ENGINE OUTPUT, and P2 renders facts and refusals rather than computing judgements (contract §1) — so the harness cannot manufacture one without inventing exactly the thing P2 is forbidden to derive.",
-      "clearedBy": "D6 / WP-2.3",
-      "clearedByNote": "WP-2.3 removes this screen's hardcoded 84/100 and 71/100 scores and its use of VERDICT_FALLBACK_REASONS as primary copy. The same work package establishes what a verdict actually looks like at the P2 boundary, and a committed fixture belongs with it.",
-      "recordedAt": "2026-08-23",
-      "recordedBy": "WP-1.4"
-    }
-  ]
+  "requiresFixture": []
 }
