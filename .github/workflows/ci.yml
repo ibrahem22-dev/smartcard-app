@@ -1,0 +1,62 @@
+name: CI
+
+# WP-1.3 — THE APP REPOSITORY HAD NO CI AT ALL.
+#
+# The forensic recorded it as §4.1: no workflow, no automated check, nothing that reads the tree on
+# push. Every claim about this app was therefore a claim about one machine.
+#
+# This is the SKELETON the plan asks for at Phase 1 — install, typecheck, test. It becomes criterion
+# F4 in full at Phase 3, when it runs the whole ladder including the five boundary rules.
+
+on:
+  push:
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          # Pinned to the same runtime .nvmrc names. The pipeline repository spent a campaign
+          # running its gate ladder on a machine-wide Node 24 while every file said 20, so the
+          # version is stated here and asserted below rather than assumed from the runner image.
+          node-version-file: '.nvmrc'
+          cache: npm
+
+      # `npm ci`, never `npm install`. npm install is permitted to RESOLVE a dependency to a version
+      # the lockfile does not name — it updates the lockfile rather than failing — so CI would be
+      # verifying a tree that need not be the one a reviewer gets from a clean clone.
+      - run: npm ci
+
+      - name: runtime is the pinned one
+        run: |
+          echo "node $(node --version)  ·  .nvmrc $(cat .nvmrc)"
+          test "v$(cat .nvmrc | tr -d '[:space:]')" = "$(node --version)"
+
+      - run: npx tsc --noEmit
+
+      - run: npm run lint
+
+      - run: npx jest --ci
+
+      # The P2 ladder runs here too, and its verdict is read from PRINTED OUTPUT rather than from an
+      # exit code — exit codes are advisory in this project and have been observed false. While gates
+      # remain unwritten this step is expected to print P2-ALL INCOMPLETE, which is not a failure of
+      # CI and is not a pass either. `continue-on-error` keeps that honest: the run is recorded, the
+      # job is not failed by it, and the log says which gates are missing.
+      #
+      # At Phase 3 this becomes a hard step: F4 requires CI to run the whole ladder.
+      - name: P2 ladder (advisory until Phase 3 — F4 makes it hard)
+        continue-on-error: true
+        run: npm run p2:all
+
+      - name: upload the ladder report
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: p2-ladder-report
+          path: reports/p2/
+          if-no-files-found: warn

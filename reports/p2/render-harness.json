@@ -1,0 +1,159 @@
+{
+  "$comment": "Written by src/screens/__tests__/screens.render.test.tsx. The population is derived from disk; every screen attempted is listed with its outcome, including the ones that could not mount. `rendered` counts screens that produced a non-empty tree.",
+  "generatedAt": "2026-08-23T20:53:48.010Z",
+  "population": 21,
+  "rendered": 20,
+  "requiresFixture": 1,
+  "failed": 0,
+  "outcomes": [
+    {
+      "screen": "src/screens/AddCardScreen.tsx",
+      "export": "AddCardScreen",
+      "rendered": true,
+      "error": null,
+      "requiresFixture": false
+    },
+    {
+      "screen": "src/screens/auth/OTPVerifyScreen.tsx",
+      "export": "OTPVerifyScreen",
+      "rendered": true,
+      "error": null,
+      "requiresFixture": false
+    },
+    {
+      "screen": "src/screens/auth/RegisterScreen.tsx",
+      "export": "RegisterScreen",
+      "rendered": true,
+      "error": null,
+      "requiresFixture": false
+    },
+    {
+      "screen": "src/screens/BenefitsScreen.tsx",
+      "export": "BenefitsScreen",
+      "rendered": true,
+      "error": null,
+      "requiresFixture": false
+    },
+    {
+      "screen": "src/screens/CalendarScreen.tsx",
+      "export": "CalendarScreen",
+      "rendered": true,
+      "error": null,
+      "requiresFixture": false
+    },
+    {
+      "screen": "src/screens/CardDetailScreen.tsx",
+      "export": "CardDetailScreen",
+      "rendered": true,
+      "error": null,
+      "requiresFixture": false
+    },
+    {
+      "screen": "src/screens/CardsScreen.tsx",
+      "export": "CardsScreen",
+      "rendered": true,
+      "error": null,
+      "requiresFixture": false
+    },
+    {
+      "screen": "src/screens/ContactScreen.tsx",
+      "export": "ContactScreen",
+      "rendered": true,
+      "error": null,
+      "requiresFixture": false
+    },
+    {
+      "screen": "src/screens/DecisionScreen.tsx",
+      "export": "DecisionScreen",
+      "rendered": false,
+      "error": "Cannot read properties of undefined (reading 'match')",
+      "requiresFixture": true,
+      "needs": "route.params.verdict",
+      "clearedBy": "D6 / WP-2.3"
+    },
+    {
+      "screen": "src/screens/GlossaryScreen.tsx",
+      "export": "GlossaryScreen",
+      "rendered": true,
+      "error": null,
+      "requiresFixture": false
+    },
+    {
+      "screen": "src/screens/HomeScreen.tsx",
+      "export": "HomeScreen",
+      "rendered": true,
+      "error": null,
+      "requiresFixture": false
+    },
+    {
+      "screen": "src/screens/InstallmentImportScreen.tsx",
+      "export": "InstallmentImportScreen",
+      "rendered": true,
+      "error": null,
+      "requiresFixture": false
+    },
+    {
+      "screen": "src/screens/InterestCalculatorScreen.tsx",
+      "export": "InterestCalculatorScreen",
+      "rendered": true,
+      "error": null,
+      "requiresFixture": false
+    },
+    {
+      "screen": "src/screens/LoansScreen.tsx",
+      "export": "LoansScreen",
+      "rendered": true,
+      "error": null,
+      "requiresFixture": false
+    },
+    {
+      "screen": "src/screens/LockScreen.tsx",
+      "export": "LockScreen",
+      "rendered": true,
+      "error": null,
+      "requiresFixture": false
+    },
+    {
+      "screen": "src/screens/onboarding/OnboardingScreen.tsx",
+      "export": "default",
+      "rendered": true,
+      "error": null,
+      "requiresFixture": false
+    },
+    {
+      "screen": "src/screens/PaywallScreen.tsx",
+      "export": "PaywallScreen",
+      "rendered": true,
+      "error": null,
+      "requiresFixture": false
+    },
+    {
+      "screen": "src/screens/ProfileShareScreen.tsx",
+      "export": "ProfileShareScreen",
+      "rendered": true,
+      "error": null,
+      "requiresFixture": false
+    },
+    {
+      "screen": "src/screens/PurchaseGateScreen.tsx",
+      "export": "PurchaseGateScreen",
+      "rendered": true,
+      "error": null,
+      "requiresFixture": false
+    },
+    {
+      "screen": "src/screens/SavingsTrackerScreen.tsx",
+      "export": "SavingsTrackerScreen",
+      "rendered": true,
+      "error": null,
+      "requiresFixture": false
+    },
+    {
+      "screen": "src/screens/SettingsScreen.tsx",
+      "export": "SettingsScreen",
+      "rendered": true,
+      "error": null,
+      "requiresFixture": false
+    }
+  ]
+}
