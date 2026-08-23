@@ -23,6 +23,7 @@ import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { buildGraph, APP_ENTRIES } from '../lib/import-graph.mjs';
 import { ok, fail } from '../lib/report.mjs';
+import { scanUndeclaredImports } from '../lib/undeclared-imports.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -80,6 +81,26 @@ export const run = async ({ root }) => {
     lines.push('  ' + (graph.external.has(p.name) ? 'REACHED   ' : 'not reached').padEnd(12)
       + (deps[p.name] ? 'in manifest ' : 'not in manifest ') + p.name);
   }
+
+  // --- no source file may import a package the manifest does not declare --------------
+  //
+  // THE CHECK THAT WAS MISSING WHEN THIS GATE FIRST PRINTED GREEN. Reachability said "0 reachable"
+  // and was right; `src/hooks/useProfileShare.ts` still imported `expo-camera`, unreached and
+  // therefore invisible here, and it broke `tsc` on any clean install. UNREACHABLE IS NOT ABSENT.
+  //
+  // The population is derived from `src/**`, and the declaration is read from package.json rather
+  // than from node_modules — so the answer cannot depend on what happens to be installed on the
+  // machine running it, which is exactly how the original miss survived local verification.
+  const undeclared = scanUndeclaredImports(root);
+  if (undeclared.scanned === 0) {
+    problems.push('scanned 0 files under src/ — an empty population cannot clear anything');
+  }
+  for (const u of undeclared.findings) {
+    problems.push(u.file + ':' + u.line + ' imports ' + u.package
+      + ', which package.json does not declare — unreachable is not absent, and a clean install cannot compile this');
+  }
+  lines.push('undeclared      ' + undeclared.findings.length + ' import(s) of packages the manifest does not declare · '
+    + undeclared.scanned + ' files scanned against ' + undeclared.declared + ' declared');
 
   // --- the archive B9 asks for -------------------------------------------------------
   if (!existsSync(join(root, spec.archive))) {

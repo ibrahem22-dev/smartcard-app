@@ -73,7 +73,41 @@ src/services/revenueCat.ts                 RevenueCat wrapper
 src/services/revenueCatClient.ts           RevenueCat tier fetch
 ```
 
-### 3.1 A contradiction found on the way, and corrected here
+### 3.1 ONE FILE THIS LIST MISSED, AND WHAT CAUGHT IT
+
+```
+src/hooks/useProfileShare.ts               the ProfileShare route's other half
+```
+
+The list above removed `ProfileShareScreen.tsx` and left the hook behind. B9's own words are *"dead
+routes (SavingsTracker, **ProfileShare**, Loans, Benefits) **and their deps removed**"*, and the
+hook's second line was `import { Camera } from 'expo-camera'` — a package archived out of the
+manifest in the same commit that was supposed to have removed everything that used it.
+
+**FOUR CHECKS LOOKED STRAIGHT AT IT AND ALL FOUR WERE RIGHT TO SAY NOTHING.**
+
+| check | what it said | why it was right |
+|---|---|---|
+| `FENCED OK — 0 reachable` | the fenced packages are unreached | nothing imports the hook, so it is genuinely outside the runtime graph |
+| `expo-camera` not in manifest | true | it was removed from `package.json` correctly |
+| `npx tsc --noEmit` locally | clean | a stale `node_modules` on that machine still had `expo-camera` on disk from before the removal |
+| the test suite | 409 passing | nothing imported the hook, so nothing exercised it |
+
+It took `npm ci` on CI — a clean install that has only what the manifest declares — to compile the
+file and fail. **UNREACHABLE IS NOT ABSENT.** A file outside the runtime graph is still compiled and
+still shipped, and reachability was never the question B9 asked about the manifest.
+
+Two things changed so this class cannot recur:
+
+1. `tools/p2/lib/undeclared-imports.mjs` derives every package `src/**` imports and compares it to
+   `package.json`. It reads the DECLARATION, never `node_modules`, so its answer cannot depend on
+   what somebody installed months ago and never cleaned up. It is wired into this gate, and its
+   negative control is the defect above: run at the parent commit, it fails.
+2. The verification method itself. Every "typecheck clean" recorded in Phase 2 was measured against
+   a polluted install, which made it a statement about one machine rather than about the tree. The
+   record for Gate 2 is corrected rather than left standing.
+
+### 3.2 A contradiction found on the way, and corrected here
 
 `.gitignore` carries this block:
 
