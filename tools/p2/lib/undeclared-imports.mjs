@@ -74,5 +74,25 @@ export const scanUndeclaredImports = (root) => {
     }
   }
 
-  return { scanned: files.length, declared: declared.size, findings };
+  // THE SECOND HOME OF THE SAME FACT. `app.json`'s `expo.plugins` names packages too, and it is
+  // not a source file, so nothing above would ever look at it. When `expo-camera` was archived out
+  // of the manifest, its plugin entry stayed behind — complete with a Hebrew permission string
+  // about scanning a QR code for a route that no longer exists. `expo prebuild` would have failed
+  // on it, and no check in this repository looked. One fact, two homes, no comparison: the shape
+  // this campaign keeps finding.
+  const plugins = [];
+  const appJsonPath = join(root, 'app.json');
+  if (existsSync(appJsonPath)) {
+    const app = JSON.parse(readFileSync(appJsonPath, 'utf8'));
+    for (const entry of app?.expo?.plugins ?? []) {
+      const name = Array.isArray(entry) ? entry[0] : entry;
+      if (typeof name !== 'string' || name.startsWith('.') || name.startsWith('/')) continue;
+      plugins.push(name);
+      const pkgName = packageOf(name);
+      if (declared.has(pkgName) || builtin.has(pkgName)) continue;
+      findings.push({ file: 'app.json', package: pkgName, spec: name, line: 0, via: 'expo.plugins' });
+    }
+  }
+
+  return { scanned: files.length, declared: declared.size, plugins: plugins.length, findings };
 };

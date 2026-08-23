@@ -16,7 +16,15 @@ jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
+      # FULL HISTORY, NOT A SHALLOW CLONE. `actions/checkout` defaults to depth 1, and the app-root
+      # gate (F1, OD-13) asks whether the repository's history was PRESERVED through the relocation:
+      # how many commits it has, and whether the first one predates the move. A depth-1 clone answers
+      # "one commit, dated today" to both — which is exactly what a re-initialised repository looks
+      # like. CI failed on it and was right to; the fix is to give CI the history, never to stop
+      # asking the question.
       - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
 
       - uses: actions/setup-node@v4
         with:
@@ -81,6 +89,11 @@ jobs:
       # never been watched to fire is not a rule, and a control recorded only on a laptop is a claim.
       - name: boundary rules are watched to fire (negative controls)
         run: npm run p2:controls
+
+      # The matchers these gates decide on are themselves controlled, and the controls run here so
+      # they are proven in the same environment that surfaced the bug they exist for.
+      - name: gate matchers are controlled
+        run: node tools/p2/gates/app-root.mjs --self-test
 
       - name: upload the ladder report
         if: always()

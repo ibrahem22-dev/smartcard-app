@@ -25,8 +25,58 @@ import { ok, fail } from '../lib/report.mjs';
 export const CRITERIA = ['F1'];
 export const SENTINEL = 'APP-ROOT OK — history preserved';
 
-/** The remote OD-13's ruling implies: the repository this campaign was told to relocate. */
-const EXPECTED_REMOTE = 'smartcard-app.git';
+/**
+ * The remote OD-13's ruling implies: the repository this campaign was told to relocate.
+ *
+ * MATCHED ON IDENTITY, NOT ON SPELLING. This used to require the literal string
+ * `smartcard-app.git`, and CI failed on it: `actions/checkout` writes the origin as
+ * `https://github.com/<owner>/smartcard-app` with no `.git` suffix. Both name the same repository,
+ * and a gate that fails on which of two equivalent spellings a client happened to write is checking
+ * punctuation rather than the thing OD-13 cared about. The owner and the repository name are both
+ * still required — this is narrower than a substring match, not wider.
+ */
+const EXPECTED_REMOTE = 'ibrahem22-dev/smartcard-app';
+const remoteMatches = (url) =>
+  new RegExp('(^|[/:])' + EXPECTED_REMOTE.replace(/[.*+?^${}()|[\]\\]/g, '\\$&') + '(\\.git)?/?$')
+    .test(String(url).trim());
+
+/**
+ * THE MATCHER'S OWN CONTROL — `node tools/p2/gates/app-root.mjs --self-test`.
+ *
+ * Four of the nine cases MUST NOT match. A matcher that accepts everything would pass a test suite
+ * made only of things that should match, which is how a check stops being a check. What it does NOT
+ * check is the host, and that is stated in the table rather than left for someone to discover: this
+ * asserts WHICH repository, not which server, because OD-13 was a ruling about the repository.
+ */
+export const REMOTE_CASES = [
+  ['https://github.com/ibrahem22-dev/smartcard-app', true, 'CI: actions/checkout writes no .git suffix'],
+  ['https://github.com/ibrahem22-dev/smartcard-app.git', true, 'local: as git remote add wrote it'],
+  ['https://github.com/ibrahem22-dev/smartcard-app/', true, 'trailing slash'],
+  ['git@github.com:ibrahem22-dev/smartcard-app.git', true, 'ssh form'],
+  ['https://github.com/someoneelse/smartcard-app', false, 'WRONG OWNER'],
+  ['https://github.com/ibrahem22-dev/smartcard-app-fork', false, 'different repo sharing the prefix'],
+  ['https://github.com/ibrahem22-dev/smartcard-data-pipeline.git', false, 'the OTHER repository in this campaign'],
+  ['https://evil.example/ibrahem22-dev/smartcard-app.git', true, 'host is deliberately NOT checked'],
+  ['', false, 'empty'],
+];
+
+export const selfTest = () => {
+  let bad = 0;
+  for (const [url, want, why] of REMOTE_CASES) {
+    const got = remoteMatches(url);
+    if (got !== want) bad += 1;
+    console.log((got === want ? '  ok   ' : '  WRONG') + '  ' + String(got).padEnd(5)
+      + ' (want ' + String(want).padEnd(5) + ')  ' + (url || '(empty)').padEnd(60) + why);
+  }
+  const mustNot = REMOTE_CASES.filter((c) => !c[1]).length;
+  console.log('');
+  console.log(bad === 0
+    ? 'APP-ROOT SELF-TEST OK — ' + REMOTE_CASES.length + ' cases, ' + mustNot + ' of them must NOT match'
+    : 'APP-ROOT SELF-TEST FAILED — ' + bad + ' case(s) wrong');
+  return bad === 0;
+};
+
+if (process.argv.includes('--self-test')) process.exit(selfTest() ? 0 : 1);
 
 export const run = async ({ root }) => {
   const git = (...a) => {
@@ -58,7 +108,7 @@ export const run = async ({ root }) => {
   // --- the remote ------------------------------------------------------------------
   const remote = git('remote', 'get-url', 'origin');
   if (!remote.ok) problems.push('no origin remote — OD-13 requires the remote preserved');
-  else if (!remote.out.includes(EXPECTED_REMOTE)) {
+  else if (!remoteMatches(remote.out)) {
     problems.push('origin is ' + remote.out + ', which does not name ' + EXPECTED_REMOTE);
   }
   lines.push('origin          ' + (remote.ok ? remote.out : '(none)'));

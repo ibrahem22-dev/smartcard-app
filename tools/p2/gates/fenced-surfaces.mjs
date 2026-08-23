@@ -96,11 +96,14 @@ export const run = async ({ root }) => {
     problems.push('scanned 0 files under src/ — an empty population cannot clear anything');
   }
   for (const u of undeclared.findings) {
-    problems.push(u.file + ':' + u.line + ' imports ' + u.package
-      + ', which package.json does not declare — unreachable is not absent, and a clean install cannot compile this');
+    problems.push(u.file + ':' + u.line + ' names ' + u.package + (u.via ? ' in ' + u.via : '')
+      + ', which package.json does not declare — unreachable is not absent, and a clean install cannot use this');
   }
-  lines.push('undeclared      ' + undeclared.findings.length + ' import(s) of packages the manifest does not declare · '
-    + undeclared.scanned + ' files scanned against ' + undeclared.declared + ' declared');
+  if (undeclared.plugins === 0) {
+    problems.push('app.json declares no expo plugins — either the config moved or this check is reading the wrong file, and both are worth stopping for');
+  }
+  lines.push('undeclared      ' + undeclared.findings.length + ' reference(s) to packages the manifest does not declare · '
+    + undeclared.scanned + ' files and ' + undeclared.plugins + ' expo plugin(s) checked against ' + undeclared.declared + ' declared');
 
   // --- the archive B9 asks for -------------------------------------------------------
   if (!existsSync(join(root, spec.archive))) {
