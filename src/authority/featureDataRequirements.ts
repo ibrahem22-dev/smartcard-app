@@ -16,7 +16,6 @@ import {
 import {
   type AuthorityLookup,
   type DataAuthorityAdapter,
-  getDataAuthorityAdapter,
 } from './DataAuthorityAdapter';
 
 export const REQUIREMENT_GRADES = [
@@ -123,7 +122,7 @@ export function evaluateFeatureRequirements(
 export function evaluateAgainstAdapter(
   spec: FeatureRequirementSpec,
   entityId: string,
-  adapter: DataAuthorityAdapter = getDataAuthorityAdapter(),
+  adapter: DataAuthorityAdapter,
 ): FeatureAvailability {
   return evaluateFeatureRequirements(spec, (field) => {
     const lookup: AuthorityLookup = { field, entityId };

@@ -21,7 +21,7 @@ import { admitClaim } from '../claimClassification';
 import { presentAuthority } from '../presentation';
 import { acceptManualInput } from '../manualInputBoundary';
 import { evaluateFeatureRequirements } from '../featureDataRequirements';
-import { getDataAuthorityAdapter } from '../DataAuthorityAdapter';
+import { makeDisabledAdapter } from '../../../tools/p2/jest/disabledAdapter';
 
 const AT = '2026-08-15T00:00:00Z';
 const fmt = (n: number): string => `${n.toFixed(1)}%`;
@@ -107,8 +107,11 @@ describe('W1-AS-09 architecture safety composition', () => {
     ).toBe(false);
   });
 
-  it('the shipped default cannot supply authority to anything', () => {
-    const adapter = getDataAuthorityAdapter();
+  it('an adapter that supplies nothing cannot supply authority to anything', () => {
+    // D3 removed the DisabledDataAuthorityAdapter SINGLETON. The claim survives it: the
+    // assertion was never about module-level state, it was about the boundary. The adapter is
+    // now built and passed here, so which adapter answered is visible at the call site.
+    const adapter = makeDisabledAdapter();
     const value = adapter.lookupNumber({ field: 'card.fee.annual', entityId: 'x' });
     expect(isCurrentAuthority(value)).toBe(false);
     expect(presentAuthority(value, fmt).amountText).toBeNull();

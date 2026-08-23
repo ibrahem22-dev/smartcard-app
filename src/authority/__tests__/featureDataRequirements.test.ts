@@ -5,6 +5,7 @@ import {
   type FeatureRequirementSpec,
 } from '../featureDataRequirements';
 import { blocked, historical, known, unknown } from '../authorityValue';
+import { makeDisabledAdapter } from '../../../tools/p2/jest/disabledAdapter';
 
 const SPEC: FeatureRequirementSpec = {
   featureId: 'FX_COMPARISON',
@@ -73,8 +74,9 @@ describe('W1-AS-05 feature data requirements', () => {
     expect(result.degraded).toBe(true);
   });
 
-  it('is unavailable against the disabled adapter, which is the honest answer', () => {
-    const result = evaluateAgainstAdapter(SPEC, 'cal-365-vip');
+  it('is unavailable against an adapter that supplies nothing, which is the honest answer', () => {
+    // The adapter is supplied explicitly since D3 removed the singleton default.
+    const result = evaluateAgainstAdapter(SPEC, 'cal-365-vip', makeDisabledAdapter());
     expect(result.available).toBe(false);
     // Both non-optional requirements fail; the optional one passes.
     expect(result.unmet.map((u) => u.state)).toEqual(['BLOCKED', 'BLOCKED']);

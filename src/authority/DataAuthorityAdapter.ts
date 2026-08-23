@@ -39,58 +39,25 @@ export const INTEGRATION_DISABLED_REASON =
   'data_authority_integration_not_connected';
 
 /**
- * The default adapter. Every lookup is BLOCKED with an explicit reason.
+ * D3 / WP-2.2 — THE SINGLETON IS GONE. THE SEAM IS NOT.
  *
- * BLOCKED rather than UNKNOWN is deliberate: the value is not merely
- * unestablished, it is deliberately withheld because no provider is connected.
- * The UI can therefore distinguish "we looked and do not know" from "we have
- * not been permitted to look".
- */
-export class DisabledDataAuthorityAdapter implements DataAuthorityAdapter {
-  public readonly adapterId = 'DISABLED_DATA_AUTHORITY_ADAPTER';
-
-  public readonly isLive = false;
-
-  public lookupNumber(lookup: AuthorityLookup): AuthorityValue<number> {
-    return blocked(`${INTEGRATION_DISABLED_REASON}:${lookup.field}`);
-  }
-
-  public lookupText(lookup: AuthorityLookup): AuthorityValue<string> {
-    return blocked(`${INTEGRATION_DISABLED_REASON}:${lookup.field}`);
-  }
-}
-
-let activeAdapter: DataAuthorityAdapter = new DisabledDataAuthorityAdapter();
-
-export function getDataAuthorityAdapter(): DataAuthorityAdapter {
-  return activeAdapter;
-}
-
-/**
- * Install an adapter. Exposed for tests and for the future live integration.
+ * What used to live below this line: a `DisabledDataAuthorityAdapter` class, a module-level
+ * mutable `activeAdapter`, a `setDataAuthorityAdapter` setter, a reset, and a
+ * `hasOfficialAuthorityFor` convenience that read the mutable. `P2_CAMPAIGN_PLAN.md` WP-2.2 is
+ * precise about which half goes:
  *
- * A live adapter is refused here: switching the app onto real authority data is
- * an Owner integration decision (APP-DEC-10), not something a module can do by
- * calling a setter. The contract exists; the switch does not.
+ *   > delete … the `DisabledDataAuthorityAdapter` singleton (**keep the seam idea**, drop the
+ *   > singleton)
+ *
+ * THE SEAM IDEA IS THE TYPED BOUNDARY ABOVE — `DataAuthorityAdapter`, `AuthorityLookup`,
+ * `AuthorityValue` — and it stays, because criterion D1 implements exactly that interface in
+ * Phase 7, against the published adapter package at a pinned version.
+ *
+ * THE SINGLETON WAS THE PROBLEM. Module-level mutable state any caller could swap meant the
+ * answer to "where does this number come from?" depended on import order and on whoever called
+ * the setter last — and a test that installed an adapter changed the behaviour of every later
+ * test in the same process. D1 wires ONE adapter, explicitly, at a known point.
+ *
+ * Until then the refusal lives in `src/authority/noSource.ts`, which answers UNKNOWN with a
+ * reason naming both criteria, so "not wired yet" is never mistaken for "not known".
  */
-export function setDataAuthorityAdapter(adapter: DataAuthorityAdapter): void {
-  if (adapter.isLive) {
-    throw new Error(
-      'live Data Authority adapters require a separate Owner integration decision (APP-DEC-10)',
-    );
-  }
-  activeAdapter = adapter;
-}
-
-export function resetDataAuthorityAdapter(): void {
-  activeAdapter = new DisabledDataAuthorityAdapter();
-}
-
-/**
- * Convenience guard: does the active adapter currently supply this field as
- * official authority? With the disabled adapter installed this is always false,
- * which is the honest answer.
- */
-export function hasOfficialAuthorityFor(lookup: AuthorityLookup): boolean {
-  return isCurrentAuthority(activeAdapter.lookupNumber(lookup));
-}

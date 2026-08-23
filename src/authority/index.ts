@@ -38,12 +38,7 @@ export type {
 } from './authorityValue';
 
 export {
-  DisabledDataAuthorityAdapter,
   INTEGRATION_DISABLED_REASON,
-  getDataAuthorityAdapter,
-  hasOfficialAuthorityFor,
-  resetDataAuthorityAdapter,
-  setDataAuthorityAdapter,
 } from './DataAuthorityAdapter';
 export type { AuthorityLookup, DataAuthorityAdapter } from './DataAuthorityAdapter';
 
