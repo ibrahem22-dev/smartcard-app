@@ -15,6 +15,7 @@
     "p2:gate": "node tools/p2/gate.mjs",
     "p2:all": "node tools/p2/all.mjs",
     "p2:controls": "node tools/p2/boundary-controls.mjs",
+    "p2:controls:d4": "node tools/p2/rederivation-controls.mjs",
     "pin-node": "node tools/p2/pin-node.mjs",
     "postinstall": "node tools/p2/pin-node.mjs",
     "pretest": "node tools/p2/preflight.mjs --runtime"

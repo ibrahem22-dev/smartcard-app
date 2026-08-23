@@ -1,0 +1,108 @@
+{
+  "$comment": [
+    "NEGATIVE-CONTROL RECORD for the eight D4 checks. Regenerate with:",
+    "  node tools/p2/rederivation-controls.mjs",
+    "tools/p2/gates/no-rederivation.mjs READS this file and refuses to pass if any interface has no",
+    "control that fired. Eight checks that have never caught anything are eight claims.",
+    "Each control writes a file that genuinely re-derives its interface — in the way the handoff’s",
+    "own \"Re-deriving it means\" column describes, quoted per entry as `commits` — runs the real",
+    "check, requires it to fire, deletes the file and asserts the path is absent again."
+  ],
+  "recordedAt": "2026-08-23T22:41:59.839Z",
+  "sha": "02d2af1d9e3b1854c682b63160db8bba62a0b5fc",
+  "source": "authority/P1_TO_P2_HANDOFF.md §2",
+  "count": 8,
+  "allFired": true,
+  "allRestored": true,
+  "controls": [
+    {
+      "id": "IF-1",
+      "name": "The native fact and its quoteUnit",
+      "commits": "performing, in a second place and with a second rounding rule, a conversion the pipeline deliberately does not perform",
+      "injected": "src/utils/__negctl_if1.ts",
+      "fired": true,
+      "restored": true,
+      "sawExactly": [
+        "RE-DERIVED  src/utils/__negctl_if1.ts:2  arithmetic applied to a native fact or its quote unit",
+        "RE-DERIVED  src/utils/__negctl_if1.ts:1  a function that converts or normalises a native quote"
+      ]
+    },
+    {
+      "id": "IF-2",
+      "name": "The provenance chip and the consumability verdict",
+      "commits": "a second grading vocabulary that disagrees with the packs' own",
+      "injected": "src/utils/__negctl_if2.ts",
+      "fired": true,
+      "restored": true,
+      "sawExactly": [
+        "RE-DERIVED  src/utils/__negctl_if2.ts:1  a consumability or provenance vocabulary declared in the app"
+      ]
+    },
+    {
+      "id": "IF-3",
+      "name": "intervalRankability",
+      "commits": "classifying a conflict axis without the estate, which is the evidence that decides it",
+      "injected": "src/utils/__negctl_if3.ts",
+      "fired": true,
+      "restored": true,
+      "sawExactly": [
+        "RE-DERIVED  src/utils/__negctl_if3.ts:1  a function computing interval rankability"
+      ]
+    },
+    {
+      "id": "IF-4",
+      "name": "conflictRenderPlan",
+      "commits": "inventing a winner where the pipeline refused to name one",
+      "injected": "src/utils/__negctl_if4.ts",
+      "fired": true,
+      "restored": true,
+      "sawExactly": [
+        "RE-DERIVED  src/utils/__negctl_if4.ts:1  a conflict classifier — also forbidden outright by OB-6"
+      ]
+    },
+    {
+      "id": "IF-5",
+      "name": "The canonical shipping resolver, one per pack set",
+      "commits": "an object computing its own shipping predicate — the exact defect S15 closed for stacking",
+      "injected": "src/utils/__negctl_if5.ts",
+      "fired": true,
+      "restored": true,
+      "sawExactly": [
+        "RE-DERIVED  src/utils/__negctl_if5.ts:1  a shipping predicate computed in the app"
+      ]
+    },
+    {
+      "id": "IF-6",
+      "name": "The composition map",
+      "commits": "a reference the build does not check, found later by a harness instead of by the build that created it",
+      "injected": "src/utils/__negctl_if6.ts",
+      "fired": true,
+      "restored": true,
+      "sawExactly": [
+        "RE-DERIVED  src/utils/__negctl_if6.ts:1  a composition map declared in the app"
+      ]
+    },
+    {
+      "id": "IF-7",
+      "name": "The compatibility matrices",
+      "commits": "a load-time check replaced by prose nobody enforces",
+      "injected": "src/utils/__negctl_if7.ts",
+      "fired": true,
+      "restored": true,
+      "sawExactly": [
+        "RE-DERIVED  src/utils/__negctl_if7.ts:1  a compatibility matrix declared in the app"
+      ]
+    },
+    {
+      "id": "IF-8",
+      "name": "EXPECTED_DATASET_ID and the trust store",
+      "commits": "a check a pack can influence, which is not a check",
+      "injected": "src/utils/__negctl_if8.ts",
+      "fired": true,
+      "restored": true,
+      "sawExactly": [
+        "RE-DERIVED  src/utils/__negctl_if8.ts:2  EXPECTED_DATASET_ID taken from a value rather than compiled in — a pack could influence it"
+      ]
+    }
+  ]
+}

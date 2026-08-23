@@ -90,6 +90,10 @@ jobs:
       - name: boundary rules are watched to fire (negative controls)
         run: npm run p2:controls
 
+      # D4: eight checks that have never caught anything are eight claims.
+      - name: no-rederivation checks are watched to fire (negative controls)
+        run: npm run p2:controls:d4
+
       # The matchers these gates decide on are themselves controlled, and the controls run here so
       # they are proven in the same environment that surfaced the bug they exist for.
       - name: gate matchers are controlled
