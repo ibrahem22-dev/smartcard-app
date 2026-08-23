@@ -27,6 +27,23 @@
  * This is a workaround for a machine the campaign does not control. The permanent fix is an
  * administrator removing `C:\Program Files\nodejs` from the machine PATH. Until then this holds.
  * See the pipeline's authority/TOOLCHAIN.md §4 and authority/ENVIRONMENT_FACTS.md §3.
+ *
+ * ------------------------------------------------------------------------------------------------
+ * IT IS WINDOWS-ONLY, AND THE FIRST CI RUN PROVED WHY THAT HAS TO BE EXPLICIT.
+ *
+ * This script is wired to `postinstall`. Its first version searched `%APPDATA%/fnm/node-versions`
+ * unconditionally, so on Linux `process.env.APPDATA` was undefined, the search found nothing, and
+ * it exited 1 — **failing `npm ci` itself**. The very first GitHub Actions run of this repository
+ * died at `npm ci` with every later step skipped.
+ *
+ * The consequence was not a broken CI job. It was that **the app could not be installed on any
+ * machine that is not this one** — which is precisely what E7 ("a machine that has never built this
+ * app") and F4 (CI at the pushed sha) exist to require. A toolchain pin that makes the project
+ * uninstallable everywhere else defeats the criterion it was written to serve.
+ *
+ * So the defect is named for what it is: a fact about ONE Windows machine. Elsewhere, `node` is
+ * whatever the environment installed, the CI workflow asserts that version against `.nvmrc`
+ * directly, and this script says out loud that it did nothing and why.
  */
 import { readFileSync, writeFileSync, existsSync, mkdirSync } from 'node:fs';
 import { join, dirname } from 'node:path';
@@ -35,6 +52,18 @@ import { fileURLToPath } from 'node:url';
 const ROOT = join(dirname(fileURLToPath(import.meta.url)), '..', '..');
 const BIN = join(ROOT, 'node_modules', '.bin');
 const CHECK = process.argv.includes('--check');
+
+/**
+ * NOT A SILENT NO-OP. The line states the platform and the reason, so a reader of a CI log can tell
+ * "this machine does not need the shim" from "the shim step was skipped".
+ */
+if (process.platform !== 'win32') {
+  console.log('PIN-NODE OK — not needed on ' + process.platform + '. The shim exists only to beat a '
+    + 'machine-wide Node on the Windows PATH that a non-administrator cannot get ahead of; on this '
+    + 'platform the runtime on PATH is the one the environment installed, and CI asserts it against '
+    + '.nvmrc directly.');
+  process.exit(0);
+}
 
 const nvmrcPath = join(ROOT, '.nvmrc');
 if (!existsSync(nvmrcPath)) {
