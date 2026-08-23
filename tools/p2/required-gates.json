@@ -1,0 +1,435 @@
+{
+  "$comment": [
+    "DERIVED FROM campaign-p2/P2_COMPLETION_CONTRACT.md by campaign-p2/bin/p2-required-gates.mjs.",
+    "Do not hand-edit: regenerate. This is a MIRROR, and the pipeline compares it against the",
+    "contract on every preflight, because a mirror without a parity check is a second copy waiting",
+    "to drift.",
+    "It exists so the app can answer \"does every gate the contract requires exist?\" in a fresh",
+    "clone and in CI, where the pipeline repository is not present. Deriving the gate list from",
+    "tools/p2/gates/*.mjs answers \"did everything I have pass?\" — a different question, and the one",
+    "that would have printed \"every step green\" over forty-three checks nobody had written."
+  ],
+  "contractVersion": "1.0-PROPOSED",
+  "criteriaCount": 54,
+  "generatedBy": "campaign-p2/bin/p2-required-gates.mjs",
+  "gates": [
+    {
+      "gate": "a11y",
+      "sentinel": "A11Y OK — AA both modes",
+      "criteria": [
+        "A9"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "adapter-consumption",
+      "sentinel": "ADAPTER-CONSUMPTION OK",
+      "criteria": [
+        "D1"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "adr-append-only",
+      "sentinel": "ADR OK — N ADRs, 0 edited",
+      "criteria": [
+        "F9"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "analytics-boundary",
+      "sentinel": "ANALYTICS-BOUNDARY OK",
+      "criteria": [
+        "B6"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "app-root",
+      "sentinel": "APP-ROOT OK — history preserved",
+      "criteria": [
+        "F1"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "colour-semantics",
+      "sentinel": "COLOUR-SEMANTICS OK",
+      "criteria": [
+        "A8"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "conflicted-value",
+      "sentinel": "CONFLICTED-VALUE OK",
+      "criteria": [
+        "A3"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "consent",
+      "sentinel": "CONSENT OK — 0 outbound with consent off",
+      "criteria": [
+        "B8"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "decision-log",
+      "sentinel": "DECISION-LOG OK — N decisions, all fields present",
+      "criteria": [
+        "F11"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "deferred-register",
+      "sentinel": "DEFERRED-REGISTER OK — reconciled",
+      "criteria": [
+        "F8"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "e1-backlog",
+      "sentinel": "E1-BACKLOG OK — N closed / M deferred, derived",
+      "criteria": [
+        "D7"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "engine-boundary-defects",
+      "sentinel": "ENGINE-BOUNDARY OK — 0 hardcoded scores",
+      "criteria": [
+        "D6"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "fenced-surfaces",
+      "sentinel": "FENCED OK — 0 reachable",
+      "criteria": [
+        "B9"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "format-matrix",
+      "sentinel": "FORMAT-MATRIX OK",
+      "criteria": [
+        "C6"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "handoff-no-discovery",
+      "sentinel": "HANDOFF OK — 0 discoveries",
+      "criteria": [
+        "F10"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "holiday-calendar",
+      "sentinel": "HOLIDAY-CALENDAR OK",
+      "criteria": [
+        "C9"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "honesty",
+      "sentinel": "HONESTY OK — 4 properties",
+      "criteria": [
+        "E4"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "i18n-audit",
+      "sentinel": "I18N-AUDIT OK — 1 formatter",
+      "criteria": [
+        "A7"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "identity-config",
+      "sentinel": "IDENTITY-CONFIG OK — 1 source",
+      "criteria": [
+        "A10"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "legacy-path-absent",
+      "sentinel": "LEGACY-PATH OK — 0 reachable",
+      "criteria": [
+        "D3"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "lint-boundaries",
+      "sentinel": "BOUNDARY-LINT OK — 5 rules, 0 violations",
+      "criteria": [
+        "B7",
+        "D2",
+        "D5"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "nav",
+      "sentinel": "NAV-IA OK",
+      "criteria": [
+        "A1"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "newarch",
+      "sentinel": "NEWARCH OK",
+      "criteria": [
+        "F2"
+      ],
+      "flags": [
+        "DEVICE"
+      ]
+    },
+    {
+      "gate": "no-rederivation",
+      "sentinel": "NO-REDERIVATION OK — 8 of 8 interfaces",
+      "criteria": [
+        "D4"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "ob-coverage",
+      "sentinel": "OB-COVERAGE OK — 8 of 8 mapped, derived",
+      "criteria": [
+        "F7"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "ob1-named-records",
+      "sentinel": "OB-1 OK — named records rendered",
+      "criteria": [
+        "A4"
+      ],
+      "flags": [
+        "L13b"
+      ]
+    },
+    {
+      "gate": "ob2-skew",
+      "sentinel": "OB-2 OK — skew renders absent",
+      "criteria": [
+        "C4"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "ob3-ob6-prohibitions",
+      "sentinel": "OB-3/OB-6 OK — 0 local classifiers",
+      "criteria": [
+        "D8"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "ob4-refusals",
+      "sentinel": "OB-4 OK — 10 of 10 refusals proven",
+      "criteria": [
+        "C1"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "ob4-unproven-three",
+      "sentinel": "OB-4-RESIDUAL OK — lock + disk-full proven, power-loss characterised",
+      "criteria": [
+        "C3"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "ob5-fx-fallback",
+      "sentinel": "OB-5 OK — JPY control 934.85",
+      "criteria": [
+        "C8"
+      ],
+      "flags": [
+        "L13b"
+      ]
+    },
+    {
+      "gate": "ob7-organisation-kinds",
+      "sentinel": "OB-7 OK — 3 kinds, 0 invented labels",
+      "criteria": [
+        "A5"
+      ],
+      "flags": [
+        "L13b"
+      ]
+    },
+    {
+      "gate": "override-wins",
+      "sentinel": "OVERRIDE-WINS OK — user value survived pack update",
+      "criteria": [
+        "B4"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "provenance-chip",
+      "sentinel": "PROVENANCE-CHIP OK — 5 states, 1 definition",
+      "criteria": [
+        "A2"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "provenance-single-enum",
+      "sentinel": "PROVENANCE-ENUM OK — 1 vocabulary",
+      "criteria": [
+        "B5"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "real-artifacts",
+      "sentinel": "REAL-ARTIFACTS OK — 5 of 5 shas matched",
+      "criteria": [
+        "E6"
+      ],
+      "flags": [
+        "FRESH"
+      ]
+    },
+    {
+      "gate": "regression",
+      "sentinel": "REGRESSION OK — N passed, M deliberate",
+      "criteria": [
+        "E3"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "release-gate",
+      "sentinel": "RELEASE-GATE OK — delivery refused, release:false",
+      "criteria": [
+        "C7"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "render-harness",
+      "sentinel": "RENDER-HARNESS OK — N screens render",
+      "criteria": [
+        "E2"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "repos-in-sync",
+      "sentinel": "REPOS-IN-SYNC OK — 0 ahead / 0 behind",
+      "criteria": [
+        "F5"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "rtl",
+      "sentinel": "RTL OK — 3 locales",
+      "criteria": [
+        "A6"
+      ],
+      "flags": [
+        "L13a"
+      ]
+    },
+    {
+      "gate": "store-split",
+      "sentinel": "STORE-SPLIT OK",
+      "criteria": [
+        "B3"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "update-refusals",
+      "sentinel": "UPDATE-REFUSALS OK — 4 refusals, 2 constants compiled in",
+      "criteria": [
+        "C5"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "vault-crypto",
+      "sentinel": "VAULT-CRYPTO OK",
+      "criteria": [
+        "B1"
+      ],
+      "flags": []
+    }
+  ],
+  "nonGateCriteria": [
+    {
+      "id": "B2",
+      "sentinel": "VAULT-DEVICE OK",
+      "flags": [
+        "DEVICE"
+      ]
+    },
+    {
+      "id": "C2",
+      "sentinel": "IMPORT-DEVICE OK",
+      "flags": [
+        "DEVICE"
+      ]
+    },
+    {
+      "id": "E1",
+      "sentinel": "DEVICE-RUN OK",
+      "flags": [
+        "DEVICE"
+      ]
+    },
+    {
+      "id": "E5",
+      "sentinel": "P2-ALL OK — every step green",
+      "flags": []
+    },
+    {
+      "id": "E7",
+      "sentinel": "P2-ALL OK — every step green",
+      "flags": [
+        "FRESH"
+      ]
+    },
+    {
+      "id": "F3",
+      "sentinel": "PREFLIGHT OK — N of N",
+      "flags": []
+    },
+    {
+      "id": "F4",
+      "sentinel": "P2-ALL OK",
+      "flags": [
+        "FRESH"
+      ]
+    },
+    {
+      "id": "F6",
+      "sentinel": "P2-LEDGER VERIFY OK — N criteria, N checks re-run",
+      "flags": []
+    }
+  ]
+}

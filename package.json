@@ -10,7 +10,13 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint src --ext .ts,.tsx,.js --max-warnings=0",
     "test": "jest",
-    "test:coverage": "jest --coverage"
+    "test:coverage": "jest --coverage",
+    "p2:preflight": "node tools/p2/preflight.mjs",
+    "p2:gate": "node tools/p2/gate.mjs",
+    "p2:all": "node tools/p2/all.mjs",
+    "pin-node": "node tools/p2/pin-node.mjs",
+    "postinstall": "node tools/p2/pin-node.mjs",
+    "pretest": "node tools/p2/preflight.mjs --runtime"
   },
   "dependencies": {
     "@expo/metro-runtime": "~57.0.7",
@@ -63,5 +69,8 @@
     "ts-jest": "^29.2.5",
     "typescript": "~6.0.3"
   },
-  "private": true
+  "private": true,
+  "engines": {
+    "node": ">=20 <21"
+  }
 }

@@ -27,3 +27,7 @@ qa_evidence/
 # Supabase phase opens. Absence of ignore rules here is deliberate, not an
 # oversight — agents must not add patterns for these paths without Owner OK.
 # ---------------------------------------------------------------------------
+
+# A P2 ladder report from a DIRTY worktree records a state no sha names, so it cannot be
+# reproduced and is not evidence. The clean run at the committed sha is the record.
+reports/p2/*-dirty.json
