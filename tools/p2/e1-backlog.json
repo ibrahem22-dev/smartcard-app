@@ -122,6 +122,16 @@
       "why": "BUILD CONFIGURATION, NOT A REFERENCE READ. R3 exists so every reference read carries its provenance, tier and lastUpdated — a rate, a fee, a card. identity.json holds the display name, the bundle id and a storage namespace. None of it is a fact about anybody money, none of it has a provenance to lose, and A10 requires it to be ONE file readable by two consumers: the app through the bundler, and Expo config loader in plain Node before TypeScript exists. That is why it cannot live under src/config/** with the other constants, and why R3 sees it.",
       "reviewedBy": "WP-5.5",
       "reviewedAt": "2026-08-24"
+    },
+    {
+      "id": "ALLOW-PACK-STORE-DRIVER",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/store/packStore\\.ts$",
+      "message": "local storage driver 'expo-sqlite' imported outside",
+      "why": "THE MODULE CRITERION B3 DESIGNATES AS THE DRIVER'S OWNER. R3 exists so a reference read goes through one place that carries provenance, tier and lastUpdated — and this IS that place for pack data. B3 requires SQLCipher-class SQLite for imported pack tables and the store-split gate asserts that exactly one module opens it, that the vault never imports SQLite, and that this module never imports MMKV. The original R3 was written when src/authority/** was the only sanctioned data owner; B3 named a second, and the pack store is it.",
+      "reviewedBy": "WP-6.2",
+      "reviewedAt": "2026-08-24"
     }
   ],
   "$closedNote": [

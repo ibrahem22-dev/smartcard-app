@@ -9,8 +9,8 @@
     "The entry marked foundInTree was not injected: it is the defect rule 2 caught in shipped code",
     "once the line-based import scanner it depended on was replaced with a whole-source one."
   ],
-  "recordedAt": "2026-08-23T22:16:07.465Z",
-  "sha": "550f4681ca4b89e25c7403f18787f03f2e6c26dd",
+  "recordedAt": "2026-08-24T01:40:03.072Z",
+  "sha": "9177665fbc5b58d5ddfa2516aa9582c058e6dac5",
   "ruleCount": 5,
   "rulesProven": [
     1,

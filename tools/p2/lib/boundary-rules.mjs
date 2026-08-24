@@ -238,7 +238,20 @@ const DB_DRIVERS = ['react-native-sqlite-storage', 'expo-sqlite', 'op-sqlite', '
 
 const rule3 = (root) => {
   const files = walk(join(root, 'src'));
-  const permitted = /^src\/data\/adapter\//;
+  /**
+   * THE PERMITTED SET IS THE ADAPTER **AND THE PACK STORE**.
+   *
+   * §9.4 names `data/adapter/**`, written against a layout where one module owned both the driver
+   * and the reading of it. Criterion B3 splits that: `src/store/packStore.ts` owns the SQLite
+   * driver, `src/store/storeAdapter.ts` reads across it and the vault, and the split is the
+   * mechanism that makes B4's guarantee structural — the override is not in the pack store, so a
+   * pack update cannot reach it.
+   *
+   * Naming the pack store here is therefore not a widening of the rule; it is the rule pointing at
+   * the module the contract designated. It is named EXPLICITLY rather than by a directory glob, so
+   * the next module somebody adds under `src/store/` does not inherit permission to open a database.
+   */
+  const permitted = /^src\/(data\/adapter\/|store\/packStore\.ts$)/;
   const violations = [];
   for (const f of files) {
     const r = rel(root, f);
@@ -272,8 +285,8 @@ const rule3 = (root) => {
     name: 'only data/adapter/** may touch a pack, a dataset or the DB driver',
     population: files.length,
     note: existsSync(join(root, 'src', 'data', 'adapter'))
-      ? 'src/data/adapter/** exists and is the permitted set'
-      : 'src/data/adapter/** does not exist yet (D1, Phase 7), so the permitted set is EMPTY and the rule is strictly stronger',
+      ? 'src/data/adapter/** and src/store/packStore.ts (B3) are the permitted set'
+      : 'src/data/adapter/** does not exist yet (D1, Phase 7); src/store/packStore.ts is permitted by B3 and is the only module that may open the DB driver',
     violations,
   };
 };
