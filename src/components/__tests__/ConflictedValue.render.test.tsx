@@ -28,7 +28,7 @@ const candidates: readonly ConflictCandidate<number>[] = [
 describe('ConflictedValue — A3 / OD-9: one shared component, no winner', () => {
   it('renders EVERY competing reading — no truncation', () => {
     const { queryByTestId } = render(
-      <ConflictedValue conflict={conflict(candidates, 'sources disagree')} format={pct} />,
+      <ConflictedValue conflict={conflict(candidates, 'sources disagree')} format={pct} plan="RENDER_ALL_CANDIDATES" />,
     );
 
     // Derived from the fixture: a component that dropped the last row would still pass a test that
@@ -41,7 +41,7 @@ describe('ConflictedValue — A3 / OD-9: one shared component, no winner', () =>
 
   it('preserves input order — sorting would be ranking, and the top row reads as the answer', () => {
     const { toJSON } = render(
-      <ConflictedValue conflict={conflict(candidates, 'sources disagree')} format={pct} />,
+      <ConflictedValue conflict={conflict(candidates, 'sources disagree')} format={pct} plan="RENDER_ALL_CANDIDATES" />,
     );
     const text = JSON.stringify(toJSON());
     const positions = candidates.map((c) => text.indexOf(pct(c.value)));
@@ -57,7 +57,7 @@ describe('ConflictedValue — A3 / OD-9: one shared component, no winner', () =>
 
   it('shows each reading with its source AND its scope', () => {
     const { toJSON } = render(
-      <ConflictedValue conflict={conflict(candidates, 'sources disagree')} format={pct} />,
+      <ConflictedValue conflict={conflict(candidates, 'sources disagree')} format={pct} plan="RENDER_ALL_CANDIDATES" />,
     );
     const text = JSON.stringify(toJSON());
 
@@ -69,7 +69,7 @@ describe('ConflictedValue — A3 / OD-9: one shared component, no winner', () =>
 
   it('names no winner and preselects nothing', () => {
     const { toJSON } = render(
-      <ConflictedValue conflict={conflict(candidates, 'sources disagree')} format={pct} />,
+      <ConflictedValue conflict={conflict(candidates, 'sources disagree')} format={pct} plan="RENDER_ALL_CANDIDATES" />,
     );
     const text = JSON.stringify(toJSON());
 
@@ -82,7 +82,7 @@ describe('ConflictedValue — A3 / OD-9: one shared component, no winner', () =>
 
   it('is amber, never red — A3 says so and A8 says why', () => {
     const { toJSON } = render(
-      <ConflictedValue conflict={conflict(candidates, 'sources disagree')} format={pct} />,
+      <ConflictedValue conflict={conflict(candidates, 'sources disagree')} format={pct} plan="RENDER_ALL_CANDIDATES" />,
     );
     const text = JSON.stringify(toJSON());
 
@@ -94,7 +94,7 @@ describe('ConflictedValue — A3 / OD-9: one shared component, no winner', () =>
 describe('DISPUTED_WITHOUT_CANDIDATES — the second conflictRenderPlan member (A4)', () => {
   it('renders the sentence and NOTHING further', () => {
     const { queryByTestId, toJSON } = render(
-      <ConflictedValue conflict={conflict<number>([], '')} format={pct} />,
+      <ConflictedValue conflict={conflict<number>([], '')} format={pct} plan="DISPUTED_WITHOUT_CANDIDATES" />,
     );
 
     // The banner is there.
@@ -112,7 +112,7 @@ describe('DISPUTED_WITHOUT_CANDIDATES — the second conflictRenderPlan member (
   });
 
   it('does not invent a reason when the pipeline gave none', () => {
-    const { toJSON } = render(<ConflictedValue conflict={conflict<number>([], '')} format={pct} />);
+    const { toJSON } = render(<ConflictedValue conflict={conflict<number>([], '')} format={pct} plan="DISPUTED_WITHOUT_CANDIDATES" />);
     const strings: string[] = [];
     const walk = (n: unknown): void => {
       if (typeof n === 'string') { strings.push(n); return; }

@@ -6,6 +6,7 @@ import { RtlRow } from './rtl';
 import { BORDER, ROLE_BORDER, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
 import { useTranslation } from '../hooks/useTranslation';
 import type { ConflictAuthority, ConflictCandidate } from '../authority/authorityValue';
+import { describePlan, type ConflictRenderPlan } from '../authority/conflictRenderPlan';
 
 /**
  * CONFLICTED VALUE — criterion A3 and Owner Decision OD-9. One shared component; no per-screen
@@ -51,6 +52,14 @@ import type { ConflictAuthority, ConflictCandidate } from '../authority/authorit
 export interface ConflictedValueProps<T> {
   /** The conflict as the authority layer produced it. Candidates render in the order given. */
   readonly conflict: ConflictAuthority<T>;
+  /**
+   * WHICH PLAN THE ADAPTER CHOSE — criterion A4, obligation OB-1.
+   *
+   * Required, and not inferred from `conflict.candidates.length`. A length is a symptom of a state;
+   * the field that carries the state is the one to switch on, and a third availability member would
+   * also arrive with zero candidates and would need saying differently.
+   */
+  readonly plan: ConflictRenderPlan;
   /** How to render one candidate's value. Never applied to anything but a candidate. */
   readonly format: (value: T) => string;
   /** What the disputed figure IS — "FX commission", "annual fee". Already translated. */
@@ -89,11 +98,15 @@ function CandidateRow<T>({
 
 export function ConflictedValue<T>({
   conflict,
+  plan,
   format,
   label,
   testID,
 }: ConflictedValueProps<T>): React.ReactElement {
   const { t } = useTranslation();
+  // Exhaustive over the adapter's closed domain. A new member throws here rather than rendering a
+  // screen that silently says nothing.
+  const shape = describePlan(plan);
   const candidates = conflict.candidates;
 
   return (
@@ -117,8 +130,12 @@ export function ConflictedValue<T>({
         nothing further. Criterion A4 names this case by record id — DISPUTED_WITHOUT_CANDIDATES —
         and requires that empty `conflictIds` produce "neither spinner, error, nor fallback". An
         empty list is an answer the pipeline gave, not a loading state.
+
+        The decision is `shape.showsCandidates`, read from the PLAN. Reading `candidates.length`
+        would give the same answer today and would be the wrong question: it is the same mistake A5
+        forbids with `label === null`.
       */}
-      {candidates.length === 0 ? null : (
+      {!shape.showsCandidates ? null : (
         <View testID="conflicted-value-candidates">
           {candidates.map((candidate, index) => (
             <CandidateRow
