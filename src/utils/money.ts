@@ -1,6 +1,10 @@
 import type { TextStyle } from 'react-native';
 
 import type { AppLanguage } from '../i18n/locale';
+import {
+  MONEY_FRACTION_DIGITS,
+  PERCENT_MAX_FRACTION_DIGITS,
+} from '../config/financial';
 
 /**
  * THE ONE MONEY FORMATTER — criterion A7.
@@ -45,13 +49,18 @@ const NUMBER_LOCALE: Readonly<Record<AppLanguage, string>> = {
 export const CURRENCY_SIGN = '₪';
 
 /**
- * TWO DECIMALS, ALWAYS, FOR MONEY.
+ * TWO DECIMALS, ALWAYS, FOR MONEY — and the constant lives in `config/financial.ts`, not here.
  *
  * The screens variously used 0, 2, and "as many as it has". "As many as it has" is the dangerous
  * one: ₪1234.5 and ₪1234.50 are the same amount, and a column where some rows have two decimals and
  * others one cannot be read down. Money that rounds to the agora is money a reader can compare.
+ *
+ * It was declared here first, and the §9.4 boundary lint flagged it as a financial literal outside
+ * `config/**` — correctly. It reads like typography and it is not: at 0 decimals this app would
+ * render ₪1,234.56 as ₪1,235 on every screen at once, which is a false statement about an amount by
+ * up to half a shekel. The test is whether the number, if wrong, could tell a user something false
+ * about their money.
  */
-const MONEY_FRACTION_DIGITS = 2;
 
 /** Digits only, grouped for the reader's language. No currency sign. */
 export function formatAmount(
@@ -89,7 +98,7 @@ export function formatMoney(
  */
 export function formatPercent(value: number, language: AppLanguage): string {
   const digits = new Intl.NumberFormat(NUMBER_LOCALE[language], {
-    maximumFractionDigits: 2,
+    maximumFractionDigits: PERCENT_MAX_FRACTION_DIGITS,
   }).format(value);
   return `${digits}%`;
 }

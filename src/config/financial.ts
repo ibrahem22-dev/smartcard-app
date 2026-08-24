@@ -130,6 +130,23 @@ export const DISCOUNT_PERCENT_MAX = 100;
 /** A credit limit above this is treated as a typo. Product decision. */
 export const CREDIT_LIMIT_MAX_ILS = 9_999_999;
 
+/**
+ * HOW MANY DECIMALS AN AMOUNT SHOWS. Two — the agora.
+ *
+ * It reads like typography and it is not. At 0 decimals the app would render ₪1,234.56 as
+ * ₪1,235, which is a false statement about an amount by up to half a shekel, on every screen at
+ * once. The boundary lint flagged it in src/utils/money.ts and was right to: the test this
+ * campaign applies is whether the number, if wrong, could tell a user something false about
+ * their money, and this one can.
+ */
+export const MONEY_FRACTION_DIGITS = 2;
+
+/**
+ * How many decimals a PERCENTAGE shows, at most. Trailing zeros are dropped: unlike money,
+ * 2.5% and 2.50% read identically and the shorter form is what every issuer publishes.
+ */
+export const PERCENT_MAX_FRACTION_DIGITS = 2;
+
 /** Days in the longest month — a billing day outside this is not a date. */
 export const BILLING_DAY_MIN = 1;
 export const BILLING_DAY_MAX = 31;
