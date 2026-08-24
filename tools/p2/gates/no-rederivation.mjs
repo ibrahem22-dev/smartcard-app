@@ -112,8 +112,17 @@ const CHECKS = {
    * grading vocabulary that disagrees with the packs' own"*. The act is DECLARING the vocabulary,
    * or deciding a verdict, in app code.
    */
+  // THE ONE MODULE THAT MAY DECLARE THE VOCABULARY IS THE ONE CHECKED AGAINST THE CONTRACT.
+  //
+  // IF-2's danger is "a second grading vocabulary that disagrees with the packs' own". A vocabulary
+  // generated from SMARTCARD_DATA_CONTRACT.md §2 and parity-checked in the pipeline preflight
+  // (check 4f) cannot disagree with it — a divergence fails the preflight before any gate runs.
+  //
+  // Exempted by name, not by pattern: a blanket exemption for "anything with Chip in the filename"
+  // would cover the next module somebody names that way.
   'IF-2': (files) => [
-    ...findAll(files, /\b(type|enum|const)\s+\w*(Consumability|ProvenanceGrade|ProvenanceChip)\w*\s*[=:{]/g,
+    ...findAll(files.filter((f) => f.file !== 'src/authority/provenanceChip.ts'),
+      /\b(type|enum|const)\s+\w*(Consumability|ProvenanceGrade|ProvenanceChip)\w*\s*[=:{]/g,
       'a consumability or provenance vocabulary declared in the app'),
     ...findAll(files, /\bfunction\s+\w*(gradeProvenance|decideConsumability|classifyProvenance)\w*\s*\(/g,
       'a function deciding a provenance or consumability verdict'),

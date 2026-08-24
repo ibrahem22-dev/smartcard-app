@@ -71,8 +71,27 @@ export const run = async ({ root }) => {
   const chipSrc = readFileSync(join(root, CHIP_MODULE), 'utf8');
 
   // ── 1. the four states, derived ──────────────────────────────────────────────────
-  const m = stateSrc.match(/export const CHIP_STATES = \[([^\]]*)\] as const;/);
-  if (!m) return fail('could not read CHIP_STATES out of ' + STATE_MODULE);
+  // THE STATES COME FROM THE ONE VOCABULARY, WHEREVER IT LIVES.
+  //
+  // This read `CHIP_STATES = ['verified', …]` straight out of the state module, because that is
+  // where the states were declared when the gate was written. B5 then moved them: the app's
+  // provenance vocabulary is now the Data Contract's, in src/authority/provenanceChip.ts, and the
+  // state module re-exports it — `export const CHIP_STATES = PROVENANCE_CHIPS;`.
+  //
+  // The gate failed with "could not read CHIP_STATES", which is the right failure: a gate that had
+  // silently found zero states and passed would have been asserting A2 over an empty list.
+  const VOCAB = 'src/authority/provenanceChip.ts';
+  const reexports = /export const CHIP_STATES = PROVENANCE_CHIPS;/.test(stateSrc);
+  const source = reexports ? readFileSync(join(root, VOCAB), 'utf8') : stateSrc;
+  const pattern = reexports
+    ? /export const PROVENANCE_CHIPS = \[([^\]]*)\] as const;/
+    : /export const CHIP_STATES = \[([^\]]*)\] as const;/;
+  const m = source.match(pattern);
+  if (!m) {
+    return fail('could not read the chip states out of '
+      + (reexports ? VOCAB : STATE_MODULE) + ' — A2 counts four plus the Stale modifier, and a gate '
+      + 'that read none would be counting to five from nothing');
+  }
   const states = [...m[1].matchAll(/'([^']+)'/g)].map((x) => x[1]);
   if (states.length !== 4) {
     problems.push('CHIP_STATES has ' + states.length + ' entries and A2 names four (Verified / Your '
@@ -80,9 +99,10 @@ export const run = async ({ root }) => {
   }
 
   // ── 2. the Stale modifier exists and is a modifier ───────────────────────────────
-  const hasStale = /CHIP_STALE_LABEL/.test(stateSrc) && /stale:\s*(true|boolean)/.test(stateSrc);
+  const hasStale = /CHIP_STALE_LABEL/.test(stateSrc)
+    && (/stale:\s*(true|boolean)/.test(stateSrc) || /stale:\s*(true|boolean)/.test(source));
   if (!hasStale) problems.push('no Stale modifier found — A2 counts it as the fifth thing the chip shows');
-  if (states.includes('stale')) {
+  if (states.map((x) => x.toLowerCase()).includes('stale')) {
     problems.push('"stale" appears in CHIP_STATES. A2 makes it a MODIFIER on a state, not a state: '
       + 'as a state it would replace "this was verified and may be out of date" with "we do not know"');
   }
