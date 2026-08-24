@@ -69,6 +69,37 @@ env:
 jobs:
   verify:
     runs-on: ubuntu-latest
+
+    # ----------------------------------------------------------------------------------------------
+    # `secrets` IS NOT A CONTEXT A STEP'S `if:` CAN SEE, AND THIS WORKFLOW LEARNED THAT THE HARD WAY.
+    #
+    # The first version wrote `if: ${{ secrets.PIPELINE_DEPLOY_KEY != '' }}` on the two checkout
+    # steps. GitHub rejected the FILE — not the run, the file — before any job started:
+    #
+    #     (Line: 139, Col: 13): Unrecognized named-value: 'secrets'.
+    #
+    # `secrets` is available in `env:`, in `with:` and in a job-level `if:`, but **not** in a step's
+    # `if:`. The fix is the documented pattern: derive NON-SECRET boolean presence flags here, where
+    # `secrets` is legal, and let the steps below branch on those.
+    #
+    # WHAT CROSSES FROM SECRET TO NON-SECRET, AND WHAT DOES NOT.
+    # `secrets.X != ''` evaluates to the string `true` or `false`. That is a fact ABOUT the secret —
+    # whether one was configured — and carries none of its bytes. The key itself is still passed
+    # exactly once, into `actions/checkout`'s `ssh-key:`, which is the only place it is needed and
+    # the only place it appears. Nothing echoes it, nothing writes it to a file, and GitHub masks it
+    # in logs regardless.
+    #
+    # HOW THIS GOT SHIPPED, WHICH IS THE MORE USEFUL LESSON.
+    # The workflow was validated locally by PARSING IT AS YAML, and it is perfectly valid YAML. What
+    # it is not is a valid *workflow*: expression contexts are a GitHub rule that no YAML parser
+    # knows about. A check that cannot detect the failure it exists to prevent is this campaign's
+    # oldest defect, committed here by the check written to prevent it. `tools/p2/ci-workflow-controls.mjs`
+    # now refuses `secrets.` inside any `if:`, and was watched to fail against the broken file.
+    # ----------------------------------------------------------------------------------------------
+    env:
+      HAVE_PIPELINE_DEPLOY_KEY: ${{ secrets.PIPELINE_DEPLOY_KEY != '' }}
+      HAVE_PIPELINE_PAT: ${{ secrets.PIPELINE_PAT != '' }}
+
     steps:
       # ------------------------------------------------------------------------------------------
       # THE GUARD RUNS FIRST, AND FAILS. IT DOES NOT SKIP.
@@ -85,13 +116,10 @@ jobs:
       # ------------------------------------------------------------------------------------------
       - name: the credential OQ-003 requires is present
         working-directory: ${{ github.workspace }}
-        env:
-          HAVE_KEY: ${{ secrets.PIPELINE_DEPLOY_KEY != '' }}
-          HAVE_PAT: ${{ secrets.PIPELINE_PAT != '' }}
         run: |
-          echo "deploy key present: $HAVE_KEY"
-          echo "PAT present:        $HAVE_PAT"
-          if [ "$HAVE_KEY" != "true" ] && [ "$HAVE_PAT" != "true" ]; then
+          echo "deploy key present: $HAVE_PIPELINE_DEPLOY_KEY"
+          echo "PAT present:        $HAVE_PIPELINE_PAT"
+          if [ "$HAVE_PIPELINE_DEPLOY_KEY" != "true" ] && [ "$HAVE_PIPELINE_PAT" != "true" ]; then
             echo "::error::No credential for the private pipeline repository."
             echo ""
             echo "This build cannot install the app. The app depends on"
@@ -136,7 +164,7 @@ jobs:
       # expression cannot choose between two differently-named inputs. The deploy key wins when both
       # are set: it is scoped to one repository and read-only, where a PAT is an account credential.
       - name: pipeline (deploy key)
-        if: ${{ secrets.PIPELINE_DEPLOY_KEY != '' }}
+        if: ${{ env.HAVE_PIPELINE_DEPLOY_KEY == 'true' }}
         uses: actions/checkout@v4
         with:
           repository: ibrahem22-dev/smartcard-data-pipeline
@@ -146,7 +174,7 @@ jobs:
           fetch-depth: 0
 
       - name: pipeline (fine-grained PAT)
-        if: ${{ secrets.PIPELINE_DEPLOY_KEY == '' && secrets.PIPELINE_PAT != '' }}
+        if: ${{ env.HAVE_PIPELINE_DEPLOY_KEY != 'true' && env.HAVE_PIPELINE_PAT == 'true' }}
         uses: actions/checkout@v4
         with:
           repository: ibrahem22-dev/smartcard-data-pipeline

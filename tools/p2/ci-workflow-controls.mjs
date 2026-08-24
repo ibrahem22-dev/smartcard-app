@@ -113,6 +113,69 @@ if (bashProbe.error || String(bashProbe.stdout ?? '').trim() !== 'ok') {
   process.exit(1);
 }
 
+/**
+ * ─────────────────────────────────────────────────────────────────────────────────────────────
+ * STATIC CHECKS ON THE WORKFLOW ITSELF, BECAUSE VALID YAML IS NOT A VALID WORKFLOW.
+ *
+ * This file's first version proved the workflow's *shell* logic could fail, and the workflow was
+ * separately validated by parsing it as YAML. It parsed. GitHub then rejected **the file**, before
+ * any job started:
+ *
+ *     (Line: 139, Col: 13): Unrecognized named-value: 'secrets'.
+ *     Expression: secrets.PIPELINE_DEPLOY_KEY != ''
+ *
+ * `secrets` is not a context any `if:` can see — not a step's, not a job's. It is legal in `env:`
+ * and in `with:`, and nowhere else here. No YAML parser knows that rule, so the validation that was
+ * performed could not have detected the defect it was performed to prevent. **That is this
+ * campaign's oldest defect, committed by the check written to prevent it.**
+ *
+ * These two checks are the repair. They are cheap, they are static, and they run in the ladder.
+ */
+const workflowContextProblems = () => {
+  const src = readFileSync(WORKFLOW, 'utf8').split(String.fromCharCode(13) + NL).join(NL);
+  const lines = src.split(NL);
+  const problems = [];
+
+  /** Every `env:` key defined anywhere in the file — the names an `if:` is allowed to read. */
+  const defined = new Set();
+  for (const l of lines) {
+    const m = /^\s{2,}([A-Za-z_][A-Za-z0-9_]*):\s*\$\{\{/.exec(l);
+    if (m) defined.add(m[1]);
+  }
+
+  lines.forEach((line, i) => {
+    const at = i + 1;
+    const trimmed = line.trim();
+    if (trimmed.startsWith('#')) return;                    // a comment may discuss the defect
+    const m = /^if:\s*(.+)$/.exec(trimmed);
+    if (!m) return;
+    const expr = m[1];
+
+    // (1) THE RULE THAT BROKE THE BUILD. Absolute: no `if:` of any kind may read `secrets`.
+    if (/\bsecrets\./.test(expr)) {
+      problems.push('line ' + at + ': `secrets.` inside an `if:` — GitHub rejects the whole file '
+        + 'with "Unrecognized named-value: \'secrets\'". Derive a boolean presence flag in an '
+        + '`env:` block and branch on that instead: ' + expr.slice(0, 70));
+    }
+
+    // (2) A TYPO HERE FAILS *SILENTLY*, WHICH IS WORSE THAN A REJECTED FILE.
+    // An undefined `env.X` evaluates to empty, the condition goes false, and the step is SKIPPED —
+    // and a skipped step in GitHub Actions is a SUCCESS. The build would sail past a checkout that
+    // never happened.
+    for (const ref of expr.match(/\benv\.([A-Za-z_][A-Za-z0-9_]*)/g) ?? []) {
+      const name = ref.slice(4);
+      if (!defined.has(name)) {
+        problems.push('line ' + at + ': `' + ref + '` is not defined in any `env:` block. An '
+          + 'undefined env in an `if:` is empty, so the condition goes false and the step is '
+          + 'SKIPPED — and a skipped step is a SUCCESS. This fails silently, which is worse than '
+          + 'the error that prompted this check');
+      }
+    }
+  });
+
+  return problems;
+};
+
 const GREEN_LADDER = [
   '  ok    gate:real-artifacts    REAL-ARTIFACTS OK — 5 of 5 shas matched',
   '  ok    gate:mirror-parity     MIRROR-PARITY OK — 7 mirrors current',
@@ -128,28 +191,28 @@ const CASES = [
   {
     step: 'the credential OQ-003 requires is present',
     label: 'no credential at all is refused',
-    env: { HAVE_KEY: 'false', HAVE_PAT: 'false', PIPELINE_REPO: 'ibrahem22-dev/smartcard-data-pipeline' },
+    env: { HAVE_PIPELINE_DEPLOY_KEY: 'false', HAVE_PIPELINE_PAT: 'false', PIPELINE_REPO: 'ibrahem22-dev/smartcard-data-pipeline' },
     expect: 'fail',
     mustSay: 'No credential for the private pipeline repository',
   },
   {
     step: 'the credential OQ-003 requires is present',
     label: 'a fork PR (secrets withheld) is refused, and told why',
-    env: { HAVE_KEY: 'false', HAVE_PAT: 'false', PIPELINE_REPO: 'x/y' },
+    env: { HAVE_PIPELINE_DEPLOY_KEY: 'false', HAVE_PIPELINE_PAT: 'false', PIPELINE_REPO: 'x/y' },
     expect: 'fail',
     mustSay: 'secrets are withheld by design',
   },
   {
     step: 'the credential OQ-003 requires is present',
     label: 'a deploy key is accepted',
-    env: { HAVE_KEY: 'true', HAVE_PAT: 'false', PIPELINE_REPO: 'x/y' },
+    env: { HAVE_PIPELINE_DEPLOY_KEY: 'true', HAVE_PIPELINE_PAT: 'false', PIPELINE_REPO: 'x/y' },
     expect: 'pass',
     mustSay: 'A credential is available',
   },
   {
     step: 'the credential OQ-003 requires is present',
     label: 'a PAT alone is accepted',
-    env: { HAVE_KEY: 'false', HAVE_PAT: 'true', PIPELINE_REPO: 'x/y' },
+    env: { HAVE_PIPELINE_DEPLOY_KEY: 'false', HAVE_PIPELINE_PAT: 'true', PIPELINE_REPO: 'x/y' },
     expect: 'pass',
     mustSay: 'A credential is available',
   },
@@ -201,6 +264,28 @@ const CASES = [
     mustSay: 'P2-ALL OK — every step green',
   },
 ];
+
+/**
+ * THE STATIC CHECKS RUN FIRST, AND STOP THE FILE.
+ *
+ * If the workflow's expression contexts are wrong, GitHub rejects the whole file before any job
+ * starts — so no amount of correct shell logic below matters, and reporting on it would be
+ * describing a build that cannot happen. This is the check that was missing when
+ * `secrets.PIPELINE_DEPLOY_KEY` was written into two step conditionals and shipped.
+ */
+const contextProblems = workflowContextProblems();
+if (contextProblems.length > 0) {
+  console.log('');
+  console.log('CI WORKFLOW — static context check');
+  console.log('');
+  for (const p of contextProblems) console.log('  FAIL ' + p);
+  console.log('');
+  console.log('CI-WORKFLOW-CONTROLS FAILED — ' + contextProblems.length
+    + ' invalid expression context(s). GitHub rejects the FILE for these, before any job runs,');
+  console.log('  so the shell controls below were not attempted: they would describe a build that');
+  console.log('  cannot start.');
+  process.exit(1);
+}
 
 const dir = mkdtempSync(join(tmpdir(), 'p2-ci-controls-'));
 const results = [];
