@@ -62,12 +62,19 @@ jobs:
       #      a ladder that died before reaching the gate at all.
       #   2. `P2-ALL FAILED` must be absent. Something ran and went red.
       #
-      # WHAT IS STILL TOLERATED, and why this is not a softening: `P2-ALL INCOMPLETE` passes, because
-      # 38 of the 44 contracted gates are not written yet and a build that cannot go green until
-      # Phase 12 teaches everyone to ignore it. The moment an implemented gate goes red the build
-      # fails; the moment the last gate lands, INCOMPLETE stops appearing on its own. Nobody has to
-      # remember to edit this file — which is the point, because the hand-maintained list of "gates
-      # that count" is exactly the defect shape this campaign keeps finding.
+      # WHAT IS STILL TOLERATED, and why this is not a softening. All 44 contracted gates now exist,
+      # so `P2-ALL INCOMPLETE` no longer appears on its own — exactly as this comment predicted when
+      # 38 were missing, and without anybody editing this file.
+      #
+      # What remains is `P2-ALL DEVICE-BLOCKED`, which the ladder prints when the ONLY red steps are
+      # gates the contract flags DEVICE. CI has no phone either, so failing on it would make this
+      # build permanently red — and a build that is always red teaches everyone to ignore it, which
+      # is how a real failure gets through.
+      #
+      # CI GREEN IS NOT CRITERION F4. F4's evidence is the sentinel `P2-ALL OK — every step green`,
+      # and that sentence is unreachable until a device run is captured. This step decides whether
+      # a developer should look at their diff; the contract decides whether P2 is done, and it says
+      # not yet.
       - name: P2 ladder — hard on any implemented gate going red (F4, Gate 3)
         run: |
           set -o pipefail
@@ -77,6 +84,11 @@ jobs:
             echo "CI FAILS: a gate that exists ran and went red."
             grep -F 'P2-ALL FAILED' ladder.log
             exit 1
+          fi
+          if grep -qF 'P2-ALL DEVICE-BLOCKED' ladder.log; then
+            echo "NOT AN ACCEPTANCE RUN. Every gate that can run here is green; the red ones need"
+            echo "hardware CI does not have. F4 is NOT satisfied by this build passing."
+            grep -F 'P2-ALL DEVICE-BLOCKED' ladder.log
           fi
           if ! grep -qF 'BOUNDARY-LINT OK — 5 rules, 0 violations' ladder.log; then
             echo "CI FAILS: the Gate 3 sentinel was not printed."
