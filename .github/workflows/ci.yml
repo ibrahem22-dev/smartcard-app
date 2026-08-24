@@ -358,22 +358,61 @@ jobs:
       # ------------------------------------------------------------------------------------------
       - name: the whole ladder (F4, E7) and the shipped artifacts (E6)
         working-directory: smartcard-app
+        # ------------------------------------------------------------------------------------------
+        # THE LOG IS WRITTEN OUTSIDE THE WORKING TREE, AND THAT IS NOT TIDINESS.
+        #
+        # `tee ladder.log` used to write into the app repository. `tee` creates the file the moment
+        # the pipeline starts — so by the time the ladder's FIRST step ran, an untracked `ladder.log`
+        # was already sitting in the tree. `preflight` (F3) and `gate:repos-in-sync` (F5) both refuse
+        # a dirty tree, and both exclude exactly one generated path by name: `reports/p2/<sha>.json`.
+        # They had never been told about this one.
+        #
+        # So the ladder was failing on a file the step that runs it had just created, in a repository
+        # that was otherwise clean. **The local simulation could not catch it**: there the log was
+        # written by a second invocation, after the ladder had already been run once, so no ladder
+        # run ever saw it.
+        #
+        # Writing to `runner.temp` fixes it at the cause rather than by adding a third exclusion.
+        # A check that has to be taught about every file the harness drops in front of it is a check
+        # that will eventually be taught to ignore a real one.
+        # ------------------------------------------------------------------------------------------
+        env:
+          LADDER_LOG: ${{ runner.temp }}/ladder.log
         run: |
           set -o pipefail
-          npm run p2:all 2>&1 | tee ladder.log || true
+          npm run p2:all 2>&1 | tee "$LADDER_LOG" || true
 
           echo "----- verdict, read from printed output -----"
 
-          if ! grep -qF 'P2-ALL OK — every step green' ladder.log; then
+          if ! grep -qF 'P2-ALL OK — every step green' "$LADDER_LOG"; then
+            # ------------------------------------------------------------------------------------
+            # THE DIAGNOSIS GOES INTO ANNOTATIONS, NOT ONLY INTO THE LOG.
+            #
+            # A job's log and its uploaded artifacts both require repository admin to read through
+            # the API. **Check-run annotations do not** — they are public on a public repository.
+            # For three runs the only thing readable from outside was "the ladder did not print its
+            # sentinel", which is the question, not the answer, and each guess cost a full round
+            # trip through four npm installs.
+            #
+            # So every red row becomes its own annotation. Decide on printed output — and make the
+            # printed output reachable by whoever has to decide.
+            # ------------------------------------------------------------------------------------
             echo "::error::F4/E7 NOT SATISFIED — the ladder did not print its sentinel."
+            grep -E '^\s+FAIL ' "$LADDER_LOG" | head -8 | while IFS= read -r line; do
+              echo "::error::ladder red: $(echo "$line" | sed 's/^[[:space:]]*//')"
+            done
+            grep -E 'P2-ALL (FAILED|INCOMPLETE|DEVICE-BLOCKED)' "$LADDER_LOG" | head -2 \
+              | while IFS= read -r line; do echo "::error::verdict: $line"; done
+            grep -E '^\s+steps ' "$LADDER_LOG" | head -1 \
+              | while IFS= read -r line; do echo "::error::counts:$line"; done
             echo "An absent sentinel is a failure, not a pass. What the ladder did print:"
-            grep -E 'P2-ALL|FAILED|INCOMPLETE|DEVICE-BLOCKED' ladder.log || tail -30 ladder.log
+            grep -E 'P2-ALL|FAILED|INCOMPLETE|DEVICE-BLOCKED' "$LADDER_LOG" || tail -40 "$LADDER_LOG"
             exit 1
           fi
 
-          if ! grep -qF 'REAL-ARTIFACTS OK — 5 of 5 shas matched' ladder.log; then
+          if ! grep -qF 'REAL-ARTIFACTS OK — 5 of 5 shas matched' "$LADDER_LOG"; then
             echo "::error::E6 NOT SATISFIED — the real-artifacts sentinel was not printed."
-            grep -E 'REAL-ARTIFACTS' ladder.log || true
+            grep -E 'REAL-ARTIFACTS' "$LADDER_LOG" || true
             exit 1
           fi
 
@@ -418,5 +457,5 @@ jobs:
           name: p2-ladder-report
           path: |
             smartcard-app/reports/p2/
-            smartcard-app/ladder.log
+            ${{ runner.temp }}/ladder.log
           if-no-files-found: warn
