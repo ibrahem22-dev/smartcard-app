@@ -104,7 +104,10 @@ export function showsEveryCandidate(
   candidates: readonly unknown[],
   rendered: readonly unknown[],
 ): boolean {
-  if (candidates.length === 0) return rendered.length === 0;
+  // One comparison, no special case. An earlier version began `if (candidates.length === 0)` and
+  // returned the same answer the general form already gives — a branch doing nothing, which the
+  // `ob1-named-records` gate refused on sight because that exact shape is how a surface ends up
+  // deciding what to draw from a count instead of from the render plan.
   return rendered.length === candidates.length;
 }
 
