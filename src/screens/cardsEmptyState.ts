@@ -99,7 +99,7 @@ export function buildCardsViewModel(
       return {
         view: 'FIRST_CARD_INVITATION',
         title: 'בוא נוסיף את הכרטיס הראשון',
-        body: 'SmartCard עובד על הכרטיסים שלך בלבד. הכל נשמר מוצפן במכשיר.',
+        body: '{{app}} עובד על הכרטיסים שלך בלבד. הכל נשמר מוצפן במכשיר.',
         primaryAction: ADD_CARD_ACTION,
         showFooterAddCard: false,
       };

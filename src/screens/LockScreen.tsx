@@ -18,6 +18,7 @@ import { useTranslation } from '../hooks/useTranslation';
 import { useAuth } from '../navigation/authContext';
 import { shouldShowPinSetup } from '../navigation/authGatePolicy';
 import { CHROME } from '../theme/tokens';
+import { APP_NAME } from '../config/identity';
 
 /**
  * Lock / PIN-setup uses StyleSheet (not NativeWind) for critical surfaces.
@@ -156,7 +157,7 @@ export function LockScreen(): React.ReactElement {
               <View style={styles.copyBlock}>
                 <AppText style={styles.title}>{t('צור PIN מקומי')}</AppText>
                 <AppText style={styles.subtitle}>
-                  {t('ה-PIN הוא אימות הגישה העיקרי לכספת SmartCard המקומית שלך.')}
+                  {t('ה-PIN הוא אימות הגישה העיקרי לכספת {{app}} המקומית שלך.', { app: APP_NAME })}
                 </AppText>
               </View>
 
@@ -227,7 +228,7 @@ export function LockScreen(): React.ReactElement {
       >
         <View style={styles.form}>
           <AppText align="center" style={styles.title}>
-            {t('פתיחת SmartCard')}
+            {t('פתיחת {{app}}', { app: APP_NAME })}
           </AppText>
 
           <TextInput

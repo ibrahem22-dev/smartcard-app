@@ -2,6 +2,7 @@ import { getLocales } from 'expo-localization';
 import { MMKV } from 'react-native-mmkv';
 
 import { MMKV_KEYS } from '../store/keys';
+import { STORAGE_NAMESPACE } from '../config/identity';
 
 export type AppLanguage = 'en' | 'he' | 'ar';
 export type LanguageChoice = 'auto' | 'en' | 'he' | 'ar';
@@ -12,7 +13,10 @@ export type LanguagePreference = LanguageChoice;
 /** @deprecated Use AppLanguage */
 export type ResolvedLanguage = AppLanguage;
 
-const storage = new MMKV({ id: 'smartcard.preferences' });
+// The namespace comes from identity.json's `storageNamespace`, which is deliberately NOT the
+// slug: a rename must not point existing installs at a new, empty store and silently drop the
+// user's saved preferences. See the note beside the field.
+const storage = new MMKV({ id: `${STORAGE_NAMESPACE}.preferences` });
 
 function isLanguageChoice(value: string): value is LanguageChoice {
   return (

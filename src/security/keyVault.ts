@@ -32,6 +32,7 @@ import { argon2idAsync } from '@noble/hashes/argon2.js';
 import type { UserProfile } from '../types/user.types';
 import { MMKV_KEYS } from '../store/keys';
 import type { LockoutCaller, LockoutState } from './keyVault.types';
+import { APP_NAME, STORAGE_NAMESPACE } from '../config/identity';
 
 // --- Public contract (SEC-CONTRACT-001 ┬د8) -----------------------------------
 
@@ -257,12 +258,35 @@ const GCM_NONCE_BYTES = 12;
 const MAX_BACKOFF_FAILURES = 9;
 const PROFILE_ID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const MMKV_ID = 'smartcard.secure';
+/**
+ * THE ENCRYPTED VAULT'S STORE ID — from `storageNamespace`, deliberately NOT the slug.
+ *
+ * The A10 gate found this as the product slug scattered into source, and the finding was right
+ * about the string and wrong about what it means. Changing it does not rename anything: it points
+ * every existing install at a NEW, EMPTY encrypted store. The user's PIN, their cards and their
+ * profile do not move — they become unreachable, with no error, because an empty store is a valid
+ * store.
+ *
+ * `storageNamespace` exists so a rename can never do that. It reads the same as the slug today,
+ * which is exactly why it had to be a separate field.
+ */
+const MMKV_ID = `${STORAGE_NAMESPACE}.secure`;
 // CONFLICT: These legacy typed accessors retain their historical global key,
 // but the task forbids modifying existing keyVault behavior. Financial stores
 // no longer call them and use profile-scoped keys exclusively.
 const PROFILE_KEY = 'user.profile';
-const KEYCHAIN_SERVICE = 'smartcard.keyvault.v1';
+/**
+ * THE OS KEYCHAIN SERVICE NAME — the third and most severe of the identity-shaped strings.
+ *
+ * MMKV_ID orphans the vault store. This orphans the DEVICE KEYCHAIN ENTRY that holds the keys
+ that decrypt it. A rename that moved this would leave a user's data encrypted, present, and
+ * permanently unreadable — the app would not even know it had happened, because an absent keychain
+ * entry is indistinguishable from a fresh install.
+ *
+ * The `.v1` suffix is deliberate and stays: it is a schema version for the keychain entry itself,
+ * and it is the only part of this string that may ever legitimately change.
+ */
+const KEYCHAIN_SERVICE = `${STORAGE_NAMESPACE}.keyvault.v1`;
 
 // SecureStore item names.
 const SS = {
@@ -286,7 +310,8 @@ const DEK_OPTS: SecureStore.SecureStoreOptions = {
   keychainService: KEYCHAIN_SERVICE,
   requireAuthentication: true,
   keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-  authenticationPrompt: 'Unlock SmartCard',
+  // OD-2: one source for the product name — see src/config/identity.ts.
+  authenticationPrompt: `Unlock ${APP_NAME}`,
 };
 
 // Non-secret / ciphertext metadata: this-device-only, but no OS auth gate (the

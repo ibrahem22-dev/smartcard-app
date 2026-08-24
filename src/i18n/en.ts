@@ -464,8 +464,8 @@ export const enBySource: Readonly<Record<string, string>> = {
     'Data is saved only in the local encrypted vault. It cannot be recovered if the PIN is forgotten and the vault is reset.',
   // local PIN / lock screen
   'צור PIN מקומי': 'Create local PIN',
-  'ה-PIN הוא אימות הגישה העיקרי לכספת SmartCard המקומית שלך.':
-    'This PIN is the primary credential for your local SmartCard vault.',
+  'ה-PIN הוא אימות הגישה העיקרי לכספת {{app}} המקומית שלך.':
+    'This PIN is the primary credential for your local {{app}} vault.',
   PIN: 'PIN',
   'אימות PIN': 'Confirm PIN',
   'שמור PIN': 'Save PIN',
@@ -474,7 +474,7 @@ export const enBySource: Readonly<Record<string, string>> = {
   'ערכי ה-PIN אינם תואמים.': 'The PIN entries do not match.',
   'לא הצלחנו לשמור את ה-PIN המקומי. נסה שוב.':
     'Could not save the local PIN. Try again.',
-  'פתיחת SmartCard': 'Unlock SmartCard',
+  'פתיחת {{app}}': 'Unlock {{app}}',
   'פתח עם PIN': 'Unlock with PIN',
   'פותח…': 'Unlocking…',
   'הזן את ה-PIN בן 6 הספרות שלך.': 'Enter your 6 digit PIN.',

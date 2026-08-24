@@ -1,0 +1,51 @@
+{
+  "$comment": [
+    "THE APP'S IDENTITY, IN ONE PLACE — criterion A10, and Owner Decision OD-2's rider.",
+    "",
+    "  OD-2 — Final public branding · DEFERRED.",
+    "  \"SmartCard / MyCard / another name remains open. Development proceeds under the working name.\"",
+    "  \"Requirement so the deferral stays free. Keep app identifier, bundle id, display name and",
+    "   asset references CONFIGURABLE IN ONE PLACE from P2 onward. The existing app uses",
+    "   com.smartcard.app — acceptable as a working value; DO NOT SCATTER THE STRING THROUGH SOURCE.\"",
+    "",
+    "It was scattered: app.json held the name, slug, scheme, bundle identifier and Android package,",
+    "and three source files carried 'SmartCard' as literal text in biometric prompts and lock copy.",
+    "Renaming the product would have meant finding all of them, and the one that was missed would",
+    "have shown a user the old name at the moment they were being asked to authenticate.",
+    "",
+    "WHY JSON AND NOT A .ts MODULE. Two consumers need it and they run in different worlds: Expo's",
+    "config loader evaluates app.config.js in plain Node before any TypeScript exists, and the app",
+    "imports it through the bundler. JSON is the only format both read without a build step — a .ts",
+    "source of truth would have needed a compiled copy for Expo, which is two homes again.",
+    "",
+    "CHANGING A VALUE HERE IS A RENAME. app.config.js builds the Expo config from it, and",
+    "src/config/identity.ts is the app's view of the same file. Nothing else may name the product."
+  ],
+  "displayName": "SmartCard",
+  "slug": "smartcard",
+  "scheme": "smartcard",
+  "bundleIdentifier": "com.smartcard.app",
+  "androidPackage": "com.smartcard.app",
+  "$storageNamespaceNote": [
+    "THE STORAGE NAMESPACE IS NOT THE SLUG, AND MUST NEVER FOLLOW A RENAME.",
+    "",
+    "It happens to read the same today, which is exactly why it needed separating: the A10 gate",
+    "found 'smartcard.preferences' in src/i18n/locale.ts and reported it as the slug scattered into",
+    "source. It is not. It is the id of an MMKV store that holds real users' saved preferences.",
+    "",
+    "If OD-2 renames the product and this followed, every existing install would open a NEW, EMPTY",
+    "store and silently lose the user's language, their theme and their onboarding state — with no",
+    "error, because a fresh store is a valid store. A rename is a marketing decision; it must not be",
+    "a data migration nobody planned.",
+    "",
+    "So it lives here, beside the identity, marked as the one field a rename does not touch."
+  ],
+  "storageNamespace": "smartcard",
+  "version": "1.0.0",
+  "iosBuildNumber": "1",
+  "androidVersionCode": 1,
+  "assets": {
+    "$comment": "Asset references, per OD-2's rider. Paths are relative to the repository root.",
+    "splashLogo": "src/assets/splashscreen_logo.png"
+  }
+}
