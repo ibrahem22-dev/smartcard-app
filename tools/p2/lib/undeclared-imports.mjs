@@ -80,11 +80,29 @@ export const scanUndeclaredImports = (root) => {
   // about scanning a QR code for a route that no longer exists. `expo prebuild` would have failed
   // on it, and no check in this repository looked. One fact, two homes, no comparison: the shape
   // this campaign keeps finding.
+  // THE EXPO CONFIG MOVED, AND THIS CHECK SAID SO RATHER THAN GOING QUIET.
+  //
+  // A10 replaced the static `app.json` with `app.config.js`, generated from `identity.json`. This
+  // check read app.json, found nothing, and failed with "either the config moved or this check is
+  // reading the wrong file, and both are worth stopping for" — which is exactly the sentence a
+  // check should produce when its subject disappears. The alternative, silently finding zero
+  // plugins and passing, is how a check stops being one.
+  //
+  // app.config.js is JavaScript, so the plugin list is read as source rather than parsed as data.
   const plugins = [];
+  const configJs = join(root, 'app.config.js');
   const appJsonPath = join(root, 'app.json');
-  if (existsSync(appJsonPath)) {
+  let pluginNames = [];
+  if (existsSync(configJs)) {
+    const src = readFileSync(configJs, 'utf8');
+    const block = src.match(/plugins:\s*\[([\s\S]*?)\]/);
+    if (block) pluginNames = [...block[1].matchAll(/'([^']+)'/g)].map((m) => m[1]);
+  } else if (existsSync(appJsonPath)) {
     const app = JSON.parse(readFileSync(appJsonPath, 'utf8'));
-    for (const entry of app?.expo?.plugins ?? []) {
+    pluginNames = (app?.expo?.plugins ?? []).map((e) => (Array.isArray(e) ? e[0] : e));
+  }
+  {
+    for (const entry of pluginNames) {
       const name = Array.isArray(entry) ? entry[0] : entry;
       if (typeof name !== 'string' || name.startsWith('.') || name.startsWith('/')) continue;
       plugins.push(name);

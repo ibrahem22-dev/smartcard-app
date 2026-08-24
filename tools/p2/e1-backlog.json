@@ -112,6 +112,16 @@
       "odMeaning": "OD-32 adopted the contract in which B3 owns the vault/persistence boundary; this is a deferral to a later phase of THIS campaign, not out of it.",
       "deferredAt": "2026-08-24",
       "reviewedBy": "WP-3.2"
+    },
+    {
+      "id": "ALLOW-IDENTITY-SOURCE",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/config/identity.ts$",
+      "message": "raw dataset '../../identity.json' imported",
+      "why": "BUILD CONFIGURATION, NOT A REFERENCE READ. R3 exists so every reference read carries its provenance, tier and lastUpdated — a rate, a fee, a card. identity.json holds the display name, the bundle id and a storage namespace. None of it is a fact about anybody money, none of it has a provenance to lose, and A10 requires it to be ONE file readable by two consumers: the app through the bundler, and Expo config loader in plain Node before TypeScript exists. That is why it cannot live under src/config/** with the other constants, and why R3 sees it.",
+      "reviewedBy": "WP-5.5",
+      "reviewedAt": "2026-08-24"
     }
   ],
   "$closedNote": [

@@ -248,7 +248,18 @@ const rule3 = (root) => {
         violations.push({ rule: 3, file: r, line, detail: 'imports a DB driver directly: ' + spec });
       }
       const local = resolveLocal(f, spec, root);
-      if (local && /\.json$/.test(local) && !/^src\/config\//.test(local)) {
+      // THE IDENTITY SOURCE IS BUILD CONFIGURATION, NOT A DATASET.
+      //
+      // R3 exists so every REFERENCE READ carries its provenance, tier and lastUpdated — a rate, a
+      // fee, a card. `identity.json` holds the display name, the bundle id and a storage
+      // namespace. None of it is a fact about anybody's money, none of it has a provenance to
+      // lose, and it is read by `app.config.js` in plain Node before TypeScript exists, so it
+      // cannot live under `src/config/**` with the other constants.
+      //
+      // Named explicitly rather than exempting root JSON generally: a blanket exemption would
+      // cover the next dataset somebody drops at the root.
+      const isIdentitySource = local === 'identity.json';
+      if (local && /\.json$/.test(local) && !/^src\/config\//.test(local) && !isIdentitySource) {
         violations.push({ rule: 3, file: r, line, detail: 'imports a raw JSON dataset: ' + local });
       }
       if (/\.pack(\.json)?$/.test(spec)) {
