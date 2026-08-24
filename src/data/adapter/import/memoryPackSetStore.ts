@@ -12,9 +12,17 @@ import type { InstalledPackSet, PackSetCandidate, PackSetStore } from './packSet
  * three things P1 could not prove, and the only way to prove it here is to inject it — a device
  * with a full disk is not something CI can arrange.
  *
- * NOT the device implementation. That one is `expoPackSetStore`, over `expo-file-system`, and it is
- * the same interface for the same reason the pack reader is: the sequencing under test is the code
- * that runs on a phone, not a rehearsal of it.
+ * NOT the device implementation -- AND THERE IS NO DEVICE IMPLEMENTATION.
+ *
+ * This comment used to say "that one is `expoPackSetStore`, over `expo-file-system`". No such module
+ * exists, and none ever did. P2's device lane went looking for it to satisfy C2 and found a sentence
+ * instead of a file. A confident comment about a sibling that was never written is worse than no
+ * comment: the next reader believes it, and the gap survives another session.
+ *
+ * So the sequencing proven by this store is proven in memory only. The two renames that a real
+ * rollback depends on -- installed to backup, staged to installed -- have never run against a
+ * filesystem. C2 is open on exactly that, and on OB-8, which forbids putting a `release: false` pack
+ * on a device at all while release custody does not exist. See OQ-002.
  */
 export interface MemoryStoreOptions {
   /** What is installed before the import. */
