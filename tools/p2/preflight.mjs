@@ -100,14 +100,14 @@ if (!RUNTIME_ONLY) {
    * ONE generated path, by name, for the current sha shape. Every other uncommitted file still
    * fails, including a stale report for a different sha -- that one is real drift.
    */
-  const OWN_REPORT = /^reports\/p2\/[0-9a-f]{12}\.json$/;
+  const OWN_REPORT = /^reports[/]p2[/][0-9a-f]{12}[.]json$/;
   const r = run('git', ['status', '--porcelain'], { shell: true });
-  const dirty = String(r.stdout || '').trim().split('
-')
+  const NL = String.fromCharCode(10);
+  const dirty = String(r.stdout || '').trim().split(NL)
     .filter((line) => line.trim().length > 0)
     .filter((line) => !OWN_REPORT.test(line.slice(3).trim().split(String.fromCharCode(92)).join('/')))
-    .join('
-');
+    .join(NL);
+
   record('worktree clean', dirty.length === 0,
     dirty.length === 0 ? 'clean' : dirty.split('\n').length + ' modified/untracked path(s); first: ' + dirty.split('\n')[0]);
 
