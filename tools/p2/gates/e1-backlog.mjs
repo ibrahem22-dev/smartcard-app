@@ -34,7 +34,7 @@
  */
 import { readFileSync, existsSync, rmSync, symlinkSync, unlinkSync } from 'node:fs';
 import { spawnSync } from 'node:child_process';
-import { join, dirname } from 'node:path';
+import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { tmpdir } from 'node:os';
 import { ok, fail } from '../lib/report.mjs';
@@ -68,7 +68,21 @@ export const runE1Lint = (cwd, eslintJs) => {
   }
   const findings = [];
   for (const f of JSON.parse(out)) {
-    const file = f.filePath.split(/smartcard-app[\\/]|e1-baseline[\\/]/).pop().replace(/\\/g, '/');
+    /**
+     * RELATIVE TO THE TREE THAT WAS LINTED, DERIVED — never by splitting on a directory name.
+     *
+     * This line used to read `f.filePath.split(/smartcard-app[\\/]|e1-baseline[\\/]/).pop()`, which
+     * works only where the checkout happens to be called `smartcard-app`. **The P2 closure run in a
+     * fresh clone found it**: cloned to `.../p2-closure2/app`, every path stayed absolute, every
+     * disposition's `^src/` stopped matching, and the gate reported 72 problems — 60 findings
+     * unaccounted and all 12 dispositions covering nothing — for a tree identical to one that
+     * passed.
+     *
+     * Same lint, same source, same count of findings, opposite verdict, decided by the name of a
+     * directory. That is the fourth path assumption this campaign has found that held only where it
+     * was written.
+     */
+    const file = relative(cwd, f.filePath).replace(/\\/g, '/');
     for (const m of f.messages) {
       findings.push({
         rule: String(m.ruleId ?? '?').replace('boundaries/', '').split('-')[0],
