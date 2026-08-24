@@ -151,7 +151,7 @@ export function CardsScreen(): React.ReactElement {
                     {card.unknownClub === true ? (
                       <Pressable
                         accessibilityRole="button"
-                        className={`me-3 min-h-9 min-w-[72px] items-center justify-center rounded-lg ${ACCENT.surfaceStrong}`}
+                        className={`me-3 min-h-11 min-w-[72px] items-center justify-center rounded-lg ${ACCENT.surfaceStrong}`}
                         style={{ backgroundColor: theme.clubBadge }}
                       >
                         <AppText

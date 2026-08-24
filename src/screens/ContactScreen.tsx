@@ -73,7 +73,7 @@ export function ContactScreen(): React.ReactElement {
               <Pressable
                 accessibilityRole="button"
                 accessibilityState={{ selected: isSelected }}
-                className={`min-h-10 justify-center rounded-lg border px-3 ${
+                className={`min-h-11 justify-center rounded-lg border px-3 ${
                   isSelected
                     ? `${ACCENT.border} ${ACCENT.surfaceStrong}`
                     : `${BORDER.hairline} ${SURFACE.card}`

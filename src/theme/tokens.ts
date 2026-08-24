@@ -136,7 +136,21 @@ export const TEXT = {
   heading: 'text-slate-900 dark:text-slate-50',
   body: 'text-slate-700 dark:text-slate-200',
   secondary: 'text-slate-600 dark:text-slate-300',
-  muted: 'text-slate-500 dark:text-slate-400',
+  /**
+   * MUTED IS slate-600 IN LIGHT MODE, WHICH MAKES IT IDENTICAL TO `secondary` THERE, and that is
+   * a decision AA forced rather than one anybody preferred.
+   *
+   * At slate-500 it measured **4.34:1 on SURFACE.sunken** — below the 4.5:1 floor. There is no
+   * Tailwind shade between 500 and 600, so the choice was a darker muted or a lighter sunken
+   * surface, and lightening the surface would have moved every panel in the app to rescue one text
+   * colour. AA is a floor and not a preference: quiet text that cannot be read is not quiet, it is
+   * absent.
+   *
+   * The distinction survives where there is room for it — `muted` is slate-400 in dark mode and
+   * `secondary` is slate-300. Two tokens sharing a value in one mode is worth saying out loud, and
+   * this is the sentence saying it.
+   */
+  muted: 'text-slate-600 dark:text-slate-400',
   inverse: 'text-white dark:text-slate-900',
   onAccent: 'text-white',
 } as const;
@@ -174,6 +188,29 @@ export const BORDER = {
    */
   topHairline: 'border-t-slate-200 dark:border-t-neutral-700',
 } as const;
+
+/**
+ * WHICH TEXT BELONGS ON WHICH SURFACE — read by the A9 gate, which measures the contrast of each.
+ *
+ * The gate's first version took the cartesian product of every text token and every surface token
+ * and reported four failures, all of them pairings nobody would ever write: `TEXT.heading` on
+ * `SURFACE.inverse` is dark-on-dark, and the inverse surface exists precisely so that
+ * `TEXT.inverse` can sit on it.
+ *
+ * Measuring combinations the design system does not offer produces noise, and noise is how a
+ * contrast report stops being read. So the pairings are DECLARED, and the gate measures exactly
+ * these. Declaring them is also the point: a designer adding a surface has to say what text goes on
+ * it, and the moment they do, the ratio is checked in both modes.
+ */
+export const LEGIBLE_ON: Readonly<Record<keyof typeof SURFACE, readonly (keyof typeof TEXT)[]>> = {
+  page: ['heading', 'body', 'secondary', 'muted'],
+  card: ['heading', 'body', 'secondary', 'muted'],
+  sunken: ['heading', 'body', 'secondary', 'muted'],
+  raised: ['heading', 'body', 'secondary'],
+  inverse: ['inverse'],
+  pageDarkOnly: ['heading', 'body', 'secondary', 'muted'],
+  modalScrim: ['onAccent'],
+};
 
 /**
  * THE ACCENT IS NOT A SEMANTIC ROLE. Blue means "this is interactive" or "notice this". It carries

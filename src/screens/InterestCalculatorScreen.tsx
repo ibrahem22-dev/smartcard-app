@@ -148,7 +148,7 @@ export function InterestCalculatorScreen(): React.ReactElement {
                     return (
                       <Pressable
                         accessibilityRole="button"
-                        className={`min-h-[40px] items-center justify-center rounded-lg border px-3 ${
+                        className={`min-h-[44px] items-center justify-center rounded-lg border px-3 ${
                           isSelected
                             ? `${ACCENT.border} ${ACCENT.surfaceStrong}`
                             : `${BORDER.hairline} ${SURFACE.card}`

@@ -324,7 +324,7 @@ export function InstallmentImportScreen(): React.ReactElement {
                 </Pressable>
                 <Pressable
                   accessibilityRole="button"
-                  className={`mt-3 min-h-[42px] items-center justify-center rounded-lg border ${ROLE_BORDER.danger} ${ROLE_SURFACE_BG.danger}`}
+                  className={`mt-3 min-h-[44px] items-center justify-center rounded-lg border ${ROLE_BORDER.danger} ${ROLE_SURFACE_BG.danger}`}
                   onPress={(): void => confirmDelete(obligation)}
                 >
                   <AppText

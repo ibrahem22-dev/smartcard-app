@@ -105,7 +105,7 @@ export function ProvenanceChip({
           className={`ms-1 rounded-full border px-1.5 ${SURFACE.sunken} ${BORDER.hairline}`}
           testID="provenance-chip-stale"
         >
-          <AppText className={`text-[10px] font-bold ${TEXT.secondary}`}>{stale}</AppText>
+          <AppText className={`text-xs font-bold ${TEXT.secondary}`}>{stale}</AppText>
         </View>
       ) : null}
     </RtlRow>
