@@ -1,0 +1,584 @@
+{
+  "$comment": [
+    "THE CAMPAIGN RECORDS, MIRRORED — criteria F5, F7, F8, F9, F10, F11.",
+    "",
+    "Derived by campaign-p2/bin/p2-campaign-records.mjs in the PIPELINE repository and compared",
+    "back by its --check. Do not edit by hand: an edit here is a lie that is caught rather than a",
+    "fix.",
+    "",
+    "It carries the FACTS a gate must check, never the prose. An app-side gate must not become a",
+    "second place where the campaign's reasoning lives."
+  ],
+  "generatedBy": "campaign-p2/bin/p2-campaign-records.mjs",
+  "declaredShas": [
+    {
+      "set": "catalog",
+      "shaPrefix": "db49cde7"
+    },
+    {
+      "set": "benefits",
+      "shaPrefix": "03ba5063"
+    },
+    {
+      "set": "taxonomy",
+      "shaPrefix": "41f58df7"
+    },
+    {
+      "set": "content",
+      "shaPrefix": "5eba1d06"
+    },
+    {
+      "set": "fx-rates",
+      "shaPrefix": "fb8d85aa"
+    }
+  ],
+  "adrs": [
+    {
+      "id": "ADR-011",
+      "file": "authority/ADR-011-conflict-model-and-consumability.md",
+      "sha256": "98aadd2dd74f346dea506d270fac26f8c668115357704eef1abe30a02b82d716",
+      "bytes": 6536,
+      "firstCommit": "78c0e949897f05796ee415dd31fcb6b7fdf7fa3e",
+      "commitCount": 2,
+      "status": "ACCEPTED · **Session:** 07",
+      "version": "1.0"
+    },
+    {
+      "id": "ADR-012",
+      "file": "authority/ADR-012-executor-capability-model.md",
+      "sha256": "b823d27310fd5b8caecd46369ca18b7c810b7ef709c43c8f93f4554f8211b62f",
+      "bytes": 5411,
+      "firstCommit": "78c0e949897f05796ee415dd31fcb6b7fdf7fa3e",
+      "commitCount": 1,
+      "status": "ACCEPTED · **Session:** 07",
+      "version": "1.0"
+    },
+    {
+      "id": "ADR-013",
+      "file": "authority/ADR-013-foreign-currency-normalization.md",
+      "sha256": "1b56e46eacce770c4c27077226ddcfddc91677092839d706c6671082d79cb8e3",
+      "bytes": 8660,
+      "firstCommit": "f0533a0ccb06c5b6f042f4292f2a0da26925213c",
+      "commitCount": 1,
+      "status": "ACCEPTED · **Session:** 08",
+      "version": "1.0"
+    },
+    {
+      "id": "ADR-014",
+      "file": "authority/ADR-014-bounded-interval-ranking.md",
+      "sha256": "81eec0150d698467e88047c1621f7c2311eed51f9d341328eb668aeb64c77e17",
+      "bytes": 8988,
+      "firstCommit": "f0533a0ccb06c5b6f042f4292f2a0da26925213c",
+      "commitCount": 1,
+      "status": "ACCEPTED · **Session:** 08",
+      "version": "1.0"
+    },
+    {
+      "id": "ADR-015",
+      "file": "authority/ADR-015-pack-delivery-model.md",
+      "sha256": "98a6108b25d999d245cf0563fe4f3286b36482f12010a09a6cad67244a4dc7b7",
+      "bytes": 6967,
+      "firstCommit": "bad038c5ba6b6420cf47f3aeb023585730bcb3ee",
+      "commitCount": 1,
+      "status": "ACCEPTED · **Session:** 08",
+      "version": "1.0"
+    },
+    {
+      "id": "ADR-016",
+      "file": "authority/ADR-016-adapter-package-and-compatibility.md",
+      "sha256": "1a44732fd811eb1b9ceed8260e2ee02489aee464292561828bb618ee6325afde",
+      "bytes": 8768,
+      "firstCommit": "dbe20f7dd84e0dced365500f0b61c3a4ffe3d240",
+      "commitCount": 1,
+      "status": "🔒 Accepted",
+      "version": "1.0"
+    },
+    {
+      "id": "ADR-017",
+      "file": "authority/ADR-017-manifest-signing-and-version-axes.md",
+      "sha256": "57576e9ef4b73ad256238fde9c3bd4840d040b5283f1403ddf5d916d1ac36589",
+      "bytes": 10958,
+      "firstCommit": "50669ffa48ca67987a186e83248c0060217fe899",
+      "commitCount": 2,
+      "status": "🔒 Accepted (v1.1 corrects Decision 7 — see the OD-25 conformance note)",
+      "version": "1.1"
+    },
+    {
+      "id": "ADR-018",
+      "file": "authority/ADR-018-import-rollback-contract.md",
+      "sha256": "36ca5f657206cf2b4c4a26ad4bfeddf41eb6e31d4625964e524dd9d968320c55",
+      "bytes": 6408,
+      "firstCommit": "50669ffa48ca67987a186e83248c0060217fe899",
+      "commitCount": 1,
+      "status": "🔒 Accepted",
+      "version": "1.0"
+    },
+    {
+      "id": "ADR-019",
+      "file": "authority/ADR-019-p3-standin-boundary.md",
+      "sha256": "2ed67cddcce2526f34baed2e9368c9ad46ce5254fc0f2aed81d12261dd54dde0",
+      "bytes": 6057,
+      "firstCommit": "d566e9ad049a2810ac7ec953a90df576efde5614",
+      "commitCount": 1,
+      "status": "🔒 Accepted",
+      "version": "1.0"
+    },
+    {
+      "id": "ADR-020",
+      "file": "authority/ADR-020-bundled-fx-snapshot-as-signed-artifact.md",
+      "sha256": "4d4fd9030f9642ca685d3099ff41de19fa7f725fefed20d6d52604e3efeefa7a",
+      "bytes": 6452,
+      "firstCommit": "416e4d13597aa45d6f6dbe1d9380d344ccde3da5",
+      "commitCount": 1,
+      "status": "🔒 Accepted",
+      "version": "1.0"
+    },
+    {
+      "id": "ADR-021",
+      "file": "authority/ADR-021-organisation-kind-vocabulary.md",
+      "sha256": "db1a1bf8c5b5a3cf7759a5200debdd35de0a18737eb740f9de0dcbcf7e0cfb5e",
+      "bytes": 5574,
+      "firstCommit": "416e4d13597aa45d6f6dbe1d9380d344ccde3da5",
+      "commitCount": 1,
+      "status": "🔒 Accepted",
+      "version": "1.0"
+    },
+    {
+      "id": "ADR-022",
+      "file": "authority/ADR-022-app-pack-seam.md",
+      "sha256": "5728754a510bee537dd2732f9cab20515dcb6466098a564eaa87b308b0a2a0cb",
+      "bytes": 3013,
+      "firstCommit": null,
+      "commitCount": 0,
+      "status": "🔒 Accepted",
+      "version": "1.0"
+    },
+    {
+      "id": "ADR-023",
+      "file": "authority/ADR-023-pinned-adapter-build.md",
+      "sha256": "34f555aadbe890e656cbda79c46d4db7758dd210269bdccaa5b0f986f97e9dc5",
+      "bytes": 2200,
+      "firstCommit": null,
+      "commitCount": 0,
+      "status": "🔒 Accepted",
+      "version": "1.0"
+    },
+    {
+      "id": "ADR-024",
+      "file": "authority/ADR-024-bundled-pack-delivery.md",
+      "sha256": "55f40001db7a9b50d591ba78d6fb029332ea43484742ef5a77628a5e26a0f09c",
+      "bytes": 2212,
+      "firstCommit": null,
+      "commitCount": 0,
+      "status": "🔒 Accepted",
+      "version": "1.0"
+    },
+    {
+      "id": "ADR-025",
+      "file": "authority/ADR-025-app-version-floor.md",
+      "sha256": "68987022c79b1a323ef94e8f78a9157f7f3bbb1a862e8b00546bc8b5b16398dd",
+      "bytes": 2259,
+      "firstCommit": null,
+      "commitCount": 0,
+      "status": "🔒 Accepted",
+      "version": "1.0"
+    },
+    {
+      "id": "ADR-026",
+      "file": "authority/ADR-026-import-three-phases.md",
+      "sha256": "d853ca8c414e69e6c0892f28ed245f4b41056b0cdb6c8a47fc94498ce787dd0d",
+      "bytes": 2833,
+      "firstCommit": null,
+      "commitCount": 0,
+      "status": "🔒 Accepted",
+      "version": "1.0"
+    },
+    {
+      "id": "ADR-027",
+      "file": "authority/ADR-027-four-update-refusals.md",
+      "sha256": "5e95d8367b178eeacedd8aa42834a050bd114c1fa6876623d514cc249ed7f933",
+      "bytes": 2520,
+      "firstCommit": null,
+      "commitCount": 0,
+      "status": "🔒 Accepted",
+      "version": "1.0"
+    },
+    {
+      "id": "ADR-028",
+      "file": "authority/ADR-028-analytics-allowlist.md",
+      "sha256": "f125e59dda6db4b387d856d6b723b8ade64f3c05eba7a5c07473769846c2b7b0",
+      "bytes": 3170,
+      "firstCommit": null,
+      "commitCount": 0,
+      "status": "🔒 Accepted",
+      "version": "1.0"
+    },
+    {
+      "id": "ADR-029",
+      "file": "authority/ADR-029-inherited-data-path-removal.md",
+      "sha256": "5b24f014122d5642384515c17402eed77ae8807ff1418c5be0ee1a366317af8f",
+      "bytes": 2254,
+      "firstCommit": null,
+      "commitCount": 0,
+      "status": "🔒 Accepted",
+      "version": "1.0"
+    },
+    {
+      "id": "ADR-030",
+      "file": "authority/ADR-030-type-only-imports-across-the-seam.md",
+      "sha256": "fe6c7691294800cd775269c9fca8dc87a478004f6fc75b338a3b7236de0b5d65",
+      "bytes": 2649,
+      "firstCommit": null,
+      "commitCount": 0,
+      "status": "🔒 Accepted",
+      "version": "1.0"
+    }
+  ],
+  "adrEdits": [
+    {
+      "adr": "ADR-011",
+      "editedIn": "78c0e94",
+      "editedAt": "2026-08-21",
+      "era": "P1",
+      "hasReason": true,
+      "reviewedBy": "WP-12.3"
+    }
+  ],
+  "obCoverage": [
+    {
+      "ob": "OB-1",
+      "title": "Render a disputed fact that has no candidates",
+      "answeredBy": [
+        {
+          "id": "A4",
+          "state": "SATISFIED"
+        }
+      ],
+      "alsoDeferred": false
+    },
+    {
+      "ob": "OB-2",
+      "title": "A cross-pack-set reference miss is an expected state",
+      "answeredBy": [
+        {
+          "id": "C4",
+          "state": "SATISFIED"
+        }
+      ],
+      "alsoDeferred": false
+    },
+    {
+      "ob": "OB-3",
+      "title": "The engine may not rank a conflict the pipeline has not classified",
+      "answeredBy": [
+        {
+          "id": "D8",
+          "state": "SATISFIED"
+        }
+      ],
+      "alsoDeferred": false
+    },
+    {
+      "ob": "OB-4",
+      "title": "Import obligations",
+      "answeredBy": [
+        {
+          "id": "C1",
+          "state": "SATISFIED"
+        },
+        {
+          "id": "C3",
+          "state": "SATISFIED"
+        }
+      ],
+      "alsoDeferred": false
+    },
+    {
+      "ob": "OB-5",
+      "title": "The bundled FX snapshot is a COLD-START FALLBACK, never a source of truth",
+      "answeredBy": [
+        {
+          "id": "C8",
+          "state": "SATISFIED"
+        }
+      ],
+      "alsoDeferred": true
+    },
+    {
+      "ob": "OB-6",
+      "title": "OD-24's mechanism is fully declared and reaches ZERO shipped conflicts",
+      "answeredBy": [
+        {
+          "id": "D8",
+          "state": "SATISFIED"
+        }
+      ],
+      "alsoDeferred": true
+    },
+    {
+      "ob": "OB-7",
+      "title": "An organisation kind ships with NO label, and that is an answer",
+      "answeredBy": [
+        {
+          "id": "A5",
+          "state": "SATISFIED"
+        }
+      ],
+      "alsoDeferred": false
+    },
+    {
+      "ob": "OB-8",
+      "title": "The development signing key is retired, and release custody does not exist",
+      "answeredBy": [],
+      "alsoDeferred": true
+    }
+  ],
+  "deferred": {
+    "entries": [
+      {
+        "section": "2.1",
+        "item": "Device evidence",
+        "goesTo": "PHASE 11 / P2 continuation",
+        "hasWhyOut": true,
+        "hasShipBehaviour": true,
+        "hasIfForgotten": true,
+        "hasWhereItGoes": true
+      },
+      {
+        "section": "2.2",
+        "item": "BOI market-holiday calendar",
+        "goesTo": "P3 / Owner",
+        "hasWhyOut": true,
+        "hasShipBehaviour": true,
+        "hasIfForgotten": true,
+        "hasWhereItGoes": true
+      },
+      {
+        "section": "2.3",
+        "item": "Hardware-backed key custody — **OB-8**",
+        "goesTo": "Owner / OD-25",
+        "hasWhyOut": true,
+        "hasShipBehaviour": true,
+        "hasIfForgotten": true,
+        "hasWhereItGoes": true
+      },
+      {
+        "section": "2.4",
+        "item": "The BOI live fetch client",
+        "goesTo": "P3",
+        "hasWhyOut": true,
+        "hasShipBehaviour": true,
+        "hasIfForgotten": true,
+        "hasWhereItGoes": true
+      },
+      {
+        "section": "2.5",
+        "item": "Conflict-axis classification",
+        "goesTo": "P3 / the estate",
+        "hasWhyOut": true,
+        "hasShipBehaviour": true,
+        "hasIfForgotten": true,
+        "hasWhereItGoes": true
+      },
+      {
+        "section": "2.6",
+        "item": "An analytics provider",
+        "goesTo": "Owner",
+        "hasWhyOut": true,
+        "hasShipBehaviour": true,
+        "hasIfForgotten": true,
+        "hasWhereItGoes": true
+      },
+      {
+        "section": "2.7",
+        "item": "Surface instrumentation",
+        "goesTo": "P2 continuation / P4",
+        "hasWhyOut": true,
+        "hasShipBehaviour": true,
+        "hasIfForgotten": true,
+        "hasWhereItGoes": true
+      },
+      {
+        "section": "2.8",
+        "item": "The `file:` adapter link",
+        "goesTo": "P2 continuation",
+        "hasWhyOut": true,
+        "hasShipBehaviour": true,
+        "hasIfForgotten": true,
+        "hasWhereItGoes": true
+      }
+    ],
+    "reconciliation": [
+      {
+        "item": "Device evidence (B2, C2, E1, F2)",
+        "inSection9": true
+      },
+      {
+        "item": "BOI market-holiday calendar",
+        "inSection9": true
+      },
+      {
+        "item": "Hardware-backed key custody (C7's lift)",
+        "inSection9": true
+      },
+      {
+        "item": "BOI live fetch client",
+        "inSection9": true
+      },
+      {
+        "item": "Conflict-axis classification (OB-6)",
+        "inSection9": true
+      },
+      {
+        "item": "An analytics provider",
+        "inSection9": false
+      },
+      {
+        "item": "Surface instrumentation (`track` call sites)",
+        "inSection9": false
+      },
+      {
+        "item": "The `file:` adapter link",
+        "inSection9": false
+      }
+    ]
+  },
+  "handoff": {
+    "obligations": [
+      {
+        "id": "P3-1",
+        "obligation": "**The BOI live fetch client**, per `boi-fetch-spec.md`; the bundle is used only until the first successful fetch",
+        "createdBy": "contract §9; OB-5 obligation 1"
+      },
+      {
+        "id": "P3-2",
+        "obligation": "**The engine arithmetic**, including the divide by `quoteUnit`",
+        "createdBy": "contract §9; OD-23a"
+      },
+      {
+        "id": "P3-3",
+        "obligation": "**Conflict-axis classification** (`disagreementAxis`), in a build-time gate",
+        "createdBy": "OB-6; ADR-014 §3"
+      },
+      {
+        "id": "P3-4",
+        "obligation": "**A market-holiday calendar** supplied to `stalenessOf`, or a further dated deferral",
+        "createdBy": "`P1_DEFERRED` §2.11; OD-31"
+      },
+      {
+        "id": "P3-5",
+        "obligation": "**Surface instrumentation**, if any product question is worth measuring",
+        "createdBy": "P2 deferred register §2.7"
+      }
+    ],
+    "interfaceRows": 6
+  },
+  "decisions": [
+    {
+      "id": "PD-001",
+      "question": true,
+      "alternatives": 3,
+      "evidence": true,
+      "chose": true,
+      "rationale": true,
+      "reversibility": "EASY",
+      "affects": 1,
+      "risk": "LOW",
+      "ownerReview": false,
+      "supersedes": []
+    },
+    {
+      "id": "PD-002",
+      "question": true,
+      "alternatives": 3,
+      "evidence": true,
+      "chose": true,
+      "rationale": true,
+      "reversibility": "EASY",
+      "affects": 4,
+      "risk": "LOW",
+      "ownerReview": false,
+      "supersedes": []
+    },
+    {
+      "id": "PD-003",
+      "question": true,
+      "alternatives": 3,
+      "evidence": true,
+      "chose": true,
+      "rationale": true,
+      "reversibility": "EASY",
+      "affects": 3,
+      "risk": "LOW",
+      "ownerReview": false,
+      "supersedes": []
+    },
+    {
+      "id": "PD-004",
+      "question": true,
+      "alternatives": 4,
+      "evidence": true,
+      "chose": true,
+      "rationale": true,
+      "reversibility": "EASY",
+      "affects": 2,
+      "risk": "MEDIUM",
+      "ownerReview": false,
+      "supersedes": []
+    },
+    {
+      "id": "PD-005",
+      "question": true,
+      "alternatives": 4,
+      "evidence": true,
+      "chose": true,
+      "rationale": true,
+      "reversibility": "EASY",
+      "affects": 1,
+      "risk": "LOW",
+      "ownerReview": false,
+      "supersedes": []
+    },
+    {
+      "id": "PD-006",
+      "question": true,
+      "alternatives": 1,
+      "evidence": true,
+      "chose": true,
+      "rationale": true,
+      "reversibility": "EASY",
+      "affects": 4,
+      "risk": "A user who had learned to read orange as distinct from amber now sees two advisory states in the same hue. Mitigated by A9's icon+word requirement, which this makes load-bearing rather than decorative.",
+      "ownerReview": false,
+      "supersedes": []
+    },
+    {
+      "id": "PD-007",
+      "question": true,
+      "alternatives": 3,
+      "evidence": true,
+      "chose": true,
+      "rationale": true,
+      "reversibility": "EASY",
+      "affects": 3,
+      "risk": "LOW",
+      "ownerReview": true,
+      "supersedes": []
+    },
+    {
+      "id": "PD-008",
+      "question": true,
+      "alternatives": 3,
+      "evidence": true,
+      "chose": true,
+      "rationale": true,
+      "reversibility": "EASY",
+      "affects": 2,
+      "risk": "LOW",
+      "ownerReview": false,
+      "supersedes": [
+        "PD-006"
+      ]
+    }
+  ]
+}

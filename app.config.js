@@ -20,6 +20,19 @@ module.exports = {
   slug: identity.slug,
   scheme: identity.scheme,
   version: identity.version,
+  // OD-14 — `newArchEnabled` · CLOSED — APPROVED (2026-08-23):
+  //
+  //   > "restore `newArchEnabled: true` and then prove it on a physical device or emulator.
+  //   > RESTORING THE FLAG WITHOUT A DEVICE RUN PROVES NOTHING: the whole point of the criterion is
+  //   > that the inherited app has never been shown to run natively at all."
+  //
+  // Present in HEAD's `app.json`, deleted in the working tree it was inherited from, and still
+  // `true` in `android/gradle.properties` — so the two halves of the build disagreed. MMKV expects
+  // the New Architecture, which is what made the disagreement dangerous rather than untidy.
+  //
+  // This restores the flag. The device half is criterion F2 and Phase 11, and the `newarch` gate
+  // reports it as UNPROVEN rather than counting the flag as the proof.
+  newArchEnabled: true,
   orientation: 'portrait',
   userInterfaceStyle: 'automatic',
   ios: {
