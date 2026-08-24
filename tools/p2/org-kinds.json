@@ -1,0 +1,42 @@
+{
+  "$comment": [
+    "GENERATED — do not edit. Derived from dist/packs/taxonomy/pack.json and cross-checked against",
+    "OD-30 in the pipeline repository. Regenerate with: node campaign-p2/bin/p2-org-kinds.mjs",
+    "Criterion A5, Owner Decisions OD-28 and OD-30.",
+    "",
+    "Read from the SHIPPED PACK rather than from a list anybody typed: the pack is what reaches a",
+    "device, and a list is a document about a previous build. The Owner Decision is read too, and a",
+    "disagreement between them fails rather than silently following one."
+  ],
+  "source": "dist/packs/taxonomy/pack.json",
+  "ruledBy": "OD-30",
+  "ruled": [
+    "CONSUMER_CLUB",
+    "ISSUER_OPERATED_STORE",
+    "PROFESSIONAL_ASSOCIATION"
+  ],
+  "count": 3,
+  "kinds": [
+    {
+      "key": "CONSUMER_CLUB",
+      "kindClass": "NON_MERCHANT_ORGANISATION_KIND",
+      "label": null,
+      "labelState": "UNKNOWN_NOT_IN_ESTATE",
+      "obtainable": true
+    },
+    {
+      "key": "ISSUER_OPERATED_STORE",
+      "kindClass": "NON_MERCHANT_ORGANISATION_KIND",
+      "label": null,
+      "labelState": "UNKNOWN_NOT_IN_ESTATE",
+      "obtainable": true
+    },
+    {
+      "key": "PROFESSIONAL_ASSOCIATION",
+      "kindClass": "NON_MERCHANT_ORGANISATION_KIND",
+      "label": null,
+      "labelState": "UNKNOWN_NOT_IN_ESTATE",
+      "obtainable": true
+    }
+  ]
+}

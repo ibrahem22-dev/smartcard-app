@@ -10,6 +10,8 @@
 // {{bankName}}) and emojis are preserved verbatim.
 
 export const arBySource: Readonly<Record<string, string>> = {
+  // A5 / OD-30 — an organisation kind the estate does not name.
+  'אין שם רשמי במאגר': 'لا يوجد اسم رسمي في السجل',
   // A1 — the Spec §4 navigation shell, and the surfaces P5a/P5b will fill.
   'ארנק': 'المحفظة',
   'בדיקה': 'فحص',

@@ -267,6 +267,8 @@ export const en = {
 } as const;
 
 export const enBySource: Readonly<Record<string, string>> = {
+  // A5 / OD-30 — an organisation kind the estate does not name.
+  'אין שם רשמי במאגר': 'No official name in the register',
   // A1 — the Spec §4 navigation shell, and the surfaces P5a/P5b will fill.
   'ארנק': 'Wallet',
   'בדיקה': 'Check',
