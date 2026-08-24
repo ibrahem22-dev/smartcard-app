@@ -236,7 +236,40 @@ if (failedSteps.length === 0) {
   console.log('  This is NOT an acceptance run and must not be recorded as one.');
   process.exit(1);
 }
+/**
+ * A DEVICE-FLAGGED GATE THAT FAILS IS NAMED, NOT EXCUSED.
+ *
+ * The contract flags four criteria DEVICE, and `required-gates.json` carries that flag through. A
+ * gate behind one cannot pass on a machine with no hardware, and reporting it as an ordinary
+ * failure has a real cost: it makes CI's red indistinguishable from a regression, and **a build
+ * that is always red teaches everyone to ignore it** — which is how a real failure gets through.
+ *
+ * So the ladder distinguishes them. **Nothing turns green.** `P2-ALL OK — every step green` is still
+ * unreachable while a device gate is red, which is exactly right: criteria E5, E7 and F4 all require
+ * that sentinel, and P2 is not complete without a device. What changes is that the verdict SAYS
+ * which blocker it is, so a reader can tell "hardware is missing" from "something broke".
+ *
+ * The flag is read from the generated file, never listed here. A gate somebody flagged DEVICE by
+ * hand in this script would be an excuse with a hardcoded name.
+ */
+const deviceGates = new Set(
+  (required?.gates ?? []).filter((g) => (g.flags ?? []).includes('DEVICE')).map((g) => 'gate:' + g.gate),
+);
+const deviceBlocked = failedSteps.filter((s) => deviceGates.has(s));
+const realFailures = failedSteps.filter((s) => !deviceGates.has(s));
+
+if (realFailures.length === 0 && deviceBlocked.length > 0) {
+  console.log('P2-ALL DEVICE-BLOCKED — ' + deviceBlocked.length + ' step(s) need hardware this '
+    + 'machine does not have: ' + deviceBlocked.join(', '));
+  console.log('  Everything else is green. THIS IS NOT AN ACCEPTANCE RUN: E5, E7 and F4 all require');
+  console.log('  "P2-ALL OK — every step green", and that sentence is unreachable until a device run');
+  console.log('  is captured. Reported separately so a reader can tell a missing device from a');
+  console.log('  regression — not so it can be counted as a pass.');
+  process.exit(1);
+}
+
 console.log('P2-ALL FAILED — ' + failedSteps.length + ' step(s): ' + failedSteps.slice(0, 8).join(', ')
+  + (deviceBlocked.length ? ' · of which device-blocked: ' + deviceBlocked.length : '')
   + (missingSteps.length ? ' · missing: ' + missingSteps.length : '')
   + (todoSteps.length ? ' · not implemented: ' + todoSteps.length : ''));
 process.exit(1);
