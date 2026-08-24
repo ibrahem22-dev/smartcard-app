@@ -91,6 +91,25 @@ const STEPS = [
     cmd: process.execPath, args: [join(HERE, 'checked-step.mjs'), '--name', 'SUITE', '--', 'npx', 'jest', '--silent'],
     sentinel: /Tests:\s+\d+ passed, \d+ total/, failure: /(Tests:.*failed)|(Test Suites:.*failed)|^SUITE FAILED/m,
   },
+  /**
+   * THE CI WORKFLOW DECIDES THREE CRITERIA, AND UNTIL THE OWNER INSTALLS A CREDENTIAL IT CANNOT
+   * RUN AT ALL.
+   *
+   * `.github/workflows/ci.yml` settles F4, E7 and E6 by grepping the ladder's printed output. Its
+   * predecessor was 5,946 bytes of reasoning about which gates it tolerated going red and had never
+   * reached a gate in its life — every run died at `npm ci`, because the app's data dependency is a
+   * relative path into a private second repository CI never checked out.
+   *
+   * So the new one's verdict logic is exercised HERE, on every ladder run, against inputs chosen to
+   * make it fail. It belongs in the ladder rather than only in the CI job because a control that
+   * runs only inside the thing it controls cannot speak before that thing works — and the whole
+   * point is to be trustworthy on the first real run, not after it.
+   */
+  {
+    name: 'ci-controls',
+    cmd: process.execPath, args: [join(HERE, 'ci-workflow-controls.mjs')],
+    sentinel: /^CI-WORKFLOW-CONTROLS OK/m, failure: /^CI-WORKFLOW-CONTROLS FAILED/m,
+  },
 ];
 
 for (const s of STEPS) {

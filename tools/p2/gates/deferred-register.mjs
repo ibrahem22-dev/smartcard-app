@@ -83,6 +83,34 @@ export const run = async ({ root }) => {
   } else if (reconciliation.length < entries.length) {
     problems.push('the register has ' + entries.length + ' entries and reconciles '
       + reconciliation.length + '. Item by item means every item');
+  } else {
+    /**
+     * "ITEM BY ITEM" USED TO MEAN "THE SAME NUMBER OF ROWS".
+     *
+     * This branch compared `reconciliation.length` against `entries.length` and nothing else, so a
+     * table with the right COUNT of rows about the WRONG items reconciled nothing and said
+     * `DEFERRED-REGISTER OK — reconciled`. Adding a row for an item already covered, while a real
+     * entry stayed unreconciled, kept the two numbers equal and the gate green.
+     *
+     * A count is not a mapping. Every entry is now matched to a reconciliation row BY ITS TEXT, and
+     * an entry with no row is named — which is what the message above was already claiming.
+     *
+     * The comparison is loose on purpose: the entry heading and the table cell are written by hand
+     * in two places, and demanding byte equality would fail on a comma. Punctuation and case are
+     * dropped, and a row matches if either string contains the other — enough to catch "this item
+     * has no row at all", which is the failure, without failing on "(`track` call sites)".
+     */
+    const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+    const rows = reconciliation.map((r) => norm(r.item));
+    const unmatched = entries.filter((e) => {
+      const item = norm(e.item);
+      return !rows.some((r) => r.includes(item) || item.includes(r));
+    });
+    if (unmatched.length > 0) {
+      problems.push(unmatched.length + ' entr(ies) have no row in the §9 reconciliation table, so '
+        + 'the counts agree while the mapping does not: '
+        + unmatched.map((e) => '§' + e.section + ' "' + e.item + '"').join(' · '));
+    }
   }
 
   const late = reconciliation.filter((r) => !r.inSection9);

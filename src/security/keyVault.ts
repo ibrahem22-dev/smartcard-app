@@ -322,7 +322,20 @@ const SS = {
 // so on Android THERE IS NO PASSCODE FALLBACK: a device lock-screen PIN does not satisfy it. A user
 // who has never enrolled a fingerprint or face cannot create this vault.
 //
-// That is a security-posture decision, not a bug to quietly patch, and it is open with the Owner.
+// That is a security-posture decision, not a bug to quietly patch. It was raised as OQ-001 and the
+// Owner RULED it on 2026-08-24:
+//
+//   "Keep requireAuthentication:true. If no supported biometric is enrolled, block vault setup and
+//    guide the user to Android Settings to enroll biometric authentication, then retry. No
+//    unauthenticated DEK fallback is permitted."
+//
+// So this flag STAYS, and the refusal moved to where the user can act on it:
+// `src/security/biometricEnrolment.ts` asks `canAuthenticate`'s own question before enrolment is
+// attempted, and `LockScreen` replaces the PIN form with a screen that names the requirement and
+// opens Settings. **Nothing here is permitted to write the DEK without this flag** — a per-device
+// downgrade would make the vault's protection vary by handset with nothing in the product saying
+// so, which is the one option the ruling names as forbidden. `keyVault.dekAuth.test.ts` holds that line, and was watched to go red with the flag removed.
+//
 // The comment is corrected here so the next reader is not told something the device disproved.
 const DEK_OPTS: SecureStore.SecureStoreOptions = {
   keychainService: KEYCHAIN_SERVICE,

@@ -754,4 +754,15 @@ export const enBySource: Readonly<Record<string, string>> = {
   'Alignment probe — this line should flip sides':
     'Alignment probe — this line should flip sides',
   'Root direction container': 'Root direction container',
+
+  // OQ-001 — the biometric enrolment gate (src/security/biometricEnrolment.ts)
+  'נדרשת הגדרת אימות ביומטרי': 'Biometric authentication setup required',
+  'במכשיר זה אין חיישן ביומטרי, ולכן לא ניתן ליצור כספת מקומית מאובטחת. {{app}} דורש טביעת אצבע או זיהוי פנים חזק כדי להגן על מפתח ההצפנה.': 'This device has no biometric sensor, so a secure local vault cannot be created. {{app}} requires a fingerprint or strong face unlock to protect the encryption key.',
+  'זיהוי הפנים במכשיר זה מוגדר כאבטחה חלשה, ואינו מספיק להגנה על מפתח ההצפנה. הוסף טביעת אצבע או זיהוי פנים חזק בהגדרות ונסה שוב.': 'Face unlock on this device is classified as weak security and is not enough to protect the encryption key. Add a fingerprint or strong face unlock in Settings and try again.',
+  'קוד הנעילה של המכשיר אינו מספיק. {{app}} מגן על מפתח ההצפנה בעזרת טביעת אצבע או זיהוי פנים חזק — הוסף אחד מהם בהגדרות ונסה שוב.': 'The device lock code is not enough. {{app}} protects the encryption key with a fingerprint or strong face unlock — add one in Settings and try again.',
+  'לא הצלחנו לבדוק את הגדרות האבטחה של המכשיר. ודא שטביעת אצבע או זיהוי פנים מוגדרים בהגדרות ונסה שוב.': 'We could not check this device\'s security settings. Make sure a fingerprint or face unlock is set up in Settings and try again.',
+  'כדי ליצור כספת מקומית מאובטחת יש להגדיר תחילה טביעת אצבע או זיהוי פנים במכשיר. {{app}} משתמש בהם כדי להגן על מפתח ההצפנה.': 'To create a secure local vault, first set up a fingerprint or face unlock on this device. {{app}} uses it to protect the encryption key.',
+  'לא הצלחנו לפתוח את ההגדרות. פתח אותן ידנית והוסף טביעת אצבע או זיהוי פנים.': 'We could not open Settings. Open it manually and add a fingerprint or face unlock.',
+  'פתח הגדרות': 'Open Settings',
+  'בדוק שוב': 'Check again',
 };

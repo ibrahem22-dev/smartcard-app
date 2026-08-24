@@ -18,7 +18,8 @@
     "p2:controls:d4": "node tools/p2/rederivation-controls.mjs",
     "pin-node": "node tools/p2/pin-node.mjs",
     "postinstall": "node tools/p2/pin-node.mjs",
-    "pretest": "node tools/p2/preflight.mjs --runtime"
+    "pretest": "node tools/p2/preflight.mjs --runtime",
+    "p2:controls:ci": "node tools/p2/ci-workflow-controls.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "~57.0.7",

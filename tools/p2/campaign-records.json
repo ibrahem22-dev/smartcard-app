@@ -338,7 +338,7 @@
       {
         "section": "2.1",
         "item": "Device evidence",
-        "goesTo": "PHASE 11 / P2 continuation",
+        "goesTo": "CLOSED, except C2",
         "hasWhyOut": true,
         "hasShipBehaviour": true,
         "hasIfForgotten": true,
@@ -406,6 +406,69 @@
         "hasShipBehaviour": true,
         "hasIfForgotten": true,
         "hasWhereItGoes": true
+      },
+      {
+        "section": "2.9",
+        "item": "C2 collides with OB-8",
+        "goesTo": "Owner / OQ-002",
+        "hasWhyOut": true,
+        "hasShipBehaviour": true,
+        "hasIfForgotten": true,
+        "hasWhereItGoes": true
+      },
+      {
+        "section": "2.10",
+        "item": "The vault cannot be created without an enrolled biometric",
+        "goesTo": "Owner / OQ-001",
+        "hasWhyOut": true,
+        "hasShipBehaviour": true,
+        "hasIfForgotten": true,
+        "hasWhereItGoes": true
+      },
+      {
+        "section": "2.11",
+        "item": "A lock screen that stopped accepting input, once",
+        "goesTo": "P2 continuation",
+        "hasWhyOut": true,
+        "hasShipBehaviour": true,
+        "hasIfForgotten": true,
+        "hasWhereItGoes": true
+      },
+      {
+        "section": "2.12",
+        "item": "CI cannot build the app at all",
+        "goesTo": "Owner / OQ-003",
+        "hasWhyOut": true,
+        "hasShipBehaviour": true,
+        "hasIfForgotten": true,
+        "hasWhereItGoes": true
+      },
+      {
+        "section": "2.13",
+        "item": "The render suite fails on a cold cache, once",
+        "goesTo": "P2 continuation",
+        "hasWhyOut": true,
+        "hasShipBehaviour": true,
+        "hasIfForgotten": true,
+        "hasWhereItGoes": true
+      },
+      {
+        "section": "2.14",
+        "item": "The pack build is not byte-reproducible across checkouts",
+        "goesTo": "P2 continuation",
+        "hasWhyOut": true,
+        "hasShipBehaviour": true,
+        "hasIfForgotten": true,
+        "hasWhereItGoes": true
+      },
+      {
+        "section": "2.15",
+        "item": "A public repository nobody outside the account can build",
+        "goesTo": "P2 continuation / Owner",
+        "hasWhyOut": true,
+        "hasShipBehaviour": true,
+        "hasIfForgotten": true,
+        "hasWhereItGoes": true
       }
     ],
     "reconciliation": [
@@ -418,7 +481,7 @@
         "inSection9": true
       },
       {
-        "item": "Hardware-backed key custody (C7's lift)",
+        "item": "Hardware-backed key custody — OB-8",
         "inSection9": true
       },
       {
@@ -439,6 +502,34 @@
       },
       {
         "item": "The `file:` adapter link",
+        "inSection9": false
+      },
+      {
+        "item": "C2 collides with OB-8",
+        "inSection9": true
+      },
+      {
+        "item": "The vault cannot be created without an enrolled biometric",
+        "inSection9": false
+      },
+      {
+        "item": "A lock screen that stopped accepting input, once",
+        "inSection9": false
+      },
+      {
+        "item": "CI cannot build the app at all",
+        "inSection9": false
+      },
+      {
+        "item": "The render suite fails on a cold cache, once",
+        "inSection9": false
+      },
+      {
+        "item": "The pack build is not byte-reproducible across checkouts",
+        "inSection9": false
+      },
+      {
+        "item": "A public repository nobody outside the account can build",
         "inSection9": false
       }
     ]

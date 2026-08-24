@@ -1,120 +1,369 @@
 name: CI
 
-# WP-1.3 — THE APP REPOSITORY HAD NO CI AT ALL.
+# ==============================================================================================
+# WP-12.1 — CI BUILDS THE APP FOR THE FIRST TIME, ON THE OWNER'S RULING FOR OQ-003.
 #
-# The forensic recorded it as §4.1: no workflow, no automated check, nothing that reads the tree on
-# push. Every claim about this app was therefore a claim about one machine.
+# WHAT WAS WRONG, AND FOR HOW LONG
 #
-# This is the SKELETON the plan asks for at Phase 1 — install, typecheck, test. It becomes criterion
-# F4 in full at Phase 3, when it runs the whole ladder including the five boundary rules.
+# This workflow existed since WP-1.3 and had NEVER REACHED A GATE. Every run since it was created
+# died at `npm ci`, because the app's sole data dependency is
+#
+#     "@smartcard/data-authority-adapter": "file:../smartcard-data-pipeline/dist/adapter-package"
+#
+# a relative path into a SECOND repository — which is private, and which CI never checked out. The
+# old file's comments discussed at length which gates it tolerated going red. None of them ran. The
+# failure was one line into the install, and the comments were written as though the ladder executed.
+#
+# That is the defect this campaign hunts by name: a check that cannot fail, wearing the costume of
+# one that can. It was raised as F4 / OQ-003 rather than patched, because every route to fixing it
+# needs a credential or a disclosure decision that belongs to the Owner and to nobody else.
+#
+# THE RULING (OQ-003, answered 2026-08-24)
+#
+#   "For P2, CI shall access the private smartcard-data-pipeline repository using an Owner-provided
+#    deploy key or fine-grained PAT stored as a repository secret, check out the pipeline as a
+#    sibling, and build the adapter from authoritative source. Do not make the pipeline public and
+#    do not vendor adapter output into the public app repo. Registry publication remains the
+#    preferred later architecture."
+#
+# So: two checkouts, siblings, the adapter COMPILED here from pipeline source rather than copied in.
+#
+# AND WHAT THIS RUN IS NOW EVIDENCE FOR (OQ-004, answered the same day)
+#
+#   "For P2 closure, FRESH means a different machine/environment from the development working
+#    machine. GitHub CI is accepted as that machine when it checks out from scratch, clean-installs
+#    dependencies, builds the authoritative adapter, and runs the required P2 verification.
+#    E6, E7 and F4 must be proven there."
+#
+# Three criteria are decided by this file, and the verdict step at the bottom asserts each by its
+# own contracted sentinel, read from printed output:
+#
+#   F4  CI exists in the app repo and runs the whole ladder     ->  P2-ALL OK — every step green
+#   E7  the ladder reproduces in a fresh clone of the pushed    ->  P2-ALL OK — every step green
+#       sha, on a machine that has never built this app             (this runner, provably)
+#   E6  every criterion validated against the real shipped      ->  REAL-ARTIFACTS OK — 5 of 5
+#       artifacts at their measured shas                            shas matched
+#
+# A NOTE ON FORK PULL REQUESTS, WHICH IS A REAL FINDING AND NOT A CAVEAT
+#
+# GitHub does not expose secrets to workflows triggered by a fork's pull request. This build will
+# therefore FAIL on any outside contribution — loudly, at the guard step, saying why. That is not a
+# workflow bug to be papered over with `continue-on-error`: it is the true state of the product.
+# **The app repository is public and cannot be built by anyone outside the Owner's account**, because
+# its only data dependency is private. Recorded in `campaign-p2/closure/P2_DEFERRED.md` §2.15;
+# registry publication (OQ-003 option 2) is the fix and is deferred, not forgotten.
+# ==============================================================================================
 
 on:
   push:
   pull_request:
+  workflow_dispatch:
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+env:
+  PIPELINE_REPO: ibrahem22-dev/smartcard-data-pipeline
 
 jobs:
   verify:
     runs-on: ubuntu-latest
     steps:
+      # ------------------------------------------------------------------------------------------
+      # THE GUARD RUNS FIRST, AND FAILS. IT DOES NOT SKIP.
+      #
+      # A missing credential must not produce a green build. If this job were allowed to skip the
+      # pipeline checkout and "pass" the steps that remain, it would print success while proving
+      # nothing — and F4's evidence is a CI run printing a sentinel, so a green build that never
+      # reached the ladder is precisely a false close.
+      #
+      # It runs BEFORE the checkouts so the failure message names the cause. `actions/checkout`
+      # against a private repository with no credential fails with a bare 128 and a "repository not
+      # found" — which reads like a typo in the repository name, and cost this campaign a wrong
+      # diagnosis once already.
+      # ------------------------------------------------------------------------------------------
+      - name: the credential OQ-003 requires is present
+        working-directory: ${{ github.workspace }}
+        env:
+          HAVE_KEY: ${{ secrets.PIPELINE_DEPLOY_KEY != '' }}
+          HAVE_PAT: ${{ secrets.PIPELINE_PAT != '' }}
+        run: |
+          echo "deploy key present: $HAVE_KEY"
+          echo "PAT present:        $HAVE_PAT"
+          if [ "$HAVE_KEY" != "true" ] && [ "$HAVE_PAT" != "true" ]; then
+            echo "::error::No credential for the private pipeline repository."
+            echo ""
+            echo "This build cannot install the app. The app depends on"
+            echo "  @smartcard/data-authority-adapter -> file:../smartcard-data-pipeline/dist/adapter-package"
+            echo "which lives in $PIPELINE_REPO, a PRIVATE repository."
+            echo ""
+            echo "The Owner ruled OQ-003: add ONE of these repository secrets to smartcard-app —"
+            echo "  PIPELINE_DEPLOY_KEY   an SSH private key whose public half is a read-only"
+            echo "                        deploy key on $PIPELINE_REPO   (preferred)"
+            echo "  PIPELINE_PAT          a fine-grained PAT with Contents:read on that repository"
+            echo ""
+            echo "Setup commands: campaign-p2/OWNER_SETUP_CI.md in the pipeline repository."
+            echo ""
+            echo "If this is a pull request from a FORK, secrets are withheld by design and this"
+            echo "build cannot pass. That is a true statement about the product, not a CI defect:"
+            echo "a public app with a private data dependency is not buildable by outsiders."
+            exit 1
+          fi
+          echo "A credential is available. The pipeline will be checked out as a sibling."
+
+      # ------------------------------------------------------------------------------------------
+      # TWO CHECKOUTS, LAID OUT AS SIBLINGS, BECAUSE THE DEPENDENCY IS A RELATIVE PATH.
+      #
+      #   $GITHUB_WORKSPACE/smartcard-app/               <- this repository
+      #   $GITHUB_WORKSPACE/smartcard-data-pipeline/     <- the authority
+      #
+      # `file:../smartcard-data-pipeline/...` resolves from the app root, so the names of these two
+      # directories are load-bearing and must not be tidied.
+      # ------------------------------------------------------------------------------------------
+
       # FULL HISTORY, NOT A SHALLOW CLONE. `actions/checkout` defaults to depth 1, and the app-root
       # gate (F1, OD-13) asks whether the repository's history was PRESERVED through the relocation:
-      # how many commits it has, and whether the first one predates the move. A depth-1 clone answers
-      # "one commit, dated today" to both — which is exactly what a re-initialised repository looks
-      # like. CI failed on it and was right to; the fix is to give CI the history, never to stop
-      # asking the question.
-      - uses: actions/checkout@v4
+      # how many commits it has, and whether the first predates the move. A depth-1 clone answers
+      # "one commit, dated today" to both — which is what a re-initialised repository looks like.
+      - name: app
+        uses: actions/checkout@v4
         with:
+          path: smartcard-app
           fetch-depth: 0
+
+      # Two steps rather than one, because `actions/checkout` takes `ssh-key` OR `token` and an
+      # expression cannot choose between two differently-named inputs. The deploy key wins when both
+      # are set: it is scoped to one repository and read-only, where a PAT is an account credential.
+      - name: pipeline (deploy key)
+        if: ${{ secrets.PIPELINE_DEPLOY_KEY != '' }}
+        uses: actions/checkout@v4
+        with:
+          repository: ibrahem22-dev/smartcard-data-pipeline
+          ref: ${{ vars.PIPELINE_REF || 'main' }}
+          ssh-key: ${{ secrets.PIPELINE_DEPLOY_KEY }}
+          path: smartcard-data-pipeline
+          fetch-depth: 0
+
+      - name: pipeline (fine-grained PAT)
+        if: ${{ secrets.PIPELINE_DEPLOY_KEY == '' && secrets.PIPELINE_PAT != '' }}
+        uses: actions/checkout@v4
+        with:
+          repository: ibrahem22-dev/smartcard-data-pipeline
+          ref: ${{ vars.PIPELINE_REF || 'main' }}
+          token: ${{ secrets.PIPELINE_PAT }}
+          path: smartcard-data-pipeline
+          fetch-depth: 0
+
+      # POSITIVE ASSERTION ON THE CHECKOUT, not "the step before did not fail". Both checkout steps
+      # carry an `if:`, and a skipped step in GitHub Actions is a SUCCESS — so without this, a
+      # condition that silently evaluated false would sail past and fail later at `npm ci` with a
+      # module-resolution error four steps from its cause.
+      - name: the pipeline is really there, and this is which sha
+        working-directory: ${{ github.workspace }}
+        run: |
+          test -f smartcard-data-pipeline/package.json \
+            || { echo "::error::the pipeline checkout did not happen"; exit 1; }
+          test -d smartcard-data-pipeline/campaign-p2/bin \
+            || { echo "::error::the pipeline is present but has no campaign-p2/bin"; exit 1; }
+          echo "app      $(git -C smartcard-app rev-parse HEAD)"
+          echo "pipeline $(git -C smartcard-data-pipeline rev-parse HEAD)"
+          {
+            echo "### The two shas this run measured"
+            echo ""
+            echo "| repository | sha |"
+            echo "|---|---|"
+            echo "| smartcard-app | \`$(git -C smartcard-app rev-parse HEAD)\` |"
+            echo "| smartcard-data-pipeline | \`$(git -C smartcard-data-pipeline rev-parse HEAD)\` |"
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # ------------------------------------------------------------------------------------------
+      # A CI CHECKOUT IS A DETACHED HEAD, AND F5 ASKS A QUESTION A DETACHED HEAD CANNOT ANSWER.
+      #
+      # `gate:repos-in-sync` resolves `@{u}` and reports "the branch tracks no remote" when it
+      # cannot — correct behaviour on a detached HEAD, and it would fail this build for a reason
+      # that has nothing to do with the repositories being out of sync.
+      #
+      # This does not weaken the gate. It gives CI the local branch a real clone would have, at the
+      # exact sha already checked out, so the ahead/behind comparison the criterion asks for is
+      # actually possible. If the sha is not the branch head, the gate still says so and still fails.
+      # ------------------------------------------------------------------------------------------
+      - name: give both checkouts the tracking branch a real clone would have
+        working-directory: ${{ github.workspace }}
+        run: |
+          set -e
+          app_branch="${GITHUB_HEAD_REF:-${GITHUB_REF_NAME}}"
+          git -C smartcard-app checkout -B "$app_branch" "$(git -C smartcard-app rev-parse HEAD)"
+          git -C smartcard-app branch --set-upstream-to "origin/$app_branch" "$app_branch"
+
+          pipe_branch="${{ vars.PIPELINE_REF || 'main' }}"
+          git -C smartcard-data-pipeline checkout -B "$pipe_branch" \
+            "$(git -C smartcard-data-pipeline rev-parse HEAD)"
+          git -C smartcard-data-pipeline branch --set-upstream-to "origin/$pipe_branch" "$pipe_branch"
+
+          echo "app      $app_branch  -> $(git -C smartcard-app rev-parse --abbrev-ref '@{u}')"
+          echo "pipeline $pipe_branch -> $(git -C smartcard-data-pipeline rev-parse --abbrev-ref '@{u}')"
 
       - uses: actions/setup-node@v4
         with:
-          # Pinned to the same runtime .nvmrc names. The pipeline repository spent a campaign
-          # running its gate ladder on a machine-wide Node 24 while every file said 20, so the
-          # version is stated here and asserted below rather than assumed from the runner image.
-          node-version-file: '.nvmrc'
-          cache: npm
+          # Pinned to the runtime .nvmrc names. The pipeline repository spent a campaign running its
+          # gate ladder on a machine-wide Node 24 while every file said 20, so the version is stated
+          # here and asserted below rather than assumed from the runner image.
+          node-version-file: smartcard-app/.nvmrc
+
+      # ------------------------------------------------------------------------------------------
+      # THE SETUP ORDER, WHICH UNTIL NOW EXISTED NOWHERE.
+      #
+      # The closure fresh clone found this by running into it: the app cannot be installed from a
+      # clean checkout without first compiling the pipeline, and no file in either repository said
+      # so. A reader who does the obvious thing — clone the app, npm ci — gets TS2307 with no
+      # indication that a second repository is involved. So did CI, on every run, for the whole
+      # campaign.
+      #
+      # It is written here because here it is EXECUTED. A README saying the same thing would be a
+      # claim; these five steps are the claim being tested on every push.
+      #
+      #   1. pipeline  npm ci          the lockfile, never a resolver
+      #   2. pipeline  npx tsc         build:adapter REFUSES on a stale dist/, which is how the
+      #   3. pipeline  build:adapter   ordering became visible at all
+      #   4. pipeline  build:packs     p2-org-kinds --check reads the BUILT taxonomy pack; without
+      #                                this the mirror-parity gate cannot compare it
+      #   5. app       npm ci          only now does the file: dependency resolve
+      # ------------------------------------------------------------------------------------------
+      - name: pipeline — install
+        working-directory: smartcard-data-pipeline
+        run: npm ci
+
+      - name: pipeline — compile
+        working-directory: smartcard-data-pipeline
+        run: npx tsc
+
+      - name: pipeline — build the adapter from authoritative source
+        working-directory: smartcard-data-pipeline
+        run: |
+          set -o pipefail
+          npm run build:adapter 2>&1 | tee adapter.log
+          grep -qF 'BUILD-ADAPTER OK' adapter.log \
+            || { echo "::error::BUILD-ADAPTER OK was not printed"; exit 1; }
+
+      - name: pipeline — build the packs
+        working-directory: smartcard-data-pipeline
+        run: |
+          set -o pipefail
+          npm run build:packs 2>&1 | tee packs.log
+          grep -qF 'BUILD-PACKS OK' packs.log \
+            || { echo "::error::BUILD-PACKS OK was not printed"; exit 1; }
 
       # `npm ci`, never `npm install`. npm install is permitted to RESOLVE a dependency to a version
       # the lockfile does not name — it updates the lockfile rather than failing — so CI would be
       # verifying a tree that need not be the one a reviewer gets from a clean clone.
-      - run: npm ci
+      - name: app — install (this is the step that failed every previous run)
+        working-directory: smartcard-app
+        run: npm ci
 
-      - name: runtime is the pinned one
+      - name: the runtime is the pinned one
+        working-directory: smartcard-app
         run: |
           echo "node $(node --version)  ·  .nvmrc $(cat .nvmrc)"
           test "v$(cat .nvmrc | tr -d '[:space:]')" = "$(node --version)"
 
-      - run: npx tsc --noEmit
+      - name: the adapter resolved to the one just built, not a cached copy
+        working-directory: smartcard-app
+        run: |
+          set -e
+          node -e "console.log(require.resolve('@smartcard/data-authority-adapter/package.json'))"
+          test -f node_modules/@smartcard/data-authority-adapter/package.json
+          echo "adapter version $(node -p "require('@smartcard/data-authority-adapter/package.json').version")"
 
-      - run: npm run lint
+      - name: typecheck
+        working-directory: smartcard-app
+        run: npx tsc --noEmit
 
-      - run: npx jest --ci
+      - name: lint
+        working-directory: smartcard-app
+        run: npm run lint
 
-      # PHASE 3 MADE THIS HARD. Gate 3 requires `BOUNDARY-LINT OK — 5 rules, 0 violations` **in CI
-      # at the pushed sha** — not on a laptop — so this step now fails the build.
+      - name: tests
+        working-directory: smartcard-app
+        run: npx jest --ci
+
+      # ------------------------------------------------------------------------------------------
+      # THE LADDER. THIS STEP DECIDES F4, E7 AND E6.
       #
       # THE VERDICT IS READ FROM PRINTED OUTPUT, never from an exit code: exit codes are advisory in
-      # this project and have been observed false. Two things are asserted, and they are different
-      # kinds of assertion on purpose:
+      # this project and have been observed false.
       #
-      #   1. A POSITIVE SENTINEL must be present. `grep -F` for the exact string the contract names.
-      #      Not "no failure text appeared" — an absent sentinel is a failure, which is what catches
-      #      a ladder that died before reaching the gate at all.
-      #   2. `P2-ALL FAILED` must be absent. Something ran and went red.
+      # Each assertion is POSITIVE — the exact contracted sentinel must be PRESENT. Not "no failure
+      # text appeared": an absent sentinel is a failure, which is what catches a ladder that died
+      # before reaching the gate at all. That distinction is the whole reason the old version of
+      # this file was able to look reasonable while never running.
       #
-      # WHAT IS STILL TOLERATED, and why this is not a softening. All 44 contracted gates now exist,
-      # so `P2-ALL INCOMPLETE` no longer appears on its own — exactly as this comment predicted when
-      # 38 were missing, and without anybody editing this file.
-      #
-      # What remains is `P2-ALL DEVICE-BLOCKED`, which the ladder prints when the ONLY red steps are
-      # gates the contract flags DEVICE. CI has no phone either, so failing on it would make this
-      # build permanently red — and a build that is always red teaches everyone to ignore it, which
-      # is how a real failure gets through.
-      #
-      # CI GREEN IS NOT CRITERION F4. F4's evidence is the sentinel `P2-ALL OK — every step green`,
-      # and that sentence is unreachable until a device run is captured. This step decides whether
-      # a developer should look at their diff; the contract decides whether P2 is done, and it says
-      # not yet.
-      - name: P2 ladder — hard on any implemented gate going red (F4, Gate 3)
+      # There is no tolerance clause any more. The previous version excused `P2-ALL DEVICE-BLOCKED`
+      # because CI has no phone. The DEVICE criteria (B2, C2, E1, F2) are not ladder steps — they
+      # are captured device evidence the ledger verifies — so the ladder either goes green here or
+      # something is genuinely wrong.
+      # ------------------------------------------------------------------------------------------
+      - name: the whole ladder (F4, E7) and the shipped artifacts (E6)
+        working-directory: smartcard-app
         run: |
           set -o pipefail
           npm run p2:all 2>&1 | tee ladder.log || true
-          echo "----- verdict, read from printed output -----"
-          if grep -qF 'P2-ALL FAILED' ladder.log; then
-            echo "CI FAILS: a gate that exists ran and went red."
-            grep -F 'P2-ALL FAILED' ladder.log
-            exit 1
-          fi
-          if grep -qF 'P2-ALL DEVICE-BLOCKED' ladder.log; then
-            echo "NOT AN ACCEPTANCE RUN. Every gate that can run here is green; the red ones need"
-            echo "hardware CI does not have. F4 is NOT satisfied by this build passing."
-            grep -F 'P2-ALL DEVICE-BLOCKED' ladder.log
-          fi
-          if ! grep -qF 'BOUNDARY-LINT OK — 5 rules, 0 violations' ladder.log; then
-            echo "CI FAILS: the Gate 3 sentinel was not printed."
-            echo "An absent sentinel is a failure, not a pass — the ladder may not have reached the gate."
-            exit 1
-          fi
-          echo "Gate 3 sentinel present, no gate red."
 
-      # The boundary rules are also proven to be capable of failing, here, in CI. A rule that has
-      # never been watched to fire is not a rule, and a control recorded only on a laptop is a claim.
+          echo "----- verdict, read from printed output -----"
+
+          if ! grep -qF 'P2-ALL OK — every step green' ladder.log; then
+            echo "::error::F4/E7 NOT SATISFIED — the ladder did not print its sentinel."
+            echo "An absent sentinel is a failure, not a pass. What the ladder did print:"
+            grep -E 'P2-ALL|FAILED|INCOMPLETE|DEVICE-BLOCKED' ladder.log || tail -30 ladder.log
+            exit 1
+          fi
+
+          if ! grep -qF 'REAL-ARTIFACTS OK — 5 of 5 shas matched' ladder.log; then
+            echo "::error::E6 NOT SATISFIED — the real-artifacts sentinel was not printed."
+            grep -E 'REAL-ARTIFACTS' ladder.log || true
+            exit 1
+          fi
+
+          echo "F4 · E7  P2-ALL OK — every step green"
+          echo "E6       REAL-ARTIFACTS OK — 5 of 5 shas matched"
+          {
+            echo ""
+            echo "### Criteria proven on this machine"
+            echo ""
+            echo '| criterion | sentinel |'
+            echo '|---|---|'
+            echo '| F4 | `P2-ALL OK — every step green` |'
+            echo '| E7 | `P2-ALL OK — every step green` |'
+            echo '| E6 | `REAL-ARTIFACTS OK — 5 of 5 shas matched` |'
+          } >> "$GITHUB_STEP_SUMMARY"
+
+      # The boundary rules are also proven CAPABLE OF FAILING, here. A rule that has never been
+      # watched to fire is not a rule, and a control recorded only on a laptop is a claim about a
+      # laptop.
       - name: boundary rules are watched to fire (negative controls)
+        working-directory: smartcard-app
         run: npm run p2:controls
 
       # D4: eight checks that have never caught anything are eight claims.
       - name: no-rederivation checks are watched to fire (negative controls)
+        working-directory: smartcard-app
         run: npm run p2:controls:d4
 
       # The matchers these gates decide on are themselves controlled, and the controls run here so
       # they are proven in the same environment that surfaced the bug they exist for.
       - name: gate matchers are controlled
+        working-directory: smartcard-app
         run: node tools/p2/gates/app-root.mjs --self-test
 
-      - name: upload the ladder report
+      # THE EVIDENCE LEAVES THE RUNNER. E6/E7/F4 are FRESH-flagged, and the Owner's OQ-004 ruling
+      # makes this runner the machine that proves them — so the ladder report has to be retrievable
+      # afterwards, or the evidence dies with the container.
+      - name: upload the ladder report and logs
         if: always()
         uses: actions/upload-artifact@v4
         with:
           name: p2-ladder-report
-          path: reports/p2/
+          path: |
+            smartcard-app/reports/p2/
+            smartcard-app/ladder.log
           if-no-files-found: warn
