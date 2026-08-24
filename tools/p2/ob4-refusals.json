@@ -1,0 +1,70 @@
+{
+  "$comment": [
+    "THE TEN OB-4 REFUSALS — criterion C1.",
+    "",
+    "PARSED from authority/P1_TO_P2_HANDOFF.md by campaign-p2/bin/p2-ob4-refusals.mjs in the",
+    "pipeline repository, and cross-checked against the count P2_COMPLETION_CONTRACT.md states in",
+    "words. Do not edit by hand: --check re-derives and compares, so an edit here is a lie that is",
+    "caught rather than a fix.",
+    "",
+    "C1 requires ONE TEST PER REFUSAL, NAMED BY THE REFUSAL. The gate matches test names against",
+    "the `obligation` text below, so a test that drifts from its obligation stops matching rather",
+    "than quietly covering something else."
+  ],
+  "generatedBy": "campaign-p2/bin/p2-ob4-refusals.mjs",
+  "source": "authority/P1_TO_P2_HANDOFF.md §OB-4",
+  "statedInContract": 10,
+  "refusals": [
+    {
+      "id": "IMPORT_THE_WHOLE_SET_OR_NONE",
+      "obligation": "Import the **whole set** or none",
+      "why": "three of four is a state no `packVersion` names and nothing has validated. A half-imported graph is worse than no import: no import leaves a device on data it has been running correctly on"
+    },
+    {
+      "id": "VERIFY_BEFORE_WRITING_ALWAYS",
+      "obligation": "**Verify before writing**, always",
+      "why": "a refusal must cost the device nothing but CPU. Verification is phase 1 and writes nothing, so \"the prior state is intact\" is true by construction rather than by recovery"
+    },
+    {
+      "id": "REPLACE_THE_INSTALLED_DIRECTORY_WHOLE",
+      "obligation": "Replace the installed directory **whole**",
+      "why": "a partial file write inside it is unrecoverable. Stage beside, then two renames"
+    },
+    {
+      "id": "ROLL_BACK_AT_STARTUP_WHEN_A",
+      "obligation": "**Roll back** at startup when a backup is present",
+      "why": "the staged set is exactly the one whose promotion failed; rolling forward would promote it again"
+    },
+    {
+      "id": "KEEP_EXPECTED_DATASET_ID_COMPILED_IN",
+      "obligation": "Keep `EXPECTED_DATASET_ID` **compiled in**",
+      "why": "a constant a pack can influence is not a check"
+    },
+    {
+      "id": "KEEP_THE_TRUST_STORE_COMPILED_IN",
+      "obligation": "Keep the **trust store compiled in**",
+      "why": "same reason. A trust store a pack could supply answers \"is this signed by whoever signed it?\""
+    },
+    {
+      "id": "REPORT_DATASET_ID_REFUSED_DISTINCTLY_FROM",
+      "obligation": "Report `DATASET_ID_REFUSED` distinctly from a signature failure",
+      "why": "\"this is not our data\" and \"this may have been altered\" are different problems; reporting the second for the first sends a user hunting for corruption that is not there"
+    },
+    {
+      "id": "TREAT_A_CROSS_PACK_SET_REFERENCE",
+      "obligation": "Treat a cross-pack-set reference miss as **absent**",
+      "why": "§6 — that is content skew, and it is legal (see OB-2)"
+    },
+    {
+      "id": "REFUSE_SHAPE_SKEW",
+      "obligation": "**Refuse** shape skew",
+      "why": "an adapter reading a format it does not understand either crashes or silently misreads, and misreading a financial field is the worse outcome"
+    },
+    {
+      "id": "HOLD_ONE_ESTATE_GENERATION_AT_A",
+      "obligation": "Hold **one estate generation** at a time",
+      "why": "two packs can carry the right `datasetId` and describe different corpora"
+    }
+  ],
+  "p1DidNotProve": "**Three things P1 did NOT prove, and P2 must not assume:** a real power-loss crash (the interruptions are injected exceptions); concurrent importers (one at a time is assumed — a P2 runtime that can start an import while another runs needs a lock); and a rename failing for lack of disk space."
+}
