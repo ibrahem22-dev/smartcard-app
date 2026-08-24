@@ -416,6 +416,23 @@ jobs:
             exit 1
           fi
 
+          # ------------------------------------------------------------------------------------
+          # THE SENTINELS ARE ECHOED AS ANNOTATIONS, SO THE EVIDENCE IS READABLE WITHOUT ADMIN.
+          #
+          # F4's contract row asks for a CI run that PRINTS `P2-ALL OK`. A green step is not that —
+          # it is a status, and this campaign's rule is to decide on printed output, never on an
+          # exit code. But a job's log and its artifacts both require repository admin through the
+          # API, so from outside the only readable fact was "the step exited 0".
+          #
+          # Check-run annotations are public on a public repository. Emitting the MATCHED LINES —
+          # grepped out of the ladder's own output, not retyped here — puts the contracted sentinel
+          # somewhere a reviewer with no special access can read it and compare against the contract.
+          # ------------------------------------------------------------------------------------
+          echo "::notice title=F4/E7 sentinel::$(grep -F 'P2-ALL OK — every step green' "$LADDER_LOG" | head -1)"
+          echo "::notice title=E6 sentinel::$(grep -F 'REAL-ARTIFACTS OK — 5 of 5 shas matched' "$LADDER_LOG" | head -1 | sed 's/^[[:space:]]*//')"
+          echo "::notice title=ladder counts::$(grep -E '^\s+steps ' "$LADDER_LOG" | head -1 | sed 's/^[[:space:]]*//')"
+          echo "::notice title=measured at::app $(git -C "$GITHUB_WORKSPACE/smartcard-app" rev-parse HEAD) · pipeline $(git -C "$GITHUB_WORKSPACE/smartcard-data-pipeline" rev-parse HEAD)"
+
           echo "F4 · E7  P2-ALL OK — every step green"
           echo "E6       REAL-ARTIFACTS OK — 5 of 5 shas matched"
           {
