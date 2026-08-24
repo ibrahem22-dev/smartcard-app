@@ -41,7 +41,26 @@ const git = (...a) => {
   return r.status === 0 ? String(r.stdout).trim() : null;
 };
 const sha = git('rev-parse', 'HEAD') ?? 'nogit';
-const dirty = String(spawnSync('git', ['status', '--porcelain'], { cwd: ROOT, encoding: 'utf8' }).stdout || '').trim().length > 0;
+/**
+ * THE SAME EXCLUSION PREFLIGHT AND repos-in-sync USE, FOR THE SAME REASON.
+ *
+ * This line is the third place in the ladder that decides what a clean tree is, and until now the
+ * three disagreed: `repos-in-sync` excluded `reports/p2/<sha>.json` by name after failing in a
+ * fresh clone, `preflight` was taught the same rule later, and this one was not -- so a run whose
+ * only uncommitted file was the previous run's report printed WORKTREE DIRTY and wrote its report
+ * as `<sha>-dirty.json`, which is gitignored. E5 requires a COMMITTED sha-named report, so the one
+ * run that mattered could not produce one.
+ *
+ * A check must not be broken by its own output, and three checks in one ladder must not each have
+ * their own opinion about it.
+ */
+const OWN_REPORT = /^reports[/]p2[/][0-9a-f]{12}[.]json$/;
+const dirty = String(spawnSync('git', ['status', '--porcelain'], { cwd: ROOT, encoding: 'utf8' }).stdout || '')
+  .trim()
+  .split(String.fromCharCode(10))
+  .filter((line) => line.trim().length > 0)
+  .filter((line) => !OWN_REPORT.test(line.slice(3).trim().split(String.fromCharCode(92)).join('/')))
+  .length > 0;
 
 console.log('');
 console.log('P2-ALL — the whole P2 ladder');

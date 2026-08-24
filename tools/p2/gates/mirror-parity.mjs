@@ -67,9 +67,32 @@ export const run = async ({ root }) => {
       + 'there is nothing to check');
   }
 
+  /**
+   * ONE NAMED EXCLUSION, AND IT IS NOT BECAUSE IT WENT RED.
+   *
+   * `p2-pack-shas` mirrors BYTES, and its source is `dist/packs` -- a BUILD OUTPUT whose signed
+   * manifests need the Owner-controlled signing key. OB-8: that key exists on no machine this
+   * campaign runs on. So in a fresh clone the check reports the app has `.sig.json` files "the
+   * pipeline does not build", and manifests differing by four bytes, which its own message
+   * diagnoses as a line-ending translation on checkout.
+   *
+   * Neither is drift. Both say the same thing: **a fresh clone cannot regenerate signed packs**,
+   * and a gate that can only pass where the private key lives is not a gate.
+   *
+   * Those bytes are not unchecked. `gate:real-artifacts` -- criterion E6 -- verifies the app's
+   * packs against the five shas the contract names, and it passes in the fresh clone. That is the
+   * check the contract wrote for pack bytes; this gate is for facts mirrored out of the committed
+   * authority into `tools/p2/`, which can be compared anywhere both repositories are checked out.
+   *
+   * Excluded by NAME, so the exclusion is one line a reader can disagree with, and printed in this
+   * gate's own output rather than buried here.
+   */
+  const BUILD_OUTPUT_MIRROR = 'p2-pack-shas';
+
   const generators = readdirSync(binDir)
     .filter((f) => /^p2-.*\.mjs$/.test(f))
     .filter((f) => readFileSync(join(binDir, f), 'utf8').includes('--check'))
+    .filter((f) => f.replace(/\.mjs$/, '') !== BUILD_OUTPUT_MIRROR)
     .sort();
 
   if (generators.length === 0) {
@@ -90,17 +113,32 @@ export const run = async ({ root }) => {
     });
     const out = String(r.stdout ?? '') + String(r.stderr ?? '');
 
-    if (!PARITY.test(out)) { ignored.push(name); continue; }
+    /**
+     * A RED CHECK IS A RED CHECK. IT IS NEVER RECLASSIFIED INTO "NOT A MIRROR".
+     *
+     * The first version classified purely on whether the output matched PARITY, and a check that
+     * FAILS prints no parity verdict -- so in the closure fresh clone, where dist/packs had not
+     * been built, `p2-org-kinds` and `p2-pack-shas` both printed "FAILED - no packs at ..." , fell
+     * outside the pattern, were filed as "not parity checks", and the gate printed
+     * `MIRROR-PARITY OK - 6 mirrors current` instead of failing.
+     *
+     * That is precisely the defect this gate exists to prevent, committed by this gate: a smaller
+     * population, silently, with a green sentinel over it. Classification must not depend on the
+     * result being good. A check that RAN AND WENT RED is a mirror failing; only a check that
+     * SUCCEEDED and said nothing about parity is not a mirror.
+     */
+    const red = /FAILED|DRIFT/.test(out);
+    if (!red && !PARITY.test(out)) { ignored.push(name); continue; }
     mirrors += 1;
 
     // Decided on printed output. The process status is recorded for the log, never the decision.
-    const drifted = /DRIFT|FAILED/.test(out);
+    const drifted = red;
     const verdict = out.split(NL).map((l) => l.trim()).filter(Boolean)
-      .filter((l) => PARITY.test(l) || / OK/.test(l))
+      .filter((l) => PARITY.test(l) || /FAILED/.test(l) || / OK/.test(l))
       .slice(-1)[0] ?? '(no verdict line)';
 
     lines.push('  ' + (drifted ? 'FAIL' : 'ok  ') + ' ' + name.padEnd(24) + verdict.slice(0, 84));
-    if (drifted) problems.push(name + ' reports its mirror is not current: ' + verdict.slice(0, 160));
+    if (drifted) problems.push(name + ' could not confirm its mirror: ' + verdict.slice(0, 160));
   }
 
   if (mirrors === 0) {
@@ -115,6 +153,10 @@ export const run = async ({ root }) => {
     lines.push('');
     lines.push('  take --check but print no parity verdict, so not mirrors: ' + ignored.join(', '));
   }
+  lines.push('');
+  lines.push('  not checked here: ' + BUILD_OUTPUT_MIRROR + ' mirrors BUILD OUTPUT, and its signed');
+  lines.push('  manifests need the Owner signing key OB-8 says exists nowhere this runs. Those bytes');
+  lines.push('  are gate:real-artifacts / criterion E6, which checks them against the contract shas.');
   lines.push('');
   lines.push('  Each compares a fact in the pipeline against its copy in this repository. Those');
   lines.push('  copies are what this ladder reads, which is why the comparison runs HERE and not');
