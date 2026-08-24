@@ -35,6 +35,14 @@
   },
   "dispositions": [
     {
+      "id": "ALLOW-LANGUAGE-KEYED-TABLE",
+      "disposition": "ALLOWED",
+      "file": "^src/utils/calendar.ts$",
+      "why": "THE LOCALIZED DATA ITSELF, NOT A STRING AWAITING TRANSLATION. DAY_LETTERS and DAY_NAMES are Record<AppLanguage, string[]>: the Hebrew row sits beside an Arabic row and an English row in the same table, and the A6 gate asserts all three are present AND written in the right script. The audit walks source looking for Hebrew literals that need an entry in arBySource/enBySource, and a language-keyed table has no such entry by construction — its translations are its siblings. Adding these to the i18n maps would create a second home for a fact that already has one, which is the defect this campaign exists to find.",
+      "reviewedBy": "WP-5.3",
+      "reviewedAt": "2026-08-24"
+    },
+    {
       "id": "DEFER-ENGINE-REASONS",
       "disposition": "DEFERRED",
       "file": "^src/engines/",
