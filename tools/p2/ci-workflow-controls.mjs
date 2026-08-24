@@ -297,18 +297,18 @@ try {
     if (c.ladder !== undefined) {
       // Replace ONLY the line that invokes the real ladder. If that line is not found, the step no
       // longer works the way this control assumes and we stop rather than test a fiction.
-      const marker = 'npm run p2:all 2>&1 | tee ladder.log || true';
+      const marker = 'npm run p2:all 2>&1 | tee "$LADDER_LOG" || true';
       if (!script.includes(marker)) {
         throw new Error('the ladder step no longer contains ' + JSON.stringify(marker)
           + ' — this control cannot substitute a fixture and would be asserting nothing');
       }
       writeFileSync(join(dir, 'fixture.log'), c.ladder);
-      script = script.split(marker).join('cat fixture.log | tee ladder.log');
+      script = script.split(marker).join('cat fixture.log | tee "$LADDER_LOG"');
     }
 
     const r = sh(script, {
       cwd: dir,
-      env: { ...c.env, GITHUB_STEP_SUMMARY: join(dir, 'summary.md') },
+      env: { ...c.env, GITHUB_STEP_SUMMARY: join(dir, 'summary.md'), LADDER_LOG: join(dir, 'ladder.log') },
     });
     const failed = r.status !== 0;
     const wanted = c.expect === 'fail';
