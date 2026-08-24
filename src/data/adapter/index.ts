@@ -76,12 +76,42 @@ export class AdapterPinError extends Error {
  * check follows, and for the same reason: *"a compatibility rule that lives in a README is a rule
  * that is true until someone does not read the README."*
  */
+/**
+ * The adapter disagreeing with ITSELF.
+ *
+ * Distinct from `AdapterPinError`, which is this app disagreeing with the adapter. A pin error is
+ * fixed by changing a line in this file. This one cannot be fixed here at all — it is a defect in
+ * the published package, and the app's only correct move is to refuse to run against it.
+ */
+export class AdapterSelfDisagreementError extends Error {
+  constructor(inCode: string, inManifest: string) {
+    super(
+      `the installed adapter reports adapterVersion "${inCode}" from its code and ` +
+        `"${inManifest}" from its package.json. The two homes for one fact have diverged: one is ` +
+        'what every refusal REPORTS and the other is what this app PINS against, so a build that ' +
+        'updated one and not the other would leave the pin passing while every error message named ' +
+        'a version that was not running. The adapter cannot notice this about itself — both homes ' +
+        'are inside it — so the consumer checks it.',
+    );
+    this.name = 'AdapterSelfDisagreementError';
+  }
+}
+
 export function assertPinnedAdapter(): void {
   if (INSTALLED_ADAPTER.adapterVersion !== PINNED_ADAPTER.adapterVersion) {
     throw new AdapterPinError('adapterVersion', PINNED_ADAPTER.adapterVersion, INSTALLED_ADAPTER.adapterVersion);
   }
   if (INSTALLED_ADAPTER.builtFromCommit !== PINNED_ADAPTER.builtFromCommit) {
     throw new AdapterPinError('builtFromCommit', PINNED_ADAPTER.builtFromCommit, String(INSTALLED_ADAPTER.builtFromCommit));
+  }
+
+  // AND THE ADAPTER MUST AGREE WITH ITSELF.
+  //
+  // `ADAPTER_VERSION` is a literal in the adapter's compiled `compatibility.js`. `smartcard
+  // .adapterVersion` is a field in its `package.json`. Two homes for one fact, inside a package
+  // that ships both — and until this line, nothing in either repository compared them.
+  if (ADAPTER_VERSION !== INSTALLED_ADAPTER.adapterVersion) {
+    throw new AdapterSelfDisagreementError(ADAPTER_VERSION, INSTALLED_ADAPTER.adapterVersion);
   }
 }
 

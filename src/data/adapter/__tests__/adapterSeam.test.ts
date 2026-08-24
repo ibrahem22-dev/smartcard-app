@@ -10,8 +10,11 @@
  *   > available once it happens. The adapter either crashes or silently misreads, and **misreading a
  *   > financial field is the worse outcome**."*
  */
+import { ADAPTER_VERSION } from '@smartcard/data-authority-adapter';
+
 import {
   AdapterPinError,
+  AdapterSelfDisagreementError,
   COMPATIBILITY_MATRIX,
   INSTALLED_ADAPTER,
   PINNED_ADAPTER,
@@ -25,6 +28,25 @@ describe('D1 — the adapter is the published package, at a pinned build', () =>
     expect(INSTALLED_ADAPTER.adapterVersion).toBe(PINNED_ADAPTER.adapterVersion);
     expect(INSTALLED_ADAPTER.builtFromCommit).toBe(PINNED_ADAPTER.builtFromCommit);
     expect(() => assertPinnedAdapter()).not.toThrow();
+  });
+
+  it('the adapter agrees with ITSELF — the version in its code and the one in its manifest', () => {
+    // Two homes for one fact, both inside the published package: ADAPTER_VERSION is a literal in
+    // the compiled compatibility module, smartcard.adapterVersion is a package.json field. One is
+    // what every refusal REPORTS, the other is what this app PINS against. Nothing in either
+    // repository compared them until this line — the adapter cannot, because both homes are inside
+    // it, so the consumer does.
+    expect(ADAPTER_VERSION).toBe(INSTALLED_ADAPTER.adapterVersion);
+  });
+
+  it('names both sides when the adapter disagrees with itself', () => {
+    const error = new AdapterSelfDisagreementError('1.1.0', '1.2.0');
+    expect(error.message).toContain('1.1.0');
+    expect(error.message).toContain('1.2.0');
+    expect(error.name).toBe('AdapterSelfDisagreementError');
+    // A DIFFERENT error from a pin mismatch, because it has a different fix: a pin error is fixed
+    // by editing one line here, and this one cannot be fixed here at all.
+    expect(error).not.toBeInstanceOf(AdapterPinError);
   });
 
   it('pins the COMMIT and not only the version', () => {

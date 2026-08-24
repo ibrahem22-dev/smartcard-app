@@ -41,7 +41,7 @@
     "So it lives here, beside the identity, marked as the one field a rename does not touch."
   ],
   "storageNamespace": "smartcard",
-  "version": "1.0.0",
+  "version": "1.1.0",
   "iosBuildNumber": "1",
   "androidVersionCode": 1,
   "assets": {

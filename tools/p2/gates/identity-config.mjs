@@ -56,7 +56,21 @@ const PERMITTED = new Map([
   [EXPO_CONFIG, "reads the source; Expo's loader runs before TypeScript exists"],
   [VIEW, "the app's view of the same file"],
   ['package.json', "npm's own name field — lowercase and slug-shaped, not the display name"],
+  ['src/data/adapter/datasetId.ts',
+    "the ESTATE's id, owned by the pipeline and stamped into every signed manifest. C5 requires it "
+    + 'compiled in. Renaming the product would not rename it, and chasing it during a rename would '
+    + 'break every signature at once'],
 ]);
+
+/**
+ * The app's version has two homes and they must agree.
+ *
+ * `identity.json` is the one `app.config.js` builds the Expo config from — the number that reaches
+ * a store listing and a device. `package.json` carries npm's own field. They disagreed: 1.0.0 and
+ * 0.1.0, and the lower one was below every shipped pack's `minAppVersion`, so the app would have
+ * refused every pack it carries. Nothing compared them until this check.
+ */
+const VERSIONED = ['identity.json', 'package.json'];
 
 const walk = (dir, acc = []) => {
   if (!existsSync(dir)) return acc;
@@ -95,6 +109,64 @@ const stripComments = (src) => src
   .replace(/\/\*[\s\S]*?\*\//g, blank)
   .replace(/(^|[^:])(\/\/[^\n]*)/g, (m, before, comment) => before + blank(comment));
 
+/**
+ * A PACKAGE NAME IS NOT THE PRODUCT SLUG — the fourth time this campaign has met a string that is
+ * spelled like the fact and is a different fact.
+ *
+ * `src/data/adapter/index.ts` imports `@smartcard/data-authority-adapter`, and this gate read the
+ * npm scope as the slug scattered into source. It is not. The scope is part of a package name owned
+ * by the PIPELINE repository's `package.json`; renaming this product changes nothing about it, and
+ * "read it from src/config/identity.ts" is advice that would break the import if anybody took it.
+ *
+ * OD-2's subject is the strings a RENAME MUST CHASE. A dependency's name is not one of them.
+ *
+ * The exemption is deliberately narrow: only a BARE specifier — a package name — is blanked. A
+ * relative path is still scanned, because `./smartcard-config` really would have to be renamed, and
+ * so is every other string in the file including one on the same line as an import. The negative
+ * controls prove all three.
+ */
+const blankBareSpecifiers = (src) => src.replace(
+  /(\bfrom\s*|\brequire\s*\(\s*|\bimport\s*\(\s*|\bimport\s+)(['"])([^'"\n]+)\2/g,
+  (whole, keyword, quote, spec) =>
+    (spec.startsWith('.') || spec.startsWith('/') ? whole : keyword + quote + blank(spec) + quote),
+);
+
+/**
+ * OD-2's SUBJECT IS A STRING — *"do not scatter the string through source"*.
+ *
+ * After the specifier fix the gate still reported `src/data/adapter/index.ts:55`, which reads
+ *
+ *     adapterVersion: adapterPackage.smartcard.adapterVersion,
+ *
+ * — a PROPERTY NAME in the adapter package's own metadata block. Renaming this product does not
+ * rename a key defined by another repository's `package.json`, and `identity.json` says outright
+ * that the storage namespace *"must never follow a rename"*, so a key spelled like the slug is
+ * exactly the thing not to chase.
+ *
+ * So a match counts only where the value appears INSIDE A STRING LITERAL. That is where a rename
+ * has to reach: a display name in a biometric prompt, a bundle id, a scheme in a deep link. An
+ * identifier is code, and code is renamed by a compiler that will not stay silent.
+ *
+ * Everything outside a string body becomes a space, newlines kept, so the reported line stays true.
+ */
+const keepOnlyStringLiterals = (src) => {
+  const out = new Array(src.length);
+  let quote = null;
+  for (let i = 0; i < src.length; i += 1) {
+    const ch = src[i];
+    if (ch === '\n') { out[i] = ch; if (quote !== '`') quote = null; continue; }
+    if (quote) {
+      if (ch === String.fromCharCode(92)) { out[i] = ' '; out[i + 1] = ' '; i += 1; continue; }
+      if (ch === quote) { quote = null; out[i] = ' '; continue; }
+      out[i] = ch;
+      continue;
+    }
+    out[i] = ' ';
+    if (ch === "'" || ch === '"' || ch === '`') quote = ch;
+  }
+  return out.join('');
+};
+
 const lineAt = (code, i) => code.slice(0, i).split('\n').length;
 
 export const run = async ({ root }) => {
@@ -116,9 +188,22 @@ export const run = async ({ root }) => {
 
   const identity = JSON.parse(readFileSync(join(root, SOURCE), 'utf8'));
 
+  /**
+   * A SEMVER IS NOT A DISTINCTIVE STRING, and searching for one finds coincidences.
+   *
+   * `identity.version` is `1.1.0`, and so is the adapter build this app pins — two unrelated facts
+   * that happen to spell the same five characters. Reporting `PINNED_ADAPTER.adapterVersion` as the
+   * product version scattered into source would be advice that, followed, would break the pin.
+   *
+   * The version is not left unchecked: it has two homes, `identity.json` and `package.json`, and
+   * the check above compares them. That is the defect that actually existed — they disagreed, and
+   * the lower one was below every shipped pack's `minAppVersion`.
+   */
+  const NOT_DISTINCTIVE = new Set(['version']);
+
   // The values A10 names, derived from the source rather than listed here.
   const values = Object.entries(identity)
-    .filter(([k, v]) => !k.startsWith('$') && typeof v === 'string' && v.length >= 4)
+    .filter(([k, v]) => !k.startsWith('$') && typeof v === 'string' && v.length >= 4 && !NOT_DISTINCTIVE.has(k))
     .map(([k, v]) => ({ field: k, value: v }));
   if (values.length === 0) {
     return fail(SOURCE + ' declares no identity values — an empty source is not one place, it is none');
@@ -139,13 +224,26 @@ export const run = async ({ root }) => {
   );
   if (files.length === 0) return fail('scanned 0 files — an empty population proves nothing');
 
+  /**
+   * THE SHIPPED PACKS ARE SIGNED ARTIFACTS, AND A RENAME MUST NOT REACH THEM.
+   *
+   * Every manifest under `src/data/adapter/packs/**` carries `datasetId: smartcard-canonical-v2`,
+   * and the detached envelope beside it signs that manifest's sha. Editing one to chase OD-2 would
+   * break its signature and the app would refuse the pack — the gate would have been telling
+   * somebody to do the one thing guaranteed to stop the app reading its own data.
+   *
+   * They are also not source. They are bytes the pipeline built, copied byte for byte and compared
+   * in both directions by `p2-pack-shas.mjs --check`, which is the check that owns them.
+   */
+  const SIGNED_ARTIFACTS = /^src\/data\/adapter\/packs\//;
+
   const scatter = [];
   for (const abs of files) {
     const rel = relative(root, abs).replace(/\\/g, '/');
-    if (PERMITTED.has(rel)) continue;
+    if (PERMITTED.has(rel) || SIGNED_ARTIFACTS.test(rel)) continue;
     // JSON carries no comments, so stripping is only meaningful for source files.
     const raw = readFileSync(abs, 'utf8');
-    const src = rel.endsWith('.json') ? raw : stripComments(raw);
+    const src = rel.endsWith('.json') ? raw : keepOnlyStringLiterals(blankBareSpecifiers(stripComments(raw)));
     for (const { field, value } of values) {
       let i = src.indexOf(value);
       while (i !== -1) {
@@ -161,6 +259,22 @@ export const run = async ({ root }) => {
   }
   if (scatter.length > 6) problems.push('… and ' + (scatter.length - 6) + ' more site(s)');
 
+  // ── the version, in both of its homes ────────────────────────────────────────────
+  const versions = VERSIONED.map((f) => ({
+    file: f,
+    version: existsSync(join(root, f)) ? JSON.parse(readFileSync(join(root, f), 'utf8')).version : null,
+  }));
+  const distinct = new Set(versions.map((v) => v.version).filter(Boolean));
+  if (distinct.size > 1) {
+    problems.push('the app version has two homes and they disagree: '
+      + versions.map((v) => v.file + ' says ' + v.version).join(' · ')
+      + '. One of them reaches a device and a store listing, and the other is read by anybody '
+      + 'debugging a build. A pack manifest carries a minAppVersion the adapter enforces at load, '
+      + 'so the lower number is not cosmetic — it decides whether the app can open what it ships');
+  }
+  if (distinct.size === 0) problems.push('neither ' + VERSIONED.join(' nor ') + ' declares a version');
+
+  lines.push('version         ' + [...distinct].join(' / ') + ' · agreed across ' + versions.length + ' file(s)');
   lines.push('source          ' + SOURCE + ' · ' + values.length + ' identity value(s)');
   for (const { field, value } of values) lines.push('  ' + field.padEnd(20) + value);
   lines.push('');

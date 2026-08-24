@@ -132,6 +132,16 @@
       "why": "THE MODULE CRITERION B3 DESIGNATES AS THE DRIVER'S OWNER. R3 exists so a reference read goes through one place that carries provenance, tier and lastUpdated — and this IS that place for pack data. B3 requires SQLCipher-class SQLite for imported pack tables and the store-split gate asserts that exactly one module opens it, that the vault never imports SQLite, and that this module never imports MMKV. The original R3 was written when src/authority/** was the only sanctioned data owner; B3 named a second, and the pack store is it.",
       "reviewedBy": "WP-6.2",
       "reviewedAt": "2026-08-24"
+    },
+    {
+      "id": "ALLOW-ADAPTER-PACKAGE-METADATA",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/data/adapter/",
+      "message": "raw dataset '@smartcard/data-authority-adapter/package\\.json' imported outside",
+      "why": "THE PREDECESSOR LINT WAS WRITTEN BEFORE THE PERMITTED DIRECTORY EXISTED. Its R3 names src/authority/ as the only place that may import a JSON dataset, because src/data/adapter/** did not exist when it was adopted — the adapter seam is criterion D1 and landed in Phase 7. SMARTCARD_APP_ENGINEERING_SPEC §9.4 says NOTHING OUTSIDE data/adapter/** may import a pack file, a raw JSON dataset or the DB driver, and this file is inside it. The successor rule (tools/p2/lib/boundary-rules.mjs, rule 3) already carries the permitted set and reports zero. AND THIS IS NOT A DATASET. It is the adapter package's own metadata block, read for smartcard.builtFromCommit — the one fact the adapter does not export from its code, and the load-bearing half of D1's pin, since two builds can carry one adapterVersion and different behaviour. It holds no rate, no fee and no provenance to lose, which is the property R3 exists to protect. Removing the import would not move the fact anywhere; it would delete the app's ability to notice at runtime that it is running against an adapter nobody reviewed.",
+      "reviewedBy": "WP-7.1",
+      "reviewedAt": "2026-08-24"
     }
   ],
   "$closedNote": [
