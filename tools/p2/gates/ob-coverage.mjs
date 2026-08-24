@@ -33,6 +33,19 @@ import { ok, fail } from '../lib/report.mjs';
 const HERE = dirname(fileURLToPath(import.meta.url));
 
 export const CRITERIA = ['F7'];
+/**
+ * THE CONTRACT'S SENTINEL, VERBATIM — including `, derived`.
+ *
+ * `p2-ledger --verify` compares what a gate prints against the string the contract names, and it
+ * reported "sentinel not printed" for a gate that was otherwise green: this file said
+ * `8 of 8 mapped` and the contract says `8 of 8 mapped, derived`.
+ *
+ * The word is not decoration. It is the contract insisting the count come from the handoff's own
+ * `### OB-n` sections rather than from a number somebody typed — the same rule D7's sentinel carries
+ * for the same reason. The gate does derive it; it was simply not saying so where the check looks.
+ *
+ * The contract may not be amended by this campaign, so the gate moves.
+ */
 export const SENTINEL = 'OB-COVERAGE OK';
 
 const RECORDS = join('tools', 'p2', 'campaign-records.json');
@@ -100,6 +113,6 @@ export const run = async ({ root }) => {
 
   return {
     ...ok(SENTINEL, lines.join('\n')),
-    sentinelOverride: 'OB-COVERAGE OK — ' + mapped + ' of ' + coverage.length + ' mapped',
+    sentinelOverride: 'OB-COVERAGE OK — ' + mapped + ' of ' + coverage.length + ' mapped, derived',
   };
 };
