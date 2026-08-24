@@ -1,4 +1,4 @@
-import { readFileSync } from 'fs';
+import { readdirSync, readFileSync } from 'fs';
 import { join } from 'path';
 
 const SRC_ROOT = join(__dirname, '..', '..');
@@ -54,17 +54,30 @@ describe('MVP auth/vault static contract', () => {
     // Deferred scope (DECISIONS_DEFERRED.md) must not be reachable in the MVP
     // navigation graph. Screen files may still exist, but no navigator registers
     // them: QR profile sharing (#9), loans/mortgage (#12), benefits/savings (#7).
-    const settingsStack = readSource('navigation/stacks/SettingsStack.tsx');
-    expect(settingsStack).not.toContain('ProfileShareScreen');
-    expect(settingsStack).not.toContain('name="ProfileShare"');
-    expect(settingsStack).not.toContain('LoansScreen');
-    expect(settingsStack).not.toContain('name="Loans"');
+    // THE POPULATION IS DERIVED FROM THE DIRECTORY, not from a list of filenames.
+    //
+    // This block named SettingsStack.tsx and HomeStack.tsx directly, and broke the moment the
+    // Spec §4 rewrite renamed Settings to More — it did not report a deferred screen, it reported
+    // ENOENT. A test that has to be edited whenever a file is renamed is a test somebody will
+    // eventually edit by deleting, and a hand-listed set of files is the exact shape this campaign
+    // keeps finding. Reading every stack also makes the assertion STRONGER: a deferred screen
+    // registered in a stack nobody thought to list was invisible before.
+    const stackFiles = readdirSync(join(SRC_ROOT, 'navigation', 'stacks'))
+      .filter((f: string) => f.endsWith('.tsx'));
+    expect(stackFiles.length).toBeGreaterThan(0);
 
-    const homeStack = readSource('navigation/stacks/HomeStack.tsx');
-    expect(homeStack).not.toContain('BenefitsScreen');
-    expect(homeStack).not.toContain('name="Benefits"');
-    expect(homeStack).not.toContain('SavingsTrackerScreen');
-    expect(homeStack).not.toContain('name="SavingsTracker"');
+    const DEFERRED = [
+      'ProfileShareScreen', 'name="ProfileShare"',
+      'LoansScreen', 'name="Loans"',
+      'BenefitsScreen', 'name="Benefits"',
+      'SavingsTrackerScreen',
+    ];
+    for (const file of stackFiles) {
+      const stack = readSource(`navigation/stacks/${file}`);
+      for (const symbol of DEFERRED) {
+        expect([file, stack.includes(symbol)]).toEqual([file, false]);
+      }
+    }
   });
 
   test('MVP auth/vault paths do not resurrect unapproved session guard timers', () => {

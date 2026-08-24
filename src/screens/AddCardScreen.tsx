@@ -9,13 +9,13 @@ import { useAppDirection } from '../hooks/useAppDirection';
 import { useTranslation } from '../hooks/useTranslation';
 import { useCardsStore } from '../store/useCardsStore';
 import { CardIssuer } from '../types/card.types';
-import type { CardsStackParamList } from '../navigation/types';
+import type { WalletStackParamList } from '../navigation/types';
 import { createManualCard } from '../utils/manualCard';
 import { parseAmount } from '../utils/parseAmount';
 import { ACCENT, BORDER, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
 
 type AddCardNavigation = NativeStackNavigationProp<
-  CardsStackParamList,
+  WalletStackParamList,
   'AddCard'
 >;
 

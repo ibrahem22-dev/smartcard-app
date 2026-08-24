@@ -30,7 +30,7 @@ import { useMoney } from '../hooks/useMoney';
 import { TABULAR_NUMERALS } from '../utils/money';
 import { resolveDatabaseRates } from '../authority/noSource';
 import { useTranslation } from '../hooks/useTranslation';
-import type { CardsStackParamList } from '../navigation/types';
+import type { WalletStackParamList } from '../navigation/types';
 import { scheduleDiscountReminders } from '../services/notificationScheduler';
 import { useCardsStore } from '../store/useCardsStore';
 import { ACCENT, BORDER, CHROME, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
@@ -43,7 +43,7 @@ import {
 } from '../types/card.types';
 
 type CardDetailScreenProps = NativeStackScreenProps<
-  CardsStackParamList,
+  WalletStackParamList,
   'CardDetail'
 >;
 

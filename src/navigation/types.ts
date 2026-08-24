@@ -42,22 +42,29 @@ export type PurchaseGateStackParamList = {
   Contact: undefined;
 };
 
-/** Cards tab stack. */
-export type CardsStackParamList = {
-  CardsRoot: undefined;
+/**
+ * WALLET tab stack — Spec §4. Its Cards|Benefits segmented control lives INSIDE `WalletRoot` and
+ * registers no routes of its own: the spec's navigation bar has five items, and a control that
+ * registered routes would make the route tree say more than the bar does.
+ */
+export type WalletStackParamList = {
+  WalletRoot: undefined;
   AddCard: undefined;
   CardDetail: { cardId: string };
   InterestCalculator: { cardId?: string } | undefined;
 };
 
-/** Calendar tab stack. */
-export type CalendarStackParamList = {
-  CalendarRoot: undefined;
+/**
+ * PLAN tab stack — Spec §4. Calendar|Commitments is a segmented control inside `PlanRoot`, not two
+ * routes, for the same reason Wallet's is.
+ */
+export type PlanStackParamList = {
+  PlanRoot: undefined;
 };
 
-/** Settings tab stack. */
-export type SettingsStackParamList = {
-  SettingsRoot: undefined;
+/** MORE tab stack — Spec §4's fifth item. Was "Settings"; the spec names it More. */
+export type MoreStackParamList = {
+  MoreRoot: undefined;
   Contact: undefined;
   Glossary: undefined;
   InstallmentImport: undefined;
@@ -69,15 +76,24 @@ export type SettingsStackParamList = {
 };
 
 /**
- * Bottom tabs — the 5 financial screens. All mount only inside Authenticated.
- * Each tab is itself a stack navigator (see *StackParamList above).
+ * THE BOTTOM TABS — **four**, not five, and that is the point of criterion A1.
+ *
+ * Spec §4's bar reads `HOME · WALLET · [CHECK ●] · PLAN · MORE`: five items, of which **Check is
+ * not a tab**. It is a raised centre action that opens a full-screen modal on the AUTHENTICATED
+ * stack, with no tab highlighted — a task, not a place.
+ *
+ * The inherited app registered `PurchaseGate` as a tab, which the forensic called *"the largest IA
+ * mismatch"*. A tab is somewhere you ARE; making "check a purchase" a tab gave the app a permanent
+ * room for a question, and highlighted a tab while a modal covered everything.
+ *
+ * The shape is declared in `src/navigation/ia.ts` and this list mirrors it. Both are compared
+ * against the spec itself by the `nav` gate.
  */
 export type TabParamList = {
   Home: NavigatorScreenParams<HomeStackParamList> | undefined;
-  PurchaseGate: NavigatorScreenParams<PurchaseGateStackParamList> | undefined;
-  Cards: NavigatorScreenParams<CardsStackParamList> | undefined;
-  Calendar: NavigatorScreenParams<CalendarStackParamList> | undefined;
-  Settings: NavigatorScreenParams<SettingsStackParamList> | undefined;
+  Wallet: NavigatorScreenParams<WalletStackParamList> | undefined;
+  Plan: NavigatorScreenParams<PlanStackParamList> | undefined;
+  More: NavigatorScreenParams<MoreStackParamList> | undefined;
 };
 
 /**
@@ -86,6 +102,12 @@ export type TabParamList = {
  */
 export type AuthenticatedStackParamList = {
   Tabs: NavigatorScreenParams<TabParamList> | undefined;
+  /**
+   * THE CHECK TASK. Registered here — ABOVE the tabs — and not inside them, because Spec §4 says it
+   * *"opens a full-screen modal task flow… no tab is highlighted while inside it"*. A route inside
+   * the tab navigator cannot cover the tab bar, and whichever tab hosted it would highlight.
+   */
+  CheckModal: NavigatorScreenParams<PurchaseGateStackParamList> | undefined;
 };
 
 /**

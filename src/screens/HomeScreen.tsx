@@ -12,6 +12,7 @@ import type { TabParamList } from '../navigation/types';
 import { useCardsStore } from '../store/useCardsStore';
 import { useProfileStore } from '../store/useProfileStore';
 import { ACCENT, BORDER, CHROME, ROLE_BORDER, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
+import { RAISED_ACTION_ROUTE } from '../navigation/ia';
 
 const DAILY_TIPS: readonly string[] = [
   'שלם ביום חיוב כדי למקסם את תקופת האשראי',
@@ -37,7 +38,7 @@ export function HomeScreen(): React.ReactElement {
   const upcomingObligationsCount = cards.length;
 
   function handleCheckPurchase(): void {
-    navigation.navigate('PurchaseGate', { screen: 'PurchaseGateRoot' });
+    navigation.getParent()?.navigate(RAISED_ACTION_ROUTE);
   }
 
   return (

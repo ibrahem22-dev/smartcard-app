@@ -267,6 +267,15 @@ export const en = {
 } as const;
 
 export const enBySource: Readonly<Record<string, string>> = {
+  // A1 — the Spec §4 navigation shell, and the surfaces P5a/P5b will fill.
+  'ארנק': 'Wallet',
+  'בדיקה': 'Check',
+  'תכנון': 'Plan',
+  'עוד': 'More',
+  'הטבות': 'Benefits',
+  'לוח שנה': 'Calendar',
+  'התחייבויות': 'Commitments',
+  'המסך הזה עדיין לא נבנה. אין כאן נתונים חסרים — יש כאן מסך שטרם נכתב.': 'This screen has not been built yet. No data is missing — the screen simply has not been written.',
   // A3 — ConflictedValue. Every competing reading, with its scope and its source.
   'מקור לא מזוהה': 'Unattributed source',
   'הנתון הזה שנוי במחלוקת': 'This figure is disputed',

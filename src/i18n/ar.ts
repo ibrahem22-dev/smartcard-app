@@ -10,6 +10,15 @@
 // {{bankName}}) and emojis are preserved verbatim.
 
 export const arBySource: Readonly<Record<string, string>> = {
+  // A1 — the Spec §4 navigation shell, and the surfaces P5a/P5b will fill.
+  'ארנק': 'المحفظة',
+  'בדיקה': 'فحص',
+  'תכנון': 'تخطيط',
+  'עוד': 'المزيد',
+  'הטבות': 'المزايا',
+  'לוח שנה': 'التقويم',
+  'התחייבויות': 'الالتزامات',
+  'המסך הזה עדיין לא נבנה. אין כאן נתונים חסרים — יש כאן מסך שטרם נכתב.': 'هذه الشاشة لم تُبنَ بعد. لا توجد بيانات ناقصة — بل شاشة لم تُكتب بعد.',
   // A3 — ConflictedValue. Every competing reading, with its scope and its source.
   'מקור לא מזוהה': 'مصدر غير محدَّد',
   'הנתון הזה שנוי במחלוקת': 'هذه القيمة محل خلاف',

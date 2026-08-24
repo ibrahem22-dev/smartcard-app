@@ -15,7 +15,7 @@ import { useAppDirection } from '../hooks/useAppDirection';
 import { useLanguage } from '../hooks/useLanguage';
 import { useTheme } from '../hooks/useTheme';
 import { useTranslation } from '../hooks/useTranslation';
-import type { SettingsStackParamList } from '../navigation/types';
+import type { MoreStackParamList } from '../navigation/types';
 import {
   useLanguageStore,
   type LanguageChoice,
@@ -25,8 +25,8 @@ import type { AppProfile } from '../types/profile.types';
 import { ACCENT, BORDER, CHROME, PROMO, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
 
 type SettingsScreenProps = NativeStackScreenProps<
-  SettingsStackParamList,
-  'SettingsRoot'
+  MoreStackParamList,
+  'MoreRoot'
 >;
 
 const LANGUAGE_OPTIONS: readonly {

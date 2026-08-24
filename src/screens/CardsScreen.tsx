@@ -10,15 +10,15 @@ import { AppText } from '../components/AppText';
 import { RtlRow, RtlScreen, RtlScrollView } from '../components/rtl';
 import { useTheme } from '../hooks/useTheme';
 import { useTranslation, type UseTranslationResult } from '../hooks/useTranslation';
-import type { CardsStackParamList } from '../navigation/types';
+import type { WalletStackParamList } from '../navigation/types';
 import { useCardsStore } from '../store/useCardsStore';
 import { buildCardsViewModel } from './cardsEmptyState';
 import { CardIssuer, type CardInput } from '../types/card.types';
 import { ACCENT, BORDER, SURFACE, TEXT } from '../theme/tokens';
 
 type CardsNavigation = NativeStackNavigationProp<
-  CardsStackParamList,
-  'CardsRoot'
+  WalletStackParamList,
+  'WalletRoot'
 >;
 
 const ISSUER_LABELS: Record<CardIssuer, string> = {

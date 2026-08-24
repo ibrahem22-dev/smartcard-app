@@ -19,12 +19,12 @@ import { InterestCalculatorScreen } from '../../screens/InterestCalculatorScreen
 import { SettingsScreen } from '../../screens/SettingsScreen';
 import { useAppDirection, useStackBackGlyph } from '../../hooks/useAppDirection';
 import { useTranslation } from '../../hooks/useTranslation';
-import type { SettingsStackParamList } from '../types';
+import type { MoreStackParamList } from '../types';
 import { CHROME, TEXT } from '../../theme/tokens';
 
-const Stack = createNativeStackNavigator<SettingsStackParamList>();
+const Stack = createNativeStackNavigator<MoreStackParamList>();
 
-export function SettingsStack(): React.ReactElement {
+export function MoreStack(): React.ReactElement {
   const { t } = useTranslation();
   const { isRTL } = useAppDirection();
   const backGlyph = useStackBackGlyph();
@@ -62,7 +62,7 @@ export function SettingsStack(): React.ReactElement {
       })}
     >
       <Stack.Screen
-        name="SettingsRoot"
+        name="MoreRoot"
         component={SettingsScreen}
         options={{ title: t('הגדרות') }}
       />
