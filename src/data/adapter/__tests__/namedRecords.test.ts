@@ -3,7 +3,7 @@ import { join } from 'node:path';
 
 import { CONFLICT_RENDER_PLAN, CostModelAdapter } from '@smartcard/data-authority-adapter';
 
-import { EXPECTED_DATASET_ID } from '../../data/adapter/datasetId';
+import { EXPECTED_DATASET_ID } from '../datasetId';
 import { describePlan, renderPlanFor } from '../conflictRender';
 
 /**
@@ -22,7 +22,7 @@ import { describePlan, renderPlanFor } from '../conflictRender';
  * estate: one row, named, and the count is re-measured here rather than quoted.
  */
 
-const PACK = join(__dirname, '..', '..', 'data', 'adapter', 'packs', 'catalog', 'pack.json');
+const PACK = join(__dirname, '..', 'packs', 'catalog', 'pack.json');
 
 /** The record OB-1 names. Written once, because a test about a named record names it. */
 const ADJ_005_ROW = 'term:one-zero|research:FX_COMMISSION_PCT:4';

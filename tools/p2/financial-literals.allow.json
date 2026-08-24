@@ -87,6 +87,14 @@
       "why": "AN ARGON2 KDF PARAMETER — 19 MiB of memory. Same reasoning as timeCost.",
       "reviewedBy": "WP-2.4",
       "reviewedAt": "2026-08-24"
+    },
+    {
+      "file": "src/data/adapter/fxStaleness.ts",
+      "literal": "2.11",
+      "identifier": null,
+      "why": "A SECTION NUMBER INSIDE A DOCUMENT PATH, not a figure about money. The line is `register: 'reports/campaign/P1_DEFERRED.md §2.11'`, the pointer C9 requires a deferral to carry so a reader can find the entry that rules it. Signal 2 scans raw lines for bare decimals, deliberately including strings — a rate written as '1.75' is still a rate, and narrowing the scanner to skip string literals would weaken a real check to silence a false one. The test this campaign applies — could this number, if wrong, tell a user something false about their money? — answers no: if it were wrong the citation would point at the wrong section of a register, which is a documentation defect and not a financial one.",
+      "reviewedBy": "WP-9.3",
+      "reviewedAt": "2026-08-24"
     }
   ],
   "$knownMirror": [

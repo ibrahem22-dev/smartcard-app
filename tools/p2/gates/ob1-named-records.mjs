@@ -51,11 +51,11 @@ const ADJ_005_ROW = 'term:one-zero|research:FX_COMMISSION_PCT:4';
 
 const CATALOG = join('src', 'data', 'adapter', 'packs', 'catalog', 'pack.json');
 const COMPONENT = 'src/components/ConflictedValue.tsx';
-const BRIDGE = 'src/authority/conflictRender.ts';
-const SHAPE = 'src/authority/conflictRenderPlan.ts';
+const BRIDGE = 'src/data/adapter/conflictRender.ts';
+const SHAPE = 'src/data/adapter/conflictRenderPlan.ts';
 
 const SUITES = [
-  ['src/authority/__tests__/namedRecords.test.ts', [
+  ['src/data/adapter/__tests__/namedRecords.test.ts', [
     'the named row is in the shipped pack',
     'carries NO_RECORDED_COUNTERPARTY, and therefore DISPUTED_WITHOUT_CANDIDATES',
     'produces NEITHER SPINNER, ERROR, NOR FALLBACK — each asserted as a value',

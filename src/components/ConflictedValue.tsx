@@ -6,7 +6,7 @@ import { RtlRow } from './rtl';
 import { BORDER, ROLE_BORDER, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
 import { useTranslation } from '../hooks/useTranslation';
 import type { ConflictAuthority, ConflictCandidate } from '../authority/authorityValue';
-import { describePlan, type ConflictRenderPlan } from '../authority/conflictRenderPlan';
+import { describePlan, type ConflictRenderPlan } from '../data/adapter/conflictRenderPlan';
 
 /**
  * CONFLICTED VALUE — criterion A3 and Owner Decision OD-9. One shared component; no per-screen
