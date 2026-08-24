@@ -114,7 +114,45 @@ export const run = async ({ root }) => {
   lines.push('flag            ' + declarations.map((d) => d.where + ' = ' + String(d.enabled)).join(' · '));
 
   // ── 4. the device half, named as unproven ────────────────────────────────────────
-  const captured = existsSync(join(root, DEVICE_EVIDENCE));
+  /**
+   * THE EVIDENCE IS READ, NOT COUNTED.
+   *
+   * This was `existsSync(...)` and nothing else — so `touch NEWARCH.md` turned the gate green.
+   * Every other gate in this campaign decides on printed output; this one decided on a directory
+   * entry, which is the "a check that cannot fail" shape the campaign exists to hunt, in a gate the
+   * campaign itself wrote.
+   *
+   * A device capture has to name four things a `touch` cannot produce:
+   *
+   *   · the device it ran on, by serial — an artifact that does not say where it came from is not
+   *     evidence about anywhere;
+   *   · the ABI and Android release, because "it ran" means nothing without "on what";
+   *   · the sha256 of the APK that ran, so the artifact is pinned to a binary rather than to a hope;
+   *   · a runtime New-Architecture signal, quoted from the process rather than from a config file —
+   *     OD-14's whole point is that reading the flag back proves nothing.
+   */
+  const evidencePath = join(root, DEVICE_EVIDENCE);
+  const evidence = existsSync(evidencePath) ? readFileSync(evidencePath, 'utf8') : null;
+
+  const REQUIRED_IN_EVIDENCE = [
+    [/emulator-\d+|\b[A-Z0-9]{8,}\b\s+device\b/, 'the device serial it was captured from'],
+    [/ro\.product\.cpu\.abi|x86_64|arm64-v8a/, 'the ABI the build ran on'],
+    [/ro\.build\.version\.(release|sdk)/, 'the Android version it ran on'],
+    [/\b[0-9a-f]{64}\b/, 'the sha256 of the APK that ran'],
+    [/BridgelessReact|libreact_newarchdefaults_so|CatalystInstance/, 'a runtime New-Architecture signal quoted from the process'],
+  ];
+
+  const missingFromEvidence = evidence === null
+    ? []
+    : REQUIRED_IN_EVIDENCE.filter(([re]) => !re.test(evidence)).map(([, what]) => what);
+
+  const captured = evidence !== null && missingFromEvidence.length === 0;
+
+  for (const what of missingFromEvidence) {
+    problems.push(DEVICE_EVIDENCE.replace(/\\/g, '/') + ' does not state ' + what
+      + '. A capture that omits it is a claim about an unnamed device, and `touch` would produce '
+      + 'exactly as much');
+  }
   lines.push('');
   if (captured) {
     lines.push('device run      captured at ' + DEVICE_EVIDENCE.replace(/\\/g, '/'));

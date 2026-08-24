@@ -302,10 +302,28 @@ const SS = {
   setupPending: 'sc.setupPending', // fail-closed first-PIN setup marker
 } as const;
 
-// KWRAP-2 + KWRAP-3: auth-required + this-device-only. expo-secure-store maps
-// requireAuthentication ظْ iOS access-control (biometryCurrentSet, passcode
-// fallback) / Android setUserAuthenticationRequired(true); WHEN_UNLOCKED_THIS_
-// DEVICE_ONLY blocks iCloud/Android backup sync of the DEK.
+// KWRAP-2 + KWRAP-3: auth-required + this-device-only.
+//
+// WHEN_UNLOCKED_THIS_DEVICE_ONLY blocks iCloud / Android backup sync of the DEK.
+//
+// requireAuthentication IS NOT SYMMETRIC ACROSS THE TWO PLATFORMS, AND THE DIFFERENCE BITES.
+//
+// This comment used to say the flag maps to "iOS access-control (biometryCurrentSet, passcode
+// fallback) / Android setUserAuthenticationRequired(true)". The iOS half is right. The Android half
+// left out the part that decides whether the app can be set up at all, and P2's first device run
+// found it by failing:
+//
+//   [vault] enrollPin failed: Call to function 'ExpoSecureStore.setValueWithKeyAsync' has been
+//   rejected.  Caused by: Could not Authenticate the user: No biometrics are currently enrolled
+//
+// expo-secure-store's AuthenticationHelper.assertBiometricsSupport() calls
+// canAuthenticate(BIOMETRIC_STRONG) and throws for five device states -- no hardware, none
+// enrolled, security update required, unsupported, unknown. DEVICE_CREDENTIAL is not in that call,
+// so on Android THERE IS NO PASSCODE FALLBACK: a device lock-screen PIN does not satisfy it. A user
+// who has never enrolled a fingerprint or face cannot create this vault.
+//
+// That is a security-posture decision, not a bug to quietly patch, and it is open with the Owner.
+// The comment is corrected here so the next reader is not told something the device disproved.
 const DEK_OPTS: SecureStore.SecureStoreOptions = {
   keychainService: KEYCHAIN_SERVICE,
   requireAuthentication: true,

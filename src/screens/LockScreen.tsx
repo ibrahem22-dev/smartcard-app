@@ -12,6 +12,7 @@ import {
 import { SafeAreaView } from 'react-native-safe-area-context';
 
 import { authenticateWithPin, enrollPin } from '../auth';
+import { reportVaultFailure } from '../security/vaultFailure';
 import { AppText } from '../components/AppText';
 import { useAppDirection } from '../hooks/useAppDirection';
 import { useTranslation } from '../hooks/useTranslation';
@@ -66,7 +67,21 @@ export function LockScreen(): React.ReactElement {
       setPin('');
       setPinConfirmation('');
       await authContext.evaluate();
-    } catch {
+    } catch (error) {
+      /**
+       * THE CAUSE IS REPORTED, NOT SWALLOWED.
+       *
+       * This was a bare `catch {}`. On a device it produced "Try again" forever with nothing
+       * anywhere saying why — the P2 device lane hit exactly that and could not diagnose a failing
+       * vault enrolment, because the only record of the reason was discarded at the moment it was
+       * created.
+       *
+       * The USER still reads the same sentence: a keystore failure is not something they can act
+       * on. What changes is that the reason reaches the log, where a developer or a support
+       * conversation can find it. **The message only** — never the PIN, never key material, and
+       * never the error object, which can carry the value that was attempted.
+       */
+      reportVaultFailure('enrollPin', error);
       setSetupError(t('לא הצלחנו לשמור את ה-PIN המקומי. נסה שוב.'));
     } finally {
       setIsSaving(false);
@@ -101,7 +116,10 @@ export function LockScreen(): React.ReactElement {
 
       setUnlockPin('');
       await authContext.evaluate();
-    } catch {
+    } catch (error) {
+      // Same reasoning as the enrolment path above: the sentence a user reads is unchanged, and
+      // the reason stops being destroyed.
+      reportVaultFailure('unlockWithPin', error);
       setUnlockError(t('לא הצלחנו לפתוח את הכספת המקומית. נסה שוב.'));
     } finally {
       setIsUnlocking(false);
