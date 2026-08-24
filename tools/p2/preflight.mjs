@@ -84,8 +84,30 @@ for (const [bin, args] of [['git', ['--version']], ['npm', ['--version']]]) {
 
 // ---------------------------------------------------------------- 5. worktree cleanliness and branch
 if (!RUNTIME_ONLY) {
+  /**
+   * THE LADDER'S OWN REPORT IS NOT UNCOMMITTED WORK.
+   *
+   * `p2:all` writes `reports/p2/<sha>.json` and then runs this preflight on the next invocation, so
+   * a clone that has run the ladder once can never run it again: the first run's output is the
+   * second run's dirt. E5 requires that report to be COMMITTED, which can only happen after the run
+   * that produces it -- and committing it moves HEAD, so the next run writes a differently-named
+   * file and the tree is dirty again. The loop has no exit.
+   *
+   * `tools/p2/gates/repos-in-sync.mjs` already excludes exactly this path, for exactly this reason,
+   * after it failed in a fresh clone. Preflight was not taught the same thing, so the two disagreed
+   * about what a clean tree is. **A check must not be broken by its own output.**
+   *
+   * ONE generated path, by name, for the current sha shape. Every other uncommitted file still
+   * fails, including a stale report for a different sha -- that one is real drift.
+   */
+  const OWN_REPORT = /^reports\/p2\/[0-9a-f]{12}\.json$/;
   const r = run('git', ['status', '--porcelain'], { shell: true });
-  const dirty = String(r.stdout || '').trim();
+  const dirty = String(r.stdout || '').trim().split('
+')
+    .filter((line) => line.trim().length > 0)
+    .filter((line) => !OWN_REPORT.test(line.slice(3).trim().split(String.fromCharCode(92)).join('/')))
+    .join('
+');
   record('worktree clean', dirty.length === 0,
     dirty.length === 0 ? 'clean' : dirty.split('\n').length + ' modified/untracked path(s); first: ' + dirty.split('\n')[0]);
 
