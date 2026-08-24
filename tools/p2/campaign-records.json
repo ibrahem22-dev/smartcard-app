@@ -579,6 +579,19 @@
       "supersedes": [
         "PD-006"
       ]
+    },
+    {
+      "id": "PD-009",
+      "question": true,
+      "alternatives": 4,
+      "evidence": true,
+      "chose": true,
+      "rationale": true,
+      "reversibility": "EASY",
+      "affects": 3,
+      "risk": "MEDIUM",
+      "ownerReview": true,
+      "supersedes": []
     }
   ]
 }
