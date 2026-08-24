@@ -80,7 +80,7 @@ function RaisedCheckAction(): React.ReactElement | null {
       >
         <Ionicons color={CHROME.white} name={ICONS.Check} size={28} />
       </Pressable>
-      <AppText className={`text-[11px] font-bold ${TEXT.onAccent}`}>
+      <AppText className={`text-xs font-bold ${TEXT.onAccent}`}>
         {t(RAISED_ACTION.label)}
       </AppText>
     </View>
