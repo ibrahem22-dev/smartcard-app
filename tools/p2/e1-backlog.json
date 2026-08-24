@@ -142,6 +142,16 @@
       "why": "THE PREDECESSOR LINT WAS WRITTEN BEFORE THE PERMITTED DIRECTORY EXISTED. Its R3 names src/authority/ as the only place that may import a JSON dataset, because src/data/adapter/** did not exist when it was adopted — the adapter seam is criterion D1 and landed in Phase 7. SMARTCARD_APP_ENGINEERING_SPEC §9.4 says NOTHING OUTSIDE data/adapter/** may import a pack file, a raw JSON dataset or the DB driver, and this file is inside it. The successor rule (tools/p2/lib/boundary-rules.mjs, rule 3) already carries the permitted set and reports zero. AND THIS IS NOT A DATASET. It is the adapter package's own metadata block, read for smartcard.builtFromCommit — the one fact the adapter does not export from its code, and the load-bearing half of D1's pin, since two builds can carry one adapterVersion and different behaviour. It holds no rate, no fee and no provenance to lose, which is the property R3 exists to protect. Removing the import would not move the fact anywhere; it would delete the app's ability to notice at runtime that it is running against an adapter nobody reviewed.",
       "reviewedBy": "WP-7.1",
       "reviewedAt": "2026-08-24"
+    },
+    {
+      "id": "ALLOW-CROSSSET-RESOLVER",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/components/",
+      "message": "pack module '[^']*crossSet' imported outside",
+      "why": "THE PREDECESSOR LINT CALLS EVERY MODULE UNDER THE SEAM A PACK MODULE, because src/authority/ was the boundary directory when it was adopted and src/data/adapter/** did not exist. But a seam nothing may import is not a seam: D2 forbids anything outside data/adapter/** from importing A PACK FILE, A RAW JSON DATASET OR THE DB DRIVER, and reaching the boundary THROUGH its modules is the arrangement that makes that possible rather than a violation of it. crossSet.ts is the narrowest case there is: three string states, a ReferenceResolution type, and a resolver that holds no pack bytes, opens no file and cannot throw. A component rendering an absent cross-set reference has to name that type. This disposition is scoped to the crossSet module BY NAME rather than to the directory: a component importing fsPackReader, which pulls node:fs into a React Native bundle, would still be UNACCOUNTED here and would also fail the node-apis-absent gate, which walks the runtime graph from index.js and App.tsx.",
+      "reviewedBy": "WP-8.4",
+      "reviewedAt": "2026-08-24"
     }
   ],
   "$closedNote": [
