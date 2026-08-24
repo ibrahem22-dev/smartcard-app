@@ -9,7 +9,7 @@ describe('W1-AS-04 business rules vs financial data claims', () => {
       'card.interest.apr',
       'card.cashback.rate',
     ]) {
-      const c = classifyClaim({ claimId: 'c', field, provenance: 'BUNDLED_DATASET' });
+      const c = classifyClaim({ claimId: 'c', field, provenance: 'ESTIMATE' });
       expect(c.kind).toBe('FINANCIAL_DATA_CLAIM');
       expect(c.requiresOfficialAuthority).toBe(true);
     }
@@ -17,7 +17,7 @@ describe('W1-AS-04 business rules vs financial data claims', () => {
 
   it('classifies app behaviour as business rules needing no authority', () => {
     for (const field of ['ui.showBadge', 'feature.installmentGate', 'display.order']) {
-      const c = classifyClaim({ claimId: 'c', field, provenance: 'DERIVED_CALCULATION' });
+      const c = classifyClaim({ claimId: 'c', field, provenance: 'ESTIMATE' });
       expect(c.kind).toBe('BUSINESS_RULE');
       expect(c.requiresOfficialAuthority).toBe(false);
     }
@@ -29,7 +29,7 @@ describe('W1-AS-04 business rules vs financial data claims', () => {
     const c = classifyClaim({
       claimId: 'c',
       field: 'card.fx.foreignFeePercent',
-      provenance: 'DERIVED_CALCULATION',
+      provenance: 'ESTIMATE',
     });
     expect(c.kind).toBe('FINANCIAL_DATA_CLAIM');
     expect(c.requiresOfficialAuthority).toBe(true);
@@ -39,7 +39,7 @@ describe('W1-AS-04 business rules vs financial data claims', () => {
     const c = classifyClaim({
       claimId: 'c',
       field: 'something.unmapped',
-      provenance: 'BUNDLED_DATASET',
+      provenance: 'ESTIMATE',
     });
     expect(c.kind).toBe('UNCLASSIFIED');
     expect(c.requiresOfficialAuthority).toBe(true);
@@ -49,21 +49,21 @@ describe('W1-AS-04 business rules vs financial data claims', () => {
     const claim = {
       claimId: 'c',
       field: 'card.fx.foreignFeePercent',
-      provenance: 'OFFICIAL_AUTHORITY' as const,
+      provenance: 'VERIFIED' as const,
     };
     expect(
-      admitClaim(claim, known(2.8, 'OFFICIAL_AUTHORITY', '2026-01-01')).admitted,
+      admitClaim(claim, known(2.8, 'VERIFIED', '2026-01-01')).admitted,
     ).toBe(true);
     // Bundled, stale, unknown and blocked all fail.
-    expect(admitClaim(claim, known(2.8, 'BUNDLED_DATASET', '2026-01-01')).admitted).toBe(false);
-    expect(admitClaim(claim, historical(2.8, 'OFFICIAL_AUTHORITY', '2019-01-01')).admitted).toBe(false);
+    expect(admitClaim(claim, known(2.8, 'ESTIMATE', '2026-01-01')).admitted).toBe(false);
+    expect(admitClaim(claim, historical(2.8, 'VERIFIED', '2019-01-01')).admitted).toBe(false);
     expect(admitClaim(claim, unknown('none')).admitted).toBe(false);
     expect(admitClaim(claim, blocked('off')).admitted).toBe(false);
   });
 
   it('admits a business rule without authority but never calls it verified', () => {
     const admission = admitClaim(
-      { claimId: 'c', field: 'ui.showBadge', provenance: 'DERIVED_CALCULATION' },
+      { claimId: 'c', field: 'ui.showBadge', provenance: 'ESTIMATE' },
       unknown('no authority needed'),
     );
     expect(admission.admitted).toBe(true);

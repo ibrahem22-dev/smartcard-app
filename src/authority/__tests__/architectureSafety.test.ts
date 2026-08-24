@@ -29,7 +29,7 @@ const fmt = (n: number): string => `${n.toFixed(1)}%`;
 describe('W1-AS-09 architecture safety composition', () => {
   it('admits exactly one provenance as authority grade', () => {
     // If this ever widens, every downstream guarantee weakens at once.
-    expect([...AUTHORITY_GRADE_PROVENANCES]).toEqual(['OFFICIAL_AUTHORITY']);
+    expect([...AUTHORITY_GRADE_PROVENANCES]).toEqual(['VERIFIED']);
     expect([...PROVENANCES]).toHaveLength(4);
   });
 
@@ -37,12 +37,12 @@ describe('W1-AS-09 architecture safety composition', () => {
     const claim = {
       claimId: 'c',
       field: 'card.fx.foreignFeePercent',
-      provenance: 'BUNDLED_DATASET' as const,
+      provenance: 'ESTIMATE' as const,
     };
     const nonAuthority: Provenance[] = [
-      'BUNDLED_DATASET',
-      'USER_INPUT',
-      'DERIVED_CALCULATION',
+      'ESTIMATE',
+      'USER',
+      'ESTIMATE',
     ];
     for (const provenance of nonAuthority) {
       const admission = admitClaim(claim, known(2.8, provenance, AT));
@@ -64,7 +64,7 @@ describe('W1-AS-09 architecture safety composition', () => {
     expect(presented.mayShowAsVerified).toBe(false);
     expect(
       admitClaim(
-        { claimId: 'c', field: 'card.fee.annual', provenance: 'USER_INPUT' },
+        { claimId: 'c', field: 'card.fee.annual', provenance: 'USER' },
         outcome.value,
       ).admitted,
     ).toBe(false);
@@ -92,11 +92,11 @@ describe('W1-AS-09 architecture safety composition', () => {
   });
 
   it('a stale value is rejected by every gate that matters', () => {
-    const stale = historical(1.5, 'OFFICIAL_AUTHORITY', '2019-01-01');
+    const stale = historical(1.5, 'VERIFIED', '2019-01-01');
     expect(isCurrentAuthority(stale)).toBe(false);
     expect(presentAuthority(stale, fmt).mayShowAsVerified).toBe(false);
     expect(
-      admitClaim({ claimId: 'c', field: 'card.fee.annual', provenance: 'OFFICIAL_AUTHORITY' }, stale)
+      admitClaim({ claimId: 'c', field: 'card.fee.annual', provenance: 'VERIFIED' }, stale)
         .admitted,
     ).toBe(false);
     expect(
@@ -116,7 +116,7 @@ describe('W1-AS-09 architecture safety composition', () => {
     expect(isCurrentAuthority(value)).toBe(false);
     expect(presentAuthority(value, fmt).amountText).toBeNull();
     expect(
-      admitClaim({ claimId: 'c', field: 'card.fee.annual', provenance: 'OFFICIAL_AUTHORITY' }, value)
+      admitClaim({ claimId: 'c', field: 'card.fee.annual', provenance: 'VERIFIED' }, value)
         .admitted,
     ).toBe(false);
   });

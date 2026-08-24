@@ -52,15 +52,16 @@ const textsOf = (node: unknown): string[] => {
 
 describe('ProvenanceChip — A2: four states plus the Stale modifier, one definition', () => {
   it('has exactly the four states A2 names', () => {
-    expect([...CHIP_STATES]).toEqual(['verified', 'user', 'estimate', 'unknown']);
+    // The contract's own order and spelling — Data Contract §2.1's Layer-B table.
+    expect([...CHIP_STATES]).toEqual(['USER', 'VERIFIED', 'ESTIMATE', 'UNKNOWN']);
   });
 
-  it.each(CHIP_STATES.map((s) => [s]))('renders the %s state as a glyph AND a word', (state) => {
+  it.each(CHIP_STATES.map((s) => [s]))('renders the %s state as a glyph AND a word', (chip) => {
     const { queryByTestId, toJSON } = render(
-      <ProvenanceChip view={{ state, stale: false }} />,
+      <ProvenanceChip view={{ chip, stale: false }} />,
     );
 
-    expect(queryByTestId(`provenance-chip-${state}`)).toBeTruthy();
+    expect(queryByTestId(`provenance-chip-${chip}`)).toBeTruthy();
 
     const texts = textsOf(toJSON());
     const glyphs = texts.filter((s) => GLYPHS.test(s));
@@ -76,7 +77,7 @@ describe('ProvenanceChip — A2: four states plus the Stale modifier, one defini
 
   it('renders the Stale modifier ALONGSIDE a state, never instead of one', () => {
     const { queryByTestId, toJSON } = render(
-      <ProvenanceChip view={{ state: 'verified', stale: true }} />,
+      <ProvenanceChip view={{ chip: 'VERIFIED', stale: true }} />,
     );
 
     expect(queryByTestId('provenance-chip-stale')).toBeTruthy();
@@ -119,22 +120,21 @@ describe('chipStateFor — the mapping, without rendering anything', () => {
     // undefined rather than as a chip somebody guessed at.
     for (const tone of PRESENTATION_TONES) {
       const view = chipStateFor(tone);
-      expect(view === null || CHIP_STATES.includes(view.state)).toBe(true);
+      expect(view === null || CHIP_STATES.includes(view.chip)).toBe(true);
     }
   });
 
   it('distinguishes the user’s own figure from the app’s estimate', () => {
-    expect(chipStateFor('UNVERIFIED_INPUT', 'USER_INPUT')?.state).toBe('user');
-    expect(chipStateFor('UNVERIFIED_INPUT', 'BUNDLED_DATASET')?.state).toBe('estimate');
-    expect(chipStateFor('UNVERIFIED_INPUT', 'DERIVED_CALCULATION')?.state).toBe('estimate');
+    expect(chipStateFor('UNVERIFIED_INPUT', 'USER')?.chip).toBe('USER');
+    expect(chipStateFor('UNVERIFIED_INPUT', 'ESTIMATE')?.chip).toBe('ESTIMATE');
   });
 
   it('marks a historical value stale WITHOUT demoting it to unknown', () => {
-    expect(chipStateFor('STALE')).toEqual({ state: 'verified', stale: true });
+    expect(chipStateFor('STALE')).toEqual({ chip: 'VERIFIED', stale: true });
   });
 
   it('never lets a provenance override a verified or an unavailable', () => {
-    expect(chipStateFor('VERIFIED', 'USER_INPUT')?.state).toBe('verified');
-    expect(chipStateFor('UNAVAILABLE', 'OFFICIAL_AUTHORITY')?.state).toBe('unknown');
+    expect(chipStateFor('VERIFIED', 'USER')?.chip).toBe('VERIFIED');
+    expect(chipStateFor('UNAVAILABLE', 'VERIFIED')?.chip).toBe('UNKNOWN');
   });
 });

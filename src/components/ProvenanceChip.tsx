@@ -44,18 +44,18 @@ import {
 
 /** The glyph each state carries. Text, not an icon font: a chip must survive a missing font. */
 const CHIP_GLYPH: Readonly<Record<ChipState, string>> = {
-  verified: '✓',
-  user: '✎',
-  estimate: '≈',
-  unknown: '?',
+  VERIFIED: '✓',
+  USER: '✎',
+  ESTIMATE: '≈',
+  UNKNOWN: '?',
 };
 
 /** The A8 role each state wears. `unknown` is neutral — see the header. */
 const CHIP_TONE: Readonly<Record<ChipState, 'positive' | 'advisory' | 'neutral'>> = {
-  verified: 'positive',
-  user: 'neutral',
-  estimate: 'advisory',
-  unknown: 'neutral',
+  VERIFIED: 'positive',
+  USER: 'neutral',
+  ESTIMATE: 'advisory',
+  UNKNOWN: 'neutral',
 };
 
 export interface ProvenanceChipProps {
@@ -74,8 +74,8 @@ export function ProvenanceChip({
   // A conflict has no single badge that tells the truth. See provenanceChipState.ts.
   if (view === null) return null;
 
-  const role = CHIP_TONE[view.state];
-  const label = t(CHIP_LABEL[view.state]);
+  const role = CHIP_TONE[view.chip];
+  const label = t(CHIP_LABEL[view.chip]);
   const stale = t(CHIP_STALE_LABEL);
 
   return (
@@ -94,10 +94,10 @@ export function ProvenanceChip({
       // sits on the line directly above the class, because that is the only place the scan reads it.
       // rtl-ok
       className={`items-center gap-1 self-start rounded-full border px-2 py-0.5 ${ROLE_SURFACE_BG[role]} ${ROLE_BORDER[role]}`}
-      testID={testID ?? `provenance-chip-${view.state}`}
+      testID={testID ?? `provenance-chip-${view.chip}`}
     >
       <AppText className={`text-xs font-bold ${ROLE_TEXT[role]}`}>
-        {CHIP_GLYPH[view.state]}
+        {CHIP_GLYPH[view.chip]}
       </AppText>
       <AppText className={`text-xs font-bold ${ROLE_TEXT[role]}`}>{label}</AppText>
       {view.stale ? (

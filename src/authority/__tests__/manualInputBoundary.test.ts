@@ -8,12 +8,12 @@ import { isCurrentAuthority, known } from '../authorityValue';
 const AT = '2026-08-15T00:00:00Z';
 
 describe('W1-AS-06 manual input boundary', () => {
-  it('accepts a plain number and pins it to USER_INPUT', () => {
+  it('accepts a plain number and pins it to USER', () => {
     const outcome = acceptManualInput({ field: 'card.fee', rawValue: '12.5', enteredAt: AT });
     expect(outcome.accepted).toBe(true);
     if (outcome.accepted) {
       expect(outcome.value.value).toBe(12.5);
-      expect(outcome.value.provenance).toBe('USER_INPUT');
+      expect(outcome.value.provenance).toBe('USER');
       // The whole point: user input is never current official authority.
       expect(isCurrentAuthority(outcome.value)).toBe(false);
     }
@@ -53,12 +53,12 @@ describe('W1-AS-06 manual input boundary', () => {
   });
 
   it('blocks user input from reaching an official-authority sink', () => {
-    const userValue = known(3, 'USER_INPUT', AT);
+    const userValue = known(3, 'USER', AT);
     expect(() => assertNotUserInput(userValue, 'authority write')).toThrow(
       /user input may not be used as official authority/,
     );
     expect(() =>
-      assertNotUserInput(known(3, 'OFFICIAL_AUTHORITY', AT), 'authority write'),
+      assertNotUserInput(known(3, 'VERIFIED', AT), 'authority write'),
     ).not.toThrow();
   });
 });

@@ -63,7 +63,7 @@ describe('profile financial snapshot completeness', () => {
     const value = profileFieldToAuthority(9000, 'monthlyIncome', AT);
     expect(value.state).toBe('KNOWN');
     if (value.state === 'KNOWN') {
-      expect(value.provenance).toBe('USER_INPUT');
+      expect(value.provenance).toBe('USER');
     }
     expect(isCurrentAuthority(value)).toBe(false);
   });

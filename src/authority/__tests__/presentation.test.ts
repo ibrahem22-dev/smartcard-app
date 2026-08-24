@@ -48,7 +48,7 @@ describe('W1-AS-03 UI-safe presentation', () => {
 
   it('shows a historical number but never as verified', () => {
     const presented = presentAuthority(
-      historical(1.5, 'OFFICIAL_AUTHORITY', '2019-01-01'),
+      historical(1.5, 'VERIFIED', '2019-01-01'),
       sloppyFormat,
     );
     expect(presented.tone).toBe('STALE');
@@ -58,7 +58,7 @@ describe('W1-AS-03 UI-safe presentation', () => {
 
   it('shows bundled data without a verified affordance', () => {
     const presented = presentAuthority(
-      known(2.8, 'BUNDLED_DATASET', '2026-01-01'),
+      known(2.8, 'ESTIMATE', '2026-01-01'),
       sloppyFormat,
     );
     expect(presented.tone).toBe('UNVERIFIED_INPUT');
@@ -68,7 +68,7 @@ describe('W1-AS-03 UI-safe presentation', () => {
 
   it('marks official authority verified', () => {
     const presented = presentAuthority(
-      known(2.8, 'OFFICIAL_AUTHORITY', '2026-01-01'),
+      known(2.8, 'VERIFIED', '2026-01-01'),
       sloppyFormat,
     );
     expect(presented.tone).toBe('VERIFIED');

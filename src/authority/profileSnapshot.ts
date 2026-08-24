@@ -90,7 +90,7 @@ export function profileFieldToAuthority(
   enteredAt: string,
 ): AuthorityValue<number> {
   return isUsableNumber(value)
-    ? known(value, 'USER_INPUT', enteredAt, `profile.${field}`)
+    ? known(value, 'USER', enteredAt, `profile.${field}`)
     : unknown(`profile_field_not_entered:${field}`);
 }
 

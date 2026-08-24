@@ -20,9 +20,9 @@ import type { ConflictCandidate } from '../../authority/authorityValue';
 const pct = (v: number): string => `${String(v)}%`;
 
 const candidates: readonly ConflictCandidate<number>[] = [
-  { value: 3.5, provenance: 'BUNDLED_DATASET', sourceId: 'issuer-tariff', scope: 'כל הכרטיסים' },
-  { value: 2.8, provenance: 'OFFICIAL_AUTHORITY', sourceId: 'boi-filing', scope: 'כרטיסי פרימיום' },
-  { value: 3.0, provenance: 'DERIVED_CALCULATION', sourceId: 'statement-sample' },
+  { value: 3.5, provenance: 'ESTIMATE', sourceId: 'issuer-tariff', scope: 'כל הכרטיסים' },
+  { value: 2.8, provenance: 'VERIFIED', sourceId: 'boi-filing', scope: 'כרטיסי פרימיום' },
+  { value: 3.0, provenance: 'ESTIMATE', sourceId: 'statement-sample' },
 ];
 
 describe('ConflictedValue — A3 / OD-9: one shared component, no winner', () => {

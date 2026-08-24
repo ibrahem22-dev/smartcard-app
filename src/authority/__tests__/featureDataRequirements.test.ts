@@ -20,8 +20,8 @@ describe('W1-AS-05 feature data requirements', () => {
   it('is available only when every requirement is met at its grade', () => {
     const result = evaluateFeatureRequirements(SPEC, (field) =>
       field === 'card.fx.foreignFeePercent'
-        ? known(2.8, 'OFFICIAL_AUTHORITY', '2026-01-01')
-        : known('x', 'BUNDLED_DATASET', '2026-01-01'),
+        ? known(2.8, 'VERIFIED', '2026-01-01')
+        : known('x', 'ESTIMATE', '2026-01-01'),
     );
     expect(result.available).toBe(true);
     expect(result.unmet).toHaveLength(0);
@@ -31,7 +31,7 @@ describe('W1-AS-05 feature data requirements', () => {
     const result = evaluateFeatureRequirements(SPEC, (field) =>
       field === 'card.fx.foreignFeePercent'
         ? blocked('integration_off')
-        : known('x', 'BUNDLED_DATASET', '2026-01-01'),
+        : known('x', 'ESTIMATE', '2026-01-01'),
     );
     expect(result.available).toBe(false);
     expect(result.unmet).toHaveLength(1);
@@ -41,7 +41,7 @@ describe('W1-AS-05 feature data requirements', () => {
 
   it('refuses a bundled value where official authority is required', () => {
     const result = evaluateFeatureRequirements(SPEC, () =>
-      known(2.8, 'BUNDLED_DATASET', '2026-01-01'),
+      known(2.8, 'ESTIMATE', '2026-01-01'),
     );
     expect(result.available).toBe(false);
   });
@@ -51,22 +51,22 @@ describe('W1-AS-05 feature data requirements', () => {
     // naive "do we have a number?" check would accept it.
     const result = evaluateFeatureRequirements(SPEC, (field) =>
       field === 'card.fx.foreignFeePercent'
-        ? known(2.8, 'OFFICIAL_AUTHORITY', '2026-01-01')
-        : historical('old name', 'OFFICIAL_AUTHORITY', '2019-01-01'),
+        ? known(2.8, 'VERIFIED', '2026-01-01')
+        : historical('old name', 'VERIFIED', '2019-01-01'),
     );
     expect(result.available).toBe(false);
     expect(result.unmet[0]?.field).toBe('card.name');
-    expect(isStaleSubstitution('ANY_KNOWN_VALUE', historical(1, 'OFFICIAL_AUTHORITY', '2019-01-01'))).toBe(true);
-    expect(isStaleSubstitution('OPTIONAL', historical(1, 'OFFICIAL_AUTHORITY', '2019-01-01'))).toBe(false);
+    expect(isStaleSubstitution('ANY_KNOWN_VALUE', historical(1, 'VERIFIED', '2019-01-01'))).toBe(true);
+    expect(isStaleSubstitution('OPTIONAL', historical(1, 'VERIFIED', '2019-01-01'))).toBe(false);
   });
 
   it('reports degraded when only optional data is missing', () => {
     const result = evaluateFeatureRequirements(SPEC, (field) => {
       if (field === 'card.fx.foreignFeePercent') {
-        return known(2.8, 'OFFICIAL_AUTHORITY', '2026-01-01');
+        return known(2.8, 'VERIFIED', '2026-01-01');
       }
       if (field === 'card.name') {
-        return known('x', 'BUNDLED_DATASET', '2026-01-01');
+        return known('x', 'ESTIMATE', '2026-01-01');
       }
       return unknown('no_logo');
     });

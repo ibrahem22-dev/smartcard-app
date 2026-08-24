@@ -21,14 +21,14 @@ describe('W1-AS-02 five-state authority values', () => {
   });
 
   it('treats only authority-grade KNOWN as current authority', () => {
-    expect(isCurrentAuthority(known(2.8, 'OFFICIAL_AUTHORITY', '2026-01-01'))).toBe(true);
-    expect(isCurrentAuthority(known(2.8, 'BUNDLED_DATASET', '2026-01-01'))).toBe(false);
-    expect(isCurrentAuthority(known(2.8, 'USER_INPUT', '2026-01-01'))).toBe(false);
-    expect(isCurrentAuthority(known(2.8, 'DERIVED_CALCULATION', '2026-01-01'))).toBe(false);
+    expect(isCurrentAuthority(known(2.8, 'VERIFIED', '2026-01-01'))).toBe(true);
+    expect(isCurrentAuthority(known(2.8, 'ESTIMATE', '2026-01-01'))).toBe(false);
+    expect(isCurrentAuthority(known(2.8, 'USER', '2026-01-01'))).toBe(false);
+    expect(isCurrentAuthority(known(2.8, 'ESTIMATE', '2026-01-01'))).toBe(false);
   });
 
   it('never lets a HISTORICAL value pass as current authority', () => {
-    const stale = historical(1.5, 'OFFICIAL_AUTHORITY', '2019-01-01', '2020-01-01');
+    const stale = historical(1.5, 'VERIFIED', '2019-01-01', '2020-01-01');
     // It HAS a value -- that is exactly why it is dangerous.
     expect(stale.value).toBe(1.5);
     expect(isCurrentAuthority(stale)).toBe(false);
@@ -38,8 +38,8 @@ describe('W1-AS-02 five-state authority values', () => {
   it('preserves every candidate in a conflict without picking a winner', () => {
     const disputed = conflict(
       [
-        { value: 2.8, provenance: 'OFFICIAL_AUTHORITY', sourceId: 'a' },
-        { value: 3.0, provenance: 'OFFICIAL_AUTHORITY', sourceId: 'b' },
+        { value: 2.8, provenance: 'VERIFIED', sourceId: 'a' },
+        { value: 3.0, provenance: 'VERIFIED', sourceId: 'b' },
       ],
       'two_tariffs',
     );
@@ -53,16 +53,16 @@ describe('W1-AS-02 five-state authority values', () => {
       AuthorityUnavailableError,
     );
     expect(() => requireCurrentAuthority(blocked('off'))).toThrow(/BLOCKED/);
-    expect(requireCurrentAuthority(known(7, 'OFFICIAL_AUTHORITY', '2026-01-01'))).toBe(7);
+    expect(requireCurrentAuthority(known(7, 'VERIFIED', '2026-01-01'))).toBe(7);
   });
 
   it('folds every state exhaustively', () => {
     const states = [
-      known(1, 'OFFICIAL_AUTHORITY', '2026-01-01'),
+      known(1, 'VERIFIED', '2026-01-01'),
       unknown('r'),
       blocked('r'),
       conflict<number>([], 'r'),
-      historical(1, 'OFFICIAL_AUTHORITY', '2026-01-01'),
+      historical(1, 'VERIFIED', '2026-01-01'),
     ];
     const seen = states.map((value) =>
       foldAuthority<number, string>(value, {

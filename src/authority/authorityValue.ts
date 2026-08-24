@@ -27,20 +27,45 @@ export const AUTHORITY_STATES = [
 
 export type AuthorityState = (typeof AUTHORITY_STATES)[number];
 
-/** Where a value came from. USER_INPUT is never official authority. */
-export const PROVENANCES = [
-  'OFFICIAL_AUTHORITY',
-  'BUNDLED_DATASET',
-  'USER_INPUT',
-  'DERIVED_CALCULATION',
-] as const;
+/**
+ * WHERE A VALUE CAME FROM — the Data Contract's four-state chip, and nothing else.
+ *
+ * This module used to declare its own:
+ *
+ *     PROVENANCES = ['OFFICIAL_AUTHORITY', 'BUNDLED_DATASET', 'USER_INPUT', 'DERIVED_CALCULATION']
+ *
+ * Data Contract §2.2 predicted that in writing — *"without `USER` in this enum, the application
+ * inevitably grows a second provenance enum for overrides, and two enums for one concept is exactly
+ * the divergence class this contract exists to prevent"* — and it happened anyway, because nothing
+ * compared the app against the contract.
+ *
+ * Criterion B5 ends it: one vocabulary, and it is `src/authority/provenanceChip.ts`, mirrored from
+ * §2 and parity-checked in the pipeline preflight.
+ */
+export type { ProvenanceChip as Provenance } from './provenanceChip';
+export { PROVENANCE_CHIPS as PROVENANCES } from './provenanceChip';
 
-export type Provenance = (typeof PROVENANCES)[number];
+/**
+ * The chips that may back a KNOWN authority value with a verified affordance.
+ *
+ * Derived from the contract's own `mayRenderAsVerified` column rather than restated — `USER` is
+ * `calculationSafe` and still may NOT render as verified, because §2.1 says it renders as "Your
+ * value", a different claim and a truer one. The derivation lives beside the table in
+ * `provenanceChip.ts`; computing it here created a module-initialisation cycle.
+ */
+export { AUTHORITY_GRADE_CHIPS as AUTHORITY_GRADE_PROVENANCES } from './provenanceChip';
 
-/** Provenances that may back a KNOWN authority value. */
-export const AUTHORITY_GRADE_PROVENANCES: readonly Provenance[] = [
-  'OFFICIAL_AUTHORITY',
-];
+import {
+  AUTHORITY_GRADE_CHIPS,
+  type ProvenanceChip as ProvenanceChipType,
+} from './provenanceChip';
+
+/**
+ * The local name every signature in this module uses. It IS the contract's chip — aliased rather
+ * than redeclared, so there is exactly one type and `Provenance` remains a readable word at the
+ * call sites that have used it since before the contract was consulted.
+ */
+type Provenance = ProvenanceChipType;
 
 export interface KnownAuthority<T> {
   readonly state: 'KNOWN';
@@ -163,7 +188,7 @@ export function isConflict<T>(v: AuthorityValue<T>): v is ConflictAuthority<T> {
  * surrounding code is.
  */
 export function isCurrentAuthority<T>(v: AuthorityValue<T>): v is KnownAuthority<T> {
-  return v.state === 'KNOWN' && AUTHORITY_GRADE_PROVENANCES.includes(v.provenance);
+  return v.state === 'KNOWN' && AUTHORITY_GRADE_CHIPS.includes(v.provenance);
 }
 
 /** True when the value carries no usable number at all. */

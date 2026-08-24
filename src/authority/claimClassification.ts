@@ -20,7 +20,6 @@ import {
 export const CLAIM_KINDS = [
   'BUSINESS_RULE',
   'FINANCIAL_DATA_CLAIM',
-  'DERIVED_PRESENTATION',
   'UNCLASSIFIED',
 ] as const;
 
@@ -93,16 +92,20 @@ export function classifyClaim(claim: ClaimDescriptor): ClaimClassification {
       rationale: 'field describes application behaviour, not issuer terms',
     };
   }
-  if (claim.provenance === 'DERIVED_CALCULATION') {
-    return {
-      ...base,
-      kind: 'DERIVED_PRESENTATION',
-      // A derivation is only as authoritative as its inputs; it can never
-      // manufacture authority the inputs did not have.
-      requiresOfficialAuthority: true,
-      rationale: 'derived from other values; inherits their authority requirement',
-    };
-  }
+  // THE PROVENANCE BRANCH IS GONE, and losing it cost nothing.
+  //
+  // It used to read `provenance === 'DERIVED_CALCULATION'` and return the kind
+  // DERIVED_PRESENTATION. Under the Data Contract's vocabulary both a derivation and a bundled
+  // snapshot are ESTIMATE — §2.1 maps DERIVED, DERIVED_FROM_OFFICIAL and ESTIMATED to the same
+  // chip, and says the Layer-A vocabulary "MUST NOT be reproduced in the application". So the
+  // branch could no longer tell the two apart.
+  //
+  // It turned out not to matter: both branches set `requiresOfficialAuthority: true`, the only
+  // difference was a label, and DERIVED_PRESENTATION had NO CONSUMER anywhere in the app or its
+  // tests. A kind nothing produces a decision from is a vocabulary entry pretending to be a case.
+  //
+  // An unmapped field is authority-requiring whatever chip it carries. That is the property that
+  // was ever load-bearing, and it is unchanged.
   return {
     ...base,
     kind: 'UNCLASSIFIED',

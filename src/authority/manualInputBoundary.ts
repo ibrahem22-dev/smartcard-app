@@ -86,7 +86,7 @@ export function acceptManualInput(
   return {
     accepted: true,
     field: request.field,
-    value: known(parsed, 'USER_INPUT', request.enteredAt, request.enteredBy),
+    value: known(parsed, 'USER', request.enteredAt, request.enteredBy),
   };
 }
 
@@ -104,7 +104,7 @@ export function manualInputToAuthority(
  * for example anything that writes an official-authority record.
  */
 export function assertNotUserInput<T>(value: AuthorityValue<T>, context: string): void {
-  if (value.state === 'KNOWN' && value.provenance === 'USER_INPUT') {
+  if (value.state === 'KNOWN' && value.provenance === 'USER') {
     throw new Error(
       `${context}: user input may not be used as official authority`,
     );
