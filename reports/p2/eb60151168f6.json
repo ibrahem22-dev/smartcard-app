@@ -1,0 +1,706 @@
+{
+  "$comment": "Written by tools/p2/all.mjs. Every step is decided on its printed output; a process status is recorded for the log and is never the decision. `acceptanceRun` is true only when nothing failed, nothing was skipped and nothing is unimplemented — a skipped or unwritten step can never read as green.",
+  "sha": "eb60151168f6b5160c8c8544e90477fb0df358f4",
+  "worktreeDirty": false,
+  "node": "v20.20.2",
+  "acceptanceRun": false,
+  "ok": false,
+  "noFailures": false,
+  "failed": [
+    "gate:e1-backlog"
+  ],
+  "skipped": [],
+  "notImplemented": [],
+  "gatesOnDisk": 33,
+  "gatesRequired": 44,
+  "gatesMissing": [
+    "adr-append-only",
+    "analytics-boundary",
+    "consent",
+    "decision-log",
+    "deferred-register",
+    "handoff-no-discovery",
+    "honesty",
+    "newarch",
+    "ob-coverage",
+    "real-artifacts",
+    "regression",
+    "repos-in-sync"
+  ],
+  "gatesNotRequired": [
+    "node-apis-absent"
+  ],
+  "contractVersion": "1.0-PROPOSED",
+  "steps": [
+    {
+      "step": "preflight",
+      "ok": true,
+      "skipped": false,
+      "ms": 606,
+      "decidedOn": "output",
+      "line": "PREFLIGHT OK — 7 of 7",
+      "processStatus": 0,
+      "tail": "  ok    binary: git            git version 2.55.0.windows.3\n  ok    binary: npm            10.8.2\n  ok    lockfile               package-lock.json v3, node_modules installed from it\n  ok    worktree clean         clean\n  ok    branch                 on wip/expo-57-working-tree\n  ok    not nested (OD-13)     C:/Users/ebrah/smartcard-app has no git repository above it\n\nPREFLIGHT OK — 7 of 7"
+    },
+    {
+      "step": "typecheck",
+      "ok": true,
+      "skipped": false,
+      "ms": 2634,
+      "decidedOn": "output",
+      "line": "TYPECHECK OK",
+      "processStatus": 0,
+      "tail": "TYPECHECK OK"
+    },
+    {
+      "step": "lint",
+      "ok": true,
+      "skipped": false,
+      "ms": 1799,
+      "decidedOn": "output",
+      "line": "LINT OK",
+      "processStatus": 0,
+      "tail": "LINT OK"
+    },
+    {
+      "step": "suite",
+      "ok": true,
+      "skipped": false,
+      "ms": 26950,
+      "decidedOn": "output",
+      "line": "Tests:       588 passed, 588 total",
+      "processStatus": 0,
+      "tail": "PASS render src/components/__tests__/WeekHeader.render.test.tsx (24.315 s)\nPASS render src/components/__tests__/ProvenanceChip.render.test.tsx (24.512 s)\nPASS render src/screens/__tests__/screens.render.test.tsx (24.599 s)\n\nTest Suites: 55 passed, 55 total\nTests:       588 passed, 588 total\nSnapshots:   0 total\nTime:        25.924 s, estimated 26 s"
+    },
+    {
+      "step": "gate:a11y",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "A9"
+      ],
+      "ms": 31,
+      "decidedOn": "output",
+      "line": "A11Y OK — AA both modes, 44 pairings measured",
+      "processStatus": null,
+      "tail": "contrast        44 pairing(s) measured in both modes · 44 at or above AA 4.5:1\n  ProvenanceChip.tsx    4 glyph(s) beside the words\n  ConflictedValue.tsx   1 glyph(s) beside the words\nstate cues      2 component(s) carry a glyph and a word beside the role colour\ntouch targets   51 pressable(s) · 0 declared minimum(s) below 44pt\ntype            0 explicit size(s) below 12px"
+    },
+    {
+      "step": "gate:adapter-consumption",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "D1"
+      ],
+      "ms": 1885,
+      "decidedOn": "output",
+      "line": "ADAPTER-CONSUMPTION OK",
+      "processStatus": null,
+      "tail": "package         @smartcard/data-authority-adapter · declared as file:../smartcard-data-pipeline/dist/adapter-package\ninstalled       v1.1.0+local.5a7a8026195d · adapterVersion 1.1.0 · built from 5a7a8026195d\npinned to       adapterVersion 1.1.0 · commit 5a7a8026195d\nimporters       9 file(s) name the package · 0 outside src/data/adapter/**\nrefusal proven  yes · Tests:       10 passed, 10 total\nformats         adapter reads [1]"
+    },
+    {
+      "step": "gate:app-root",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "F1"
+      ],
+      "ms": 1569,
+      "decidedOn": "output",
+      "line": "APP-ROOT OK — history preserved",
+      "processStatus": null,
+      "tail": "nested under    nothing — this is a top-level root\norigin          https://github.com/ibrahem22-dev/smartcard-app.git\ncommits         113  from 34724481 (2026-06-21) to HEAD (2026-08-24)\nbranch          wip/expo-57-working-tree  ->  origin/wip/expo-57-working-tree\nfsck            no errors (1211 dangling objects, which are not errors)\nworktrees       4 (4 resolving to this root)"
+    },
+    {
+      "step": "gate:colour-semantics",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "A8"
+      ],
+      "ms": 28,
+      "decidedOn": "output",
+      "line": "COLOUR-SEMANTICS OK — 4 roles, 1 definition, 0 raw colour outside it",
+      "processStatus": null,
+      "tail": "  neutral  slate  no judgement is being expressed about the user or their money\n\npopulation      153 files under src/**, src/theme/tokens.ts exempt\nraw colour      0 outside the token module, in 0 file(s)\n\ntailwind        2 custom colour(s) declared, all mirrored in CHROME"
+    },
+    {
+      "step": "gate:conflicted-value",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "A3"
+      ],
+      "ms": 18,
+      "decidedOn": "output",
+      "line": "CONFLICTED-VALUE OK",
+      "processStatus": null,
+      "tail": "decides         nothing — no sort, no slice, no fold, no preselection\nrole            advisory (amber). A3: amber never red\nshows           value · source · scope, for every candidate in the order given\npopulation      153 files scanned for per-screen conflict logic · found 0\nmembers         DISPUTED_WITH_CANDIDATES and DISPUTED_WITHOUT_CANDIDATES, both covered by\n                src/components/__tests__/ConflictedValue.render.test.tsx"
+    },
+    {
+      "step": "gate:e1-backlog",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "D7"
+      ],
+      "ms": 3162,
+      "decidedOn": "output",
+      "line": "FAILED — 1 problem(s): UNACCOUNTED R3 src/components/ConflictedValue.tsx:9 — R3: pack module '../data/adapter/conflictRenderPlan' imported outside src/authority/**.",
+      "processStatus": null,
+      "tail": "    2  ALLOWED   ALLOW-CROSSSET-RESOLVER\n\n  closed          26   (baseline minus now, both from lint runs)\n  deferred        38   each with a date and an OD id\n  allowed         21   each with a reason a reviewer can disagree with\n  unaccounted     1"
+    },
+    {
+      "step": "gate:engine-boundary-defects",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "D6"
+      ],
+      "ms": 27,
+      "decidedOn": "output",
+      "line": "ENGINE-BOUNDARY OK — 0 hardcoded scores in 208 source files, 0 canned findings",
+      "processStatus": null,
+      "tail": "scanned         208 source files under src/, derived from disk\nscore literals  0 in code · 3 including comments\ncanned findings 0 in code · 1 file(s) mentioning the symbol\n  named defect  gone    · DecisionScreen 84/100\n  named defect  gone    · DecisionScreen 71/100\n  named defect  gone    · VERDICT_FALLBACK_REASONS"
+    },
+    {
+      "step": "gate:fenced-surfaces",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "B9"
+      ],
+      "ms": 68,
+      "decidedOn": "output",
+      "line": "FENCED OK — 0 reachable, of 10 modules and 4 packages fenced",
+      "processStatus": null,
+      "tail": "  not reached not in manifest @supabase/supabase-js\n  not reached not in manifest react-native-purchases\n  not reached not in manifest expo-camera\n  not reached not in manifest react-native-qrcode-svg\nundeclared      0 reference(s) to packages the manifest does not declare · 208 files and 5 expo plugin(s) checked against 48 declared\narchive         docs/archive/P2_FENCED_SURFACES.md"
+    },
+    {
+      "step": "gate:format-matrix",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "C6"
+      ],
+      "ms": 3892,
+      "decidedOn": "output",
+      "line": "FORMAT-MATRIX OK",
+      "processStatus": null,
+      "tail": "  benefits    packFormatVersion 1 · packVersion 2026.08.22+3 · minApp 1.0.0\n  catalog     packFormatVersion 1 · packVersion 2026.08.22+3 · minApp 1.0.0\n  content     packFormatVersion 1 · packVersion 2026.08.22+2 · minApp 1.0.0\n  taxonomy    packFormatVersion 1 · packVersion 2026.08.22+2 · minApp 1.0.0\n  fx-rates    snapshotFormatVersion 1 · snapshotVersion 2026.08.22+1 · minApp 1.1.0\napp version     1.1.0 · floor 1.1.0 required by fx-rates"
+    },
+    {
+      "step": "gate:holiday-calendar",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "C9"
+      ],
+      "ms": 1880,
+      "decidedOn": "output",
+      "line": "HOLIDAY-CALENDAR OK",
+      "processStatus": null,
+      "tail": "unqualified     0 site(s) reading businessDaysOld without its qualifier\n\nTHE DEFERRAL FAILS TOWARD STALE, and that is why it is a deferral and not a defect. A\n  holiday counted as a publication day makes a rate look OLDER than it is. A calendar\n  assembled without authority would fail the other way — a stale rate looking fresh —\n  and inventing one to turn this gate green would be the worse answer."
+    },
+    {
+      "step": "gate:i18n-audit",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "A7"
+      ],
+      "ms": 54,
+      "decidedOn": "output",
+      "line": "I18N-AUDIT OK — 1 formatter, 215 fall-throughs visible and accounted for",
+      "processStatus": null,
+      "tail": "\n    14  ALLOWED   ALLOW-LANGUAGE-KEYED-TABLE   → undefined [undefined, undefined]\n    22  DEFERRED  DEFER-ENGINE-REASONS   → P3 — the engine rewrite, which owns decision output shape [OD-32, 2026-08-24]\n   179  DEFERRED  DEFER-ENGLISH-COPY   → Owner or a translator — the register is the deliverable, the sentences are not this campaign's to invent [OD-32, 2026-08-24]\n  unaccounted   0\ntabular         0 rendered amount(s) without the tabular style"
+    },
+    {
+      "step": "gate:identity-config",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "A10"
+      ],
+      "ms": 47,
+      "decidedOn": "output",
+      "line": "IDENTITY-CONFIG OK — 1 source",
+      "processStatus": null,
+      "tail": "  bundleIdentifier    com.smartcard.app\n  androidPackage      com.smartcard.app\n  storageNamespace    smartcard\n\nconsumers       identity.json, app.config.js, src/config/identity.ts, package.json, src/data/adapter/datasetId.ts\npopulation      174 file(s) searched for the values themselves · found 0 outside the permitted set"
+    },
+    {
+      "step": "gate:legacy-path-absent",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "D3"
+      ],
+      "ms": 64,
+      "decidedOn": "output",
+      "line": "LEGACY-PATH OK — 0 reachable, of 6 legacy paths and 1 symbol(s) checked",
+      "processStatus": null,
+      "tail": "  module        removed · src/hooks/useCardRatesDatabase.ts\n  module        removed · src/hooks/useFxAbroad.ts\n  module        removed · src/authority/nonAuthorityDataAccess.ts\n  symbol        not used in code · mentioned in 3 comment(s)/file(s) · DisabledDataAuthorityAdapter\n  seam          present and reached · src/authority/noSource.ts\n  adr           docs/adr/ADR-P2-001-legacy-data-path-removed.md"
+    },
+    {
+      "step": "gate:lint-boundaries",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "B7",
+        "D2",
+        "D5"
+      ],
+      "ms": 183,
+      "decidedOn": "output",
+      "line": "BOUNDARY-LINT OK — 5 rules, 0 violations",
+      "processStatus": null,
+      "tail": "          NO track() CALL SITES EXIST YET — the analytics boundary is criterion B6, Phase 10. The rule is in force and proven by its negative control; it has nothing to police today, and that is stated rather than counted as a pass\n\n  controls        7 of 7 fired · recorded 2026-08-24T01:40:03.072Z\n  controls at sha 9177665fbc5b58d5ddfa2516aa9582c058e6dac5\n\n  also required   e1-backlog (D7) runs .eslintrc.boundaries.js R1..R5; this gate is not that gate"
+    },
+    {
+      "step": "gate:nav",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "A1"
+      ],
+      "ms": 2,
+      "decidedOn": "output",
+      "line": "NAV-IA OK",
+      "processStatus": null,
+      "tail": "bar             HOME · WALLET · [CHECK] · PLAN · MORE\nspec            HOME · WALLET · [CHECK] · PLAN · MORE\nraised action   CHECK → CheckModal on the authenticated stack, fullScreenModal, not a tab\nsegments        WALLET  Cards | Benefits\nsegments        PLAN  Calendar | Commitments"
+    },
+    {
+      "step": "gate:no-rederivation",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "D4"
+      ],
+      "ms": 48,
+      "decidedOn": "output",
+      "line": "NO-REDERIVATION OK — 8 of 8 interfaces",
+      "processStatus": null,
+      "tail": "  IF-7  not re-derived  The compatibility matrices\n        lives in: adapter (D4, OB-5)\n  IF-8  not re-derived  EXPECTED_DATASET_ID and the trust store\n        lives in: compiled in (OB-4)\n\n  controls        8 of 8 checks watched to fire · recorded 2026-08-24T01:21:56.966Z"
+    },
+    {
+      "step": "gate:node-apis-absent",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [],
+      "ms": 38,
+      "decidedOn": "output",
+      "line": "NODE-APIS OK — 0 node builtins in the runtime graph",
+      "processStatus": null,
+      "tail": "entries         index.js, App.tsx\nruntime graph   110 file(s) reachable · 20 package(s) imported\nnode builtins   0 in the runtime graph\nfsPackReader    not reachable from the app entry, which is the claim its header makes"
+    },
+    {
+      "step": "gate:ob1-named-records",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "A4"
+      ],
+      "ms": 14709,
+      "decidedOn": "output",
+      "line": "OB-1 OK — named records rendered",
+      "processStatus": null,
+      "tail": "\nAN EMPTY conflictIds IS AN ANSWER, NOT AN ABSENCE OF ONE. The estate graded the fact as\n  disputed and named no counterparty anywhere in the corpus. §7.3 requires two or more\n  participants precisely so a record always names a real disagreement, and\n  manufacturing a one-participant record would assert a disagreement whose other side\n  does not exist. The pipeline refuses, and the refusal is correct."
+    },
+    {
+      "step": "gate:ob2-skew",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "C4"
+      ],
+      "ms": 14848,
+      "decidedOn": "output",
+      "line": "OB-2 OK — skew renders absent",
+      "processStatus": null,
+      "tail": "handled in      2 file(s) · 0 with error vocabulary\n                scanned in he · ar · en\n\nSKEW IS NOT A FAULT. It is the price of benefits.pack being republishable without\n  catalog.pack — the argument OD-17 accepted when it made G06b a parallel lane. A miss\n  renders as nothing, and the row around it is simply shorter."
+    },
+    {
+      "step": "gate:ob3-ob6-prohibitions",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "D8"
+      ],
+      "ms": 32,
+      "decidedOn": "output",
+      "line": "OB-3/OB-6 OK — 0 local classifiers",
+      "processStatus": null,
+      "tail": "\nNOTHING TO POLICE YET, and that is stated rather than counted as a pass. The app does\n                not consume conflict records — D1 landed the adapter seam and the\n                reads that use it are Phase 9. The prohibition is in force before its\n                subject arrives, which is the only order in which a prohibition is\n                ever obeyed, and its negative controls prove it can fire."
+    },
+    {
+      "step": "gate:ob4-refusals",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "C1"
+      ],
+      "ms": 2004,
+      "decidedOn": "output",
+      "line": "OB-4 OK — 10 of 10 refusals proven",
+      "processStatus": null,
+      "tail": "C3              a separate criterion with a separate gate: ob4-unproven-three\n\nNOT PROVEN HERE, and said rather than implied:\n  a real power-loss crash. These interruptions are injected exceptions, which unwind a\n  stack where a power cut unwinds nothing. src/data/adapter/import/POWER_LOSS.md characterises the gap;\n  C2 closes it, on a device, in Phase 11."
+    },
+    {
+      "step": "gate:ob4-unproven-three",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "C3"
+      ],
+      "ms": 2032,
+      "decidedOn": "output",
+      "line": "OB-4-RESIDUAL OK — lock + disk-full proven, power-loss characterised",
+      "processStatus": null,
+      "tail": "characterised   src/data/adapter/import/POWER_LOSS.md\nsuite           Tests:       24 passed, 24 total\n\nTWO VERBS, DELIBERATELY. A lock and a disk-full rename are PROVEN — they can be made to\n  happen here. A power loss is CHARACTERISED, because an injected exception unwinds a\n  stack and a power cut unwinds nothing. C2 closes it, on a device, in Phase 11."
+    },
+    {
+      "step": "gate:ob5-fx-fallback",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "C8"
+      ],
+      "ms": 1895,
+      "decidedOn": "output",
+      "line": "OB-5 OK — JPY control 934.85",
+      "processStatus": null,
+      "tail": "  is P3 and this campaign is forbidden to build it. Five of six obligations are proven\n  here; the sixth is P3, and every value this module returns carries fallbackOnly and\n  BUNDLED so a device can tell which lane it is on.\n\nAND THE HOLIDAY HALF IS UNPROVEN. The weekend half is proven on 84 real probes in P1\n  and re-measured here; a market holiday is P1_DEFERRED §2.11 and criterion C9."
+    },
+    {
+      "step": "gate:ob7-organisation-kinds",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "A5"
+      ],
+      "ms": 40,
+      "decidedOn": "output",
+      "line": "OB-7 OK — 3 kinds, 0 invented labels",
+      "processStatus": null,
+      "tail": "  CONSUMER_CLUB             label null · UNKNOWN_NOT_IN_ESTATE\n  ISSUER_OPERATED_STORE     label null · UNKNOWN_NOT_IN_ESTATE\n  PROFESSIONAL_ASSOCIATION  label null · UNKNOWN_NOT_IN_ESTATE\n\nrenderer        src/components/OrganisationKindLabel.tsx · switches on labelState · renders the key as a key\npopulation      153 files searched for synthesis · found 0"
+    },
+    {
+      "step": "gate:override-wins",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "B4"
+      ],
+      "ms": 1805,
+      "decidedOn": "output",
+      "line": "OVERRIDE-WINS OK — user value survived pack update",
+      "processStatus": null,
+      "tail": "regression      src/store/__tests__/overrideSurvivesPackUpdate.test.ts\n                Tests:       9 passed, 9 total\nnamed case      ran and passed\nmerged at       read — resolveValue(vault, packSet, key), override never written to the pack store\nprecedence      Data Contract §2.2 ordering, asserted by the test as well as used"
+    },
+    {
+      "step": "gate:provenance-chip",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "A2"
+      ],
+      "ms": 20,
+      "decidedOn": "output",
+      "line": "PROVENANCE-CHIP OK — 5 states, 1 definition",
+      "processStatus": null,
+      "tail": "definition      src/components/ProvenanceChip.tsx · decision in src/components/provenanceChipState.ts\nstates          4 (USER, VERIFIED, ESTIMATE, UNKNOWN) + the Stale modifier\nwords           5 distinct, each with an ar and an en rendering\nglyphs          4 of 4 — A9: icon + word, never colour alone\npopulation      153 files scanned for a second definition · found 0"
+    },
+    {
+      "step": "gate:provenance-single-enum",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "B5"
+      ],
+      "ms": 32,
+      "decidedOn": "output",
+      "line": "PROVENANCE-ENUM OK — 1 vocabulary",
+      "processStatus": null,
+      "tail": "contract        authority/SMARTCARD_DATA_CONTRACT.md §2.1 Layer B\nvocabulary      src/authority/provenanceChip.ts · USER · VERIFIED · ESTIMATE · UNKNOWN\nagreement       exact — same members, same spelling\nstale modifier  yes — §2.3, not a fifth chip\nUSER outranks   yes — §2.2 · survives a pack update: yes\npopulation      208 files · 0 second vocabular(ies) · 0 retired member(s)"
+    },
+    {
+      "step": "gate:release-gate",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "C7"
+      ],
+      "ms": 1858,
+      "decidedOn": "output",
+      "line": "RELEASE-GATE OK — delivery refused, release:false",
+      "processStatus": null,
+      "tail": "would qualify   HARDWARE_BACKED\nbypasses        0 site(s) outside src/data/adapter/import/releaseGate.ts\n\nDELIVERY IS REFUSED, AND THAT IS THE PASS. OD-25 has not been taken: no HARDWARE_BACKED\n  custody exists, so nothing in this repository may reach a real device. A gate\n  reporting \"delivery permitted\" would be describing a state nobody has reached."
+    },
+    {
+      "step": "gate:render-harness",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "E2"
+      ],
+      "ms": 20435,
+      "decidedOn": "output",
+      "line": "RENDER-HARNESS OK — 14 screens render (of 14)",
+      "processStatus": null,
+      "tail": "jest projects   unit[node] · render[jest-expo]\nsuite           Tests:       61 passed, 61 total\npopulation      14 screens, derived from src/screens/**/*.tsx\nrendered        14\nawaiting fixture 0\nfailed          0"
+    },
+    {
+      "step": "gate:rtl",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "A6"
+      ],
+      "ms": 30,
+      "decidedOn": "output",
+      "line": "RTL OK — 3 locales",
+      "processStatus": null,
+      "tail": "locales         en · he · ar  (RTL: he, ar)\nweek            starts on day 0 (Sunday) · order 0,1,2,3,4,5,6\nday letters     en SMTWTFS  ·  he אבגדהוש  ·  ar حنثرخجس\nisolates        ltrNumerals declared · 0 bare slash-date(s) found in 153 files"
+    },
+    {
+      "step": "gate:store-split",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "B3"
+      ],
+      "ms": 29,
+      "decidedOn": "output",
+      "line": "STORE-SPLIT OK",
+      "processStatus": null,
+      "tail": "adapter         src/store/storeAdapter.ts · reads the vault and the pack store, merges at read\n\nNOT PROVEN HERE that SQLCipher encrypted the database file. That is a native build\n                variant, JavaScript cannot see which binary it opened, and criterion\n                B2 asks for it on a device with a captured artifact. The pack store\n                says so itself rather than returning a boolean that reads as a fact."
+    },
+    {
+      "step": "gate:update-refusals",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "C5"
+      ],
+      "ms": 1938,
+      "decidedOn": "output",
+      "line": "UPDATE-REFUSALS OK — 4 refusals, 2 constants compiled in",
+      "processStatus": null,
+      "tail": "suite           Tests:       11 passed, 11 total\n\nTHE FOUR CODES EXIST BECAUSE THEY HAVE FOUR DIFFERENT FIXES. Collapsing \"this is not our\n  data\" or \"your app is too old\" into \"this may have been altered\" sends somebody\n  hunting for corruption that is not there — and teaches them that tampering warnings\n  are routine, which is how a device eventually accepts a forged pack."
+    },
+    {
+      "step": "gate:vault-crypto",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "B1"
+      ],
+      "ms": 24,
+      "decidedOn": "output",
+      "line": "VAULT-CRYPTO OK",
+      "processStatus": null,
+      "tail": "ownership       153 files · 0 module(s) other than the vault touching the OS keystore\n\nNOT PROVEN HERE this gate reads source. That the OS honoured the keychain policy, that\n                the Secure Enclave was used, that AES-GCM is correctly implemented —\n                those need a device, and criterion B2 asks for exactly that with a\n                captured artifact. This proves the app ASKS for the right things."
+    },
+    {
+      "step": "gate:adr-append-only",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "F9"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by F9, no tools/p2/gates/adr-append-only.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:analytics-boundary",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "B6"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by B6, no tools/p2/gates/analytics-boundary.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:consent",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "B8"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by B8, no tools/p2/gates/consent.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:decision-log",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "F11"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by F11, no tools/p2/gates/decision-log.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:deferred-register",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "F8"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by F8, no tools/p2/gates/deferred-register.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:handoff-no-discovery",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "F10"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by F10, no tools/p2/gates/handoff-no-discovery.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:honesty",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "E4"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by E4, no tools/p2/gates/honesty.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:newarch",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "F2"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by F2, no tools/p2/gates/newarch.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:ob-coverage",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "F7"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by F7, no tools/p2/gates/ob-coverage.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:real-artifacts",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "E6"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by E6, no tools/p2/gates/real-artifacts.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:regression",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "E3"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by E3, no tools/p2/gates/regression.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:repos-in-sync",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "F5"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by F5, no tools/p2/gates/repos-in-sync.mjs",
+      "processStatus": null,
+      "tail": ""
+    }
+  ]
+}

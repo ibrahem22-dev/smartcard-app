@@ -152,6 +152,16 @@
       "why": "THE PREDECESSOR LINT CALLS EVERY MODULE UNDER THE SEAM A PACK MODULE, because src/authority/ was the boundary directory when it was adopted and src/data/adapter/** did not exist. But a seam nothing may import is not a seam: D2 forbids anything outside data/adapter/** from importing A PACK FILE, A RAW JSON DATASET OR THE DB DRIVER, and reaching the boundary THROUGH its modules is the arrangement that makes that possible rather than a violation of it. crossSet.ts is the narrowest case there is: three string states, a ReferenceResolution type, and a resolver that holds no pack bytes, opens no file and cannot throw. A component rendering an absent cross-set reference has to name that type. This disposition is scoped to the crossSet module BY NAME rather than to the directory: a component importing fsPackReader, which pulls node:fs into a React Native bundle, would still be UNACCOUNTED here and would also fail the node-apis-absent gate, which walks the runtime graph from index.js and App.tsx.",
       "reviewedBy": "WP-8.4",
       "reviewedAt": "2026-08-24"
+    },
+    {
+      "id": "ALLOW-CONFLICT-PLAN-TYPE",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/components/",
+      "message": "pack module '[^']*conflictRenderPlan' imported outside",
+      "why": "THE SAME REASON AS ALLOW-CROSSSET-RESOLVER, AND ONE MORE. The predecessor lint calls every module under src/data/adapter/** a pack module because src/authority/ was the boundary directory when it was adopted; a seam nothing may import is not a seam, and D2 forbids importing A PACK FILE, A RAW JSON DATASET OR THE DB DRIVER, not the boundary's own modules. The additional reason here is that conflictRenderPlan.ts imports the adapter AS A TYPE ONLY, so it is ERASED at runtime and carries no pack data, no adapter code and no Node API into a React Native bundle. That erasure is why it exists as a separate module at all: the render suite failed with 'Cannot find module @babel/runtime/helpers/interopRequireDefault' when the component reached the adapter's runtime through a file: junction resolving outside the app root. Scoped to the module BY NAME: a component importing conflictRender.ts, which does load the adapter, stays UNACCOUNTED here.",
+      "reviewedBy": "WP-9.4",
+      "reviewedAt": "2026-08-24"
     }
   ],
   "$closedNote": [
