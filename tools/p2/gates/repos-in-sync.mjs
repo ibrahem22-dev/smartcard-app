@@ -54,7 +54,28 @@ const inspect = (cwd, label) => {
 
   const counts = git(cwd, 'rev-list', '--left-right', '--count', 'HEAD...@{u}');
   const [ahead, behind] = counts.ok ? counts.out.split(/\s+/).map(Number) : [null, null];
-  const dirty = git(cwd, 'status', '--porcelain');
+  /**
+   * THE LADDER'S OWN REPORT IS NOT UNCOMMITTED WORK.
+   *
+   * `p2:all` writes `reports/p2/<sha>.json` before it runs the gates, and this gate runs inside that
+   * same ladder — so it would be reporting the existence of a file the run it belongs to had just
+   * created. On the working machine that was invisible, because the report for that sha was already
+   * committed and rewriting identical bytes left the tree clean. **In a fresh clone it is untracked,
+   * and the gate failed for a reason that had nothing to do with the repository being out of sync.**
+   *
+   * E5 requires the report to be COMMITTED, which can only happen after the run that produces it.
+   * A check that demanded otherwise would be demanding a file contain its own commit sha.
+   *
+   * Exactly one generated path is excluded, by name. Every other uncommitted file still counts,
+   * including a stale report for a different sha — that one is real drift.
+   */
+  const OWN_REPORT = /^reports\/p2\/[0-9a-f]{12}\.json$/;
+  const rawDirty = git(cwd, 'status', '--porcelain');
+  const dirtyLines = rawDirty.out === '' ? [] : rawDirty.out.split('\n').filter((line) => {
+    const path = line.slice(3).trim().split(String.fromCharCode(92)).join(String.fromCharCode(47));
+    return !OWN_REPORT.test(path);
+  });
+  const dirty = { out: dirtyLines.join('\n') };
   const head = git(cwd, 'rev-parse', '--short', 'HEAD');
 
   return {
