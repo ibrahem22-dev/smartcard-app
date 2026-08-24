@@ -54,17 +54,20 @@ const BIN = join(ROOT, 'node_modules', '.bin');
 const CHECK = process.argv.includes('--check');
 
 /**
- * NOT A SILENT NO-OP. The line states the platform and the reason, so a reader of a CI log can tell
- * "this machine does not need the shim" from "the shim step was skipped".
+ * THE NON-WINDOWS BRANCH USED TO LIVE HERE, AND IT COULD NOT FAIL.
+ *
+ * It printed `PIN-NODE OK — not needed on linux …` and exited 0, unconditionally, before `.nvmrc`
+ * had even been read. Its own comment said *"NOT A SILENT NO-OP"* on the grounds that it names the
+ * platform — but naming yourself is not the same as checking anything, and **it returned OK for a
+ * runtime three major versions off the pin.** Watched doing exactly that: forced to Node 18 against
+ * a `.nvmrc` of 20.20.2, it still exited 0.
+ *
+ * It also justified itself with *"CI asserts it against .nvmrc directly"*, which was true of a CI
+ * job that had never once reached that step.
+ *
+ * The branch now runs AFTER `.nvmrc` is read, further down, and asserts the runtime — so the
+ * invariant holds on every platform and only the mechanism differs.
  */
-if (process.platform !== 'win32') {
-  console.log('PIN-NODE OK — not needed on ' + process.platform + '. The shim exists only to beat a '
-    + 'machine-wide Node on the Windows PATH that a non-administrator cannot get ahead of; on this '
-    + 'platform the runtime on PATH is the one the environment installed, and CI asserts it against '
-    + '.nvmrc directly.');
-  process.exit(0);
-}
-
 const nvmrcPath = join(ROOT, '.nvmrc');
 if (!existsSync(nvmrcPath)) {
   console.log('PIN-NODE FAILED — no .nvmrc. The pinned runtime has to be stated somewhere a');
@@ -72,6 +75,50 @@ if (!existsSync(nvmrcPath)) {
   process.exit(1);
 }
 const pinned = readFileSync(nvmrcPath, 'utf8').trim().replace(/^v/, '');
+
+/**
+ * ─────────────────────────────────────────────────────────────────────────────────────────────
+ * OFF WINDOWS THERE IS NOTHING TO SHIM — AND THIS SCRIPT USED TO FAIL THE INSTALL THERE.
+ *
+ * Everything below is a workaround for one Windows fact: the machine PATH carries a system-wide
+ * Node that a non-administrator cannot get in front of. **That fact does not exist on Linux or
+ * macOS**, where npm runs scripts with the node that invoked npm.
+ *
+ * This script is wired to `postinstall`, so on a non-Windows machine it looked for
+ * `%APPDATA%/fnm/node-versions/**\/node.exe`, found nothing, and exited 1 — **which fails `npm ci`
+ * itself.** The pipeline's identical copy did exactly that in GitHub Actions run #57, and this one
+ * would have failed the next step for the same reason.
+ *
+ * THIS IS NOT A NO-OP. The invariant is *"npm scripts run on the pinned runtime"*, and that is
+ * checkable everywhere — only the MECHANISM is Windows-specific. Off Windows the runtime is asserted
+ * against `.nvmrc` directly and this **exits 1 on a major mismatch**, which is the same failure the
+ * shims exist to prevent, caught the way this platform allows.
+ * ─────────────────────────────────────────────────────────────────────────────────────────────
+ */
+if (process.platform !== 'win32') {
+  const running = process.version.replace(/^v/, '');
+  const major = (v) => v.split('.')[0];
+
+  if (major(running) !== major(pinned)) {
+    console.error(
+      'PIN-NODE FAILED: this runtime is Node ' + running + ' and .nvmrc pins ' + pinned + '.\n' +
+        '  A major-version mismatch is never accepted. On ' + process.platform + ' npm scripts run\n' +
+        '  on the node that invoked npm, so there is nothing to shim — fix the runtime instead:\n' +
+        '    CI     actions/setup-node with node-version-file: .nvmrc\n' +
+        '    local  fnm use ' + pinned + '   (or nvm use ' + pinned + ')',
+    );
+    process.exit(1);
+  }
+
+  console.log(
+    'PIN-NODE OK — ' + process.platform + ': npm scripts run on the invoking runtime, nothing to shim.\n' +
+      '  pinned  ' + pinned + ' (.nvmrc)\n' +
+      '  running ' + running + (running === pinned ? '' : '  (same major, accepted)') + '\n' +
+      '  The shims below exist only for Windows, where the machine PATH carries a Node this\n' +
+      '  account cannot get in front of. That problem does not exist here.',
+  );
+  process.exit(0);
+}
 
 /** fnm keeps every installed runtime here, plus an aliases/default symlink to the current one. */
 const FNM_VERSIONS = join(process.env.APPDATA ?? '', 'fnm', 'node-versions');
