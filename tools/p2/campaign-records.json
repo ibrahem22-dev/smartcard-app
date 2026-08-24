@@ -148,8 +148,8 @@
       "file": "authority/ADR-022-app-pack-seam.md",
       "sha256": "5728754a510bee537dd2732f9cab20515dcb6466098a564eaa87b308b0a2a0cb",
       "bytes": 3013,
-      "firstCommit": null,
-      "commitCount": 0,
+      "firstCommit": "f17a1d86e6393db6d1fd31b1d307588dccc7e005",
+      "commitCount": 1,
       "status": "🔒 Accepted",
       "version": "1.0"
     },
@@ -158,8 +158,8 @@
       "file": "authority/ADR-023-pinned-adapter-build.md",
       "sha256": "34f555aadbe890e656cbda79c46d4db7758dd210269bdccaa5b0f986f97e9dc5",
       "bytes": 2200,
-      "firstCommit": null,
-      "commitCount": 0,
+      "firstCommit": "f17a1d86e6393db6d1fd31b1d307588dccc7e005",
+      "commitCount": 1,
       "status": "🔒 Accepted",
       "version": "1.0"
     },
@@ -168,8 +168,8 @@
       "file": "authority/ADR-024-bundled-pack-delivery.md",
       "sha256": "55f40001db7a9b50d591ba78d6fb029332ea43484742ef5a77628a5e26a0f09c",
       "bytes": 2212,
-      "firstCommit": null,
-      "commitCount": 0,
+      "firstCommit": "f17a1d86e6393db6d1fd31b1d307588dccc7e005",
+      "commitCount": 1,
       "status": "🔒 Accepted",
       "version": "1.0"
     },
@@ -178,8 +178,8 @@
       "file": "authority/ADR-025-app-version-floor.md",
       "sha256": "68987022c79b1a323ef94e8f78a9157f7f3bbb1a862e8b00546bc8b5b16398dd",
       "bytes": 2259,
-      "firstCommit": null,
-      "commitCount": 0,
+      "firstCommit": "f17a1d86e6393db6d1fd31b1d307588dccc7e005",
+      "commitCount": 1,
       "status": "🔒 Accepted",
       "version": "1.0"
     },
@@ -188,8 +188,8 @@
       "file": "authority/ADR-026-import-three-phases.md",
       "sha256": "d853ca8c414e69e6c0892f28ed245f4b41056b0cdb6c8a47fc94498ce787dd0d",
       "bytes": 2833,
-      "firstCommit": null,
-      "commitCount": 0,
+      "firstCommit": "f17a1d86e6393db6d1fd31b1d307588dccc7e005",
+      "commitCount": 1,
       "status": "🔒 Accepted",
       "version": "1.0"
     },
@@ -198,8 +198,8 @@
       "file": "authority/ADR-027-four-update-refusals.md",
       "sha256": "5e95d8367b178eeacedd8aa42834a050bd114c1fa6876623d514cc249ed7f933",
       "bytes": 2520,
-      "firstCommit": null,
-      "commitCount": 0,
+      "firstCommit": "f17a1d86e6393db6d1fd31b1d307588dccc7e005",
+      "commitCount": 1,
       "status": "🔒 Accepted",
       "version": "1.0"
     },
@@ -208,8 +208,8 @@
       "file": "authority/ADR-028-analytics-allowlist.md",
       "sha256": "f125e59dda6db4b387d856d6b723b8ade64f3c05eba7a5c07473769846c2b7b0",
       "bytes": 3170,
-      "firstCommit": null,
-      "commitCount": 0,
+      "firstCommit": "f17a1d86e6393db6d1fd31b1d307588dccc7e005",
+      "commitCount": 1,
       "status": "🔒 Accepted",
       "version": "1.0"
     },
@@ -218,8 +218,8 @@
       "file": "authority/ADR-029-inherited-data-path-removal.md",
       "sha256": "5b24f014122d5642384515c17402eed77ae8807ff1418c5be0ee1a366317af8f",
       "bytes": 2254,
-      "firstCommit": null,
-      "commitCount": 0,
+      "firstCommit": "f17a1d86e6393db6d1fd31b1d307588dccc7e005",
+      "commitCount": 1,
       "status": "🔒 Accepted",
       "version": "1.0"
     },
@@ -228,8 +228,8 @@
       "file": "authority/ADR-030-type-only-imports-across-the-seam.md",
       "sha256": "fe6c7691294800cd775269c9fca8dc87a478004f6fc75b338a3b7236de0b5d65",
       "bytes": 2649,
-      "firstCommit": null,
-      "commitCount": 0,
+      "firstCommit": "f17a1d86e6393db6d1fd31b1d307588dccc7e005",
+      "commitCount": 1,
       "status": "🔒 Accepted",
       "version": "1.0"
     }
