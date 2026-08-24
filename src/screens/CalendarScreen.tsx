@@ -10,10 +10,16 @@ import { TABULAR_NUMERALS } from '../utils/money';
 import { useTranslation } from '../hooks/useTranslation';
 import type { CashflowCalendarCharge } from '../types/cashflow.types';
 import { BORDER, ROLE_SURFACE_BG, SURFACE, TEXT } from '../theme/tokens';
+import { WeekHeader } from '../components/WeekHeader';
+import { ltrNumerals } from '../utils/calendar';
 
 function formatDisplayDate(date: string): string {
   const [year, month, day] = date.split('-');
-  return `${day}/${month}/${year}`;
+  // LTR-ISOLATED. A date is a numeric run with slashes between the parts, and both the digits and
+  // the slashes are direction-neutral: inside a Hebrew or Arabic sentence the bidirectional
+  // algorithm reorders the segments and a reader sees 2026/08/12 for the twelfth of August. Not a
+  // rendering artefact — the same characters, in a different order, meaning a different date.
+  return ltrNumerals(`${day}/${month}/${year}`);
 }
 
 function getRiskRowClassName(riskLevel: number): string {
@@ -87,6 +93,7 @@ export function CalendarScreen(): React.ReactElement {
       className={`flex-1 ${SURFACE.page}`}
       contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 20, paddingTop: 20 }}
       data={charges}
+      ListHeaderComponent={WeekHeader}
       keyExtractor={(item: CashflowCalendarCharge): string =>
         `${item.date}-${item.cardName}-${item.amount}`
       }

@@ -44,9 +44,20 @@ function isAllowlistedLine(line: string): boolean {
  * check that punishes documentation pushes a codebase toward deleting its own explanations. Code is
  * searched; comments are not.
  *
- * Block comments are left alone deliberately — stripping them here would need a parser, and a
- * half-parser that loses track of a string containing "\/*" would start hiding real code.
+ * BLOCK COMMENTS TOO, which the first version of this fix left alone. It reasoned that stripping
+ * them needed a parser — and then `WeekHeader.tsx` arrived with a doc comment explaining why its
+ * header row is the one row in the app that must NOT mirror, and the sentence "so Sunday lands in
+ * the rightmost cell" was reported as a hardcoded direction.
+ *
+ * The worry was a string literal containing the characters that open a block comment. That is worth
+ * naming and it is not worth the cost of the alternative: a scan that punishes the paragraph
+ * explaining an exception is a scan that gets the paragraph deleted.
  */
+function stripBlockComments(source: string): string {
+  // Length-preserving: newlines survive so line numbers stay true, everything else becomes a space.
+  return source.replace(/\/\*[\s\S]*?\*\//g, (m) => m.replace(/[^\n]/g, ' '));
+}
+
 function codeOnly(line: string): string {
   const at = line.indexOf('//');
   if (at === -1) return line;
@@ -97,11 +108,23 @@ describe('rtlNoHardcodedDirectionClasses', () => {
 
       for (const filePath of walk(absoluteDir)) {
         const relativePath = path.relative(process.cwd(), filePath);
-        const lines = fs.readFileSync(filePath, 'utf8').split('\n');
+        // TWO VIEWS OF THE SAME FILE, and both are needed.
+        //
+        // The patterns are matched against code with comments blanked, so a paragraph explaining
+        // an exception is not reported as the exception. But the `rtl-ok` MARKER is itself a
+        // comment — and in JSX it is written `{/* rtl-ok */}`, a block comment. Blanking that made
+        // the marker vanish and the line it protects fail, which is how the first version of this
+        // fix broke a file that had been correct for months.
+        //
+        // So: allowlisting reads the original, pattern-matching reads the stripped copy.
+        const original = fs.readFileSync(filePath, 'utf8');
+        const rawLines = original.split('\n');
+        const lines = stripBlockComments(original).split('\n');
 
         lines.forEach((line, index) => {
-          const previousLine = index > 0 ? lines[index - 1] ?? '' : '';
-          if (isAllowlistedLine(line) || isAllowlistedLine(previousLine)) {
+          const rawLine = rawLines[index] ?? '';
+          const previousRaw = index > 0 ? rawLines[index - 1] ?? '' : '';
+          if (isAllowlistedLine(rawLine) || isAllowlistedLine(previousRaw)) {
             return;
           }
 
