@@ -46,7 +46,7 @@ import adapterPackage from '@smartcard/data-authority-adapter/package.json';
  */
 export const PINNED_ADAPTER = {
   adapterVersion: '1.1.0',
-  builtFromCommit: '5a7a8026195dedc1ab6e70af03a2011e9a51a4aa',
+  builtFromCommit: '416e4d13597aa45d6f6dbe1d9380d344ccde3da5',
 } as const;
 
 /** What actually installed, read from the package rather than assumed. */
