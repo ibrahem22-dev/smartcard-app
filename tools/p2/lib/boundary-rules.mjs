@@ -331,9 +331,12 @@ const rule5 = (root) => {
   const files = walk(join(root, 'src'));
   const violations = [];
   let callSites = 0;
+  let declaredProps = 0;
+
   for (const f of files) {
     const r = rel(root, f);
     const code = stripComments(readFileSync(f, 'utf8'));
+
     code.split('\n').forEach((line, i) => {
       const m = line.match(/\btrack\s*\(([^)]*)\)/);
       if (!m) return;
@@ -342,14 +345,47 @@ const rule5 = (root) => {
         violations.push({ rule: 5, file: r, line: i + 1, detail: 'a vault value reaches track(): ' + line.trim().slice(0, 70) });
       }
     });
+
+    // THE DECLARATION IS POLICED BEFORE ANY CALL SITE EXISTS.
+    //
+    // A call-site scan can only find what somebody already wrote. The allowlist is where a vault
+    // field would be ADMITTED — `props: { pin_hash: 'string' }` is one line in a declaration, and
+    // it makes every future call site legal. Checking it means the rule bites on the day the
+    // mistake is made rather than on the day it is used.
+    if (!/ANALYTICS_EVENTS\s*=/.test(code)) continue;
+    const block = code.slice(code.indexOf('ANALYTICS_EVENTS'));
+    for (const m of block.matchAll(/^\s{4}(\w+)\s*:/gm)) {
+      declaredProps += 1;
+      // THE NAME IS SPLIT INTO WORDS BEFORE IT IS JUDGED.
+      //
+      // `\bpin\b` does not match inside `pin_hash`, because an underscore is a word character — and
+      // snake_case is exactly how analytics props are named. A control injecting `pin_hash` walked
+      // straight past a word-boundary test, which is how a check that looks right proves nothing.
+      // Splitting on case and separator handles `pin_hash`, `dekId` and `PROFILE_PIN` alike.
+      const words = m[1]
+        .replace(/([a-z0-9])([A-Z])/g, '$1 $2')
+        .split(/[^A-Za-z0-9]+/)
+        .filter(Boolean)
+        .map((w) => w.toLowerCase());
+      const SENSITIVE = ['pin', 'hash', 'secret', 'token', 'dek', 'key', 'password', 'passphrase', 'vault', 'pii'];
+      if (VAULT_VOCABULARY.test(m[1]) || words.some((w) => SENSITIVE.includes(w))) {
+        violations.push({
+          rule: 5,
+          file: r,
+          line: block.slice(0, m.index).split('\n').length,
+          detail: 'an analytics prop named "' + m[1] + '" is declared — the allowlist is where a vault field would be admitted',
+        });
+      }
+    }
   }
+
   return {
     rule: 5,
     name: 'no vault type may reach the track() boundary',
-    population: callSites,
+    population: callSites + declaredProps,
     note: callSites === 0
-      ? 'NO track() CALL SITES EXIST YET — the analytics boundary is criterion B6, Phase 10. The rule is in force and proven by its negative control; it has nothing to police today, and that is stated rather than counted as a pass'
-      : callSites + ' track() call site(s) examined',
+      ? 'THE BOUNDARY EXISTS (B6, src/analytics/track.ts) AND NO SURFACE IS INSTRUMENTED YET — instrumenting one is not a P2 criterion. So the rule policed ' + declaredProps + ' declared analytics prop(s) instead of call sites: the allowlist is where a vault field would be ADMITTED, and checking it means the rule bites the day the mistake is made rather than the day it is used. The boundary also refuses any non-primitive prop AT RUNTIME, so a vault object cannot pass through even from a call site nobody linted'
+      : callSites + ' track() call site(s) and ' + declaredProps + ' declared prop(s) examined',
     violations,
   };
 };
