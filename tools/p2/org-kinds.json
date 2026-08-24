@@ -1,14 +1,21 @@
 {
   "$comment": [
-    "GENERATED — do not edit. Derived from dist/packs/taxonomy/pack.json and cross-checked against",
-    "OD-30 in the pipeline repository. Regenerate with: node campaign-p2/bin/p2-org-kinds.mjs",
+    "GENERATED — do not edit. Derived from the taxonomy pack and cross-checked against OD-30 in the",
+    "pipeline repository. Regenerate with: node campaign-p2/bin/p2-org-kinds.mjs",
     "Criterion A5, Owner Decisions OD-28 and OD-30.",
     "",
     "Read from the SHIPPED PACK rather than from a list anybody typed: the pack is what reaches a",
     "device, and a list is a document about a previous build. The Owner Decision is read too, and a",
-    "disagreement between them fails rather than silently following one."
+    "disagreement between them fails rather than silently following one.",
+    "",
+    "TWO PLACES HOLD THAT PACK, and this field names the artifact rather than the path, on purpose.",
+    "dist/packs is the build output and is preferred; it cannot exist in CI, because building it",
+    "reads the canonical estate on the Owner machine. The app ships a committed copy of the same",
+    "artifact, and criterion E6 verifies that copy against the sha the contract names in the same",
+    "ladder run. Naming a path here would make this file report which machine generated it, and",
+    "that would read as drift on the other one."
   ],
-  "source": "dist/packs/taxonomy/pack.json",
+  "source": "the taxonomy pack — dist/packs/taxonomy/pack.json, or the app's committed copy of the same artifact when the estate is not reachable (E6 pins its sha either way)",
   "ruledBy": "OD-30",
   "ruled": [
     "CONSUMER_CLUB",

@@ -274,13 +274,38 @@ jobs:
           grep -qF 'BUILD-ADAPTER OK' adapter.log \
             || { echo "::error::BUILD-ADAPTER OK was not printed"; exit 1; }
 
-      - name: pipeline — build the packs
-        working-directory: smartcard-data-pipeline
+      # ------------------------------------------------------------------------------------------
+      # `build:packs` IS NOT RUN HERE, AND IT NEVER CAN BE.
+      #
+      # This step used to run it, and run #58 died on it. `scripts/build-packs.mjs` reads the
+      # canonical estate:
+      #
+      #     C:\Users\ebrah\All application data\smartcard-canonical-v1     (932 MB, Owner machine)
+      #
+      # That is not in any repository, is read-only by ACL, and cannot exist on a runner. Signing
+      # additionally needs the Owner-controlled key OB-8 says lives on no machine this campaign runs
+      # on. **This is a fact about where the data lives, not a gap to be filled.**
+      #
+      # NOTHING IS SKIPPED AS A RESULT. Exactly one thing needed `dist/packs`: the `p2-org-kinds`
+      # mirror check, which reads the taxonomy pack. It now prefers `dist/packs` and falls back to
+      # **the app's committed copy of the same artifact** — whose sha criterion **E6** verifies
+      # against the contract in this very job. The comparison still happens, against the bytes that
+      # ship; only the path differs, and the check prints which one it used.
+      #
+      # The assertion below is what stops that being a hole: if the committed pack were missing, the
+      # fallback would have nothing to read, and this fails here with a clear cause rather than
+      # thirty steps later inside a mirror check.
+      # ------------------------------------------------------------------------------------------
+      - name: the packs cannot be built here, so the shipped copy must be present
+        working-directory: ${{ github.workspace }}
         run: |
-          set -o pipefail
-          npm run build:packs 2>&1 | tee packs.log
-          grep -qF 'BUILD-PACKS OK' packs.log \
-            || { echo "::error::BUILD-PACKS OK was not printed"; exit 1; }
+          set -e
+          for p in taxonomy catalog benefits content; do
+            f="smartcard-app/src/data/adapter/packs/$p/pack.json"
+            test -f "$f" || { echo "::error::$f is missing — the ladder reads the shipped packs"; exit 1; }
+            echo "  ok  $f  $(wc -c < "$f") bytes"
+          done
+          echo "build:packs deliberately not run: it reads the canonical estate, which no runner has."
 
       # `npm ci`, never `npm install`. npm install is permitted to RESOLVE a dependency to a version
       # the lockfile does not name — it updates the lockfile rather than failing — so CI would be
