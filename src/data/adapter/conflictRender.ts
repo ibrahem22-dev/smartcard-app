@@ -2,9 +2,11 @@ import {
   CONFLICT_RENDER_PLAN,
   conflictRecordAvailabilityOf,
   conflictRenderPlan,
+  intervalRankabilityOf,
   type ConflictRecordAvailability,
   type ConflictRenderPlan,
   type PackConflict,
+  type IntervalRankability,
 } from '@smartcard/data-authority-adapter';
 
 /**
@@ -47,7 +49,25 @@ import {
 
 /** Re-exported so a consumer switches on the adapter's domain and never on a local copy of it. */
 export { CONFLICT_RENDER_PLAN };
-export type { ConflictRenderPlan, ConflictRecordAvailability };
+export type { ConflictRenderPlan, ConflictRecordAvailability, IntervalRankability };
+
+/**
+ * `intervalRankability` -- criterion K3, handoff section 3 row 4, read and never computed.
+ *
+ * The adapter is the ONLY thing that decides whether a conflicted fact can be ranked:
+ * `intervalRankabilityOf` reads `disagreementAxis` off each record, and `disagreementAxis` is
+ * written by the pipeline's build-time classifier (OQ-3 AMEND; ADR-014 section 3), never by
+ * this app. Exposing the adapter's answer through this seam is what makes that checkable: a
+ * consumer that wants a rankability asks here and gets the adapter's verdict, or it violates
+ * D2/K3 trying to make its own. Until a pack republication stamps axes into the records
+ * (PD-P3-005), every conflicted fact reads NOT_RANKABLE_AXIS_NOT_CLASSIFIED -- which routes
+ * to COMPARISON_INCOMPLETE, the honest outcome, not a defect to work around.
+ */
+export function intervalRankabilityFor(
+  conflicts: readonly PackConflict[],
+): IntervalRankability {
+  return intervalRankabilityOf(conflicts);
+}
 
 /**
  * The plan for one conflicted fact, decided by the adapter.
@@ -59,12 +79,14 @@ export function renderPlanFor(conflicts: readonly PackConflict[]): {
   readonly availability: ConflictRecordAvailability;
   readonly plan: ConflictRenderPlan;
   readonly candidateCount: number;
+  readonly rankability: IntervalRankability;
 } {
   const availability = conflictRecordAvailabilityOf(conflicts);
   return {
     availability,
     plan: conflictRenderPlan(availability),
     candidateCount: conflicts.length,
+    rankability: intervalRankabilityOf(conflicts),
   };
 }
 
