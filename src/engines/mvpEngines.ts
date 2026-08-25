@@ -14,7 +14,7 @@
 export const MVP_ENGINE_MODULES = [
   'currency.ts',
   'fx.ts',         // WP-6.3 — N3
-  // 'scoring.ts',   // WP-6.4 lands here
+  'scoring.ts',    // WP-6.4 — N1
   // 'verdict.ts',   // WP-6.5 lands here
   // 'load.ts',      // WP-6.6 lands here
   // 'risk.ts',      // WP-6.7 lands here
