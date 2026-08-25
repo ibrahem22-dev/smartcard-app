@@ -535,7 +535,7 @@
     ]
   },
   "handoff": {
-    "version": "2.0",
+    "version": "2.1",
     "obligations": [
       {
         "id": "P3-1",
