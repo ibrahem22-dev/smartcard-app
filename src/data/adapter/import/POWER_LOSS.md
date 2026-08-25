@@ -62,7 +62,26 @@ next read — as a refusal, on a device, with no obvious cause.
 ## WHAT WOULD CLOSE IT
 
 A physical device, an import driven to `COMMIT_PROMOTE`, and the battery removed. That is
-**criterion C2**, it needs hardware this campaign does not have, and it is Phase 11.
+**criterion C2**.
+
+**Updated 2026-08-25 — C2 is no longer Phase 11's, and this section said it was.** Phase 11 ran: an
+Android emulator became available on 2026-08-24 and closed B2, E1 and F2. It could not close C2, and
+not for want of a device. Two things stop it, both measured:
+
+1. **The importer is not in the release bundle at all.** `COMMIT_BACKUP`, `STAGE_COMPLETE`,
+   `DUPLICATE_PACK` and `MIXED_PACK_FORMAT` each appear **0** times in
+   `assets/index.android.bundle`, against three positive controls from wired modules appearing once
+   each. There is no code on the device able to import a pack.
+2. **Every pack is `release: false`, and OB-8 forbids delivering one to a real device.** The only
+   route that would "close" C2 is running with `requireRelease: false` — disabling the safety check
+   whose subject is C2.
+
+So the Owner ruled it, on **OQ-002**, 2026-08-24: *"DEFER C2 against OD-25 until hardware-backed
+release-signing custody exists. Do not exercise C2 using requireRelease:false or a
+development-signed pack merely to satisfy the criterion."* C2 is `DEFERRED` in the ledger carrying
+`OD-25`, moved into contract §9 with a register entry (`P2_DEFERRED` §2.9) in the same act. **It
+returns when OD-25 does.** An emulator would not have settled this section anyway — a battery cannot
+be removed from one.
 
 Until then the honest statement is the one at the top: the sequencing is proven, the recovery is
 proven, and **the durability of a write before a power cut is assumed**.

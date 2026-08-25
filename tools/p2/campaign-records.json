@@ -535,6 +535,7 @@
     ]
   },
   "handoff": {
+    "version": "2.0",
     "obligations": [
       {
         "id": "P3-1",
@@ -544,7 +545,7 @@
       {
         "id": "P3-2",
         "obligation": "**The engine arithmetic**, including the divide by `quoteUnit`",
-        "createdBy": "contract §9; OD-23a"
+        "createdBy": "contract §9; OD-23a and OD-23b"
       },
       {
         "id": "P3-3",
@@ -554,15 +555,40 @@
       {
         "id": "P3-4",
         "obligation": "**A market-holiday calendar** supplied to `stalenessOf`, or a further dated deferral",
-        "createdBy": "`P1_DEFERRED` §2.11; OD-31"
+        "createdBy": "P2 deferred register §2.2; `P1_DEFERRED` §2.11; OD-31"
       },
       {
         "id": "P3-5",
-        "obligation": "**Surface instrumentation**, if any product question is worth measuring",
+        "obligation": "**Surface instrumentation**, and only if P3 is the phase that first has a product question worth measuring",
         "createdBy": "P2 deferred register §2.7"
       }
     ],
-    "interfaceRows": 6
+    "interfaceRows": 6,
+    "state": {
+      "declared": {
+        "total": 54,
+        "satisfied": 53,
+        "deferred": 1,
+        "suites": 60,
+        "tests": 646,
+        "steps": 51,
+        "gatesOnDisk": 46,
+        "gatesRequired": 44,
+        "report": "reports/p2/949e0e6f9eff.json"
+      },
+      "measured": {
+        "total": 54,
+        "satisfied": 53,
+        "deferred": 1,
+        "suites": 60,
+        "tests": 646,
+        "steps": 51,
+        "gatesOnDisk": 46,
+        "gatesRequired": 44,
+        "report": "reports/p2/949e0e6f9eff.json"
+      },
+      "disagreements": []
+    }
   },
   "decisions": [
     {

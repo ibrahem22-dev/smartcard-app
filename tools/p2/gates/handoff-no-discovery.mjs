@@ -60,7 +60,35 @@ export const run = async ({ root }) => {
     return fail(RECORDS + ' does not exist — run campaign-p2/bin/p2-campaign-records.mjs');
   }
   const records = JSON.parse(readFileSync(join(root, RECORDS), 'utf8'));
-  const { obligations = [], interfaceRows = 0 } = records.handoff ?? {};
+  const { obligations = [], interfaceRows = 0, version = null, state = null } = records.handoff ?? {};
+
+  /**
+   * ─────────────────────────────────────────────────────────────────────────────────────────
+   * THE HANDOFF MUST ALSO AGREE WITH THE CAMPAIGN IT IS HANDING OVER.
+   *
+   * F10 asks what the handoff NAMES. It says nothing about whether what it names is still true —
+   * and for one whole campaign, nothing else asked either. So `HANDOFF OK — 0 discoveries` was
+   * printed at every gate run while §1 went on saying the app *"has never been run on a device"*,
+   * through the device lane that closed B2, E1 and F2, the four Owner rulings, and the CI lane.
+   *
+   * The Owner found that. No check did. **A green tick on a stale document is worse than no tick**,
+   * because it is read as currency.
+   *
+   * The counts are compared with the ledger and with the ladder run the handoff itself names —
+   * never with another document. An absent block is a failure, not a skip.
+   */
+  if (!state) {
+    return fail('the handoff carries no machine-readable state block, so its §1 counts are prose '
+      + 'that nothing compares. That is exactly how it came to claim the app had never run on a '
+      + 'device long after B2, E1 and F2 closed on one, while this gate reported OK');
+  }
+  if (state.disagreements?.length) {
+    return fail('the handoff disagrees with the campaign it is handing over, in '
+      + state.disagreements.length + ' place(s): '
+      + state.disagreements.map((d) => d.field + ' says ' + d.handoffSays + ', truth is ' + d.truthIs).join(' · '),
+      'THE HANDOFF IS THE P3 TEAM\'S ONLY BRIEFING. A number in it that no longer matches the'
+      + '\n  ledger or the ladder is not a typo — it is the campaign describing a state it left.');
+  }
 
   if (obligations.length === 0) {
     return fail('the handoff transfers no obligation. A P2 that handed P3 nothing would mean either '
@@ -89,8 +117,16 @@ export const run = async ({ root }) => {
   }
 
   lines.unshift('obligations     ' + obligations.length + ' transferred · ' + discoveries + ' discoveries');
+  lines.unshift('handoff         v' + (version ?? '?') + ' · state agrees with the ledger and with '
+    + state.measured.report);
   lines.push('');
   lines.push('interfaces      ' + interfaceRows + ' row(s) naming what P3 must not re-derive');
+  lines.push('');
+  lines.push('state           ' + state.measured.total + ' criteria · ' + state.measured.satisfied
+    + ' SATISFIED · ' + state.measured.deferred + ' DEFERRED · ' + state.measured.suites
+    + ' suites / ' + state.measured.tests + ' tests · ' + state.measured.steps + ' ladder steps');
+  lines.push('                compared field by field with campaign-p2/state/P2_LEDGER.json and');
+  lines.push('                ' + state.measured.report + ', not with another document');
   lines.push('');
   lines.push('"THE CAMPAIGN FOUND IT" IS NOT A PERMITTED SOURCE. A handoff that introduced an');
   lines.push('  obligation would be a campaign discovering, at the end, work it should have named at');
