@@ -1,4 +1,5 @@
 import type { FxRate } from '@smartcard/data-authority-adapter';
+import { step, trace, type ReasonTrace } from './reasonTrace';
 
 /**
  * THE ENGINE'S CONVERSION ARITHMETIC — OD-23b, ADR-013 §2–§4, criteria X1–X3.
@@ -60,6 +61,8 @@ export type ConvertedAmount = {
   readonly rateUsed: { readonly rateIlsPerQuoteUnit: number; readonly quoteUnit: number; readonly rateDate: string };
   /** ALWAYS 'ESTIMATE'. A type, so inheriting the input's grade does not compile. */
   readonly provenance: 'ESTIMATE';
+  /** T1: the account of this computation, travelling with it as an engine output. */
+  readonly trace: ReasonTrace;
 };
 
 /**
@@ -98,5 +101,24 @@ export function convertToIls(
     },
     // The grade of a DERIVATION. Never the input's grade, whatever it earned.
     provenance: 'ESTIMATE',
+    trace: trace('currency', [
+      step(
+        'quoteUnit divide',
+        'divided the published ILS figure by its own quotation unit to reach a rate per one '
+          + 'unit (' + rate.quoteUnit + ')',
+        ['rateIlsPerQuoteUnit', 'quoteUnit'],
+      ),
+      step(
+        'ADR-013 s2 reference',
+        'referenceIls = amount x rate-per-one: the representative-rate figure before any card cost',
+        ['amount', 'rateUsed.rateIlsPerQuoteUnit', 'rateUsed.quoteUnit'],
+      ),
+      step(
+        'card FX markup',
+        'effectiveIls = referenceIls x (1 + FX%) + fixed fee, with FX% = ' + fxPercent
+          + ' and fixed fee = ' + (markup.fixedFeeIls ?? 0),
+        ['fxPercentApplied', 'fixedFeeIlsApplied'],
+      ),
+    ]),
   };
 }
