@@ -232,6 +232,16 @@
       "commitCount": 1,
       "status": "🔒 Accepted",
       "version": "1.0"
+    },
+    {
+      "id": "ADR-031",
+      "file": "authority/ADR-031-boi-live-fetch-lane.md",
+      "sha256": "7751175811657de52f9c4cfa65c537153f614d666cafaeffbc71d3b38c3f261b",
+      "bytes": 3983,
+      "firstCommit": "f2c708c833c3f9d76d30751de84bf25f49c142f8",
+      "commitCount": 2,
+      "status": "Accepted",
+      "version": "1.0"
     }
   ],
   "adrEdits": [
