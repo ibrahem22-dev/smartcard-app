@@ -265,6 +265,19 @@ export function SettingsScreen({
             </AppText>
           </Pressable>
 
+          {__DEV__ ? (
+            <Pressable
+              accessibilityRole="button"
+              testID="dev-engine-probe-entry"
+              className={`mb-3 min-h-[50px] items-center justify-center rounded-lg border px-4 ${ACCENT.borderSubtle} ${ACCENT.surface}`}
+              onPress={(): void => navigation.navigate('EngineProbe')}
+            >
+              <AppText className={`text-center text-base font-extrabold ${ACCENT.text}`}>
+                ENGINE PROBE (dev)
+              </AppText>
+            </Pressable>
+          ) : null}
+
           <Pressable
             accessibilityRole="button"
             className={`mb-3 min-h-[50px] items-center justify-center rounded-lg border px-4 ${ACCENT.borderSubtle} ${ACCENT.surface}`}

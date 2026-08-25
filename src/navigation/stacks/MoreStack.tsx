@@ -98,6 +98,17 @@ export function MoreStack(): React.ReactElement {
           title: t('מחשבון ריבית'),
         }}
       />
+      {__DEV__ ? (
+        <Stack.Screen
+          name="EngineProbe"
+          component={require('../../dev/EngineProbeScreen').EngineProbeScreen}
+          options={{
+            headerShown: true,
+            headerTitleAlign: isRTL ? 'center' : 'left',
+            title: 'ENGINE PROBE (dev)',
+          }}
+        />
+      ) : null}
     </Stack.Navigator>
   );
 }

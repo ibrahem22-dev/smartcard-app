@@ -69,6 +69,8 @@ export type MoreStackParamList = {
   Glossary: undefined;
   InstallmentImport: undefined;
   InterestCalculator: { cardId?: string } | undefined;
+  /** DEV-ONLY diagnostics (PHASE-7 device evidence). Registered under __DEV__ exclusively. */
+  EngineProbe: undefined;
   // Deferred (DECISIONS_DEFERRED.md #9/#12): screen files retained and typed,
   // but NOT registered in SettingsStack and unreachable in MVP.
   Loans: undefined;
