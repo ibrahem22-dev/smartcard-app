@@ -152,8 +152,12 @@ export const run = async ({ root }) => {
       + 'the pair. assertNoPerOneField exists so the wrong number is not obtainable by accident');
   }
 
-  // ── nothing on the app side divides by quoteUnit ─────────────────────────────────
-  const files = walk(join(root, 'src'));
+  // ── nothing OUTSIDE THE ENGINE divides by quoteUnit ─────────────────────────────
+  // P2's rule was "nothing on the app side": true then, because the divide belonged to a phase
+  // that had not run. P3's X1 built it — OD-23b puts conversion in the ENGINE, and the engine is
+  // the one module allowed to divide. The scan therefore polices every layer EXCEPT
+  // src/engines/**, where tools/p3/gates/quote-unit.mjs requires exactly one dividing site.
+  const files = walk(join(root, 'src')).filter((f) => !/[\\/]src[\\/]engines[\\/]/.test(f));
   if (files.length === 0) return fail('scanned 0 files — an empty population proves nothing');
   const converters = [];
   for (const abs of files) {
@@ -210,11 +214,11 @@ export const run = async ({ root }) => {
   lines.push('per-one fields  ' + present.length + ' on the rate object — a consumer cannot obtain the wrong number by accident');
   lines.push('converters      ' + converters.length + ' site(s) computing with quoteUnit in ' + files.length + ' files');
   lines.push('');
-  lines.push('THE LIVE LANE IS ABSENT, AND THAT IS NOT AN OVERSIGHT. OB-5\'s first obligation is to');
-  lines.push('  fetch live and use the bundle only until the first successful fetch. The BOI client');
-  lines.push('  is P3 and this campaign is forbidden to build it. Five of six obligations are proven');
-  lines.push('  here; the sixth is P3, and every value this module returns carries fallbackOnly and');
-  lines.push('  BUNDLED so a device can tell which lane it is on.');
+  lines.push('THE LIVE LANE NOW EXISTS — BUILT BY P3 (handoff P3-1). This gate\'s original text');
+  lines.push('  reported it absent because it was: the BOI client was P3\'s to build. It is built:');
+  lines.push('  src/data/fx/** carries fetch, cache and lane, proven by tools/p3/gates/boi-*.mjs.');
+  lines.push('  The converter scan above still polices every layer EXCEPT src/engines/**, where');
+  lines.push('  OD-23b places the divide and tools/p3/gates/quote-unit.mjs requires exactly one site.');
   lines.push('');
   lines.push('AND THE HOLIDAY HALF IS UNPROVEN. The weekend half is proven on 84 real probes in P1');
   lines.push('  and re-measured here; a market holiday is P1_DEFERRED §2.11 and criterion C9.');

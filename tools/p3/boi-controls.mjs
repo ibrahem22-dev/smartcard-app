@@ -43,6 +43,14 @@ const CONTROLS = {
       name: 'a currency outside every lane yields COMPARISON_INCOMPLETE, not zero',
       watches: 'offline-with-no-answer producing a number anyway' },
   ],
+  arithmetic: [
+    { criterion: 'X1/X4', suite: 'src/engines/__tests__/currency.test.ts',
+      name: 'CONTROL: with the divide removed, 50,000 JPY reads 93,485.00 — a factor of exactly one hundred',
+      watches: 'any caller skipping perOne — the wrong answer must stay visible, not merely unreachable' },
+    { criterion: 'X3/X4', suite: 'src/engines/__tests__/currency.test.ts',
+      name: 'CONTROL: a VERIFIED-provenance input still produces an ESTIMATE output — never inherited',
+      watches: 'an input’s grade laundering a derived figure into a fact (ADR-013 §3)' },
+  ],
 };
 
 const set = CONTROLS[WHICH];
