@@ -341,6 +341,19 @@ jobs:
         run: npx jest --ci
 
       # ------------------------------------------------------------------------------------------
+      # THE 23-SCENARIO BATTERY AS ITS OWN STEP — P3 criterion S4. Not folded into the jest blob:
+      # the battery is the campaign's acceptance asset and its sentinel must be readable on its
+      # own in the CI log. Same discipline as the ladder below: the exact contracted sentinel
+      # must be PRESENT in the captured output; absence is failure.
+      # ------------------------------------------------------------------------------------------
+      - name: the 23-scenario battery through the real engines (S4)
+        working-directory: smartcard-app
+        run: |
+          set -o pipefail
+          npm run p3:scenarios 2>&1 | tee "$RUNNER_TEMP/p3-scenarios.log"
+          grep -q "SCENARIOS OK — 23 of 23" "$RUNNER_TEMP/p3-scenarios.log"
+
+      # ------------------------------------------------------------------------------------------
       # THE LADDER. THIS STEP DECIDES F4, E7 AND E6.
       #
       # THE VERDICT IS READ FROM PRINTED OUTPUT, never from an exit code: exit codes are advisory in
