@@ -51,6 +51,18 @@ const CONTROLS = {
       name: 'CONTROL: a VERIFIED-provenance input still produces an ESTIMATE output — never inherited',
       watches: 'an input’s grade laundering a derived figure into a fact (ADR-013 §3)' },
   ],
+
+  'holiday-authority': [
+    { criterion: 'H2', suite: 'src/data/adapter/__tests__/holidayAuthority.test.ts',
+      name: 'CONTROL: a calendar with no named source is REFUSED',
+      watches: 'a web-assembled list rendered as though the Bank of Israel had said so' },
+    { criterion: 'H2', suite: 'src/data/adapter/__tests__/holidayAuthority.test.ts',
+      name: 'CONTROL: a calendar whose ruling carries no OD id is REFUSED',
+      watches: 'an unsanctioned calendar entering under nobody\'s decision' },
+    { criterion: 'H2', suite: 'src/data/adapter/__tests__/holidayAuthority.test.ts',
+      name: 'CONTROL: a malformed date is REFUSED',
+      watches: 'a silently misparsed day shifting staleness by a week' },
+  ],
 };
 
 const set = CONTROLS[WHICH];
@@ -109,4 +121,9 @@ if (problems.length) {
 
 console.log('P3-CONTROLS OK — ' + receipts.length + ' of ' + set.length + ' declared '
   + WHICH + ' controls watched to fire');
+// The contract names each family's sentinel directly (A8 BOI-CONTROLS OK, X4
+// ARITHMETIC-CONTROLS OK, H2 HOLIDAY-AUTHORITY OK). Print it here, so a live verify
+// finds the criterion's own positive statement in this run's output.
+const FAMILY_SENTINELS = { 'holiday-authority': 'HOLIDAY-AUTHORITY OK' };
+console.log(FAMILY_SENTINELS[WHICH] ?? WHICH.toUpperCase() + '-CONTROLS OK');
 console.log('');

@@ -50,6 +50,68 @@ export const MARKET_HOLIDAY_CALENDAR = {
   direction: 'FAILS_TOWARD_STALE' as const,
 } as const;
 
+/**
+ * THE ONLY DOOR A CALENDAR MAY ENTER THROUGH -- criterion H2.
+ *
+ * P2_DEFERRED 2.2 and P1_DEFERRED 2.11 refused to invent an Israeli market calendar because a list
+ * assembled without authority would be rendered to users as though the Bank of Israel had said so.
+ * That refusal needs teeth for as long as the calendar stays absent -- and the moment one ever
+ * arrives, it must arrive WITH its authority, not beside it.
+ *
+ * So supplying a calendar is a function call that REFUSES unless it carries:
+ *   - a named source (document and section that owns the dates), and
+ *   - the Owner Decision id under which it ships.
+ * A web search is not either of those. A malformed date is not a date.
+ */
+export class UnauthorisedCalendarError extends Error {
+  constructor(missing: string) {
+    super(
+      'a market-holiday calendar was supplied without ' + missing + '. A calendar assembled '
+        + 'without authority would be rendered as though the Bank of Israel had said so, and a '
+        + 'wrong holiday makes a stale rate look fresh -- the unsafe direction. Name the source '
+        + 'and the Owner Decision that rules it, or ship the absence (the safe direction).',
+    );
+    this.name = 'UnauthorisedCalendarError';
+  }
+}
+
+/** Who says these dates mean the market was closed. Both fields are load-bearing. */
+export interface CalendarAuthority {
+  /** Document and section that owns the dates. Never a URL alone. */
+  readonly namedSource: string;
+  /** The Owner Decision id under which this calendar enters the build, e.g. OD-nn. */
+  readonly ruledBy: string;
+}
+
+export interface AuthorisedHolidayCalendar {
+  readonly state: 'SUPPLIED';
+  readonly days: readonly string[];
+  readonly authority: CalendarAuthority;
+}
+
+/**
+ * Construct a holiday calendar. Refuses anything that cannot cite itself -- this is the refusal
+ * H2 watches fire, called directly by the committed control so it can never rot quietly.
+ */
+export function supplyMarketHolidayCalendar(
+  days: readonly string[],
+  authority: CalendarAuthority,
+): AuthorisedHolidayCalendar {
+  const iso = /^\d{4}-\d{2}-\d{2}$/;
+  if (!authority || typeof authority.namedSource !== 'string' || authority.namedSource.trim() === '') {
+    throw new UnauthorisedCalendarError('a named source');
+  }
+  if (!authority || typeof authority.ruledBy !== 'string' || !/OD-\d+/.test(authority.ruledBy)) {
+    throw new UnauthorisedCalendarError('an Owner Decision id');
+  }
+  for (const d of days) {
+    if (typeof d !== 'string' || !iso.test(d)) {
+      throw new UnauthorisedCalendarError('a well-formed ISO date (got "' + String(d) + '")');
+    }
+  }
+  return { state: 'SUPPLIED', days: [...days], authority: { ...authority } };
+}
+
 export interface StalenessReading extends Staleness {
   /**
    * Whether `businessDaysOld` was computed against a real market calendar.
