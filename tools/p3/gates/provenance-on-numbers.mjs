@@ -37,6 +37,12 @@ const mvpList = (root) => {
   return [...active.matchAll(/'([^']+\.tsx?)'/g)].map((x) => 'src/engines/' + x[1]);
 };
 
+const stripComments = (src) => {
+  const blank = (t) => t.replace(/[^\n]/g, ' ');
+  return src.replace(/\/\*[\s\S]*?\*\//g, blank)
+    .replace(/(^|[^:])(\/\/[^\n]*)/g, (m2, b, c) => b + blank(c));
+};
+
 export const run = async ({ root }) => {
   const problems = [];
   const lines = [];
@@ -67,9 +73,10 @@ export const run = async ({ root }) => {
   for (const rel of mvp) {
     const p = join(root, rel);
     if (!existsSync(p)) { problems.push(rel + ' does not exist'); continue; }
-    const code = readFileSync(p, 'utf8');
+    const code = stripComments(readFileSync(p, 'utf8'));
     const usesVocab = /provenanceChip|ProvenanceChip|ProvenancedNumber|provenance\.ts/.test(code)
-      || /\bprovenance\b\s*[:?]/.test(code);
+      || /\bprovenance\b\s*[:?]/.test(code)
+      || /\.provenance\s*(!==|===)/.test(code);
     if (!usesVocab) {
       problems.push(rel + ' outputs numbers with no provenance anywhere in the module. T2: every '
         + 'numeric output carries a state from the Data Contract vocabulary '
