@@ -19,7 +19,9 @@
     "pin-node": "node tools/p2/pin-node.mjs",
     "postinstall": "node tools/p2/pin-node.mjs",
     "pretest": "node tools/p2/preflight.mjs --runtime",
-    "p2:controls:ci": "node tools/p2/ci-workflow-controls.mjs"
+    "p2:controls:ci": "node tools/p2/ci-workflow-controls.mjs",
+    "p3:gate": "node tools/p3/gate.mjs",
+    "p3:controls": "node tools/p3/boi-controls.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "~57.0.7",
