@@ -1,5 +1,6 @@
 import type { FxRate } from '@smartcard/data-authority-adapter';
 import { step, trace, type ReasonTrace } from './reasonTrace';
+import type { ProvenanceChip } from '../authority/provenanceChip';
 
 /**
  * THE ENGINE'S CONVERSION ARITHMETIC — OD-23b, ADR-013 §2–§4, criteria X1–X3.
@@ -59,8 +60,9 @@ export type ConvertedAmount = {
   readonly fixedFeeIlsApplied: number;
   /** The rate used, and the date it is FOR — carried for the reason trace, never re-derived. */
   readonly rateUsed: { readonly rateIlsPerQuoteUnit: number; readonly quoteUnit: number; readonly rateDate: string };
-  /** ALWAYS 'ESTIMATE'. A type, so inheriting the input's grade does not compile. */
-  readonly provenance: 'ESTIMATE';
+  /** ALWAYS 'ESTIMATE'. A type, so inheriting the input's grade does not compile. Tied to the
+   *  Data Contract vocabulary via src/authority/provenanceChip.ts - never a local literal. */
+  readonly provenance: Extract<ProvenanceChip, 'ESTIMATE'>;
   /** T1: the account of this computation, travelling with it as an engine output. */
   readonly trace: ReasonTrace;
 };
