@@ -8,8 +8,8 @@
     "own \"Re-deriving it means\" column describes, quoted per entry as `commits` — runs the real",
     "check, requires it to fire, deletes the file and asserts the path is absent again."
   ],
-  "recordedAt": "2026-08-24T01:21:56.966Z",
-  "sha": "8bf76788e71ad09af4d1c30d0df630cf0a27679c",
+  "recordedAt": "2026-08-25T21:19:14.274Z",
+  "sha": "1b8fd2dec0419d111f9d9cc9178831f3b4946d69",
   "source": "authority/P1_TO_P2_HANDOFF.md §2",
   "count": 8,
   "allFired": true,
