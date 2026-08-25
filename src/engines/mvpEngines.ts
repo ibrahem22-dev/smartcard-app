@@ -17,7 +17,7 @@ export const MVP_ENGINE_MODULES = [
   'scoring.ts',    // WP-6.4 — N1
   'verdict.ts',    // WP-6.5 — N2
   'load.ts',       // WP-6.6 — N4
-  // 'risk.ts',      // WP-6.7 lands here
+  'risk.ts',       // WP-6.7 — N5
 ] as const;
 
 export type MvpEngineModule = (typeof MVP_ENGINE_MODULES)[number];
