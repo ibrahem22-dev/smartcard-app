@@ -67,6 +67,12 @@ export const he = {
     availableAfterPurchase: 'מסגרת פנויה אחרי הרכישה',
     informationalOnly: 'לידיעה בלבד',
   },
+  cardTile: {
+    generated: 'ייצוג כרטיס שנוצר באפליקציה',
+    generic: 'ייצוג כללי של כרטיס',
+    benefitGenerated: 'ייצוג הטבה לפי קטגוריה',
+    benefitGeneric: 'ייצוג כללי של הטבה',
+  },
   calendar: {
     empty: 'אין חיובים מתוכננים 📅',
   },

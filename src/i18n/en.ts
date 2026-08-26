@@ -849,4 +849,8 @@ export const enBySource: Readonly<Record<string, string>> = {
   'השווי את כל הכרטיסים שלי': en.checkVerdict.compareAllCards,
   'מסגרת פנויה אחרי הרכישה': en.checkVerdict.availableAfterPurchase,
   'לידיעה בלבד': en.checkVerdict.informationalOnly,
+  'ייצוג כרטיס שנוצר באפליקציה': 'App-generated card representation',
+  'ייצוג כללי של כרטיס': 'Generic card representation',
+  'ייצוג הטבה לפי קטגוריה': 'Category benefit representation',
+  'ייצוג כללי של הטבה': 'Generic benefit representation',
 };

@@ -2,6 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 
 import { AppText } from '../../components/AppText';
+import { CardTile } from '../../components/CardTile';
 import { NotYetSurface } from '../../components/NotYetSurface';
 import { ProvenanceChip } from '../../components/ProvenanceChip';
 import type { ChipView } from '../../components/provenanceChipState';
@@ -288,12 +289,16 @@ export function CheckVerdictScreen({
             >
               {t('הטובה לרכישה הזו')}
             </AppText>
-            <AppText
-              className={`text-base font-bold ${TEXT.body}`}
-              testID="check-verdict-recommendation-tile"
-            >
-              {recommendation.displayName}
-            </AppText>
+            <CardTile
+              nickname={recommendation.displayName}
+              nicknameTestID="check-verdict-recommendation-tile"
+              subject={{
+                subjectKind: 'card',
+                subjectId: recommendation.displayName,
+                fallbackClass: 'card',
+              }}
+              testID="check-verdict-card-tile"
+            />
             <RtlRow testID="check-verdict-match-score">
               <View className={`rounded-full px-2 py-1 ${SURFACE.sunken} ${BORDER.hairline}`}>
                 <NumberClaim
