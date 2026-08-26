@@ -459,6 +459,45 @@ jobs:
             echo '| E6 | `REAL-ARTIFACTS OK — 5 of 5 shas matched` |'
           } >> "$GITHUB_STEP_SUMMARY"
 
+      # ============================================================================================
+      # THE P3 LADDER (V1/V2). Same discipline as the P2 ladder above: the whole ladder in one
+      # command, the verdict read from printed output, the exact contracted sentinel asserted by
+      # grep. V2 is FRESH-flagged and OQ-004 names THIS runner as the machine that proves it.
+      # ============================================================================================
+      - name: the whole P3 ladder (V1, V2)
+        working-directory: smartcard-app
+        env:
+          P3_LADDER_LOG: ${{ runner.temp }}/p3-ladder.log
+        run: |
+          set -o pipefail
+          npm run p3:all 2>&1 | tee "$P3_LADDER_LOG" || true
+
+          echo "----- verdict, read from printed output -----"
+
+          if ! grep -qF 'P3-ALL OK — every step green' "$P3_LADDER_LOG"; then
+            echo "::error::V1/V2 NOT SATISFIED — the P3 ladder did not print its sentinel."
+            grep -E '^\s+FAIL |^\s+MISS ' "$P3_LADDER_LOG" | head -8 | while IFS= read -r line; do
+              echo "::error::ladder red: $(echo "$line" | sed 's/^[[:space:]]*//')"
+            done
+            grep -E 'P3-ALL (FAILED|INCOMPLETE|DEVICE-BLOCKED)' "$P3_LADDER_LOG" | head -2 \
+              | while IFS= read -r line; do echo "::error::verdict: $line"; done
+            echo "An absent sentinel is a failure, not a pass. What the ladder did print:"
+            grep -E 'P3-ALL|FAILED|INCOMPLETE|DEVICE-BLOCKED' "$P3_LADDER_LOG" || tail -40 "$P3_LADDER_LOG"
+            exit 1
+          fi
+
+          echo "::notice title=V1/V2 sentinel::$(grep -F 'P3-ALL OK — every step green' "$P3_LADDER_LOG" | head -1)"
+          echo "::notice title=P3 ladder counts::$(grep -E '^\s+steps ' "$P3_LADDER_LOG" | head -1 | sed 's/^[[:space:]]*//')"
+          echo "::notice title=measured at::app $(git -C "$GITHUB_WORKSPACE/smartcard-app" rev-parse HEAD) · pipeline $(git -C "$GITHUB_WORKSPACE/smartcard-data-pipeline" rev-parse HEAD)"
+
+          {
+            echo ""
+            echo '| criterion | sentinel |'
+            echo '|---|---|'
+            echo '| V1 | `P3-ALL OK — every step green` |'
+            echo '| V2 | `P3-ALL OK — every step green` (this runner, per OQ-004) |'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       # The boundary rules are also proven CAPABLE OF FAILING, here. A rule that has never been
       # watched to fire is not a rule, and a control recorded only on a laptop is a claim about a
       # laptop.
@@ -487,5 +526,7 @@ jobs:
           name: p2-ladder-report
           path: |
             smartcard-app/reports/p2/
+            smartcard-app/reports/p3/
             ${{ runner.temp }}/ladder.log
+            ${{ runner.temp }}/p3-ladder.log
           if-no-files-found: warn
