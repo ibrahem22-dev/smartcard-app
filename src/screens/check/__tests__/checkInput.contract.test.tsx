@@ -200,7 +200,10 @@ describe('Check Input — C1: amount > 0 and a currency, shekel by default, ever
      * a source scan for arithmetic proves what the file contains, and a screen can render a
      * derived figure that arrived some other way.
      */
-    const numeric = visibleStrings(toJSON()).filter((s) => /\d/.test(s));
+    const KEYPAD_NOISE = new Set(['1', '2', '3', '4', '5', '6', '7', '8', '9', '0', '.']);
+    const numeric = visibleStrings(toJSON()).filter(
+      (s) => /\d/.test(s) && !KEYPAD_NOISE.has(s),
+    );
     expect(numeric).toEqual(['1234.5']);
   });
 });

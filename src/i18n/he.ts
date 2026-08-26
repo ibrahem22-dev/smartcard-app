@@ -35,6 +35,9 @@ export const he = {
     currency: 'מטבע',
     amountRequired: 'צריך סכום גדול מאפס כדי להמשיך',
     restOptional: 'קטגוריה, תשלומים ובחירת כרטיס אינם חובה',
+    category: 'קטגוריה',
+    payWithCard: 'לשלם בכרטיס מסוים?',
+    recommendForMe: 'המליצי בשבילי',
   },
   checkVerdict: {
     goodToGo: 'אפשר לקנות',
