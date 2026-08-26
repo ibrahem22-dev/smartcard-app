@@ -3,8 +3,10 @@ import { View } from 'react-native';
 
 import { AppText } from '../../components/AppText';
 import { NotYetSurface } from '../../components/NotYetSurface';
+import { ProvenanceChip } from '../../components/ProvenanceChip';
 import { RtlRow, RtlScreen } from '../../components/rtl';
 import { useTranslation } from '../../hooks/useTranslation';
+import type { ConvertedAmount } from '../../engines/currency';
 import type { ProvenancedNumber } from '../../engines/provenance';
 import type { ImpactBullet, PurchaseVerdict, PurchaseVerdictResult } from '../../engines/verdict';
 import type { SemanticRole } from '../../theme/tokens';
@@ -25,8 +27,8 @@ import { BORDER, ROLE_SURFACE, ROLE_TEXT, SURFACE, TEXT } from '../../theme/toke
  *
  * Layout order (D3) is spec §9 top to bottom among sections that exist:
  * pill · context line · Financial Impact · recommendation (D4) · runner-up (D5)
- * · (FX / impact strip / freshness are later PHASE-2 packages). A section that is
- * not built yet is omitted, not faked.
+ * · FX block (D6) · (impact strip / freshness are later PHASE-2 packages). A section
+ * that is not built yet is omitted, not faked.
  *
  * D4: the recommendation hero is the card tile + "Best for this purchase" (+ a
  * reason line only when an engine supplies one). Match Score is a small
@@ -69,6 +71,13 @@ export interface CheckVerdictScreenProps {
   readonly runnerUp?: {
     readonly displayName: string;
     readonly deltaFromBestIls?: ProvenancedNumber;
+  };
+  /**
+   * Spec §9 FX block. Engine quote from `compareAbroad` for a foreign purchase.
+   * Absent (shekel spine / not foreign): the block is omitted rather than invented.
+   */
+  readonly fxBlock?: {
+    readonly quote: ConvertedAmount;
   };
 }
 
@@ -135,6 +144,7 @@ export function CheckVerdictScreen({
   contextLine,
   recommendation,
   runnerUp,
+  fxBlock,
 }: CheckVerdictScreenProps): React.ReactElement {
   const { t } = useTranslation();
 
@@ -262,6 +272,46 @@ export function CheckVerdictScreen({
                 : ''
             }`}
           </AppText>
+        ) : null}
+        {fxBlock ? (
+          <View className="mt-4 gap-2" testID="check-verdict-fx">
+            <AppText
+              accessibilityValue={{
+                text: `${fxBlock.quote.rateUsed.rateIlsPerQuoteUnit}|${fxBlock.quote.rateUsed.rateDate}`,
+              }}
+              className={`text-sm ${TEXT.body}`}
+              testID="check-verdict-fx-rate"
+            >
+              {`${t('שער בנק ישראל')} ${fxBlock.quote.rateUsed.rateIlsPerQuoteUnit} · ${fxBlock.quote.rateUsed.rateDate}`}
+            </AppText>
+            <AppText
+              accessibilityValue={{ text: String(fxBlock.quote.fxPercentApplied) }}
+              className={`text-sm ${TEXT.body}`}
+              testID="check-verdict-fx-fee"
+            >
+              {`${t('עמלת כרטיס במטח')} ${fxBlock.quote.fxPercentApplied}`}
+            </AppText>
+            <RtlRow>
+              <AppText
+                accessibilityValue={{ text: String(fxBlock.quote.effectiveIls) }}
+                className={`text-sm ${TEXT.body}`}
+                testID="check-verdict-fx-estimate"
+              >
+                {`${t('עלות משוערת')} ₪${fxBlock.quote.effectiveIls}`}
+              </AppText>
+              <ProvenanceChip
+                testID="check-verdict-fx-estimate-chip"
+                view={{ chip: 'ESTIMATE', stale: false }}
+              />
+            </RtlRow>
+            <AppText
+              accessibilityRole="link"
+              className={`text-sm font-bold ${TEXT.body}`}
+              testID="check-verdict-fx-compare-link"
+            >
+              {t('השווי את כל הכרטיסים שלי')}
+            </AppText>
+          </View>
         ) : null}
       </View>
     </RtlScreen>

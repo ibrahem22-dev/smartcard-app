@@ -57,6 +57,10 @@ export const he = {
     alsoGood: 'גם טוב',
     saves: 'חוסכת',
     less: 'פחות',
+    boiRate: 'שער בנק ישראל',
+    cardFxFee: 'עמלת כרטיס במטח',
+    estimatedCost: 'עלות משוערת',
+    compareAllCards: 'השווי את כל הכרטיסים שלי',
   },
   calendar: {
     empty: 'אין חיובים מתוכננים 📅',

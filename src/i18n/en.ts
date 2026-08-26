@@ -76,6 +76,10 @@ export const en = {
     alsoGood: 'Also good',
     saves: 'saves',
     less: 'less',
+    boiRate: 'Bank of Israel rate',
+    cardFxFee: 'Card FX fee',
+    estimatedCost: 'Estimated real cost',
+    compareAllCards: 'Compare all my cards',
   },
   decision: {
     approved: 'Approved ✓',
@@ -820,4 +824,8 @@ export const enBySource: Readonly<Record<string, string>> = {
   'גם טוב': en.checkVerdict.alsoGood,
   חוסכת: en.checkVerdict.saves,
   פחות: en.checkVerdict.less,
+  'שער בנק ישראל': en.checkVerdict.boiRate,
+  'עמלת כרטיס במטח': en.checkVerdict.cardFxFee,
+  'עלות משוערת': en.checkVerdict.estimatedCost,
+  'השווי את כל הכרטיסים שלי': en.checkVerdict.compareAllCards,
 };
