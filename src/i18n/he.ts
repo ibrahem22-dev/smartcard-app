@@ -49,6 +49,11 @@ export const he = {
     noCategory: 'ללא קטגוריה',
     onePayment: 'תשלום אחד',
     installments: 'תשלומים',
+    bestForPurchase: 'הטובה לרכישה הזו',
+    matchScore: 'ציון התאמה',
+    howScoresWork: 'איך הציונים עובדים',
+    howScoresWorkBody:
+      'הציון יחסי בין הכרטיסים שלך: 100 לעלות הנמוכה ביותר, 0 לגבוהה ביותר. זה לא ציון מוחלט.',
   },
   calendar: {
     empty: 'אין חיובים מתוכננים 📅',

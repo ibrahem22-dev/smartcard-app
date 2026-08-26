@@ -5,6 +5,7 @@ import { AppText } from '../../components/AppText';
 import { NotYetSurface } from '../../components/NotYetSurface';
 import { RtlRow, RtlScreen } from '../../components/rtl';
 import { useTranslation } from '../../hooks/useTranslation';
+import type { ProvenancedNumber } from '../../engines/provenance';
 import type { ImpactBullet, PurchaseVerdict, PurchaseVerdictResult } from '../../engines/verdict';
 import type { SemanticRole } from '../../theme/tokens';
 import { BORDER, ROLE_SURFACE, ROLE_TEXT, SURFACE, TEXT } from '../../theme/tokens';
@@ -23,9 +24,14 @@ import { BORDER, ROLE_SURFACE, ROLE_TEXT, SURFACE, TEXT } from '../../theme/toke
  * against a 35% threshold — and D2's gate exists to make that fail.
  *
  * Layout order (D3) is spec §9 top to bottom among sections that exist:
- * pill · context line · Financial Impact · (recommendation / runner-up / FX /
- * impact strip / freshness are later PHASE-2 packages). A section that is not
- * built yet is omitted, not faked.
+ * pill · context line · Financial Impact · recommendation (D4) · (runner-up /
+ * FX / impact strip / freshness are later PHASE-2 packages). A section that is
+ * not built yet is omitted, not faked.
+ *
+ * D4: the recommendation hero is the card tile + "Best for this purchase" (+ a
+ * reason line only when an engine supplies one). Match Score is a small
+ * secondary chip with an explainer — never a bare hero number. The score is
+ * `recommendation.matchScore` from `scoreCards`; this file does not rank.
  *
  * Colour roles come from the token module (A8). Wait uses **neutral / slate**, which is
  * spec §9's word for that state and A8's fourth (non-judgement) role — not a fifth hue.
@@ -47,6 +53,14 @@ export interface CheckVerdictScreenProps {
     readonly currencySymbol: string;
     readonly categoryLabel: string | null;
     readonly installmentCount: number;
+  };
+  /**
+   * Spec §9 recommendation block. Engine output, not a surface ranking.
+   * Absent: the block is omitted rather than invented (no cards / not scored yet).
+   */
+  readonly recommendation?: {
+    readonly displayName: string;
+    readonly matchScore: ProvenancedNumber;
   };
 }
 
@@ -103,7 +117,16 @@ function bulletVisible(bullet: ImpactBullet): string {
   }
 }
 
-export function CheckVerdictScreen({ result, contextLine }: CheckVerdictScreenProps): React.ReactElement {
+/** Display scale of an engine 0–100 score. Not a second ranking. */
+function asDisplayScore(value: number): string {
+  return value.toFixed(0);
+}
+
+export function CheckVerdictScreen({
+  result,
+  contextLine,
+  recommendation,
+}: CheckVerdictScreenProps): React.ReactElement {
   const { t } = useTranslation();
 
   if (result === undefined) {
@@ -177,6 +200,45 @@ export function CheckVerdictScreen({ result, contextLine }: CheckVerdictScreenPr
             </AppText>
           ))}
         </View>
+        {recommendation ? (
+          <View className="mt-4 gap-2" testID="check-verdict-recommendation">
+            <AppText
+              className={`text-lg font-extrabold ${TEXT.heading}`}
+              testID="check-verdict-recommendation-hero"
+            >
+              {t('הטובה לרכישה הזו')}
+            </AppText>
+            <AppText
+              className={`text-base font-bold ${TEXT.body}`}
+              testID="check-verdict-recommendation-tile"
+            >
+              {recommendation.displayName}
+            </AppText>
+            <RtlRow testID="check-verdict-match-score">
+              <View className={`rounded-full px-2 py-1 ${SURFACE.sunken} ${BORDER.hairline}`}>
+                <AppText
+                  accessibilityValue={{ text: String(recommendation.matchScore.value) }}
+                  className={`text-xs ${TEXT.secondary}`}
+                  testID="check-verdict-match-score-value"
+                >
+                  {`${t('ציון התאמה')} ${asDisplayScore(recommendation.matchScore.value)}`}
+                </AppText>
+              </View>
+            </RtlRow>
+            <AppText
+              className={`text-xs font-bold ${TEXT.secondary}`}
+              testID="check-verdict-match-score-explainer-title"
+            >
+              {t('איך הציונים עובדים')}
+            </AppText>
+            <AppText
+              className={`text-xs ${TEXT.muted}`}
+              testID="check-verdict-match-score-explainer"
+            >
+              {t('הציון יחסי בין הכרטיסים שלך: 100 לעלות הנמוכה ביותר, 0 לגבוהה ביותר. זה לא ציון מוחלט.')}
+            </AppText>
+          </View>
+        ) : null}
       </View>
     </RtlScreen>
   );
