@@ -24,7 +24,32 @@ export type HomeStackParamList = {
   SavingsTracker: undefined;
 };
 
-/** Purchase Gate tab stack. */
+/**
+ * THE P4 CHECK STACK — what `CheckModal` mounts.
+ *
+ * Two routes and no more. `CheckInput` is the root; `CheckVerdict` is where the flow ends. Neither
+ * carries params yet: a param list is a contract about what a surface is given, and the Check
+ * surfaces' contracts are WP-1.2 (input) and WP-1.4 (verdict). Declaring params here would be this
+ * work package guessing at two it does not own.
+ */
+export type CheckStackParamList = {
+  CheckInput: undefined;
+  CheckVerdict: undefined;
+};
+
+/**
+ * THE LEGACY CHECK FLOW — criterion B2.
+ *
+ * Retired. `CheckModal` mounted `PurchaseGateStack`, which registered `PurchaseGateScreen` and
+ * `DecisionScreen` — both from the deprecated pre-P2 prototype. `PurchaseGateStack.tsx` is gone and
+ * **no navigator registers either screen on any route**: B2 is that the old flow becomes
+ * unreachable rather than merely unused, because a screen that is still reachable is still shipped.
+ *
+ * The param list stays, and so do the two screen files, on the precedent this codebase already uses
+ * for deferred surfaces (Benefits/SavingsTracker above): *screen files retained and typed, but NOT
+ * registered and unreachable*. Typed, because both files still reference this list and other tests
+ * still reference them; registered nowhere, because that is the criterion.
+ */
 export type PurchaseGateStackParamList = {
   // Supports deep link: smartcard://purchase?amount=500&category=grocery
   PurchaseGateRoot: { amount?: number; category?: string } | undefined;
@@ -108,8 +133,11 @@ export type AuthenticatedStackParamList = {
    * THE CHECK TASK. Registered here — ABOVE the tabs — and not inside them, because Spec §4 says it
    * *"opens a full-screen modal task flow… no tab is highlighted while inside it"*. A route inside
    * the tab navigator cannot cover the tab bar, and whichever tab hosted it would highlight.
+   *
+   * It mounts `CheckStackParamList` — the P4 flow. It used to mount `PurchaseGateStackParamList`;
+   * that is criterion B2, and the swap is the whole of it.
    */
-  CheckModal: NavigatorScreenParams<PurchaseGateStackParamList> | undefined;
+  CheckModal: NavigatorScreenParams<CheckStackParamList> | undefined;
 };
 
 /**
