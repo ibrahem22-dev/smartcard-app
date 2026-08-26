@@ -29,6 +29,13 @@ export const he = {
     amount: 'סכום הרכישה',
     check: 'בדוק רכישה',
   },
+  /** P4 criterion C1 — the Check Input surface. Title, amount and action are shared with the
+   *  legacy purchase-gate strings above; only what C1 adds is new. */
+  checkInput: {
+    currency: 'מטבע',
+    amountRequired: 'צריך סכום גדול מאפס כדי להמשיך',
+    restOptional: 'קטגוריה, תשלומים ובחירת כרטיס אינם חובה',
+  },
   calendar: {
     empty: 'אין חיובים מתוכננים 📅',
   },

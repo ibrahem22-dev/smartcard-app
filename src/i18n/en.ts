@@ -50,6 +50,11 @@ export const en = {
     blocked: 'Blocked',
     wait: 'Wait 24 hours',
   },
+  checkInput: {
+    currency: 'Currency',
+    amountRequired: 'Enter an amount greater than zero to continue',
+    restOptional: 'Category, installments and card choice are optional',
+  },
   decision: {
     approved: 'Approved ✓',
     warning: 'Pay attention ⚠️',
@@ -765,4 +770,9 @@ export const enBySource: Readonly<Record<string, string>> = {
   'לא הצלחנו לפתוח את ההגדרות. פתח אותן ידנית והוסף טביעת אצבע או זיהוי פנים.': 'We could not open Settings. Open it manually and add a fingerprint or face unlock.',
   'פתח הגדרות': 'Open Settings',
   'בדוק שוב': 'Check again',
+
+  // P4 criterion C1 — the Check Input surface (src/screens/check/CheckInputScreen.tsx)
+  מטבע: en.checkInput.currency,
+  'צריך סכום גדול מאפס כדי להמשיך': en.checkInput.amountRequired,
+  'קטגוריה, תשלומים ובחירת כרטיס אינם חובה': en.checkInput.restOptional,
 };

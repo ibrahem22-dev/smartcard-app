@@ -15,6 +15,8 @@
  *      produces absence.
  */
 import { spawnSync } from 'node:child_process';
+import { existsSync } from 'node:fs';
+import { join } from 'node:path';
 
 /** A gate's own result. NOT_IMPLEMENTED is a first-class state and is deliberately NOT ok. */
 export const ok = (sentinel, detail) => ({ ok: true, sentinel, detail: detail ?? null });
@@ -56,6 +58,43 @@ export const runStep = async (name, cmd, args, { sentinel, failure, cwd, skip } 
     processStatus: r.status,
     tail: out.split('\n').filter((l) => l.trim()).slice(-6).join('\n'),
   };
+};
+
+/**
+ * Spawn jest on one suite and require a set of NAMED test results to have passed — by matching the
+ * verbose reporter's check marks against the names. A suite that compiles and passes without ever
+ * running a required case fails here; so does a skipped one.
+ *
+ * PORTED FROM `tools/p3/lib/report.mjs`, UNCHANGED IN BEHAVIOUR, for the reason this file's header
+ * gives: P4 keeps its own copy so that neither campaign's harness can drift because the other's
+ * moved. `extraArgs` is how a caller adds what its own suite needs — P4's screen criteria are
+ * measured by RENDERING (contract §2 rule 9), and the rendering project's configuration travels
+ * through here rather than being assumed.
+ *
+ * WHY THE NAMES AND NOT THE COUNT. "the suite passed" is satisfied by a suite whose only remaining
+ * case is `it('exists')`. Requiring each case by name means deleting the assertion that carries a
+ * clause of the criterion fails the gate, which is the whole point of naming criteria in the first
+ * place.
+ */
+export const requireJestCases = (root, suite, cases, extraArgs = []) => {
+  const jest = join(root, 'node_modules', 'jest', 'bin', 'jest.js');
+  if (!existsSync(join(root, suite))) return { problems: [suite + ' does not exist'], summary: null };
+  if (!existsSync(jest)) return { problems: ['no jest binary'], summary: null };
+  const r = spawnSync(process.execPath, [jest, suite, '--verbose', '--ci', ...extraArgs], {
+    cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
+  });
+  const out = String(r.stdout ?? '') + String(r.stderr ?? '');
+  const escapeForRegExp = (t) => t.replace(/[.*+?${}()|[\]\\]/g, String.fromCharCode(92) + '$&');
+  const problems = [];
+  for (const name of cases) {
+    const escaped = escapeForRegExp(name);
+    const skipped = new RegExp('(○|skipped|todo)\\s+' + escaped).test(out);
+    const passed = new RegExp('[√✓]\\s*' + escaped).test(out);
+    if (skipped) problems.push('SKIPPED: "' + name + '"');
+    else if (!passed) problems.push('did not pass: "' + name + '"');
+  }
+  const m = out.match(/Tests:\s+.*/);
+  return { problems, summary: m ? m[0].trim() : '(no summary)', output: out };
 };
 
 export const mark = (r) => (r.skipped ? 'SKIP' : r.missing ? 'MISS' : r.notImplemented ? 'TODO' : r.ok ? 'ok  ' : 'FAIL');
