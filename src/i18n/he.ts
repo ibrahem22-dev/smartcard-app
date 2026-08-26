@@ -36,6 +36,12 @@ export const he = {
     amountRequired: 'צריך סכום גדול מאפס כדי להמשיך',
     restOptional: 'קטגוריה, תשלומים ובחירת כרטיס אינם חובה',
   },
+  checkVerdict: {
+    goodToGo: 'אפשר לקנות',
+    caution: 'זהירות',
+    dontBuyNow: 'לא לקנות עכשיו',
+    waitUntilBilling: 'חכי עד שהחיוב יעבור',
+  },
   calendar: {
     empty: 'אין חיובים מתוכננים 📅',
   },

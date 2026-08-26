@@ -55,6 +55,12 @@ export const en = {
     amountRequired: 'Enter an amount greater than zero to continue',
     restOptional: 'Category, installments and card choice are optional',
   },
+  checkVerdict: {
+    goodToGo: 'Good to go',
+    caution: 'Caution',
+    dontBuyNow: "Don't buy now",
+    waitUntilBilling: 'Wait until billing passes',
+  },
   decision: {
     approved: 'Approved ✓',
     warning: 'Pay attention ⚠️',
@@ -775,4 +781,10 @@ export const enBySource: Readonly<Record<string, string>> = {
   מטבע: en.checkInput.currency,
   'צריך סכום גדול מאפס כדי להמשיך': en.checkInput.amountRequired,
   'קטגוריה, תשלומים ובחירת כרטיס אינם חובה': en.checkInput.restOptional,
+
+  // P4 criterion D1 — the Check Verdict pill
+  'אפשר לקנות': en.checkVerdict.goodToGo,
+  זהירות: en.checkVerdict.caution,
+  'לא לקנות עכשיו': en.checkVerdict.dontBuyNow,
+  'חכי עד שהחיוב יעבור': en.checkVerdict.waitUntilBilling,
 };
