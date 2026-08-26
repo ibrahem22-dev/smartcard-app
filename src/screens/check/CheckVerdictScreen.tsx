@@ -4,6 +4,7 @@ import { View } from 'react-native';
 import { AppText } from '../../components/AppText';
 import { NotYetSurface } from '../../components/NotYetSurface';
 import { ProvenanceChip } from '../../components/ProvenanceChip';
+import type { ChipView } from '../../components/provenanceChipState';
 import { RtlRow, RtlScreen } from '../../components/rtl';
 import { useTranslation } from '../../hooks/useTranslation';
 import type { ConvertedAmount } from '../../engines/currency';
@@ -27,8 +28,8 @@ import { BORDER, ROLE_SURFACE, ROLE_TEXT, SURFACE, TEXT } from '../../theme/toke
  *
  * Layout order (D3) is spec §9 top to bottom among sections that exist:
  * pill · context line · Financial Impact · recommendation (D4) · runner-up (D5)
- * · FX block (D6) · impact strip + freshness (D7). A section that is not built
- * yet is omitted, not faked.
+ * · FX block (D6) · impact strip + freshness (D7) · a provenance chip on every
+ * numeric claim (D8). A section that is not built yet is omitted, not faked.
  *
  * D4: the recommendation hero is the card tile + "Best for this purchase" (+ a
  * reason line only when an engine supplies one). Match Score is a small
@@ -146,6 +147,51 @@ function asDisplayScore(value: number): string {
   return value.toFixed(0);
 }
 
+function chipView(number: ProvenancedNumber): ChipView {
+  return { chip: number.provenance, stale: number.stale === true };
+}
+
+function bulletNumber(bullet: ImpactBullet): ProvenancedNumber {
+  switch (bullet.kind) {
+    case 'PURCHASE_MONTHLY_COMMITMENT':
+    case 'HARD_THRESHOLD_HEADROOM':
+      return bullet.amountIls;
+    case 'LOAD_AFTER_PURCHASE':
+    case 'LOAD_AFTER_BILLING':
+      return bullet.ratioOfIncome;
+  }
+}
+
+/** One painted figure plus the shared A2 chip. D8 sweeps these pairs on the tree. */
+function NumberClaim({
+  testID,
+  claim,
+  view,
+  className,
+  rowClassName,
+  children,
+}: {
+  readonly testID: string;
+  readonly claim: string;
+  readonly view: ChipView;
+  readonly className?: string;
+  readonly rowClassName?: string;
+  readonly children: React.ReactNode;
+}): React.ReactElement {
+  return (
+    <RtlRow {...(rowClassName !== undefined ? { className: rowClassName } : {})}>
+      <AppText
+        accessibilityValue={{ text: claim }}
+        {...(className !== undefined ? { className } : {})}
+        testID={testID}
+      >
+        {children}
+      </AppText>
+      <ProvenanceChip testID={`${testID}-chip`} view={view} />
+    </RtlRow>
+  );
+}
+
 export function CheckVerdictScreen({
   result,
   contextLine,
@@ -202,7 +248,13 @@ export function CheckVerdictScreen({
           </AppText>
         ) : null}
         {contextLine ? (
-          <AppText className={`mt-3 text-sm ${TEXT.body}`} testID="check-verdict-context">
+          <NumberClaim
+            claim={String(contextLine.amount)}
+            className={`text-sm ${TEXT.body}`}
+            rowClassName="mt-3"
+            testID="check-verdict-context"
+            view={{ chip: 'USER', stale: false }}
+          >
             {`${contextLine.currencySymbol}${contextLine.amount} · ${
               contextLine.categoryLabel ?? t('ללא קטגוריה')
             } · ${
@@ -210,21 +262,22 @@ export function CheckVerdictScreen({
                 ? t('תשלום אחד')
                 : `${contextLine.installmentCount} ${t('תשלומים')}`
             }`}
-          </AppText>
+          </NumberClaim>
         ) : null}
         <View className={`mt-4 gap-2`} testID="check-verdict-impact-panel">
           <AppText className={`text-sm font-bold ${TEXT.body}`} testID="check-verdict-impact-title">
             {t('השפעה כלכלית')}
           </AppText>
           {result.financialImpact.bullets.map((bullet) => (
-            <AppText
-              accessibilityValue={{ text: bulletClaim(bullet) }}
+            <NumberClaim
+              claim={bulletClaim(bullet)}
               className={`text-sm ${TEXT.body}`}
               key={bullet.kind}
               testID={`check-verdict-impact-${bullet.kind}`}
+              view={chipView(bulletNumber(bullet))}
             >
               {`${t(BULLET_WORD[bullet.kind])} ${bulletVisible(bullet)}`}
-            </AppText>
+            </NumberClaim>
           ))}
         </View>
         {recommendation ? (
@@ -243,13 +296,14 @@ export function CheckVerdictScreen({
             </AppText>
             <RtlRow testID="check-verdict-match-score">
               <View className={`rounded-full px-2 py-1 ${SURFACE.sunken} ${BORDER.hairline}`}>
-                <AppText
-                  accessibilityValue={{ text: String(recommendation.matchScore.value) }}
+                <NumberClaim
+                  claim={String(recommendation.matchScore.value)}
                   className={`text-xs ${TEXT.secondary}`}
                   testID="check-verdict-match-score-value"
+                  view={chipView(recommendation.matchScore)}
                 >
                   {`${t('ציון התאמה')} ${asDisplayScore(recommendation.matchScore.value)}`}
-                </AppText>
+                </NumberClaim>
               </View>
             </RtlRow>
             <AppText
@@ -267,51 +321,48 @@ export function CheckVerdictScreen({
           </View>
         ) : null}
         {runnerUp ? (
-          <AppText
-            className={`mt-3 text-sm ${TEXT.body}`}
-            testID="check-verdict-runner-up"
-            {...(runnerUp.deltaFromBestIls !== undefined
-              ? { accessibilityValue: { text: String(runnerUp.deltaFromBestIls.value) } }
-              : {})}
-          >
-            {`${t('גם טוב')}: ${runnerUp.displayName}${
-              runnerUp.deltaFromBestIls !== undefined
-                ? ` · ${t('חוסכת')} ₪${runnerUp.deltaFromBestIls.value} ${t('פחות')}`
-                : ''
-            }`}
-          </AppText>
+          runnerUp.deltaFromBestIls !== undefined ? (
+            <NumberClaim
+              claim={String(runnerUp.deltaFromBestIls.value)}
+              className={`text-sm ${TEXT.body}`}
+              rowClassName="mt-3"
+              testID="check-verdict-runner-up"
+              view={chipView(runnerUp.deltaFromBestIls)}
+            >
+              {`${t('גם טוב')}: ${runnerUp.displayName} · ${t('חוסכת')} ₪${runnerUp.deltaFromBestIls.value} ${t('פחות')}`}
+            </NumberClaim>
+          ) : (
+            <AppText className={`mt-3 text-sm ${TEXT.body}`} testID="check-verdict-runner-up">
+              {`${t('גם טוב')}: ${runnerUp.displayName}`}
+            </AppText>
+          )
         ) : null}
         {fxBlock ? (
           <View className="mt-4 gap-2" testID="check-verdict-fx">
-            <AppText
-              accessibilityValue={{
-                text: `${fxBlock.quote.rateUsed.rateIlsPerQuoteUnit}|${fxBlock.quote.rateUsed.rateDate}`,
-              }}
+            <NumberClaim
+              claim={`${fxBlock.quote.rateUsed.rateIlsPerQuoteUnit}|${fxBlock.quote.rateUsed.rateDate}`}
               className={`text-sm ${TEXT.body}`}
               testID="check-verdict-fx-rate"
+              view={{ chip: fxBlock.quote.provenance, stale: false }}
             >
               {`${t('שער בנק ישראל')} ${fxBlock.quote.rateUsed.rateIlsPerQuoteUnit} · ${fxBlock.quote.rateUsed.rateDate}`}
-            </AppText>
-            <AppText
-              accessibilityValue={{ text: String(fxBlock.quote.fxPercentApplied) }}
+            </NumberClaim>
+            <NumberClaim
+              claim={String(fxBlock.quote.fxPercentApplied)}
               className={`text-sm ${TEXT.body}`}
               testID="check-verdict-fx-fee"
+              view={{ chip: fxBlock.quote.provenance, stale: false }}
             >
               {`${t('עמלת כרטיס במטח')} ${fxBlock.quote.fxPercentApplied}`}
-            </AppText>
-            <RtlRow>
-              <AppText
-                accessibilityValue={{ text: String(fxBlock.quote.effectiveIls) }}
-                className={`text-sm ${TEXT.body}`}
-                testID="check-verdict-fx-estimate"
-              >
-                {`${t('עלות משוערת')} ₪${fxBlock.quote.effectiveIls}`}
-              </AppText>
-              <ProvenanceChip
-                testID="check-verdict-fx-estimate-chip"
-                view={{ chip: 'ESTIMATE', stale: false }}
-              />
-            </RtlRow>
+            </NumberClaim>
+            <NumberClaim
+              claim={String(fxBlock.quote.effectiveIls)}
+              className={`text-sm ${TEXT.body}`}
+              testID="check-verdict-fx-estimate"
+              view={{ chip: fxBlock.quote.provenance, stale: false }}
+            >
+              {`${t('עלות משוערת')} ₪${fxBlock.quote.effectiveIls}`}
+            </NumberClaim>
             <AppText
               accessibilityRole="link"
               className={`text-sm font-bold ${TEXT.body}`}
@@ -322,22 +373,15 @@ export function CheckVerdictScreen({
           </View>
         ) : null}
         {impactStrip ? (
-          <RtlRow className="mt-4">
-            <AppText
-              accessibilityValue={{ text: String(impactStrip.availableAfterPurchaseIls.value) }}
-              className={`text-sm ${TEXT.body}`}
-              testID="check-verdict-impact-strip"
-            >
-              {`${t('מסגרת פנויה אחרי הרכישה')} ₪${impactStrip.availableAfterPurchaseIls.value}`}
-            </AppText>
-            <ProvenanceChip
-              testID="check-verdict-impact-strip-chip"
-              view={{
-                chip: impactStrip.availableAfterPurchaseIls.provenance,
-                stale: impactStrip.availableAfterPurchaseIls.stale === true,
-              }}
-            />
-          </RtlRow>
+          <NumberClaim
+            claim={String(impactStrip.availableAfterPurchaseIls.value)}
+            className={`text-sm ${TEXT.body}`}
+            rowClassName="mt-4"
+            testID="check-verdict-impact-strip"
+            view={chipView(impactStrip.availableAfterPurchaseIls)}
+          >
+            {`${t('מסגרת פנויה אחרי הרכישה')} ₪${impactStrip.availableAfterPurchaseIls.value}`}
+          </NumberClaim>
         ) : null}
         <AppText className={`mt-3 text-xs ${TEXT.muted}`} testID="check-verdict-freshness">
           {t('לידיעה בלבד')}
