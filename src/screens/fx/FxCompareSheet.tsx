@@ -6,7 +6,7 @@ import { ProvenanceChip } from '../../components/ProvenanceChip';
 import { RtlScreen } from '../../components/rtl';
 import { useTranslation } from '../../hooks/useTranslation';
 import type { FxComparison } from '../../engines/fx';
-import { ACCENT, BORDER, SURFACE, TEXT } from '../../theme/tokens';
+import { ACCENT, BORDER, ROLE_BORDER, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../../theme/tokens';
 
 /**
  * FX COMPARE SHEET — criterion **X2** (spec §17).
@@ -15,6 +15,11 @@ import { ACCENT, BORDER, SURFACE, TEXT } from '../../theme/tokens';
  * estimated total). Unknown-leg cards are listed separately and never ranked.
  * Deltas are omitted unless the engine supplied them — this file does not subtract.
  * The winner is ranked[0]; a floor reason is the engine's exemption, not a surface one.
+ *
+ * X3 (spec §17): the BOI reference-rate chip is a NEUTRAL badge. It is not the
+ * dashed Estimate chip, and it is never labelled as the real card cost. The
+ * Estimate chip sits on the "estimated real cost" heading. The settlement
+ * caveat is persistent copy, not a computed number.
  */
 
 export interface FxCompareSheetProps {
@@ -28,6 +33,7 @@ export function FxCompareSheet({
 }: FxCompareSheetProps): React.ReactElement {
   const { t } = useTranslation();
   const winnerId = comparison?.ranked[0]?.cardId;
+  const rateUsed = comparison?.ranked[0]?.quote.rateUsed;
   const nameOf = (cardId: string): string => displayNames?.[cardId] ?? cardId;
 
   return (
@@ -42,6 +48,36 @@ export function FxCompareSheet({
           </AppText>
         ) : (
           <>
+        {rateUsed ? (
+          <View
+            // rtl-ok: chip must not stretch; self-start is cross-axis, not reading direction
+            className={`mt-3 self-start rounded-full border px-2 py-0.5 ${ROLE_SURFACE_BG.neutral} ${ROLE_BORDER.neutral}`}
+            testID="fx-compare-reference"
+          >
+            <AppText
+              accessibilityValue={{
+                text: `${rateUsed.rateIlsPerQuoteUnit}|${rateUsed.rateDate}`,
+              }}
+              className={`text-xs font-bold ${ROLE_TEXT.neutral}`}
+              testID="fx-compare-reference-rate"
+            >
+              {`${t('שער בנק ישראל')} ${rateUsed.rateIlsPerQuoteUnit} · ${rateUsed.rateDate}`}
+            </AppText>
+          </View>
+        ) : null}
+        <View className="mt-3" testID="fx-compare-estimate-heading">
+          <AppText className={`text-sm font-bold ${TEXT.heading}`}>{t('עלות משוערת')}</AppText>
+          <View
+            // rtl-ok: dashed frame around the shared Estimate chip; self-start is cross-axis
+            className={`mt-1 self-start rounded-full border border-dashed ${ROLE_BORDER.advisory}`}
+            testID="fx-compare-estimate-frame"
+          >
+            <ProvenanceChip
+              testID="fx-compare-estimate-chip"
+              view={{ chip: 'ESTIMATE', stale: false }}
+            />
+          </View>
+        </View>
         <View testID="fx-compare-ranked">
           {comparison.ranked.map((entry) => {
             const winner = entry.cardId === winnerId;
@@ -100,6 +136,9 @@ export function FxCompareSheet({
             ))}
           </View>
         ) : null}
+        <AppText className={`mt-4 text-xs ${TEXT.muted}`} testID="fx-compare-settlement-caveat">
+          {t('הערכה — ויזה ומאסטרקארד מיישבים לפי שערי הרשת שלהם, שעשויים להיות שונים משער בנק ישראל')}
+        </AppText>
           </>
         )}
       </View>

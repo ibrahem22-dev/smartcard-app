@@ -91,6 +91,8 @@ export const en = {
     winner: 'Winner',
     unknownLeg: 'Cards with no FX leg',
     empty: 'No comparison yet',
+    settlementCaveat:
+      'Estimate — Visa/Mastercard settle at their own network rates, which may differ from the Bank of Israel reference rate.',
   },
   decision: {
     approved: 'Approved ✓',
@@ -863,4 +865,6 @@ export const enBySource: Readonly<Record<string, string>> = {
   המנצחת: en.fxCompare.winner,
   'כרטיסים בלי רגל מטח': en.fxCompare.unknownLeg,
   'אין השוואה עדיין': en.fxCompare.empty,
+  'הערכה — ויזה ומאסטרקארד מיישבים לפי שערי הרשת שלהם, שעשויים להיות שונים משער בנק ישראל':
+    en.fxCompare.settlementCaveat,
 };
