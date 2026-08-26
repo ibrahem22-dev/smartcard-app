@@ -32,6 +32,11 @@ qa_evidence/
 # reproduced and is not evidence. The clean run at the committed sha is the record.
 reports/p2/*-dirty.json
 
+# The same rule for the P4 ladder, for the same reason and on the same authority. P4's runner
+# writes reports/p4/<sha>-dirty.json when the worktree is not clean, and a report that names a
+# tree state no commit holds cannot be reproduced by anybody, including the session that wrote it.
+reports/p4/*-dirty.json
+
 # The render harness writes this on every gate run and the gate consumes it in the SAME run —
 # it is an intermediate, not a record, and committing it would leave the tree permanently dirty.
 # The durable record is the sha-named ladder report beside it, which E5 requires to be committed.
