@@ -86,6 +86,12 @@ export const en = {
     availableAfterPurchase: 'Available limit after this purchase',
     informationalOnly: 'Informational only',
   },
+  fxCompare: {
+    title: 'FX compare',
+    winner: 'Winner',
+    unknownLeg: 'Cards with no FX leg',
+    empty: 'No comparison yet',
+  },
   decision: {
     approved: 'Approved ✓',
     warning: 'Pay attention ⚠️',
@@ -853,4 +859,8 @@ export const enBySource: Readonly<Record<string, string>> = {
   'ייצוג כללי של כרטיס': 'Generic card representation',
   'ייצוג הטבה לפי קטגוריה': 'Category benefit representation',
   'ייצוג כללי של הטבה': 'Generic benefit representation',
+  'השוואת מטח': en.fxCompare.title,
+  המנצחת: en.fxCompare.winner,
+  'כרטיסים בלי רגל מטח': en.fxCompare.unknownLeg,
+  'אין השוואה עדיין': en.fxCompare.empty,
 };

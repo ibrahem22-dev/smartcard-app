@@ -67,6 +67,12 @@ export const he = {
     availableAfterPurchase: 'מסגרת פנויה אחרי הרכישה',
     informationalOnly: 'לידיעה בלבד',
   },
+  fxCompare: {
+    title: 'השוואת מטח',
+    winner: 'המנצחת',
+    unknownLeg: 'כרטיסים בלי רגל מטח',
+    empty: 'אין השוואה עדיין',
+  },
   cardTile: {
     generated: 'ייצוג כרטיס שנוצר באפליקציה',
     generic: 'ייצוג כללי של כרטיס',
