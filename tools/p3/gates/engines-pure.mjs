@@ -45,7 +45,9 @@ function resolveLocal(fromFileAbs, specifier) {
     const candidate = base + ext;
     if (existsSync(candidate)) return candidate;
   }
-  return existsSync(base) && !base.startsWith(root_) ? base : null;
+  // An exactly-named file (e.g. identity.json imported by src/config/identity.ts) resolves too.
+  // It may sit anywhere under the app root; the walk below decides what matters about it.
+  return existsSync(base) ? base : null;
 }
 
 let root_ = null;
@@ -66,6 +68,9 @@ export const run = async ({ root }) => {
       const { file, via } = queue.shift();
       if (seen.has(file)) continue;
       seen.add(file);
+      // A resolved data file (.json) is not code and imports nothing: it cannot carry surface
+      // logic, so the walk stops here rather than pretending it is unreadable.
+      if (file.endsWith('.json')) continue;
       if (file.endsWith('.tsx')) {
         failures.push(via + ' reaches UI file ' + file.replace(root, '').replace(/\\/g, '/'));
         continue;
