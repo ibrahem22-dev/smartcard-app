@@ -73,6 +73,9 @@ export const en = {
     howScoresWork: 'How scores work',
     howScoresWorkBody:
       'Scores are relative among your cards: 100 is the lowest cost, 0 is the highest. It is not an absolute grade.',
+    alsoGood: 'Also good',
+    saves: 'saves',
+    less: 'less',
   },
   decision: {
     approved: 'Approved ✓',
@@ -814,4 +817,7 @@ export const enBySource: Readonly<Record<string, string>> = {
   'איך הציונים עובדים': en.checkVerdict.howScoresWork,
   'הציון יחסי בין הכרטיסים שלך: 100 לעלות הנמוכה ביותר, 0 לגבוהה ביותר. זה לא ציון מוחלט.':
     en.checkVerdict.howScoresWorkBody,
+  'גם טוב': en.checkVerdict.alsoGood,
+  חוסכת: en.checkVerdict.saves,
+  פחות: en.checkVerdict.less,
 };

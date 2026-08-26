@@ -54,6 +54,9 @@ export const he = {
     howScoresWork: 'איך הציונים עובדים',
     howScoresWorkBody:
       'הציון יחסי בין הכרטיסים שלך: 100 לעלות הנמוכה ביותר, 0 לגבוהה ביותר. זה לא ציון מוחלט.',
+    alsoGood: 'גם טוב',
+    saves: 'חוסכת',
+    less: 'פחות',
   },
   calendar: {
     empty: 'אין חיובים מתוכננים 📅',

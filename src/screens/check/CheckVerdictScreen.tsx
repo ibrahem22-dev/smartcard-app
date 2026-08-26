@@ -24,8 +24,8 @@ import { BORDER, ROLE_SURFACE, ROLE_TEXT, SURFACE, TEXT } from '../../theme/toke
  * against a 35% threshold — and D2's gate exists to make that fail.
  *
  * Layout order (D3) is spec §9 top to bottom among sections that exist:
- * pill · context line · Financial Impact · recommendation (D4) · (runner-up /
- * FX / impact strip / freshness are later PHASE-2 packages). A section that is
+ * pill · context line · Financial Impact · recommendation (D4) · runner-up (D5)
+ * · (FX / impact strip / freshness are later PHASE-2 packages). A section that is
  * not built yet is omitted, not faked.
  *
  * D4: the recommendation hero is the card tile + "Best for this purchase" (+ a
@@ -61,6 +61,14 @@ export interface CheckVerdictScreenProps {
   readonly recommendation?: {
     readonly displayName: string;
     readonly matchScore: ProvenancedNumber;
+  };
+  /**
+   * Spec §9 runner-up. `deltaFromBestIls` is painted only when the scoring
+   * engine supplied it. Absent field: no delta, never a surface subtraction.
+   */
+  readonly runnerUp?: {
+    readonly displayName: string;
+    readonly deltaFromBestIls?: ProvenancedNumber;
   };
 }
 
@@ -126,6 +134,7 @@ export function CheckVerdictScreen({
   result,
   contextLine,
   recommendation,
+  runnerUp,
 }: CheckVerdictScreenProps): React.ReactElement {
   const { t } = useTranslation();
 
@@ -238,6 +247,21 @@ export function CheckVerdictScreen({
               {t('הציון יחסי בין הכרטיסים שלך: 100 לעלות הנמוכה ביותר, 0 לגבוהה ביותר. זה לא ציון מוחלט.')}
             </AppText>
           </View>
+        ) : null}
+        {runnerUp ? (
+          <AppText
+            className={`mt-3 text-sm ${TEXT.body}`}
+            testID="check-verdict-runner-up"
+            {...(runnerUp.deltaFromBestIls !== undefined
+              ? { accessibilityValue: { text: String(runnerUp.deltaFromBestIls.value) } }
+              : {})}
+          >
+            {`${t('גם טוב')}: ${runnerUp.displayName}${
+              runnerUp.deltaFromBestIls !== undefined
+                ? ` · ${t('חוסכת')} ₪${runnerUp.deltaFromBestIls.value} ${t('פחות')}`
+                : ''
+            }`}
+          </AppText>
         ) : null}
       </View>
     </RtlScreen>
