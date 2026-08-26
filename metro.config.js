@@ -11,11 +11,18 @@ config.resolver.blockList = [
 ];
 
 const reanimatedShim = path.resolve(__dirname, 'shims/react-native-reanimated.js');
+const nodeCryptoShim = path.resolve(__dirname, 'shims/node-crypto.js');
 const originalResolveRequest = config.resolver.resolveRequest;
 
 config.resolver.resolveRequest = (context, moduleName, platform) => {
   if (moduleName === 'react-native-reanimated') {
     return { filePath: reanimatedShim, type: 'sourceFile' };
+  }
+
+  // The data-authority adapter verifies artifacts with Node's crypto. On device that
+  // specifier cannot resolve, so it maps to the pure-JS shim (see shims/node-crypto.js).
+  if (moduleName === 'node:crypto') {
+    return { filePath: nodeCryptoShim, type: 'sourceFile' };
   }
 
   if (originalResolveRequest) {
