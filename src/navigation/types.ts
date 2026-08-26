@@ -77,6 +77,8 @@ export type WalletStackParamList = {
   AddCard: undefined;
   CardDetail: { cardId: string };
   InterestCalculator: { cardId?: string } | undefined;
+  /** P4 X1: Card DNA's entry point for the canonical FX Compare sheet. DNA content is P5. */
+  CardDnaFxCompare: undefined;
 };
 
 /**

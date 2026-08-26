@@ -5,6 +5,7 @@ import { AddCardScreen } from '../../screens/AddCardScreen';
 import { CardDetailScreen } from '../../screens/CardDetailScreen';
 import { CardsScreen } from '../../screens/CardsScreen';
 import { InterestCalculatorScreen } from '../../screens/InterestCalculatorScreen';
+import { FxCompareFromCardDna } from '../../screens/fx/FxCompareFromCardDna';
 import { NotYetSurface } from '../../components/NotYetSurface';
 import { SegmentedTab } from '../SegmentedTab';
 import { BOTTOM_NAVIGATION } from '../ia';
@@ -57,6 +58,11 @@ export function WalletStack(): React.ReactElement {
         component={InterestCalculatorScreen}
         name="InterestCalculator"
         options={{ title: 'Interest Calculator' }}
+      />
+      <Stack.Screen
+        component={FxCompareFromCardDna}
+        name="CardDnaFxCompare"
+        options={{ title: 'FX Compare' }}
       />
     </Stack.Navigator>
   );

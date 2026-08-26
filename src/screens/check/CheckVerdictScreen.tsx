@@ -8,7 +8,9 @@ import { ProvenanceChip } from '../../components/ProvenanceChip';
 import type { ChipView } from '../../components/provenanceChipState';
 import { RtlRow, RtlScreen } from '../../components/rtl';
 import { useTranslation } from '../../hooks/useTranslation';
+import { FxCompareFromCheckVerdict } from '../fx/FxCompareFromCheckVerdict';
 import type { ConvertedAmount } from '../../engines/currency';
+import type { FxComparison } from '../../engines/fx';
 import type { ProvenancedNumber } from '../../engines/provenance';
 import type { ImpactBullet, PurchaseVerdict, PurchaseVerdictResult } from '../../engines/verdict';
 import type { SemanticRole } from '../../theme/tokens';
@@ -81,6 +83,12 @@ export interface CheckVerdictScreenProps {
   readonly fxBlock?: {
     readonly quote: ConvertedAmount;
   };
+  /**
+   * X1: the Check Verdict entry that opens the canonical FX Compare sheet.
+   * Absent: the sheet is omitted rather than invented. The D6 quote block is
+   * not this sheet.
+   */
+  readonly fxComparison?: FxComparison;
   /**
    * Spec §9 impact strip. Available limit after the purchase, from the load
    * engine's `CardLimitPosition` — never recomputed on this surface.
@@ -199,6 +207,7 @@ export function CheckVerdictScreen({
   recommendation,
   runnerUp,
   fxBlock,
+  fxComparison,
   impactStrip,
 }: CheckVerdictScreenProps): React.ReactElement {
   const { t } = useTranslation();
@@ -375,6 +384,11 @@ export function CheckVerdictScreen({
             >
               {t('השווי את כל הכרטיסים שלי')}
             </AppText>
+          </View>
+        ) : null}
+        {fxComparison ? (
+          <View className="mt-4" testID="check-verdict-fx-compare-sheet">
+            <FxCompareFromCheckVerdict comparison={fxComparison} />
           </View>
         ) : null}
         {impactStrip ? (
