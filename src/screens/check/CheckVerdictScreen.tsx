@@ -5,23 +5,33 @@ import { AppText } from '../../components/AppText';
 import { NotYetSurface } from '../../components/NotYetSurface';
 import { RtlRow, RtlScreen } from '../../components/rtl';
 import { useTranslation } from '../../hooks/useTranslation';
-import type { PurchaseVerdict, PurchaseVerdictResult } from '../../engines/verdict';
+import type { ImpactBullet, PurchaseVerdict, PurchaseVerdictResult } from '../../engines/verdict';
 import type { SemanticRole } from '../../theme/tokens';
 import { BORDER, ROLE_SURFACE, ROLE_TEXT, SURFACE, TEXT } from '../../theme/tokens';
 
 /**
- * CHECK VERDICT — criterion **D1 and nothing else**.
+ * CHECK VERDICT — criteria **D1** (four states) and **D2** (one computation).
  *
  *   > **D1.** *"Exactly four verdict states render, each carrying an icon and a word as well
  *   > as a colour."*  (spec §9; colour is never the only carrier)
+ *   > **D2.** *"The pill and the Financial Impact panel come from ONE engine computation."*
  *
- * A result is an ENGINE OUTPUT. This screen does not compute one. It paints the pill the
- * seam already produced. Financial Impact, recommendation, FX, provenance chips and the
- * rest of §9's layout are WP-1.5+ (D2–D8). Until a result is supplied the screen stays
- * honestly empty — a canned pill would be a second computation.
+ * A result is an ENGINE OUTPUT. This screen does not compute one. It paints `result.verdict`
+ * as the pill and `result.financialImpact.bullets` as the panel. Those are fields of the
+ * same object `runPurchaseCheck` returned. A second path that decided the pill from the
+ * panel's numbers (or the other way around) is the Stitch defect — "Good to go" at 41%
+ * against a 35% threshold — and D2's gate exists to make that fail.
+ *
+ * Layout, recommendation, FX, provenance chips and the rest of §9 are D3–D8 / PHASE-2.
+ * Until a result is supplied the screen stays honestly empty — a canned pill-and-panel
+ * pair would be a second computation.
  *
  * Colour roles come from the token module (A8). Wait uses **neutral / slate**, which is
  * spec §9's word for that state and A8's fourth (non-judgement) role — not a fifth hue.
+ *
+ * B1: this file must not compare a load to a threshold, name threshold math, or call
+ * the engine. Painting an engine number, including scaling a ratio for display, is not
+ * a recommendation.
  */
 
 export interface CheckVerdictScreenProps {
@@ -46,6 +56,42 @@ export const VERDICT_PILL: { readonly [K in PurchaseVerdict]: PillCopy } = {
   wait_until_billing_passes: { word: 'חכי עד שהחיוב יעבור', icon: '⏳', role: 'neutral' },
 };
 
+const BULLET_WORD: { readonly [K in ImpactBullet['kind']]: string } = {
+  PURCHASE_MONTHLY_COMMITMENT: 'התחייבות חודשית מהרכישה',
+  LOAD_AFTER_PURCHASE: 'עומס אחרי הרכישה',
+  HARD_THRESHOLD_HEADROOM: 'מרווח עד הסף הקשיח',
+  LOAD_AFTER_BILLING: 'עומס אחרי החיוב',
+};
+
+/** Display scale of an engine ratio. Not a second load calculation. */
+function asDisplayPercent(ratio: number): string {
+  return `${(ratio * 100).toFixed(1)}%`;
+}
+
+function bulletClaim(bullet: ImpactBullet): string {
+  switch (bullet.kind) {
+    case 'PURCHASE_MONTHLY_COMMITMENT':
+    case 'HARD_THRESHOLD_HEADROOM':
+      return String(bullet.amountIls.value);
+    case 'LOAD_AFTER_PURCHASE':
+      return String(bullet.ratioOfIncome.value);
+    case 'LOAD_AFTER_BILLING':
+      return `${bullet.billingDate}|${bullet.ratioOfIncome.value}`;
+  }
+}
+
+function bulletVisible(bullet: ImpactBullet): string {
+  switch (bullet.kind) {
+    case 'PURCHASE_MONTHLY_COMMITMENT':
+    case 'HARD_THRESHOLD_HEADROOM':
+      return `₪${bullet.amountIls.value}`;
+    case 'LOAD_AFTER_PURCHASE':
+      return asDisplayPercent(bullet.ratioOfIncome.value);
+    case 'LOAD_AFTER_BILLING':
+      return `${bullet.billingDate} ${asDisplayPercent(bullet.ratioOfIncome.value)}`;
+  }
+}
+
 export function CheckVerdictScreen({ result }: CheckVerdictScreenProps): React.ReactElement {
   const { t } = useTranslation();
 
@@ -53,7 +99,7 @@ export function CheckVerdictScreen({ result }: CheckVerdictScreenProps): React.R
     return (
       <RtlScreen className={SURFACE.page} safe>
         <NotYetSurface
-          ownedBy="WP-1.4 — Check Verdict states (P4 criterion D1)"
+          ownedBy="WP-1.5 — Check Verdict pill and Financial Impact from one computation (P4 D1+D2)"
           testID="check-verdict-not-yet"
           title="בדיקה"
         />
@@ -94,6 +140,21 @@ export function CheckVerdictScreen({ result }: CheckVerdictScreenProps): React.R
             {result.waitUntil}
           </AppText>
         ) : null}
+        <View className={`mt-4 gap-2`} testID="check-verdict-impact-panel">
+          <AppText className={`text-sm font-bold ${TEXT.body}`} testID="check-verdict-impact-title">
+            {t('השפעה כלכלית')}
+          </AppText>
+          {result.financialImpact.bullets.map((bullet) => (
+            <AppText
+              accessibilityValue={{ text: bulletClaim(bullet) }}
+              className={`text-sm ${TEXT.body}`}
+              key={bullet.kind}
+              testID={`check-verdict-impact-${bullet.kind}`}
+            >
+              {`${t(BULLET_WORD[bullet.kind])} ${bulletVisible(bullet)}`}
+            </AppText>
+          ))}
+        </View>
       </View>
     </RtlScreen>
   );

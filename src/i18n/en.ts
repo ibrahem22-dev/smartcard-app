@@ -60,6 +60,11 @@ export const en = {
     caution: 'Caution',
     dontBuyNow: "Don't buy now",
     waitUntilBilling: 'Wait until billing passes',
+    financialImpact: 'Financial Impact',
+    purchaseMonthly: 'Monthly commitment from this purchase',
+    loadAfterPurchase: 'Load after this purchase',
+    hardHeadroom: 'Headroom to the hard threshold',
+    loadAfterBilling: 'Load after billing',
   },
   decision: {
     approved: 'Approved ✓',
@@ -787,4 +792,11 @@ export const enBySource: Readonly<Record<string, string>> = {
   זהירות: en.checkVerdict.caution,
   'לא לקנות עכשיו': en.checkVerdict.dontBuyNow,
   'חכי עד שהחיוב יעבור': en.checkVerdict.waitUntilBilling,
+
+  // P4 criterion D2 — Financial Impact panel, same computation as the pill
+  'השפעה כלכלית': en.checkVerdict.financialImpact,
+  'התחייבות חודשית מהרכישה': en.checkVerdict.purchaseMonthly,
+  'עומס אחרי הרכישה': en.checkVerdict.loadAfterPurchase,
+  'מרווח עד הסף הקשיח': en.checkVerdict.hardHeadroom,
+  'עומס אחרי החיוב': en.checkVerdict.loadAfterBilling,
 };

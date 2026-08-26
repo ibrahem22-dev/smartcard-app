@@ -41,6 +41,11 @@ export const he = {
     caution: 'זהירות',
     dontBuyNow: 'לא לקנות עכשיו',
     waitUntilBilling: 'חכי עד שהחיוב יעבור',
+    financialImpact: 'השפעה כלכלית',
+    purchaseMonthly: 'התחייבות חודשית מהרכישה',
+    loadAfterPurchase: 'עומס אחרי הרכישה',
+    hardHeadroom: 'מרווח עד הסף הקשיח',
+    loadAfterBilling: 'עומס אחרי החיוב',
   },
   calendar: {
     empty: 'אין חיובים מתוכננים 📅',
