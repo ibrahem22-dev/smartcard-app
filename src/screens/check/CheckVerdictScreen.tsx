@@ -27,8 +27,8 @@ import { BORDER, ROLE_SURFACE, ROLE_TEXT, SURFACE, TEXT } from '../../theme/toke
  *
  * Layout order (D3) is spec §9 top to bottom among sections that exist:
  * pill · context line · Financial Impact · recommendation (D4) · runner-up (D5)
- * · FX block (D6) · (impact strip / freshness are later PHASE-2 packages). A section
- * that is not built yet is omitted, not faked.
+ * · FX block (D6) · impact strip + freshness (D7). A section that is not built
+ * yet is omitted, not faked.
  *
  * D4: the recommendation hero is the card tile + "Best for this purchase" (+ a
  * reason line only when an engine supplies one). Match Score is a small
@@ -78,6 +78,13 @@ export interface CheckVerdictScreenProps {
    */
   readonly fxBlock?: {
     readonly quote: ConvertedAmount;
+  };
+  /**
+   * Spec §9 impact strip. Available limit after the purchase, from the load
+   * engine's `CardLimitPosition` — never recomputed on this surface.
+   */
+  readonly impactStrip?: {
+    readonly availableAfterPurchaseIls: ProvenancedNumber;
   };
 }
 
@@ -145,6 +152,7 @@ export function CheckVerdictScreen({
   recommendation,
   runnerUp,
   fxBlock,
+  impactStrip,
 }: CheckVerdictScreenProps): React.ReactElement {
   const { t } = useTranslation();
 
@@ -313,6 +321,27 @@ export function CheckVerdictScreen({
             </AppText>
           </View>
         ) : null}
+        {impactStrip ? (
+          <RtlRow className="mt-4">
+            <AppText
+              accessibilityValue={{ text: String(impactStrip.availableAfterPurchaseIls.value) }}
+              className={`text-sm ${TEXT.body}`}
+              testID="check-verdict-impact-strip"
+            >
+              {`${t('מסגרת פנויה אחרי הרכישה')} ₪${impactStrip.availableAfterPurchaseIls.value}`}
+            </AppText>
+            <ProvenanceChip
+              testID="check-verdict-impact-strip-chip"
+              view={{
+                chip: impactStrip.availableAfterPurchaseIls.provenance,
+                stale: impactStrip.availableAfterPurchaseIls.stale === true,
+              }}
+            />
+          </RtlRow>
+        ) : null}
+        <AppText className={`mt-3 text-xs ${TEXT.muted}`} testID="check-verdict-freshness">
+          {t('לידיעה בלבד')}
+        </AppText>
       </View>
     </RtlScreen>
   );

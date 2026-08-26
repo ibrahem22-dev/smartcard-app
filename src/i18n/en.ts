@@ -80,6 +80,8 @@ export const en = {
     cardFxFee: 'Card FX fee',
     estimatedCost: 'Estimated real cost',
     compareAllCards: 'Compare all my cards',
+    availableAfterPurchase: 'Available limit after this purchase',
+    informationalOnly: 'Informational only',
   },
   decision: {
     approved: 'Approved ✓',
@@ -828,4 +830,6 @@ export const enBySource: Readonly<Record<string, string>> = {
   'עמלת כרטיס במטח': en.checkVerdict.cardFxFee,
   'עלות משוערת': en.checkVerdict.estimatedCost,
   'השווי את כל הכרטיסים שלי': en.checkVerdict.compareAllCards,
+  'מסגרת פנויה אחרי הרכישה': en.checkVerdict.availableAfterPurchase,
+  'לידיעה בלבד': en.checkVerdict.informationalOnly,
 };

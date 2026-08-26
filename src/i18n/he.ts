@@ -61,6 +61,8 @@ export const he = {
     cardFxFee: 'עמלת כרטיס במטח',
     estimatedCost: 'עלות משוערת',
     compareAllCards: 'השווי את כל הכרטיסים שלי',
+    availableAfterPurchase: 'מסגרת פנויה אחרי הרכישה',
+    informationalOnly: 'לידיעה בלבד',
   },
   calendar: {
     empty: 'אין חיובים מתוכננים 📅',
