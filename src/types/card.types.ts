@@ -1,4 +1,14 @@
 // /src/types/card.types.ts
+//
+// P4 criterion M6 — CardProduct and UserCard are structurally separate.
+// The legacy `CardInput` interface mixed catalog facts, user vault state and
+// engine output into one record. That shape is gone as a stored type.
+//
+//   CardProduct  — shared facts (and, later, artwork identity). No user state.
+//   UserCard     — product reference + optional last4 + local state. No artwork,
+//                  no asset reference, no shared product fact.
+//   EngineCard   — composed at the store boundary for engines and screens that
+//                  still consume a flat view. Never persisted.
 
 import type { Currency, PurchaseCategory } from './purchase.types';
 
@@ -56,7 +66,7 @@ export interface CardCreditFramework {
   readonly currentBalance: number; // amount already charged this cycle (₪)
 }
 
-/** Financial rates and fees associated with a card. */
+/** Financial rates and fees associated with a card product. */
 export interface CardRates {
   readonly creditInterestRate: number;
   readonly installmentInterestRate: number;
@@ -78,8 +88,60 @@ export interface CardFeeInfo {
   readonly discountSource?: string;
 }
 
-export interface CardInput {
+/**
+ * Catalog / shared product. Artwork identity is this id (MEDIA_ARCHITECTURE §5.1
+ * tier 3 is generated from product facts). No last4, no balances, no nickname.
+ */
+export interface CardProduct {
+  readonly cardProductId: string;
+  readonly issuer: CardIssuer;
+  readonly network: CardNetwork;
+  readonly currency: Currency;
+  /** Roles this product is capable of filling (capability tags). May be empty. */
+  readonly roleTags: readonly CardRole[];
+  readonly rewardCategories: readonly PurchaseCategory[];
+  /** Baseline reward as a fraction (e.g. 0.02 = 2%). */
+  readonly cashbackRate: number;
+  /** FX fee as a fraction (e.g. 0.03 = 3%); low value favors the travel role. */
+  readonly foreignTransactionFee: number;
+  readonly supportsInstallments: boolean;
+  readonly annualFee: number;
+  readonly bankName?: string;
+  readonly cardRates?: CardRates;
+  readonly cardFee?: CardFeeInfo;
+}
+
+/**
+ * One card in the user's vault. Holds a product reference, an optional last4,
+ * and local state. Artwork is never stored per user — it is resolved from the
+ * product at render time (MEDIA_ARCHITECTURE §7.2).
+ */
+export interface UserCard {
   readonly cardId: string;
+  readonly cardProductId: string;
+  readonly displayName: string;
+  /** Optional. Spec §10: the tile that omits digits is the normal case. */
+  readonly last4?: string;
+  readonly framework: CardCreditFramework;
+  readonly billingCycle: CardBillingCycle;
+  readonly isActive: boolean;
+  /** The single role assigned by cardRoleEngine. null until assigned. */
+  readonly primaryRole: CardRole | null;
+  readonly unknownClub?: boolean;
+  readonly hasForeignCurrencyAccount?: boolean;
+  readonly foreignCurrencyType?: ForeignCurrencyType;
+  readonly bankFxCommission?: number;
+  readonly cardIssuanceDate?: string;
+}
+
+/**
+ * Flat view engines and existing screens consume. Composed at the store
+ * boundary from UserCard + CardProduct. Not a persisted record.
+ */
+export interface EngineCard {
+  readonly cardId: string;
+  /** Present on compositions from the store. Fixtures may omit it; split then mints `legacy:${cardId}`. */
+  readonly cardProductId?: string;
   readonly displayName: string;
   readonly last4: string;
   readonly issuer: CardIssuer;
@@ -87,41 +149,110 @@ export interface CardInput {
   readonly currency: Currency;
   readonly framework: CardCreditFramework;
   readonly billingCycle: CardBillingCycle;
-
-  /** Roles this card is *capable* of filling (capability tags). May be empty. */
   readonly roleTags: readonly CardRole[];
-  /** The single role assigned by cardRoleEngine. null until assigned. */
   readonly primaryRole: CardRole | null;
-
-  /** Categories where this card yields elevated rewards — drives both role
-   *  assignment and recommendCard ranking. */
   readonly rewardCategories: readonly PurchaseCategory[];
-  /** Baseline reward as a fraction (e.g. 0.02 = 2%). */
   readonly cashbackRate: number;
-  /** FX fee as a fraction (e.g. 0.03 = 3%); low value favors the travel role. */
   readonly foreignTransactionFee: number;
-  /** Whether this card can split charges into תשלומים. */
   readonly supportsInstallments: boolean;
-  readonly annualFee: number; // ₪
+  readonly annualFee: number;
   readonly isActive: boolean;
-
-  /** Issuer/bank association used for the +5 bank-match bonus in recommendCard. */
   readonly bankName?: string;
-  /** True when the user could not identify their מועדון at onboarding. */
   readonly unknownClub?: boolean;
   readonly cardRates?: CardRates;
   readonly cardFee?: CardFeeInfo;
   readonly hasForeignCurrencyAccount?: boolean;
   readonly foreignCurrencyType?: ForeignCurrencyType;
-  /** Bank foreign-exchange commission as a percentage. */
   readonly bankFxCommission?: number;
-  /** ISO 8601 date. */
   readonly cardIssuanceDate?: string;
+}
+
+/**
+ * @deprecated The mixed stored record is gone. This alias is the engine view
+ * (`EngineCard`) so existing call sites typecheck while they still consume the
+ * composition. Do not persist a CardInput; persist UserCard + CardProduct.
+ */
+export type CardInput = EngineCard;
+
+export function composeEngineCard(user: UserCard, product: CardProduct): EngineCard {
+  return {
+    cardId: user.cardId,
+    cardProductId: product.cardProductId,
+    displayName: user.displayName,
+    last4: user.last4 ?? '',
+    issuer: product.issuer,
+    network: product.network,
+    currency: product.currency,
+    framework: user.framework,
+    billingCycle: user.billingCycle,
+    roleTags: product.roleTags,
+    primaryRole: user.primaryRole,
+    rewardCategories: product.rewardCategories,
+    cashbackRate: product.cashbackRate,
+    foreignTransactionFee: product.foreignTransactionFee,
+    supportsInstallments: product.supportsInstallments,
+    annualFee: product.annualFee,
+    isActive: user.isActive,
+    ...(product.bankName !== undefined ? { bankName: product.bankName } : {}),
+    ...(user.unknownClub !== undefined ? { unknownClub: user.unknownClub } : {}),
+    ...(product.cardRates !== undefined ? { cardRates: product.cardRates } : {}),
+    ...(product.cardFee !== undefined ? { cardFee: product.cardFee } : {}),
+    ...(user.hasForeignCurrencyAccount !== undefined
+      ? { hasForeignCurrencyAccount: user.hasForeignCurrencyAccount }
+      : {}),
+    ...(user.foreignCurrencyType !== undefined
+      ? { foreignCurrencyType: user.foreignCurrencyType }
+      : {}),
+    ...(user.bankFxCommission !== undefined ? { bankFxCommission: user.bankFxCommission } : {}),
+    ...(user.cardIssuanceDate !== undefined ? { cardIssuanceDate: user.cardIssuanceDate } : {}),
+  };
+}
+
+export function splitEngineCard(card: EngineCard): { user: UserCard; product: CardProduct } {
+  const cardProductId =
+    card.cardProductId !== undefined && card.cardProductId.length > 0
+      ? card.cardProductId
+      : 'legacy:' + card.cardId;
+  const user: UserCard = {
+    cardId: card.cardId,
+    cardProductId,
+    displayName: card.displayName,
+    framework: card.framework,
+    billingCycle: card.billingCycle,
+    isActive: card.isActive,
+    primaryRole: card.primaryRole,
+    ...(card.last4.length > 0 ? { last4: card.last4 } : {}),
+    ...(card.unknownClub !== undefined ? { unknownClub: card.unknownClub } : {}),
+    ...(card.hasForeignCurrencyAccount !== undefined
+      ? { hasForeignCurrencyAccount: card.hasForeignCurrencyAccount }
+      : {}),
+    ...(card.foreignCurrencyType !== undefined
+      ? { foreignCurrencyType: card.foreignCurrencyType }
+      : {}),
+    ...(card.bankFxCommission !== undefined ? { bankFxCommission: card.bankFxCommission } : {}),
+    ...(card.cardIssuanceDate !== undefined ? { cardIssuanceDate: card.cardIssuanceDate } : {}),
+  };
+  const product: CardProduct = {
+    cardProductId,
+    issuer: card.issuer,
+    network: card.network,
+    currency: card.currency,
+    roleTags: card.roleTags,
+    rewardCategories: card.rewardCategories,
+    cashbackRate: card.cashbackRate,
+    foreignTransactionFee: card.foreignTransactionFee,
+    supportsInstallments: card.supportsInstallments,
+    annualFee: card.annualFee,
+    ...(card.bankName !== undefined ? { bankName: card.bankName } : {}),
+    ...(card.cardRates !== undefined ? { cardRates: card.cardRates } : {}),
+    ...(card.cardFee !== undefined ? { cardFee: card.cardFee } : {}),
+  };
+  return { user, product };
 }
 
 /** Ranked card pick returned by cardRoleEngine.recommendCard. */
 export interface CardRecommendation {
-  readonly card: CardInput;
+  readonly card: EngineCard;
   /** 0–100 suitability score for the purchase context. */
   readonly score: number;
   readonly scoreReason: string;

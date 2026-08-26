@@ -20,7 +20,7 @@
 
 import * as Crypto from 'expo-crypto';
 
-import { CardIssuer, CardNetwork, type CardInput } from '../types/card.types';
+import { CardIssuer, CardNetwork, type EngineCard } from '../types/card.types';
 import { Currency } from '../types/purchase.types';
 
 export interface ManualCardInput {
@@ -46,9 +46,11 @@ const ISSUER_DEFAULT_NETWORK: Record<CardIssuer, CardNetwork> = {
   [CardIssuer.Cal]: CardNetwork.Visa,
 };
 
-export function createManualCard(input: ManualCardInput): CardInput {
+export function createManualCard(input: ManualCardInput): EngineCard {
+  const cardId = Crypto.randomUUID();
   return {
-    cardId: Crypto.randomUUID(),
+    cardId,
+    cardProductId: 'manual:' + cardId,
     displayName: input.displayName,
     last4: input.last4,
     issuer: input.issuer,

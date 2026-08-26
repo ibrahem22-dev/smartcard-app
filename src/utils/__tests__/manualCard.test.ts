@@ -3,7 +3,7 @@ jest.mock('expo-crypto', () => ({
 }));
 
 import { createManualCard } from '../manualCard';
-import { CardIssuer, CardNetwork } from '../../types/card.types';
+import { CardIssuer, CardNetwork, splitEngineCard } from '../../types/card.types';
 import { Currency } from '../../types/purchase.types';
 
 const BASE = {
@@ -53,5 +53,17 @@ describe('createManualCard (LOCK-007: unknown stays unknown)', () => {
     expect(card.primaryRole).toBeNull();
     expect(card.rewardCategories).toEqual([]);
     expect(card.network).toBe(CardNetwork.Mastercard);
+  });
+
+  test('the stored split puts last4 on UserCard and issuer on CardProduct, never artwork', () => {
+    const card = createManualCard(BASE);
+    expect(card.cardProductId).toBe('manual:' + card.cardId);
+    const { user, product } = splitEngineCard(card);
+    expect(user.last4).toBe('1234');
+    expect(user).not.toHaveProperty('issuer');
+    expect(user).not.toHaveProperty('artworkUrl');
+    expect(product.issuer).toBe(CardIssuer.Max);
+    expect(product).not.toHaveProperty('last4');
+    expect(product).not.toHaveProperty('artworkUrl');
   });
 });

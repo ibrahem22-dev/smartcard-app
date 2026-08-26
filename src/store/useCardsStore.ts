@@ -16,18 +16,23 @@
 //   3. Setters write to MMKV on every call (vault must be unlocked by then).
 //   4. Vault wipe / logout → caller calls clearCards().
 //
-// Metadata wrapper:
-//   Cards are persisted as CardEntry objects: { card: UserCard, clubSuggestedByApp?: boolean }.
-//   The store exposes the plain cards: UserCard[] view for engines/UI, and keeps
-//   entries: CardEntry[] as the parallel source of truth for metadata. Both are
-//   always updated together — they never diverge.
+// Metadata wrapper (P4 M6):
+//   Cards are persisted as CardEntry objects:
+//     { user: UserCard, product: CardProduct, clubSuggestedByApp?: boolean }.
+//   The store exposes the composed cards: EngineCard[] view for engines/UI.
+//   A legacy `{ card: EngineCard }` row is split on hydrate, never written back mixed.
 //
 // unknownClub cards: valid entries — never filtered.
 
 import { create } from 'zustand';
 
-// UserCard is CardInput — this alias is used project-wide (see decision.types.ts).
-import type { CardInput as UserCard } from '../types/card.types';
+import {
+  composeEngineCard,
+  splitEngineCard,
+  type CardProduct,
+  type EngineCard,
+  type UserCard,
+} from '../types/card.types';
 import type { Transaction } from '../types/benefits.types';
 import { keyVault } from '../security/keyVault';
 import type { ImportedInstallment } from '../types/installment.types';
@@ -46,11 +51,12 @@ import {
 // ---------------------------------------------------------------------------
 
 /**
- * MMKV-persisted wrapper. Stores the card alongside app-tracked metadata that
- * must NOT be added to the shared UserCard / CardInput type.
+ * MMKV-persisted wrapper. User state and product facts are separate records
+ * (M6). clubSuggestedByApp is store metadata, not a UserCard field.
  */
 export interface CardEntry {
-  readonly card: UserCard;
+  readonly user: UserCard;
+  readonly product: CardProduct;
   /** True when the app's guided club-suggestion flow chose the club for the user. */
   readonly clubSuggestedByApp?: boolean;
 }
@@ -60,8 +66,8 @@ export interface CardEntry {
 interface CardsState {
   /** Whether `cards`/`entries`/`obligations` reflect storage yet. */
   hydration: HydrationState;
-  /** Plain card array — the view engines and UI components consume. */
-  cards: UserCard[];
+  /** Composed engine view — never persisted as this shape. */
+  cards: EngineCard[];
 
   /**
    * Full persisted entries including metadata. Always in sync with `cards`.
@@ -84,14 +90,14 @@ interface CardsState {
   hydrate(): void;
   hydrateProfile(profileId: string): void;
   persistProfile(profileId: string): void;
-  importProfileCards(profileId: string, cards: readonly UserCard[]): void;
+  importProfileCards(profileId: string, cards: readonly EngineCard[]): void;
 
   /**
-   * Append a new card. If the card's club was suggested by the app's guided
-   * flow, pass clubSuggestedByApp: true.
-   * unknownClub cards are valid — they are stored as-is.
+   * Append a new card. Accepts the composed engine view and splits it before
+   * persist. If the card's club was suggested by the app's guided flow, pass
+   * clubSuggestedByApp: true. unknownClub cards are valid — they are stored as-is.
    */
-  addCard(card: UserCard, clubSuggestedByApp?: boolean): void;
+  addCard(card: EngineCard, clubSuggestedByApp?: boolean): void;
 
   /** Remove a card by its cardId. No-op if the id is not found. */
   removeCard(cardId: string): void;
@@ -100,7 +106,7 @@ interface CardsState {
    * Merge updates into an existing card. Identified by cardId.
    * No-op if the id is not found. Does not affect clubSuggestedByApp metadata.
    */
-  updateCard(cardId: string, updates: Partial<UserCard>): void;
+  updateCard(cardId: string, updates: Partial<EngineCard>): void;
   addObligation(obligation: ImportedInstallment): void;
   updateObligation(
     installmentId: string,
@@ -118,6 +124,24 @@ interface CardsState {
 
 // ---------------------------------------------------------------------------
 
+function engineViews(entries: CardEntry[]): EngineCard[] {
+  return entries.map((entry) => composeEngineCard(entry.user, entry.product));
+}
+
+function toEntry(card: EngineCard, clubSuggestedByApp?: boolean): CardEntry {
+  const { user, product } = splitEngineCard(card);
+  return clubSuggestedByApp === true
+    ? { user, product, clubSuggestedByApp: true }
+    : { user, product };
+}
+
+function isSplitEntry(value: unknown): value is CardEntry {
+  if (value === null || typeof value !== 'object') {
+    return false;
+  }
+  return 'user' in value && 'product' in value;
+}
+
 /** Serialize entries to MMKV. */
 function persist(entries: CardEntry[], profileId: string): void {
   keyVault
@@ -130,7 +154,20 @@ function parseEntries(raw: string | undefined): CardEntry[] {
   if (raw === undefined) {
     return [];
   }
-  return JSON.parse(raw) as CardEntry[];
+  const parsed: unknown = JSON.parse(raw);
+  if (!Array.isArray(parsed)) {
+    throw new Error('INVALID_CARD_ENTRIES');
+  }
+  return parsed.map((row: unknown): CardEntry => {
+    if (isSplitEntry(row)) {
+      return row;
+    }
+    if (row !== null && typeof row === 'object' && 'card' in row) {
+      const legacy = row as { card: EngineCard; clubSuggestedByApp?: boolean };
+      return toEntry(legacy.card, legacy.clubSuggestedByApp);
+    }
+    throw new Error('INVALID_CARD_ENTRY');
+  });
 }
 
 function persistObligations(
@@ -209,7 +246,7 @@ export const useCardsStore = create<CardsState>()((set) => ({
       );
       set({
         entries,
-        cards: entries.map((e) => e.card),
+        cards: engineViews(entries),
         obligations,
         hydration: hydrated(new Date().toISOString()),
       });
@@ -234,7 +271,7 @@ export const useCardsStore = create<CardsState>()((set) => ({
     const obligations = parseObligations(
       handle.getString(MMKV_KEYS.profileCardObligations(profileId)),
     );
-    set({ entries, cards: entries.map(entry => entry.card), obligations });
+    set({ entries, cards: engineViews(entries), obligations });
   },
 
   persistProfile(profileId: string) {
@@ -243,21 +280,17 @@ export const useCardsStore = create<CardsState>()((set) => ({
     persistObligations(state.obligations, profileId);
   },
 
-  importProfileCards(profileId: string, cards: readonly UserCard[]) {
-    const entries = cards.map((card: UserCard): CardEntry => ({ card }));
+  importProfileCards(profileId: string, cards: readonly EngineCard[]) {
+    const entries = cards.map((card) => toEntry(card));
     persist(entries, profileId);
     persistObligations([], profileId);
   },
 
-  addCard(card: UserCard, clubSuggestedByApp?: boolean) {
+  addCard(card: EngineCard, clubSuggestedByApp?: boolean) {
     set((state) => {
-      const entry: CardEntry =
-        clubSuggestedByApp === true
-          ? { card, clubSuggestedByApp: true }
-          : { card };
-      const entries = [...state.entries, entry];
+      const entries = [...state.entries, toEntry(card, clubSuggestedByApp)];
       persist(entries, getActiveProfileId());
-      return { entries, cards: entries.map((e) => e.card) };
+      return { entries, cards: engineViews(entries) };
     });
   },
 
@@ -266,25 +299,26 @@ export const useCardsStore = create<CardsState>()((set) => ({
       // Card removal remains available if the OS notification API is unavailable.
     });
     set((state) => {
-      const entries = state.entries.filter((e) => e.card.cardId !== cardId);
+      const entries = state.entries.filter((e) => e.user.cardId !== cardId);
       persist(entries, getActiveProfileId());
-      return { entries, cards: entries.map((e) => e.card) };
+      return { entries, cards: engineViews(entries) };
     });
   },
 
-  updateCard(cardId: string, updates: Partial<UserCard>) {
+  updateCard(cardId: string, updates: Partial<EngineCard>) {
     set((state) => {
       const entries = state.entries.map((e): CardEntry => {
-        if (e.card.cardId !== cardId) {
+        if (e.user.cardId !== cardId) {
           return e;
         }
-        // Spread updates onto the existing card. clubSuggestedByApp metadata
-        // is preserved — updateCard only touches card fields.
-        const updatedCard: UserCard = { ...e.card, ...updates };
-        return { ...e, card: updatedCard };
+        const current = composeEngineCard(e.user, e.product);
+        const { user, product } = splitEngineCard({ ...current, ...updates });
+        return e.clubSuggestedByApp === true
+          ? { user, product, clubSuggestedByApp: true }
+          : { user, product };
       });
       persist(entries, getActiveProfileId());
-      return { entries, cards: entries.map((e) => e.card) };
+      return { entries, cards: engineViews(entries) };
     });
   },
 

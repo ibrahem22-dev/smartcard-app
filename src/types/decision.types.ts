@@ -1,6 +1,6 @@
 // /src/types/decision.types.ts
 
-import type { CardInput as UserCard, CardIssuer } from './card.types';
+import type { EngineCard, CardIssuer } from './card.types';
 import type { Obligation } from './cashflow.types';
 import type { Currency } from './purchase.types';
 
@@ -30,7 +30,7 @@ export interface PurchaseGateInput {
   /** ISO 8601 timestamp/date of the previous purchase. null when unknown. */
   readonly lastPurchaseDate: string | null;
   /** Cards available to the decision engine for metadata such as FX fee. */
-  readonly availableCards: readonly UserCard[];
+  readonly availableCards: readonly EngineCard[];
 }
 
 /** One row of the international FX-commission comparison (FX-RECOMMEND-01). */
