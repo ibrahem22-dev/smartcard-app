@@ -95,6 +95,38 @@
       "why": "A SECTION NUMBER INSIDE A DOCUMENT PATH, not a figure about money. The line is `register: 'reports/campaign/P1_DEFERRED.md §2.11'`, the pointer C9 requires a deferral to carry so a reader can find the entry that rules it. Signal 2 scans raw lines for bare decimals, deliberately including strings — a rate written as '1.75' is still a rate, and narrowing the scanner to skip string literals would weaken a real check to silence a false one. The test this campaign applies — could this number, if wrong, tell a user something false about their money? — answers no: if it were wrong the citation would point at the wrong section of a register, which is a documentation defect and not a financial one.",
       "reviewedBy": "WP-9.3",
       "reviewedAt": "2026-08-24"
+    },
+    {
+      "file": "src/dev/EngineProbeScreen.tsx",
+      "literal": "500",
+      "identifier": null,
+      "why": "The probe harness DEMO PURCHASE AMOUNT for the on-device engine outputs (WP-7.1). A dev-only diagnostics input, not a product constant: if wrong it would misstate nothing a user sees outside __DEV__, and every figure it feeds is displayed with its provenance. Reviewed as part of PHASE-7 device evidence.",
+      "reviewedBy": "PD-P3-008 session (ox-alpha@opencode)",
+      "reviewedAt": "2026-08-26"
+    },
+    {
+      "file": "src/dev/EngineProbeScreen.tsx",
+      "literal": "0.35",
+      "identifier": null,
+      "why": "The probe harness DEMO SAFE-LOAD RATIO input carrying provenance VERIFIED. Dev-only diagnostics input for WP-7.1 on-device output; not a threshold the app enforces anywhere else, and shown on screen with its provenance tag.",
+      "reviewedBy": "PD-P3-008 session (ox-alpha@opencode)",
+      "reviewedAt": "2026-08-26"
+    },
+    {
+      "file": "src/dev/EngineProbeScreen.tsx",
+      "literal": "7.2",
+      "identifier": null,
+      "why": "A WORK-PACKAGE LABEL inside a section title string (BOI lane (WP-7.2)), not a number about money. The scanner flags its shape; the allowlist is where that gets written down.",
+      "reviewedBy": "PD-P3-008 session (ox-alpha@opencode)",
+      "reviewedAt": "2026-08-26"
+    },
+    {
+      "file": "src/dev/EngineProbeScreen.tsx",
+      "literal": "0.7",
+      "identifier": null,
+      "why": "A STYLESHEET OPACITY (styles.dim), not a financial figure.",
+      "reviewedBy": "PD-P3-008 session (ox-alpha@opencode)",
+      "reviewedAt": "2026-08-26"
     }
   ],
   "$knownMirror": [

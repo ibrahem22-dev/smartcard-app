@@ -28,11 +28,16 @@ export const run = async ({ root }) => {
   if (!existsSync(p)) return fail(MODULE + ' does not exist');
   const src = readFileSync(p, 'utf8');
 
-  // The type must be the literal, not a string someone can set from the input's grade.
-  if (!/readonly provenance:\s*'ESTIMATE'/.test(src)) {
-    return fail(MODULE + ' does not declare provenance as the LITERAL type \'ESTIMATE\'. A '
-      + '`string` or an inherited field would let a VERIFIED tariff certify a number nobody '
-      + 'published (ADR-013 §3)');
+  // The downgrade must be structural: provenance typed as the literal 'ESTIMATE', or — since
+  // WP-6.2 (6623477) — as the SAME literal extracted from the canonical ProvenanceChip
+  // vocabulary rather than restated locally. What may never appear here is a plain `string`
+  // or an unrestricted chip union, which would let a VERIFIED tariff certify a number nobody
+  // published (ADR-013 §3).
+  const structural = /readonly provenance:\s*(?:'ESTIMATE'|Extract<\s*ProvenanceChip\s*,\s*'ESTIMATE'\s*>)/;
+  if (!structural.test(src)) {
+    return fail(MODULE + ' does not declare provenance as the LITERAL type \'ESTIMATE\' (or its '
+      + 'Extract<ProvenanceChip, \'ESTIMATE\'> form). A `string` or an inherited field would let a '
+      + 'VERIFIED tariff certify a number nobody published (ADR-013 §3)');
   }
   // And the reason trace carries what the estimate needs to be reconstructed (rate + date + markup).
   for (const need of ['rateUsed', 'fxPercentApplied', 'fixedFeeIlsApplied']) {

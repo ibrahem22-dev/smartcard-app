@@ -22,7 +22,8 @@
     "p2:controls:ci": "node tools/p2/ci-workflow-controls.mjs",
     "p3:gate": "node tools/p3/gate.mjs",
     "p3:controls": "node tools/p3/boi-controls.mjs",
-    "p3:scenarios": "node tools/p3/scenarios.mjs"
+    "p3:scenarios": "node tools/p3/scenarios.mjs",
+    "p3:all": "node tools/p3/all.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "~57.0.7",
