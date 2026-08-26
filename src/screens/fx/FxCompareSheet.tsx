@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View } from 'react-native';
 
 import { AppText } from '../../components/AppText';
@@ -20,6 +20,9 @@ import { ACCENT, BORDER, ROLE_BORDER, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT 
  * dashed Estimate chip, and it is never labelled as the real card cost. The
  * Estimate chip sits on the "estimated real cost" heading. The settlement
  * caveat is persistent copy, not a computed number.
+ *
+ * X4: the expander paints the winner quote's engine fields and that quote's
+ * own reason-trace steps. It does not subtract a markup ILS on the surface.
  */
 
 export interface FxCompareSheetProps {
@@ -32,8 +35,10 @@ export function FxCompareSheet({
   displayNames,
 }: FxCompareSheetProps): React.ReactElement {
   const { t } = useTranslation();
+  const [explainerOpen, setExplainerOpen] = useState(false);
   const winnerId = comparison?.ranked[0]?.cardId;
-  const rateUsed = comparison?.ranked[0]?.quote.rateUsed;
+  const winnerQuote = comparison?.ranked[0]?.quote;
+  const rateUsed = winnerQuote?.rateUsed;
   const nameOf = (cardId: string): string => displayNames?.[cardId] ?? cardId;
 
   return (
@@ -134,6 +139,59 @@ export function FxCompareSheet({
                 {nameOf(cardId)}
               </AppText>
             ))}
+          </View>
+        ) : null}
+        {winnerQuote ? (
+          <View className="mt-4" testID="fx-compare-explainer">
+            <AppText
+              accessibilityRole="button"
+              className={`text-sm font-bold ${TEXT.body}`}
+              onPress={() => setExplainerOpen((open) => !open)}
+              testID="fx-compare-explainer-toggle"
+            >
+              {t('איך זה מחושב')}
+            </AppText>
+            {explainerOpen ? (
+              <View testID="fx-compare-explainer-body">
+                <AppText
+                  accessibilityValue={{ text: String(winnerQuote.referenceIls) }}
+                  className={`mt-2 text-sm ${TEXT.body}`}
+                  testID="fx-compare-explainer-base"
+                >
+                  {`${t('בסיס')} ₪${winnerQuote.referenceIls}`}
+                </AppText>
+                <AppText
+                  accessibilityValue={{ text: String(winnerQuote.fxPercentApplied) }}
+                  className={`mt-1 text-sm ${TEXT.body}`}
+                  testID="fx-compare-explainer-markup"
+                >
+                  {`${t('עמלה')} ${winnerQuote.fxPercentApplied}`}
+                </AppText>
+                <AppText
+                  accessibilityValue={{ text: String(winnerQuote.fixedFeeIlsApplied) }}
+                  className={`mt-1 text-sm ${TEXT.body}`}
+                  testID="fx-compare-explainer-fixed"
+                >
+                  {`${t('עמלה קבועה')} ₪${winnerQuote.fixedFeeIlsApplied}`}
+                </AppText>
+                <AppText
+                  accessibilityValue={{ text: String(winnerQuote.effectiveIls) }}
+                  className={`mt-1 text-sm ${TEXT.body}`}
+                  testID="fx-compare-explainer-total"
+                >
+                  {`${t('סה״כ')} ₪${winnerQuote.effectiveIls}`}
+                </AppText>
+                {winnerQuote.trace.steps.map((item, index) => (
+                  <AppText
+                    className={`mt-1 text-xs ${TEXT.muted}`}
+                    key={`${item.rule}:${index}`}
+                    testID={`fx-compare-explainer-step-${index}`}
+                  >
+                    {item.detail}
+                  </AppText>
+                ))}
+              </View>
+            ) : null}
           </View>
         ) : null}
         <AppText className={`mt-4 text-xs ${TEXT.muted}`} testID="fx-compare-settlement-caveat">

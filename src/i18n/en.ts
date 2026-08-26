@@ -93,6 +93,11 @@ export const en = {
     empty: 'No comparison yet',
     settlementCaveat:
       'Estimate — Visa/Mastercard settle at their own network rates, which may differ from the Bank of Israel reference rate.',
+    howCalculated: 'How this is calculated',
+    base: 'Base',
+    markup: 'Markup',
+    fixedFee: 'Fixed fee',
+    total: 'Total',
   },
   decision: {
     approved: 'Approved ✓',
@@ -867,4 +872,9 @@ export const enBySource: Readonly<Record<string, string>> = {
   'אין השוואה עדיין': en.fxCompare.empty,
   'הערכה — ויזה ומאסטרקארד מיישבים לפי שערי הרשת שלהם, שעשויים להיות שונים משער בנק ישראל':
     en.fxCompare.settlementCaveat,
+  'איך זה מחושב': en.fxCompare.howCalculated,
+  בסיס: en.fxCompare.base,
+  עמלה: en.fxCompare.markup,
+  'עמלה קבועה': en.fxCompare.fixedFee,
+  'סה״כ': en.fxCompare.total,
 };

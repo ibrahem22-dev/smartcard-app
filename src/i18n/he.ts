@@ -74,6 +74,11 @@ export const he = {
     empty: 'אין השוואה עדיין',
     settlementCaveat:
       'הערכה — ויזה ומאסטרקארד מיישבים לפי שערי הרשת שלהם, שעשויים להיות שונים משער בנק ישראל',
+    howCalculated: 'איך זה מחושב',
+    base: 'בסיס',
+    markup: 'עמלה',
+    fixedFee: 'עמלה קבועה',
+    total: 'סה״כ',
   },
   cardTile: {
     generated: 'ייצוג כרטיס שנוצר באפליקציה',
