@@ -46,6 +46,9 @@ export const he = {
     loadAfterPurchase: 'עומס אחרי הרכישה',
     hardHeadroom: 'מרווח עד הסף הקשיח',
     loadAfterBilling: 'עומס אחרי החיוב',
+    noCategory: 'ללא קטגוריה',
+    onePayment: 'תשלום אחד',
+    installments: 'תשלומים',
   },
   calendar: {
     empty: 'אין חיובים מתוכננים 📅',

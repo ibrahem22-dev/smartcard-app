@@ -22,9 +22,10 @@ import { BORDER, ROLE_SURFACE, ROLE_TEXT, SURFACE, TEXT } from '../../theme/toke
  * panel's numbers (or the other way around) is the Stitch defect — "Good to go" at 41%
  * against a 35% threshold — and D2's gate exists to make that fail.
  *
- * Layout, recommendation, FX, provenance chips and the rest of §9 are D3–D8 / PHASE-2.
- * Until a result is supplied the screen stays honestly empty — a canned pill-and-panel
- * pair would be a second computation.
+ * Layout order (D3) is spec §9 top to bottom among sections that exist:
+ * pill · context line · Financial Impact · (recommendation / runner-up / FX /
+ * impact strip / freshness are later PHASE-2 packages). A section that is not
+ * built yet is omitted, not faked.
  *
  * Colour roles come from the token module (A8). Wait uses **neutral / slate**, which is
  * spec §9's word for that state and A8's fourth (non-judgement) role — not a fifth hue.
@@ -37,6 +38,16 @@ import { BORDER, ROLE_SURFACE, ROLE_TEXT, SURFACE, TEXT } from '../../theme/toke
 export interface CheckVerdictScreenProps {
   /** The one object `runPurchaseCheck` returned. Absent: nothing to paint yet. */
   readonly result?: PurchaseVerdictResult;
+  /**
+   * Spec §9 context line: ₪ amount · category · payment plan. User-entered
+   * figures, not engine output. Absent: the line is omitted rather than invented.
+   */
+  readonly contextLine?: {
+    readonly amount: number;
+    readonly currencySymbol: string;
+    readonly categoryLabel: string | null;
+    readonly installmentCount: number;
+  };
 }
 
 type PillCopy = {
@@ -92,7 +103,7 @@ function bulletVisible(bullet: ImpactBullet): string {
   }
 }
 
-export function CheckVerdictScreen({ result }: CheckVerdictScreenProps): React.ReactElement {
+export function CheckVerdictScreen({ result, contextLine }: CheckVerdictScreenProps): React.ReactElement {
   const { t } = useTranslation();
 
   if (result === undefined) {
@@ -138,6 +149,17 @@ export function CheckVerdictScreen({ result }: CheckVerdictScreenProps): React.R
         {result.verdict === 'wait_until_billing_passes' && result.waitUntil ? (
           <AppText className={`mt-3 text-sm ${TEXT.body}`} testID="check-verdict-wait-date">
             {result.waitUntil}
+          </AppText>
+        ) : null}
+        {contextLine ? (
+          <AppText className={`mt-3 text-sm ${TEXT.body}`} testID="check-verdict-context">
+            {`${contextLine.currencySymbol}${contextLine.amount} · ${
+              contextLine.categoryLabel ?? t('ללא קטגוריה')
+            } · ${
+              contextLine.installmentCount <= 1
+                ? t('תשלום אחד')
+                : `${contextLine.installmentCount} ${t('תשלומים')}`
+            }`}
           </AppText>
         ) : null}
         <View className={`mt-4 gap-2`} testID="check-verdict-impact-panel">

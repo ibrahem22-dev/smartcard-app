@@ -65,6 +65,9 @@ export const en = {
     loadAfterPurchase: 'Load after this purchase',
     hardHeadroom: 'Headroom to the hard threshold',
     loadAfterBilling: 'Load after billing',
+    noCategory: 'No category',
+    onePayment: 'One payment',
+    installments: 'installments',
   },
   decision: {
     approved: 'Approved ✓',
@@ -799,4 +802,6 @@ export const enBySource: Readonly<Record<string, string>> = {
   'עומס אחרי הרכישה': en.checkVerdict.loadAfterPurchase,
   'מרווח עד הסף הקשיח': en.checkVerdict.hardHeadroom,
   'עומס אחרי החיוב': en.checkVerdict.loadAfterBilling,
+  'ללא קטגוריה': en.checkVerdict.noCategory,
+  'תשלום אחד': en.checkVerdict.onePayment,
 };
