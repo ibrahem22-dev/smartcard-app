@@ -1,4 +1,4 @@
-import type { FxRate } from '@smartcard/data-authority-adapter';
+import type { FxRate } from '../data/adapter/vocabulary';
 import { step, trace, type ReasonTrace } from './reasonTrace';
 import type { ProvenanceChip } from '../authority/provenanceChip';
 

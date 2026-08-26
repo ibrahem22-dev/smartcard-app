@@ -1,4 +1,4 @@
-import { isBusinessDay } from '@smartcard/data-authority-adapter';
+import { isBusinessDay } from '../adapter/vocabulary';
 
 /**
  * THE BOI PUBLICATION CALENDAR — authority/boi-fetch-spec.md §C7.

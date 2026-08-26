@@ -97,27 +97,171 @@
       "reviewedAt": "2026-08-24"
     },
     {
-      "file": "src/dev/EngineProbeScreen.tsx",
+      "file": "src/data/adapter/devProbeInputs.ts",
       "literal": "500",
-      "identifier": null,
-      "why": "The probe harness DEMO PURCHASE AMOUNT for the on-device engine outputs (WP-7.1). A dev-only diagnostics input, not a product constant: if wrong it would misstate nothing a user sees outside __DEV__, and every figure it feeds is displayed with its provenance. Reviewed as part of PHASE-7 device evidence.",
-      "reviewedBy": "PD-P3-008 session (ox-alpha@opencode)",
+      "identifier": "DEMO_AMOUNT_USD",
+      "why": "A demo-scenario INPUT of the __DEV__-only EngineProbeScreen (WP-7.1 device evidence), defined once in this seam module and rendered only beside its provenance tag. It feeds no product surface and can misstate nothing a user sees.",
+      "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
       "reviewedAt": "2026-08-26"
     },
     {
-      "file": "src/dev/EngineProbeScreen.tsx",
+      "file": "src/data/adapter/devProbeInputs.ts",
+      "literal": "10000",
+      "identifier": "DEMO_MONTHLY_INCOME_ILS",
+      "why": "A demo-scenario INPUT of the __DEV__-only EngineProbeScreen (WP-7.1 device evidence), defined once in this seam module and rendered only beside its provenance tag. It feeds no product surface and can misstate nothing a user sees.",
+      "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
+      "reviewedAt": "2026-08-26"
+    },
+    {
+      "file": "src/data/adapter/devProbeInputs.ts",
+      "literal": "2000",
+      "identifier": "DEMO_COMMITMENT_RENT_ILS",
+      "why": "A demo-scenario INPUT of the __DEV__-only EngineProbeScreen (WP-7.1 device evidence), defined once in this seam module and rendered only beside its provenance tag. It feeds no product surface and can misstate nothing a user sees.",
+      "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
+      "reviewedAt": "2026-08-26"
+    },
+    {
+      "file": "src/data/adapter/devProbeInputs.ts",
+      "literal": "1500",
+      "identifier": "DEMO_LOAN_PAYMENT_ILS",
+      "why": "A demo-scenario INPUT of the __DEV__-only EngineProbeScreen (WP-7.1 device evidence), defined once in this seam module and rendered only beside its provenance tag. It feeds no product surface and can misstate nothing a user sees.",
+      "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
+      "reviewedAt": "2026-08-26"
+    },
+    {
+      "file": "src/data/adapter/devProbeInputs.ts",
+      "literal": "4500",
+      "identifier": "DEMO_REMAINING_HOLD_ILS",
+      "why": "A demo-scenario INPUT of the __DEV__-only EngineProbeScreen (WP-7.1 device evidence), defined once in this seam module and rendered only beside its provenance tag. It feeds no product surface and can misstate nothing a user sees.",
+      "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
+      "reviewedAt": "2026-08-26"
+    },
+    {
+      "file": "src/data/adapter/devProbeInputs.ts",
+      "literal": "20000",
+      "identifier": "DEMO_CREDIT_LIMIT_ILS",
+      "why": "A demo-scenario INPUT of the __DEV__-only EngineProbeScreen (WP-7.1 device evidence), defined once in this seam module and rendered only beside its provenance tag. It feeds no product surface and can misstate nothing a user sees.",
+      "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
+      "reviewedAt": "2026-08-26"
+    },
+    {
+      "file": "src/data/adapter/devProbeInputs.ts",
+      "literal": "500",
+      "identifier": "DEMO_LOGGED_THIS_CYCLE_ILS",
+      "why": "A demo-scenario INPUT of the __DEV__-only EngineProbeScreen (WP-7.1 device evidence), defined once in this seam module and rendered only beside its provenance tag. It feeds no product surface and can misstate nothing a user sees.",
+      "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
+      "reviewedAt": "2026-08-26"
+    },
+    {
+      "file": "src/data/adapter/devProbeInputs.ts",
+      "literal": "3000",
+      "identifier": "DEMO_OPENING_BALANCE_ILS",
+      "why": "A demo-scenario INPUT of the __DEV__-only EngineProbeScreen (WP-7.1 device evidence), defined once in this seam module and rendered only beside its provenance tag. It feeds no product surface and can misstate nothing a user sees.",
+      "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
+      "reviewedAt": "2026-08-26"
+    },
+    {
+      "file": "src/data/adapter/devProbeInputs.ts",
+      "literal": "1000",
+      "identifier": "DEMO_DANGER_THRESHOLD_ILS",
+      "why": "A demo-scenario INPUT of the __DEV__-only EngineProbeScreen (WP-7.1 device evidence), defined once in this seam module and rendered only beside its provenance tag. It feeds no product surface and can misstate nothing a user sees.",
+      "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
+      "reviewedAt": "2026-08-26"
+    },
+    {
+      "file": "src/data/adapter/devProbeInputs.ts",
       "literal": "0.35",
       "identifier": null,
-      "why": "The probe harness DEMO SAFE-LOAD RATIO input carrying provenance VERIFIED. Dev-only diagnostics input for WP-7.1 on-device output; not a threshold the app enforces anywhere else, and shown on screen with its provenance tag.",
-      "reviewedBy": "PD-P3-008 session (ox-alpha@opencode)",
+      "why": "The probe's demo safe-load ratio input carrying provenance VERIFIED (same figure as the engine's own VERDICT_SAFE_LOAD_DEFAULT_RATIO default). Dev-only diagnostic input, shown on screen with its provenance.",
+      "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
       "reviewedAt": "2026-08-26"
     },
     {
-      "file": "src/dev/EngineProbeScreen.tsx",
-      "literal": "7.2",
+      "file": "src/data/adapter/devProbeInputs.ts",
+      "literal": "1200",
+      "identifier": "DEMO_BILLING_AMOUNT_ILS",
+      "why": "A demo-scenario INPUT of the __DEV__-only EngineProbeScreen (WP-7.1 device evidence), defined once in this seam module and rendered only beside its provenance tag. It feeds no product surface and can misstate nothing a user sees.",
+      "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
+      "reviewedAt": "2026-08-26"
+    },
+    {
+      "file": "src/data/adapter/devProbeInputs.ts",
+      "literal": "800",
+      "identifier": "DEMO_SMALL_CHARGE_ILS",
+      "why": "A demo-scenario INPUT of the __DEV__-only EngineProbeScreen (WP-7.1 device evidence), defined once in this seam module and rendered only beside its provenance tag. It feeds no product surface and can misstate nothing a user sees.",
+      "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
+      "reviewedAt": "2026-08-26"
+    },
+    {
+      "file": "src/engines/fx.ts",
+      "literal": "150",
+      "identifier": "SMALL_AMOUNT_ADVISORY_THRESHOLD_ILS",
+      "why": "An ENGINE-OWNED constant admitted by the P3 contract's declared-and-cited rule (G11): the engines are its sanctioned home, the value carries its citation in the same source line, and moving it to src/config would scatter engine internals into app config. Advisory small-amount threshold, roadmap section 7.3 limitation (a).",
+      "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
+      "reviewedAt": "2026-08-26"
+    },
+    {
+      "file": "src/engines/verdict.ts",
+      "literal": "0.35",
       "identifier": null,
-      "why": "A WORK-PACKAGE LABEL inside a section title string (BOI lane (WP-7.2)), not a number about money. The scanner flags its shape; the allowlist is where that gets written down.",
-      "reviewedBy": "PD-P3-008 session (ox-alpha@opencode)",
+      "why": "An ENGINE-OWNED constant admitted by the P3 contract's declared-and-cited rule (G11): the engines are its sanctioned home, the value carries its citation in the same source line, and moving it to src/config would scatter engine internals into app config. VERDICT_SAFE_LOAD_DEFAULT_RATIO - a DEFAULT the caller may override (the probe overrides it), product spec threshold math.",
+      "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
+      "reviewedAt": "2026-08-26"
+    },
+    {
+      "file": "src/engines/verdict.ts",
+      "literal": "0.5",
+      "identifier": null,
+      "why": "An ENGINE-OWNED constant admitted by the P3 contract's declared-and-cited rule (G11): the engines are its sanctioned home, the value carries its citation in the same source line, and moving it to src/config would scatter engine internals into app config. VERDICT_HARD_LOAD_DEFAULT_RATIO - a DEFAULT the caller may override, product spec threshold math.",
+      "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
+      "reviewedAt": "2026-08-26"
+    },
+    {
+      "file": "src/engines/fx.ts",
+      "literal": "7.3",
+      "identifier": null,
+      "why": "A SECTION NUMBER inside a citation string (product spec / roadmap section reference), not a figure about money. Documentation of where a rule comes from.",
+      "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
+      "reviewedAt": "2026-08-26"
+    },
+    {
+      "file": "src/engines/load.ts",
+      "literal": "20.5",
+      "identifier": null,
+      "why": "A SECTION NUMBER inside a citation string (product spec / roadmap section reference), not a figure about money. Documentation of where a rule comes from.",
+      "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
+      "reviewedAt": "2026-08-26"
+    },
+    {
+      "file": "src/engines/risk.ts",
+      "literal": "20.6",
+      "identifier": null,
+      "why": "A SECTION NUMBER inside a citation string (product spec / roadmap section reference), not a figure about money. Documentation of where a rule comes from.",
+      "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
+      "reviewedAt": "2026-08-26"
+    },
+    {
+      "file": "src/engines/scoring.ts",
+      "literal": "20.1",
+      "identifier": null,
+      "why": "A SECTION NUMBER inside a citation string (product spec / roadmap section reference), not a figure about money. Documentation of where a rule comes from.",
+      "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
+      "reviewedAt": "2026-08-26"
+    },
+    {
+      "file": "src/engines/scoring.ts",
+      "literal": "5.3",
+      "identifier": null,
+      "why": "A SECTION NUMBER inside a citation string (product spec / roadmap section reference), not a figure about money. Documentation of where a rule comes from.",
+      "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
+      "reviewedAt": "2026-08-26"
+    },
+    {
+      "file": "src/engines/verdict.ts",
+      "literal": "20.2",
+      "identifier": null,
+      "why": "A SECTION NUMBER inside a citation string (product spec / roadmap section reference), not a figure about money. Documentation of where a rule comes from.",
+      "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
       "reviewedAt": "2026-08-26"
     },
     {
@@ -125,7 +269,15 @@
       "literal": "0.7",
       "identifier": null,
       "why": "A STYLESHEET OPACITY (styles.dim), not a financial figure.",
-      "reviewedBy": "PD-P3-008 session (ox-alpha@opencode)",
+      "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
+      "reviewedAt": "2026-08-26"
+    },
+    {
+      "file": "src/dev/EngineProbeScreen.tsx",
+      "literal": "7.2",
+      "identifier": null,
+      "why": "A WORK-PACKAGE LABEL inside a section title string (BOI lane (WP-7.2)), not a number about money.",
+      "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
       "reviewedAt": "2026-08-26"
     }
   ],

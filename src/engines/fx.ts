@@ -22,7 +22,7 @@
  *    conversion is unpriced, so a foreign-ATM figure is a FLOOR — the true cost is this or more,
  *    and the label travels on the number itself.
  */
-import type { FxRate } from '@smartcard/data-authority-adapter';
+import type { FxRate } from '../data/adapter/vocabulary';
 import { convertToIls, type ConvertedAmount } from './currency';
 import { step, trace, type ReasonTrace } from './reasonTrace';
 
@@ -50,17 +50,17 @@ export function resolveFxRow(
   issuerOrgId: string,
   operatorId: string,
 ): FxRowLike | undefined {
-  const candidates = rows.filter((r) => {
+  const matchingRows = rows.filter((r) => {
     if (r.pairId === `fx:${issuerOrgId}|${operatorId}`) return true;
     if (r.pairId === `fx:${issuerOrgId}|*`) {
       return !(r.appliesToAllOperatorsExcept ?? []).includes(operatorId);
     }
     return false;
   });
-  if (candidates.length === 0) return undefined;
+  if (matchingRows.length === 0) return undefined;
   // Longest-name-first: the exact pair's id always carries both names, so it wins ties by length
   // before any explicit sort matters; among defaults there is one per issuer.
-  return [...candidates].sort((a, b) => b.pairId.length - a.pairId.length)[0];
+  return matchingRows.slice().sort((a, b) => b.pairId.length - a.pairId.length)[0];
 }
 
 export interface CardFxQuote {

@@ -1,4 +1,4 @@
-import { conventionalQuoteUnit, type FxRate } from '@smartcard/data-authority-adapter';
+import { conventionalQuoteUnit, type FxRate } from '../adapter/vocabulary';
 
 /**
  * THE BOI LIVE FETCH CLIENT — handoff obligation P3-1, authority/boi-fetch-spec.md §3–§4.

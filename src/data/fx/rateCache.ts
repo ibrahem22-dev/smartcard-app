@@ -1,4 +1,4 @@
-import type { FxRate } from '@smartcard/data-authority-adapter';
+import type { FxRate } from '../adapter/vocabulary';
 
 /**
  * THE RATE CACHE — the CACHED lane of the degradation chain (spec §5, handoff P3-1).

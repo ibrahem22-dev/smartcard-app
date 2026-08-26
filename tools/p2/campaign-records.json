@@ -252,6 +252,14 @@
       "era": "P1",
       "hasReason": true,
       "reviewedBy": "WP-12.3"
+    },
+    {
+      "adr": "ADR-031",
+      "editedIn": "9aa490b",
+      "editedAt": "2026-08-25",
+      "era": "P3",
+      "hasReason": true,
+      "reviewedBy": "PD-P3-004"
     }
   ],
   "obCoverage": [

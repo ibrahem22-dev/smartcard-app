@@ -1,3 +1,4 @@
+import { APP_IDENTITY } from '../config/identity';
 /**
  * THE REASON-TRACE SCHEMA — criterion T1, roadmap §10 P3 Outputs.
  *
@@ -17,7 +18,9 @@
  */
 
 /** Why the schema version is stamped on every value: see the module comment. */
-export const REASON_TRACE_SCHEMA_VERSION = 'smartcard.reason-trace.v1' as const;
+
+/** The slug travels with the identity, per OD-2 � the version string is assembled, never scattered. */
+export const REASON_TRACE_SCHEMA_VERSION = `${APP_IDENTITY.slug}.reason-trace.v1`;
 
 /** One reconstructable move in the derivation. */
 export interface ReasonStep {

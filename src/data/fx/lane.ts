@@ -1,4 +1,4 @@
-import type { FxRate, RateChain, ResolvedRate } from '@smartcard/data-authority-adapter';
+import type { FxRate, RateChain, ResolvedRate } from '../adapter/vocabulary';
 
 import { openBundledFxSnapshot, type VerifiedFxSnapshot } from '../adapter/fx';
 import type { PackReader } from '../adapter/packSet';

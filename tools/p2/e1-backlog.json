@@ -162,6 +162,70 @@
       "why": "THE SAME REASON AS ALLOW-CROSSSET-RESOLVER, AND ONE MORE. The predecessor lint calls every module under src/data/adapter/** a pack module because src/authority/ was the boundary directory when it was adopted; a seam nothing may import is not a seam, and D2 forbids importing A PACK FILE, A RAW JSON DATASET OR THE DB DRIVER, not the boundary's own modules. The additional reason here is that conflictRenderPlan.ts imports the adapter AS A TYPE ONLY, so it is ERASED at runtime and carries no pack data, no adapter code and no Node API into a React Native bundle. That erasure is why it exists as a separate module at all: the render suite failed with 'Cannot find module @babel/runtime/helpers/interopRequireDefault' when the component reached the adapter's runtime through a file: junction resolving outside the app root. Scoped to the module BY NAME: a component importing conflictRender.ts, which does load the adapter, stays UNACCOUNTED here.",
       "reviewedBy": "WP-9.4",
       "reviewedAt": "2026-08-24"
+    },
+    {
+      "id": "ALLOW-DEV-PROBE-PACK-READS",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/data/adapter/devProbeInputs\\.ts$",
+      "message": "raw dataset '\\./packs/",
+      "why": "THE DEV PROBE SEAM IS INSIDE THE SANCTIONED DIRECTORY. The WP-7.1 device-evidence harness reads the shipped catalog and fx-rates packs from src/data/adapter/devProbeInputs.ts - the directory every P2 boundary rule names as the only permitted pack reader. The lint predates the P2 rename and still permits only src/authority/**, so the location is accounted here rather than the lint being widened. D2 itself (adapter-consumption, lint-boundaries rule 3) passes this file."
+    },
+    {
+      "id": "ALLOW-DEV-PROBE-SEAM-IMPORTS",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/dev/EngineProbeScreen\\.tsx$",
+      "message": "pack module '(\\.\\./data/adapter/devProbeInputs|\\.\\./data/fx/lane|\\.\\./data/fx/liveFetch)'",
+      "why": "__DEV__-ONLY DIAGNOSTICS CONSUMING THE SEAM, NOT THE PACKS. The probe imports the adapter seam module and the two BOI-lane modules - it never opens a pack file or a driver. Its only product-side sibling is the Settings row that reaches it, registered under __DEV__ so release builds carry neither route nor module."
+    },
+    {
+      "id": "ALLOW-VOCABULARY-TYPE-IMPORTS",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/engines/(currency|fx)\\.ts$",
+      "message": "pack module '\\.\\./data/adapter/vocabulary'",
+      "why": "TYPE-ONLY IMPORT THROUGH THE RE-EXPORT SEAM. The engines need the shipped FxRate type; importing the package directly would breach D2 (a second importer of the pack boundary), so they import the type through src/data/adapter/vocabulary.ts, which re-exports the pipeline-owned definition unchanged. No value logic crosses this line."
+    },
+    {
+      "id": "ALLOW-DATASETID-IN-ONE-NUMBER-TEST",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/engines/__tests__/one-number\\.test\\.ts$",
+      "message": "pack module '[^']*datasetId' imported",
+      "why": "A TEST FIXTURE HELPER, NOT A RUNTIME DATA READ. one-number.test.ts uses the shared EXPECTED_DATASET_ID pin while proving no two call sites produce different numbers over the full universe; nothing is read from a pack through this import."
+    },
+    {
+      "id": "ALLOW-FXPERCENT-BY-100",
+      "disposition": "ALLOWED",
+      "rule": "R4",
+      "file": "^src/engines/currency\\.ts$",
+      "message": "financial constant 100 bound to 'fxPercent'",
+      "why": "UNIT CONVERSION, NOT A RATE. fxPercent arrives as a percentage and is applied as a fraction; multiplying by 100 is the percentage-point-to-fraction identity inside the engine that owns it, with its citation on the same line."
+    },
+    {
+      "id": "ALLOW-SMALL-AMOUNT-ADVISORY-THRESHOLD",
+      "disposition": "ALLOWED",
+      "rule": "R4",
+      "file": "^src/engines/fx\\.ts$",
+      "message": "financial constant 150 bound to 'SMALL_AMOUNT_ADVISORY_THRESHOLD_ILS'",
+      "why": "ENGINE-OWNED CITED CONSTANT. Advisory small-amount threshold whose home is the engine by the P3 contract (G11 admits declared, cited engine constants); the citation sits on the declaration line."
+    },
+    {
+      "id": "ALLOW-SCORING-RELATIVE-SCORE-NORMALISATION",
+      "disposition": "ALLOWED",
+      "rule": "R4",
+      "file": "^src/engines/scoring\\.ts$",
+      "message": "financial constant 100 bound to 'relativeScore'",
+      "why": "SCORE NORMALISATION ARITHMETIC, NOT A THRESHOLD. x100 converts a ratio to the 0-100 scale the scoring engine returns; it tunes nothing."
+    },
+    {
+      "id": "ALLOW-VERDICT-LOAD-DEFAULT-RATIOS",
+      "disposition": "ALLOWED",
+      "rule": "R4",
+      "file": "^src/engines/verdict\\.ts$",
+      "message": "financial constant 0\\.(35|5) bound to 'VERDICT_(SAFE|HARD)_LOAD_DEFAULT_RATIO'",
+      "why": "ENGINE-OWNED DEFAULTS THE CALLER OVERRIDES. The verdict load ratios are inputs with these values as documented fallbacks (evaluatePurchaseVerdict accepts safeLoadRatio/hardLoadRatio); the defaults live beside the threshold math they parameterise, per the P3 contract."
     }
   ],
   "$closedNote": [

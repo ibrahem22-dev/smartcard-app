@@ -286,6 +286,9 @@ export const CHROME = {
   dangerValue: '#DC2626',
   /** A soft danger tint on dark grounds — red-300. */
   dangerSoft: '#FCA5A5',
+  /** The dev probe's interactive tint on dark grounds - sky-300. Dev diagnostics only; no
+   *  product surface renders it (the colour-semantics gate polices hex literals in screens). */
+  devProbeAccent: '#7DD3FC',
 } as const;
 
 // ═════════════════════════════════════════════════════════════════════ brand
