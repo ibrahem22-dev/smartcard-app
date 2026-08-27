@@ -2,9 +2,9 @@
  * W3 rendered — three questions identify a club or end honestly without one.
  */
 import React, { useState } from 'react';
-import { Text } from 'react-native';
 import { fireEvent } from '@testing-library/react-native';
 
+import { AppText } from '../../../components/AppText';
 import { currentCatalogClubs, type ClubResolution } from '../../../data/adapter/clubResolver';
 import { renderScreen } from '../../../../tools/p2/jest/renderScreen';
 import { ClubResolver } from '../ClubResolver';
@@ -15,7 +15,7 @@ function OutcomeHost(): React.ReactElement {
     <>
       <ClubResolver onResolved={setResolution} />
       {resolution !== null ? (
-        <Text testID={`club-resolver-outcome-${resolution.outcome}`}>{resolution.outcome}</Text>
+        <AppText testID={`club-resolver-outcome-${resolution.outcome}`}>{resolution.outcome}</AppText>
       ) : null}
     </>
   );

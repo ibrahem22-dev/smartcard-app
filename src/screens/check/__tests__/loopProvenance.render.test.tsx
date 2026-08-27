@@ -11,10 +11,11 @@
  * Grepping source for "<ProvenanceChip" would prove the import.
  */
 import React from 'react';
-import { View, Text } from 'react-native';
+import { View } from 'react-native';
 import { fireEvent, render } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { AppText } from '../../../components/AppText';
 import { CardTile } from '../../../components/CardTile';
 import { CheckInputScreen, type CheckInputDraft, type CheckInputFxReference } from '../CheckInputScreen';
 import { CheckVerdictScreen } from '../CheckVerdictScreen';
@@ -308,9 +309,9 @@ describe('Loop — R5: every figure carries a provenance chip; above-generated m
   it('a planted bare number is detected as bare — the sweep is not a vacuous pass', () => {
     const { toJSON } = render(
       <View>
-        <Text accessibilityValue={{ text: '42' }} testID="planted-bare-figure">
+        <AppText accessibilityValue={{ text: '42' }} testID="planted-bare-figure">
           42
-        </Text>
+        </AppText>
       </View>,
     );
     const { claims, bare } = sweep(toJSON() as JsonNode);
