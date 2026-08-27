@@ -6,7 +6,10 @@ import { CardTile } from '../../components/CardTile';
 import { NotYetSurface } from '../../components/NotYetSurface';
 import { ProvenanceChip } from '../../components/ProvenanceChip';
 import type { ChipView } from '../../components/provenanceChipState';
-import { RtlRow, RtlScreen } from '../../components/rtl';
+import { RtlButton, RtlRow, RtlScreen } from '../../components/rtl';
+import { useActivityStore } from '../../store/useActivityStore';
+import type { LoggedPurchase } from '../../types/activity.types';
+import { writeLoggedPurchase, writeVerdictHistory } from './activityMapper';
 import { useTranslation } from '../../hooks/useTranslation';
 import { FxCompareFromCheckVerdict } from '../fx/FxCompareFromCheckVerdict';
 import type { ConvertedAmount } from '../../engines/currency';
@@ -14,7 +17,7 @@ import type { FxComparison } from '../../engines/fx';
 import type { ProvenancedNumber } from '../../engines/provenance';
 import type { ImpactBullet, PurchaseVerdict, PurchaseVerdictResult } from '../../engines/verdict';
 import type { SemanticRole } from '../../theme/tokens';
-import { BORDER, ROLE_SURFACE, ROLE_TEXT, SURFACE, TEXT } from '../../theme/tokens';
+import { ACCENT, BORDER, ROLE_SURFACE, ROLE_TEXT, SURFACE, TEXT } from '../../theme/tokens';
 
 /**
  * CHECK VERDICT — criteria **D1** (four states) and **D2** (one computation).
@@ -96,6 +99,13 @@ export interface CheckVerdictScreenProps {
   readonly impactStrip?: {
     readonly availableAfterPurchaseIls: ProvenancedNumber;
   };
+  /**
+   * Card the user named on Check Input. Absent: the log is unlinked rather than
+   * invented onto a card.
+   */
+  readonly logCardId?: string;
+  /** Optional observer for tests. The screen still writes the activity store. */
+  readonly onLogPurchase?: (purchase: LoggedPurchase) => void;
 }
 
 type PillCopy = {
@@ -209,8 +219,12 @@ export function CheckVerdictScreen({
   fxBlock,
   fxComparison,
   impactStrip,
+  logCardId,
+  onLogPurchase,
 }: CheckVerdictScreenProps): React.ReactElement {
   const { t } = useTranslation();
+  const logPurchase = useActivityStore((s) => s.logPurchase);
+  const recordVerdict = useActivityStore((s) => s.recordVerdict);
 
   if (result === undefined) {
     return (
@@ -405,6 +419,35 @@ export function CheckVerdictScreen({
         <AppText className={`mt-3 text-xs ${TEXT.muted}`} testID="check-verdict-freshness">
           {t('לידיעה בלבד')}
         </AppText>
+        {contextLine ? (
+          <RtlButton
+            accessibilityRole="button"
+            className={`mt-4 items-center rounded-lg p-3 ${ACCENT.solid}`}
+            label={t('עשיתי את הרכישה הזאת')}
+            labelClassName={`text-base font-extrabold ${TEXT.onAccent}`}
+            onPress={(): void => {
+              const at = new Date().toISOString();
+              const written = writeLoggedPurchase({
+                activityId: `activity:${at}`,
+                amountIls: contextLine.amount,
+                at,
+                ...(logCardId !== undefined ? { cardId: logCardId } : {}),
+              });
+              logPurchase(written);
+              recordVerdict(
+                writeVerdictHistory({
+                  activityId: written.activityId,
+                  at: written.loggedAt,
+                  verdict: result.verdict,
+                  purchaseAmountIls: contextLine.amount,
+                  ...(logCardId !== undefined ? { cardId: logCardId } : {}),
+                }),
+              );
+              onLogPurchase?.(written);
+            }}
+            testID="check-verdict-log-purchase"
+          />
+        ) : null}
       </View>
     </RtlScreen>
   );

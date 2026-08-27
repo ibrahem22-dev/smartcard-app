@@ -2,6 +2,7 @@ const callOrder: string[] = [];
 const mockClearProfile = jest.fn(() => callOrder.push('clearProfile'));
 const mockClearCards = jest.fn(() => callOrder.push('clearCards'));
 const mockClearLoans = jest.fn(() => callOrder.push('clearLoans'));
+const mockClearActivity = jest.fn(() => callOrder.push('clearActivity'));
 const mockClearProfiles = jest.fn(() => callOrder.push('clearProfiles'));
 const mockHydrate = jest.fn(() => callOrder.push('hydrate'));
 const mockLock = jest.fn(() => callOrder.push('lock'));
@@ -52,6 +53,12 @@ jest.mock('../../store/useLoansStore', () => ({
   },
 }));
 
+jest.mock('../../store/useActivityStore', () => ({
+  useActivityStore: {
+    getState: () => ({ clearActivity: mockClearActivity }),
+  },
+}));
+
 jest.mock('../../store/useProfileStore', () => ({
   useProfileStore: {
     getState: () => ({
@@ -81,12 +88,14 @@ describe('auth lifecycle AUTH-07 grace handling', () => {
     expect(mockClearProfile).toHaveBeenCalledTimes(1);
     expect(mockClearCards).toHaveBeenCalledTimes(1);
     expect(mockClearLoans).toHaveBeenCalledTimes(1);
+    expect(mockClearActivity).toHaveBeenCalledTimes(1);
     expect(mockClearProfiles).toHaveBeenCalledTimes(1);
     expect(callOrder).toEqual([
       'lock',
       'clearProfile',
       'clearCards',
       'clearLoans',
+      'clearActivity',
       'clearProfiles',
     ]);
   });
@@ -104,6 +113,7 @@ describe('auth lifecycle AUTH-07 grace handling', () => {
       'clearProfile',
       'clearCards',
       'clearLoans',
+      'clearActivity',
       'clearProfiles',
     ]);
   });
@@ -143,6 +153,7 @@ describe('auth lifecycle AUTH-07 grace handling', () => {
       'clearProfile',
       'clearCards',
       'clearLoans',
+      'clearActivity',
       'clearProfiles',
     ]);
   });
@@ -164,6 +175,7 @@ describe('auth lifecycle AUTH-07 grace handling', () => {
       'clearProfile',
       'clearCards',
       'clearLoans',
+      'clearActivity',
       'clearProfiles',
     ]);
     expect(mockHydrate).not.toHaveBeenCalled();
@@ -200,6 +212,7 @@ describe('auth lifecycle AUTH-07 grace handling', () => {
       'clearProfile',
       'clearCards',
       'clearLoans',
+      'clearActivity',
       'clearProfiles',
     ]);
     expect(mockHydrate).not.toHaveBeenCalled();
@@ -224,6 +237,7 @@ describe('auth lifecycle AUTH-07 grace handling', () => {
       'clearProfile',
       'clearCards',
       'clearLoans',
+      'clearActivity',
       'clearProfiles',
     ]);
     expect(mockHydrate).not.toHaveBeenCalled();
@@ -246,6 +260,7 @@ describe('auth lifecycle AUTH-07 grace handling', () => {
       'clearProfile',
       'clearCards',
       'clearLoans',
+      'clearActivity',
       'clearProfiles',
     ]);
     expect(mockHydrate).not.toHaveBeenCalled();
@@ -264,6 +279,7 @@ describe('auth lifecycle AUTH-07 grace handling', () => {
       'clearProfile',
       'clearCards',
       'clearLoans',
+      'clearActivity',
       'clearProfiles',
     ]);
     expect(mockHydrate).not.toHaveBeenCalled();
@@ -287,6 +303,7 @@ describe('auth lifecycle AUTH-07 grace handling', () => {
       'clearProfile',
       'clearCards',
       'clearLoans',
+      'clearActivity',
       'clearProfiles',
     ]);
     expect(mockHydrate).not.toHaveBeenCalled();

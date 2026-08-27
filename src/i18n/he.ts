@@ -66,6 +66,7 @@ export const he = {
     compareAllCards: 'השווי את כל הכרטיסים שלי',
     availableAfterPurchase: 'מסגרת פנויה אחרי הרכישה',
     informationalOnly: 'לידיעה בלבד',
+    iMadeThisPurchase: 'עשיתי את הרכישה הזאת',
   },
   fxCompare: {
     title: 'השוואת מטח',

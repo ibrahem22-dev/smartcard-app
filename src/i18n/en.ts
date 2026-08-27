@@ -85,6 +85,7 @@ export const en = {
     compareAllCards: 'Compare all my cards',
     availableAfterPurchase: 'Available limit after this purchase',
     informationalOnly: 'Informational only',
+    iMadeThisPurchase: 'I made this purchase',
   },
   fxCompare: {
     title: 'FX compare',
@@ -903,6 +904,7 @@ export const enBySource: Readonly<Record<string, string>> = {
   'השווי את כל הכרטיסים שלי': en.checkVerdict.compareAllCards,
   'מסגרת פנויה אחרי הרכישה': en.checkVerdict.availableAfterPurchase,
   'לידיעה בלבד': en.checkVerdict.informationalOnly,
+  'עשיתי את הרכישה הזאת': en.checkVerdict.iMadeThisPurchase,
   'ייצוג כרטיס שנוצר באפליקציה': 'App-generated card representation',
   'ייצוג כללי של כרטיס': 'Generic card representation',
   'ייצוג הטבה לפי קטגוריה': 'Category benefit representation',

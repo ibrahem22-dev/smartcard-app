@@ -5,6 +5,7 @@
 // (useNavigation, etc.) fully typed app-wide without per-call generics.
 
 import type { NavigatorScreenParams } from '@react-navigation/native';
+import type { CheckInputDraft } from '../screens/check/CheckInputScreen';
 import type {
   DecisionVerdict,
   FxComparisonRow,
@@ -27,14 +28,12 @@ export type HomeStackParamList = {
 /**
  * THE P4 CHECK STACK — what `CheckModal` mounts.
  *
- * Two routes and no more. `CheckInput` is the root; `CheckVerdict` is where the flow ends. Neither
- * carries params yet: a param list is a contract about what a surface is given, and the Check
- * surfaces' contracts are WP-1.2 (input) and WP-1.4 (verdict). Declaring params here would be this
- * work package guessing at two it does not own.
+ * Two routes. `CheckInput` is the root; `CheckVerdict` receives the draft so the
+ * loop can call the seam once and log the purchase (L1).
  */
 export type CheckStackParamList = {
   CheckInput: undefined;
-  CheckVerdict: undefined;
+  CheckVerdict: { draft: CheckInputDraft } | undefined;
 };
 
 /**
