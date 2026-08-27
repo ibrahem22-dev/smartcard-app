@@ -491,6 +491,22 @@ export const enBySource: Readonly<Record<string, string>> = {
   'לדוגמה: 3500': en.onboarding.balanceExample,
   'נא להזין הכנסה חודשית תקינה': en.onboarding.invalidIncome,
   'נא להזין יתרה תקינה': en.onboarding.invalidBalance,
+  'אישור שפה': 'Confirm language',
+  דלג: 'Skip',
+  'אחר כך': 'Later',
+  אחרון: 'Last',
+  'יום משכורת': 'Payday',
+  'ככה SmartCard יודע מה בטוח. זה לא יוצא מהמכשיר.':
+    'This is how SmartCard knows what\'s safe. It never leaves your device.',
+  'דילוג מגביל את פסקי הבדיקה.': 'Skipping limits verdicts.',
+  'אפשר להוסיף כרטיס עכשיו או לדלג ולהוסיף מהארנק.':
+    'You can add a card now, or skip and add it from Wallet.',
+  'אבטחה וסיום': 'Security and finish',
+  'הפעל זיהוי פנים או טביעת אצבע': 'Enable Face ID or fingerprint',
+  'הכספת כבר פתוחה עם ה-PIN המקומי. אפשר להוסיף זיהוי ביומטרי אחר כך מההגדרות.':
+    'The vault is already open with your local PIN. You can add biometrics later from Settings.',
+  'התחייבויות אפשר להוסיף אחר כך מתוכנית.':
+    'Commitments can be added later from Plan.',
   'הוסף את הכרטיס הראשון שלך': en.onboarding.addFirstCard,
   'חברת כרטיס האשראי': en.onboarding.issuer,
   'מועדון הכרטיס': en.onboarding.club,

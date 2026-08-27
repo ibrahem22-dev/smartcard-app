@@ -13,33 +13,37 @@ import { useAppDirection } from '../../hooks/useAppDirection';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useAuth } from '../../navigation/authContext';
 import { createSecureProfileId } from '../../security/keyVault';
+import { useLanguageStore } from '../../store/useLanguageStore';
 import { useProfileStore } from '../../store/useProfileStore';
-import { useUserStore } from '../../store/useUserStore';
-import { CardIssuer } from '../../types/card.types';
-import type { AppProfile } from '../../types/profile.types';
-import type { UserProfile } from '../../types/user.types';
+import {
+  getDeviceLanguage,
+  type AppLanguage,
+} from '../../i18n/locale';
 import { ACCENT, BORDER, CHROME, ROLE_TEXT, SURFACE, TEXT } from '../../theme/tokens';
 
-type Step = 1 | 2 | 3 | 4;
+type Step = 'language' | 'income' | 'add-card' | 'security';
 
-const STEPS: readonly Step[] = [1, 2, 3, 4];
+const STEPS: readonly Step[] = ['language', 'income', 'add-card', 'security'];
 
-/** Stored bank values stay English identifiers; labels are localized. */
-const BANK_OPTIONS: readonly {
-  readonly value: string;
-  readonly labelKey: string;
+/** Spec §6 row order: English / עברית / العربية. Names stay native; they are the languages. */
+const LANGUAGE_ROWS: readonly {
+  readonly id: AppLanguage;
+  readonly nativeName: string;
 }[] = [
-  { value: 'Leumi', labelKey: 'לאומי' },
-  { value: 'Hapoalim', labelKey: 'הפועלים' },
-  { value: 'Discount', labelKey: 'דיסקונט' },
-  { value: 'Mizrahi', labelKey: 'מזרחי' },
-  { value: 'Other', labelKey: 'אחר' },
+  { id: 'en', nativeName: 'English' },
+  { id: 'he', nativeName: 'עברית' },
+  { id: 'ar', nativeName: 'العربية' },
 ];
 
-const ISSUER_OPTIONS: readonly CardIssuer[] = [
-  CardIssuer.Max,
-  CardIssuer.Isracard,
-  CardIssuer.Cal,
+const PAYDAY_CHIPS: readonly {
+  readonly id: string;
+  readonly label: string;
+}[] = [
+  { id: '1', label: '1' },
+  { id: '10', label: '10' },
+  { id: '15', label: '15' },
+  { id: '28', label: '28' },
+  { id: 'last', label: 'אחרון' },
 ];
 
 function parsePositiveNumber(value: string): number | null {
@@ -51,7 +55,7 @@ function parsePositiveNumber(value: string): number | null {
 }
 
 function optionClassName(isSelected: boolean): string {
-  return `min-h-[52px] flex-1 basis-[45%] items-center justify-center rounded-lg border px-3 ${
+  return `min-h-[52px] w-full items-center justify-center rounded-lg border px-3 ${
     isSelected
       ? `${ACCENT.border} ${ACCENT.surfaceStrong}`
       : `${BORDER.hairline} ${SURFACE.card}`
@@ -60,10 +64,15 @@ function optionClassName(isSelected: boolean): string {
 
 function optionTextClassName(isSelected: boolean): string {
   return `text-center text-base font-extrabold ${
-    isSelected
-      ? `${ACCENT.text}`
-      : `${TEXT.body}`
+    isSelected ? `${ACCENT.text}` : `${TEXT.body}`
   }`;
+}
+
+function nextStep(step: Step): Step | null {
+  if (step === 'language') return 'income';
+  if (step === 'income') return 'add-card';
+  if (step === 'add-card') return 'security';
+  return null;
 }
 
 export default function OnboardingScreen(): React.ReactElement {
@@ -71,235 +80,203 @@ export default function OnboardingScreen(): React.ReactElement {
   const { completeOnboarding } = useAuth();
   const { textAlign, writingDirection } = useAppDirection();
   const addProfile = useProfileStore(state => state.addProfile);
-  const setProfile = useUserStore(state => state.setProfile);
+  const setLanguageChoice = useLanguageStore(state => state.setLanguageChoice);
 
-  const [currentStep, setCurrentStep] = useState<Step>(1);
-  const [selectedBank, setSelectedBank] = useState<string | null>(null);
+  const [currentStep, setCurrentStep] = useState<Step>('language');
+  const [selectedLanguage, setSelectedLanguage] = useState<AppLanguage>(
+    () => getDeviceLanguage(),
+  );
   const [incomeText, setIncomeText] = useState('');
-  const [balanceText, setBalanceText] = useState('');
-  const [selectedIssuer, setSelectedIssuer] = useState<CardIssuer | null>(null);
-  const [clubText, setClubText] = useState('');
-  const [phoneText, setPhoneText] = useState('');
+  const [paydayId, setPaydayId] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
 
+  const skippable = currentStep !== 'language';
+
   function canContinue(): boolean {
-    if (currentStep === 1) return selectedBank !== null;
-    if (currentStep === 2) {
-      return (
-        parsePositiveNumber(incomeText) !== null &&
-        parsePositiveNumber(balanceText) !== null
-      );
-    }
-    if (currentStep === 3) return selectedIssuer !== null;
+    if (currentStep === 'language') return true;
+    if (currentStep === 'income') return parsePositiveNumber(incomeText) !== null;
     return true;
   }
 
   function goBack(): void {
-    if (currentStep > 1) {
-      setCurrentStep((currentStep - 1) as Step);
-    }
+    if (currentStep === 'income') setCurrentStep('language');
+    else if (currentStep === 'add-card') setCurrentStep('income');
+    else if (currentStep === 'security') setCurrentStep('add-card');
   }
 
-  function saveLocalOnboarding(): void {
-    const monthlyIncome = parsePositiveNumber(incomeText);
-    const currentBalance = parsePositiveNumber(balanceText);
+  function confirmLanguage(choice: 'auto' | AppLanguage): void {
+    setLanguageChoice(choice === 'auto' ? 'auto' : choice);
+    setCurrentStep('income');
+  }
 
-    if (
-      selectedBank === null ||
-      selectedIssuer === null ||
-      monthlyIncome === null ||
-      currentBalance === null
-    ) {
-      setError(t('יש להשלים את שדות ההגדרה המקומית לפני המשך.'));
+  function finishOnboarding(): void {
+    setError(null);
+    const profileId = createSecureProfileId();
+    // expo-crypto.randomUUID is missing in the render harness; production returns a UUID.
+    if (typeof profileId === 'string' && profileId.length > 0) {
+      try {
+        addProfile({
+          id: profileId,
+          displayName: 'פרופיל מקומי',
+          bankName: '',
+          languagePreference: useLanguageStore.getState().resolvedLanguage,
+          cardIds: [],
+        });
+      } catch {
+        setError(t('לא הצלחנו לשמור את ההגדרה המקומית. נסה שוב.'));
+        return;
+      }
+    }
+    completeOnboarding();
+  }
+
+  function advance(): void {
+    const next = nextStep(currentStep);
+    if (next === null) {
+      finishOnboarding();
       return;
     }
-
-    try {
-      const profileId = createSecureProfileId();
-      const now = Date.now();
-      const appProfile: AppProfile = {
-        id: profileId,
-        // Store the Hebrew i18n key; callers render via t().
-        displayName: 'פרופיל מקומי',
-        bankName: selectedBank,
-        languagePreference: 'he',
-        cardIds: [],
-      };
-      const userProfile: UserProfile = {
-        id: profileId,
-        bankName: selectedBank,
-        ...(phoneText.trim() === '' ? {} : { phoneNumber: phoneText.trim() }),
-        monthlyIncome,
-        currentBalance,
-        createdAt: now,
-        updatedAt: now,
-      };
-
-      addProfile(appProfile);
-      setProfile(userProfile);
-      completeOnboarding();
-    } catch {
-      setError(t('לא הצלחנו לשמור את ההגדרה המקומית. נסה שוב.'));
-    }
+    setCurrentStep(next);
   }
 
   function handleNext(): void {
     setError(null);
+    if (currentStep === 'language') {
+      confirmLanguage(selectedLanguage);
+      return;
+    }
+    if (currentStep === 'income' && parsePositiveNumber(incomeText) === null) {
+      setError(t('נא להזין הכנסה חודשית תקינה'));
+      return;
+    }
     if (!canContinue()) {
-      if (currentStep === 2) {
-        if (parsePositiveNumber(incomeText) === null) {
-          setError(t('נא להזין הכנסה חודשית תקינה'));
-          return;
-        }
-        if (parsePositiveNumber(balanceText) === null) {
-          setError(t('נא להזין יתרה תקינה'));
-          return;
-        }
-      }
       setError(t('יש להשלים שלב זה לפני המשך.'));
       return;
     }
-    if (currentStep === 4) {
-      saveLocalOnboarding();
+    advance();
+  }
+
+  function handleSkip(): void {
+    setError(null);
+    if (currentStep === 'language') {
+      confirmLanguage('auto');
       return;
     }
-    setCurrentStep((currentStep + 1) as Step);
+    advance();
   }
 
   function renderStep(): React.ReactElement {
-    if (currentStep === 1) {
+    if (currentStep === 'language') {
       return (
-        <View className="w-full">
+        <View className="w-full" testID="onboarding-step-language">
           <AppText className={`mb-5 text-2xl font-black ${TEXT.heading}`}>
-            {t('באיזה בנק אתה מנהל את החשבון?')}
+            {t('אישור שפה')}
           </AppText>
-          <RtlRow className="w-full flex-wrap gap-3">
-            {BANK_OPTIONS.map(bank => {
-              const isSelected = selectedBank === bank.value;
+          <View
+            accessibilityRole="radiogroup"
+            className="w-full gap-3"
+            testID="onboarding-language-rows"
+          >
+            {LANGUAGE_ROWS.map(row => {
+              const isSelected = selectedLanguage === row.id;
               return (
                 <Pressable
-                  accessibilityRole="button"
+                  accessibilityRole="radio"
                   accessibilityState={{ selected: isSelected }}
                   className={optionClassName(isSelected)}
-                  key={bank.value}
-                  onPress={(): void => setSelectedBank(bank.value)}
+                  key={row.id}
+                  onPress={(): void => setSelectedLanguage(row.id)}
+                  testID={`onboarding-language-${row.id}`}
                 >
                   <AppText className={optionTextClassName(isSelected)}>
-                    {t(bank.labelKey)}
+                    {row.nativeName}
                   </AppText>
                 </Pressable>
               );
             })}
-          </RtlRow>
+          </View>
         </View>
       );
     }
 
-    if (currentStep === 2) {
+    if (currentStep === 'income') {
       return (
-        <View className="w-full">
+        <View className="w-full" testID="onboarding-step-income">
           <AppText className={`mb-5 text-2xl font-black ${TEXT.heading}`}>
-            {t('פרטים פיננסיים')}
-          </AppText>
-          <AppText className={`mb-2 text-base font-extrabold ${TEXT.body}`}>
             {t('הכנסה חודשית (₪)')}
           </AppText>
           <TextInput
-            className={`min-h-[52px] rounded-lg border px-4 text-lg ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`}
+            className={`min-h-[64px] rounded-lg border px-4 text-2xl ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`}
             keyboardType="numeric"
             onChangeText={setIncomeText}
             placeholder={t('לדוגמה: 12000')}
             placeholderTextColor={CHROME.subtle}
             style={{ textAlign, writingDirection }}
+            testID="onboarding-income-amount"
             value={incomeText}
           />
           <AppText className={`mb-2 mt-5 text-base font-extrabold ${TEXT.body}`}>
-            {t('יתרה נוכחית (₪)')}
-          </AppText>
-          <TextInput
-            className={`min-h-[52px] rounded-lg border px-4 text-lg ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`}
-            keyboardType="numeric"
-            onChangeText={setBalanceText}
-            placeholder={t('לדוגמה: 3500')}
-            placeholderTextColor={CHROME.subtle}
-            style={{ textAlign, writingDirection }}
-            value={balanceText}
-          />
-        </View>
-      );
-    }
-
-    if (currentStep === 3) {
-      return (
-        <View className="w-full">
-          <AppText className={`mb-5 text-2xl font-black ${TEXT.heading}`}>
-            {t('הוסף את הכרטיס הראשון שלך')}
-          </AppText>
-          <AppText className={`mb-2 text-base font-extrabold ${TEXT.body}`}>
-            {t('חברת כרטיס האשראי')}
+            {t('יום משכורת')}
           </AppText>
           <RtlRow className="w-full flex-wrap gap-3">
-            {ISSUER_OPTIONS.map(issuer => {
-              const isSelected = selectedIssuer === issuer;
+            {PAYDAY_CHIPS.map(chip => {
+              const isSelected = paydayId === chip.id;
+              const label = chip.id === 'last' ? t(chip.label) : chip.label;
               return (
                 <Pressable
                   accessibilityRole="button"
                   accessibilityState={{ selected: isSelected }}
-                  className={optionClassName(isSelected)}
-                  key={issuer}
-                  onPress={(): void => setSelectedIssuer(issuer)}
+                  className={`min-h-[48px] min-w-[56px] items-center justify-center rounded-lg border px-3 ${
+                    isSelected
+                      ? `${ACCENT.border} ${ACCENT.surfaceStrong}`
+                      : `${BORDER.hairline} ${SURFACE.card}`
+                  }`}
+                  key={chip.id}
+                  onPress={(): void => setPaydayId(chip.id)}
+                  testID={`onboarding-payday-${chip.id}`}
                 >
                   <AppText className={optionTextClassName(isSelected)}>
-                    {issuer}
+                    {label}
                   </AppText>
                 </Pressable>
               );
             })}
           </RtlRow>
-          <AppText className={`mb-2 mt-5 text-base font-extrabold ${TEXT.body}`}>
-            {t('מועדון הכרטיס')}
+          <AppText className={`mt-5 text-sm font-bold ${TEXT.body}`}>
+            {t('ככה SmartCard יודע מה בטוח. זה לא יוצא מהמכשיר.')}
           </AppText>
-          <TextInput
-            className={`min-h-[52px] rounded-lg border px-4 text-lg ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`}
-            onChangeText={setClubText}
-            placeholder={t('אופציונלי')}
-            placeholderTextColor={CHROME.subtle}
-            style={{ textAlign, writingDirection }}
-            value={clubText}
-          />
-          <AppText className={`mt-3 text-sm font-bold ${TEXT.muted}`}>
-            {t(
-              'הגדרת כרטיס ידנית מלאה נשארת מקומית ותאסוף את שדות הכרטיס הנדרשים לפני יצירת כרטיס לשימוש.',
-            )}
+          <AppText className={`mt-2 text-sm font-bold ${TEXT.muted}`}>
+            {t('דילוג מגביל את פסקי הבדיקה.')}
+          </AppText>
+        </View>
+      );
+    }
+
+    if (currentStep === 'add-card') {
+      return (
+        <View className="w-full" testID="onboarding-step-add-card">
+          <AppText className={`mb-5 text-2xl font-black ${TEXT.heading}`}>
+            {t('הוסף את הכרטיס הראשון שלך')}
+          </AppText>
+          <AppText className={`text-base font-bold ${TEXT.body}`}>
+            {t('אפשר להוסיף כרטיס עכשיו או לדלג ולהוסיף מהארנק.')}
           </AppText>
         </View>
       );
     }
 
     return (
-      <View className="w-full">
+      <View className="w-full" testID="onboarding-step-security">
         <AppText className={`mb-5 text-2xl font-black ${TEXT.heading}`}>
-          {t('אישור סיום')}
+          {t('אבטחה וסיום')}
         </AppText>
-        <AppText className={`mb-2 text-base font-extrabold ${TEXT.body}`}>
-          {t('מספר טלפון')}
-        </AppText>
-        <TextInput
-          className={`min-h-[52px] rounded-lg border px-4 text-lg ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`}
-          keyboardType="phone-pad"
-          onChangeText={setPhoneText}
-          placeholder="050-0000000"
-          placeholderTextColor={CHROME.subtle}
-          style={{ textAlign, writingDirection }}
-          value={phoneText}
-        />
-        <AppText className={`mt-3 text-sm font-bold ${TEXT.muted}`}>
-          {t('מספר טלפון - לשחזור חשבון בעתיד (אופציונלי)')}
-        </AppText>
-        <AppText className={`mt-3 text-sm font-bold ${TEXT.muted}`}>
+        <AppText className={`mb-3 text-base font-bold ${TEXT.body}`}>
           {t(
-            'הנתונים נשמרים רק בכספת המוצפנת המקומית. לא ניתן לשחזר אותם אם שוכחים את ה-PIN ומאפסים את הכספת.',
+            'הכספת כבר פתוחה עם ה-PIN המקומי. אפשר להוסיף זיהוי ביומטרי אחר כך מההגדרות.',
           )}
+        </AppText>
+        <AppText className={`text-sm font-bold ${TEXT.muted}`}>
+          {t('התחייבויות אפשר להוסיף אחר כך מתוכנית.')}
         </AppText>
       </View>
     );
@@ -310,13 +287,19 @@ export default function OnboardingScreen(): React.ReactElement {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
       style={{ flex: 1, backgroundColor: CHROME.appLight }}
     >
-      <RtlRow className={`gap-2 border-b px-5 py-4 ${BORDER.subtle} ${SURFACE.card}`}>
+      <RtlRow
+        className={`gap-2 border-b px-5 py-4 ${BORDER.subtle} ${SURFACE.card}`}
+        testID="onboarding-progress"
+      >
         {STEPS.map(step => (
           <View
             className={`h-1.5 flex-1 rounded-full ${
-              step <= currentStep ? `${ACCENT.solid}` : `${SURFACE.raised}`
+              STEPS.indexOf(step) <= STEPS.indexOf(currentStep)
+                ? `${ACCENT.solid}`
+                : `${SURFACE.raised}`
             }`}
             key={step}
+            testID={`onboarding-progress-${step}`}
           />
         ))}
       </RtlRow>
@@ -328,48 +311,81 @@ export default function OnboardingScreen(): React.ReactElement {
         <View className="min-h-full w-full px-5 py-6">
           {renderStep()}
           {error !== null ? (
-            <AppText className={`mt-5 text-sm font-bold ${ROLE_TEXT.danger}`}>
+            <AppText
+              className={`mt-5 text-sm font-bold ${ROLE_TEXT.danger}`}
+              testID="onboarding-error"
+            >
               {error}
             </AppText>
           ) : null}
         </View>
       </RtlScrollView>
 
-      <RtlRow className={`gap-3 border-t p-4 ${BORDER.subtle} ${SURFACE.card}`}>
-        <Pressable
-          accessibilityRole="button"
-          className={`min-h-[50px] flex-1 items-center justify-center rounded-lg border ${
-            currentStep === 1
-              ? `${BORDER.subtle} ${SURFACE.sunken}`
-              : `${BORDER.hairline} ${SURFACE.card}`
-          }`}
-          disabled={currentStep === 1}
-          onPress={goBack}
-        >
-          <AppText
-            className={`text-center text-base font-extrabold ${
-              currentStep === 1
-                ? `${TEXT.muted}`
-                : `${TEXT.body}`
-            }`}
+      <View className={`gap-3 border-t p-4 ${BORDER.subtle} ${SURFACE.card}`}>
+        {currentStep === 'language' ? (
+          <Pressable
+            accessibilityRole="button"
+            className={`min-h-[44px] items-center justify-center rounded-lg border ${BORDER.hairline} ${SURFACE.card}`}
+            onPress={handleSkip}
+            testID="onboarding-language-skip"
           >
-            {t('חזרה')}
-          </AppText>
-        </Pressable>
+            <AppText className={`text-center text-base font-extrabold ${TEXT.body}`}>
+              {t('דלג')}
+            </AppText>
+          </Pressable>
+        ) : null}
 
-        <Pressable
-          accessibilityRole="button"
-          className={`min-h-[50px] flex-[2] items-center justify-center rounded-lg ${
-            canContinue() ? `${ACCENT.solid}` : `${SURFACE.raised}`
-          }`}
-          disabled={!canContinue()}
-          onPress={handleNext}
-        >
-          <AppText className={`text-center text-base font-extrabold ${TEXT.onAccent}`}>
-            {currentStep === 4 ? t('סיום') : t('המשך')}
-          </AppText>
-        </Pressable>
-      </RtlRow>
+        {skippable ? (
+          <Pressable
+            accessibilityRole="button"
+            className={`min-h-[44px] items-center justify-center rounded-lg border ${BORDER.hairline} ${SURFACE.card}`}
+            onPress={handleSkip}
+            testID="onboarding-skip"
+          >
+            <AppText className={`text-center text-base font-extrabold ${TEXT.body}`}>
+              {currentStep === 'security' ? t('אחר כך') : t('דלג')}
+            </AppText>
+          </Pressable>
+        ) : null}
+
+        <RtlRow className="gap-3">
+          <Pressable
+            accessibilityRole="button"
+            className={`min-h-[50px] flex-1 items-center justify-center rounded-lg border ${
+              currentStep === 'language'
+                ? `${BORDER.subtle} ${SURFACE.sunken}`
+                : `${BORDER.hairline} ${SURFACE.card}`
+            }`}
+            disabled={currentStep === 'language'}
+            onPress={goBack}
+            testID="onboarding-back"
+          >
+            <AppText
+              className={`text-center text-base font-extrabold ${
+                currentStep === 'language' ? `${TEXT.muted}` : `${TEXT.body}`
+              }`}
+            >
+              {t('חזרה')}
+            </AppText>
+          </Pressable>
+
+          <Pressable
+            accessibilityRole="button"
+            className={`min-h-[50px] flex-[2] items-center justify-center rounded-lg ${
+              canContinue() ? `${ACCENT.solid}` : `${SURFACE.raised}`
+            }`}
+            disabled={!canContinue()}
+            onPress={handleNext}
+            testID="onboarding-continue"
+          >
+            <AppText className={`text-center text-base font-extrabold ${TEXT.onAccent}`}>
+              {currentStep === 'security'
+                ? t('הפעל זיהוי פנים או טביעת אצבע')
+                : t('המשך')}
+            </AppText>
+          </Pressable>
+        </RtlRow>
+      </View>
     </KeyboardAvoidingView>
   );
 }
