@@ -72,6 +72,24 @@ export function findLast4Carrier(value: unknown, path = 'props'): string | null 
   return null;
 }
 
+export function findActivityCarrier(value: unknown, path = 'props'): string | null {
+  if (value === null || value === undefined) return null;
+  if (typeof value !== 'object') return null;
+  if (Object.prototype.hasOwnProperty.call(value, 'activityId')) return path + '.activityId';
+  if (Array.isArray(value)) {
+    for (let i = 0; i < value.length; i++) {
+      const hit = findActivityCarrier(value[i], path + '[' + i + ']');
+      if (hit !== null) return hit;
+    }
+    return null;
+  }
+  for (const [key, nested] of Object.entries(value)) {
+    const hit = findActivityCarrier(nested, path + '.' + key);
+    if (hit !== null) return hit;
+  }
+  return null;
+}
+
 /**
  * Record one product-usage event, if everything about it is permitted.
  *
@@ -107,6 +125,19 @@ export function track<E extends AnalyticsEvent>(
       why:
         `last4 cannot leave the encrypted vault via track() (${last4At}). The only authorised ` +
         'path off the device is the user-initiated profile transfer.',
+    };
+  }
+
+  // ── L4: logged activity never leaves the device via track() ───────────────
+  const activityAt = findActivityCarrier(props);
+  if (activityAt !== null) {
+    return {
+      sent: false,
+      reason: 'DISALLOWED_PROP',
+      outboundRequests: 0,
+      why:
+        `activity cannot leave the device via track() (${activityAt}). Logged purchases and ` +
+        'verdict history stay in the encrypted local vault.',
     };
   }
 
