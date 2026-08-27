@@ -8,17 +8,17 @@
  * each of them by name.
  */
 import React from 'react';
-import { Text } from 'react-native';
 import { fireEvent, render } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { AppText } from '../../../components/AppText';
 import { getDeviceLanguage } from '../../../i18n/locale';
 import { AuthProvider, useAuth } from '../../../navigation/authContext';
 import OnboardingScreen from '../OnboardingScreen';
 
 function OnboardingCompleteFlag(): React.ReactElement {
   const { isOnboardingComplete } = useAuth();
-  return <Text testID="onboarding-complete-flag">{String(isOnboardingComplete)}</Text>;
+  return <AppText testID="onboarding-complete-flag">{String(isOnboardingComplete)}</AppText>;
 }
 
 const mountScreen = () =>
