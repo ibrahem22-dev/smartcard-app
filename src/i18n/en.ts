@@ -499,6 +499,17 @@ export const enBySource: Readonly<Record<string, string>> = {
   'ככה SmartCard יודע מה בטוח. זה לא יוצא מהמכשיר.':
     'This is how SmartCard knows what\'s safe. It never leaves your device.',
   'דילוג מגביל את פסקי הבדיקה.': 'Skipping limits verdicts.',
+  'השפה קובעת איך האפליקציה מדברת איתך.':
+    'Language decides how the app talks to you.',
+  'בחירת השפה נשמרת במכשיר הזה.': 'The language choice stays on this device.',
+  'ההכנסה ויום המשכורת הם העוגן של מנוע התזרים.':
+    'Income and payday are the cash-flow engine\'s anchor.',
+  'כרטיס בבעלותך נחוץ כדי לתת פסק על רכישה אמיתית.':
+    'A card you own is needed to give a verdict on a real purchase.',
+  'הנתונים הפיננסיים שלך חיים רק במכשיר הזה.':
+    'Your financial data lives only on this device.',
+  'ה-PIN והזיהוי הביומטרי שומרים על הכספת.':
+    'The PIN and biometrics protect the vault.',
   'אפשר להוסיף כרטיס עכשיו או לדלג ולהוסיף מהארנק.':
     'You can add a card now, or skip and add it from Wallet.',
   'אבטחה וסיום': 'Security and finish',

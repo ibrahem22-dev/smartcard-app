@@ -195,6 +195,18 @@ export default function OnboardingScreen(): React.ReactElement {
               );
             })}
           </View>
+          <AppText
+            className={`mt-5 text-sm font-bold ${TEXT.body}`}
+            testID="onboarding-why"
+          >
+            {t('השפה קובעת איך האפליקציה מדברת איתך.')}
+          </AppText>
+          <AppText
+            className={`mt-2 text-sm font-bold ${TEXT.muted}`}
+            testID="onboarding-where"
+          >
+            {t('בחירת השפה נשמרת במכשיר הזה.')}
+          </AppText>
         </View>
       );
     }
@@ -242,7 +254,16 @@ export default function OnboardingScreen(): React.ReactElement {
               );
             })}
           </RtlRow>
-          <AppText className={`mt-5 text-sm font-bold ${TEXT.body}`}>
+          <AppText
+            className={`mt-5 text-sm font-bold ${TEXT.body}`}
+            testID="onboarding-why"
+          >
+            {t('ההכנסה ויום המשכורת הם העוגן של מנוע התזרים.')}
+          </AppText>
+          <AppText
+            className={`mt-2 text-sm font-bold ${TEXT.muted}`}
+            testID="onboarding-where"
+          >
             {t('ככה SmartCard יודע מה בטוח. זה לא יוצא מהמכשיר.')}
           </AppText>
           <AppText className={`mt-2 text-sm font-bold ${TEXT.muted}`}>
@@ -258,8 +279,20 @@ export default function OnboardingScreen(): React.ReactElement {
           <AppText className={`mb-5 text-2xl font-black ${TEXT.heading}`}>
             {t('הוסף את הכרטיס הראשון שלך')}
           </AppText>
-          <AppText className={`text-base font-bold ${TEXT.body}`}>
+          <AppText className={`mb-3 text-base font-bold ${TEXT.body}`}>
             {t('אפשר להוסיף כרטיס עכשיו או לדלג ולהוסיף מהארנק.')}
+          </AppText>
+          <AppText
+            className={`text-sm font-bold ${TEXT.body}`}
+            testID="onboarding-why"
+          >
+            {t('כרטיס בבעלותך נחוץ כדי לתת פסק על רכישה אמיתית.')}
+          </AppText>
+          <AppText
+            className={`mt-2 text-sm font-bold ${TEXT.muted}`}
+            testID="onboarding-where"
+          >
+            {t('הנתונים הפיננסיים שלך חיים רק במכשיר הזה.')}
           </AppText>
         </View>
       );
@@ -274,6 +307,18 @@ export default function OnboardingScreen(): React.ReactElement {
           {t(
             'הכספת כבר פתוחה עם ה-PIN המקומי. אפשר להוסיף זיהוי ביומטרי אחר כך מההגדרות.',
           )}
+        </AppText>
+        <AppText
+          className={`mb-2 text-sm font-bold ${TEXT.body}`}
+          testID="onboarding-why"
+        >
+          {t('ה-PIN והזיהוי הביומטרי שומרים על הכספת.')}
+        </AppText>
+        <AppText
+          className={`mb-3 text-sm font-bold ${TEXT.muted}`}
+          testID="onboarding-where"
+        >
+          {t('הנתונים הפיננסיים שלך חיים רק במכשיר הזה.')}
         </AppText>
         <AppText className={`text-sm font-bold ${TEXT.muted}`}>
           {t('התחייבויות אפשר להוסיף אחר כך מתוכנית.')}
