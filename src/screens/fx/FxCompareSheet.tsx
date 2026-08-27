@@ -153,6 +153,7 @@ export function FxCompareSheet({
             </AppText>
             {explainerOpen ? (
               <View testID="fx-compare-explainer-body">
+                <View testID="fx-compare-explainer-figures">
                 <AppText
                   accessibilityValue={{ text: String(winnerQuote.referenceIls) }}
                   className={`mt-2 text-sm ${TEXT.body}`}
@@ -181,6 +182,11 @@ export function FxCompareSheet({
                 >
                   {`${t('סה״כ')} ₪${winnerQuote.effectiveIls}`}
                 </AppText>
+                <ProvenanceChip
+                  testID="fx-compare-explainer-chip"
+                  view={{ chip: winnerQuote.provenance, stale: false }}
+                />
+                </View>
                 {winnerQuote.trace.steps.map((item, index) => (
                   <AppText
                     className={`mt-1 text-xs ${TEXT.muted}`}

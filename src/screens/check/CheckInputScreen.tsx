@@ -293,6 +293,10 @@ export function CheckInputScreen({
               >
                 {String(installmentCount)}
               </AppText>
+              <ProvenanceChip
+                testID="check-input-stepper-count-chip"
+                view={{ chip: 'USER', stale: false }}
+              />
               <Pressable
                 accessibilityRole="button"
                 className={`rounded-lg border px-3 py-2 ${SURFACE.sunken} ${BORDER.hairline}`}
@@ -303,13 +307,19 @@ export function CheckInputScreen({
               </Pressable>
             </RtlRow>
             {monthlyPreview !== null ? (
-              <AppText
-                accessibilityValue={{ text: String(monthlyPreview) }}
-                className={`mt-2 text-sm ${TEXT.muted}`}
-                testID="check-input-monthly-preview"
-              >
-                {`≈ ₪${monthlyPreview.toFixed(2)}`}
-              </AppText>
+              <RtlRow className="mt-2 items-center gap-2">
+                <AppText
+                  accessibilityValue={{ text: String(monthlyPreview) }}
+                  className={`text-sm ${TEXT.muted}`}
+                  testID="check-input-monthly-preview"
+                >
+                  {`≈ ₪${monthlyPreview.toFixed(2)}`}
+                </AppText>
+                <ProvenanceChip
+                  testID="check-input-monthly-preview-chip"
+                  view={{ chip: 'USER', stale: false }}
+                />
+              </RtlRow>
             ) : null}
           </View>
         ) : null}

@@ -2,6 +2,8 @@ import React from 'react';
 import { View } from 'react-native';
 
 import { AppText } from './AppText';
+import { ProvenanceChip } from './ProvenanceChip';
+import { RtlRow } from './rtl';
 import { SURFACE, TEXT } from '../theme/tokens';
 import { useTranslation } from '../hooks/useTranslation';
 import { ltrNumerals } from '../utils/calendar';
@@ -54,6 +56,19 @@ export function CardTile({
         className="h-16 rounded-md"
         testID="card-tile-surface"
       />
+      {resolution?.kind === 'asset' ? (
+        <RtlRow className="mt-2 items-center gap-2" testID="card-tile-attribution-row">
+          {resolution.attribution ? (
+            <AppText className={`text-xs ${TEXT.secondary}`} testID="card-tile-attribution">
+              {resolution.attribution}
+            </AppText>
+          ) : null}
+          <ProvenanceChip
+            testID="card-tile-attribution-chip"
+            view={{ chip: resolution.provenanceChip, stale: false }}
+          />
+        </RtlRow>
+      ) : null}
       <AppText
         className={`mt-2 text-base font-bold ${TEXT.heading}`}
         testID={nicknameTestID ?? 'card-tile-nickname'}
