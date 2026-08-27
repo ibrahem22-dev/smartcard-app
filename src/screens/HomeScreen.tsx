@@ -11,8 +11,19 @@ import { useTranslation } from '../hooks/useTranslation';
 import type { TabParamList } from '../navigation/types';
 import { useCardsStore } from '../store/useCardsStore';
 import { useProfileStore } from '../store/useProfileStore';
+import {
+  finishSetupIsVisible,
+  useFinishSetupStore,
+  type FinishSetupStep,
+} from '../store/useFinishSetupStore';
 import { ACCENT, BORDER, CHROME, ROLE_BORDER, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
 import { RAISED_ACTION_ROUTE } from '../navigation/ia';
+
+const FINISH_SETUP_LABELS: Readonly<Record<FinishSetupStep, string>> = {
+  income: 'השלם הכנסה ויום משכורת',
+  'add-card': 'הוסף את הכרטיס הראשון שלך',
+  security: 'הפעל זיהוי פנים או טביעת אצבע',
+};
 
 const DAILY_TIPS: readonly string[] = [
   'שלם ביום חיוב כדי למקסם את תקופת האשראי',
@@ -35,6 +46,10 @@ export function HomeScreen(): React.ReactElement {
   const navigation = useNavigation<NavigationProp<TabParamList>>();
   const cards = useCardsStore(state => state.cards);
   const activeProfile = useProfileStore(state => state.activeProfile);
+  const skipped = useFinishSetupStore(state => state.skipped);
+  const dismissed = useFinishSetupStore(state => state.dismissed);
+  const dismissFinishSetup = useFinishSetupStore(state => state.dismiss);
+  const showFinishSetup = finishSetupIsVisible(skipped, dismissed);
   const upcomingObligationsCount = cards.length;
 
   function handleCheckPurchase(): void {
@@ -66,6 +81,36 @@ export function HomeScreen(): React.ReactElement {
                 : (activeProfile?.displayName ?? '')}
             </AppText>
           </View>
+
+          {showFinishSetup ? (
+            <View
+              className={`mb-4 rounded-lg border p-[18px] ${ACCENT.borderSubtle} ${ACCENT.surface}`}
+              testID="home-finish-setup"
+            >
+              <AppText className={`text-lg font-extrabold ${TEXT.heading}`}>
+                {t('השלם הגדרה')}
+              </AppText>
+              {skipped.map(step => (
+                <AppText
+                  className={`mt-2 text-base font-bold ${TEXT.body}`}
+                  key={step}
+                  testID={`home-finish-setup-item-${step}`}
+                >
+                  {t(FINISH_SETUP_LABELS[step])}
+                </AppText>
+              ))}
+              <Pressable
+                accessibilityRole="button"
+                className={`mt-4 min-h-[44px] items-center justify-center rounded-lg border ${BORDER.hairline} ${SURFACE.card}`}
+                onPress={dismissFinishSetup}
+                testID="home-finish-setup-dismiss"
+              >
+                <AppText className={`text-center text-base font-extrabold ${TEXT.body}`}>
+                  {t('הסתר')}
+                </AppText>
+              </Pressable>
+            </View>
+          ) : null}
 
           <View className={`rounded-lg border p-[18px] ${BORDER.hairline} ${SURFACE.card}`}>
             <AppText

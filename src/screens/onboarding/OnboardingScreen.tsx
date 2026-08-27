@@ -15,6 +15,11 @@ import { useAuth } from '../../navigation/authContext';
 import { createSecureProfileId } from '../../security/keyVault';
 import { useLanguageStore } from '../../store/useLanguageStore';
 import { useProfileStore } from '../../store/useProfileStore';
+import { useCardsStore } from '../../store/useCardsStore';
+import {
+  useFinishSetupStore,
+  type FinishSetupStep,
+} from '../../store/useFinishSetupStore';
 import {
   getDeviceLanguage,
   type AppLanguage,
@@ -109,8 +114,14 @@ export default function OnboardingScreen(): React.ReactElement {
     setCurrentStep('income');
   }
 
-  function finishOnboarding(): void {
+  function finishOnboarding(securityConfirmed: boolean): void {
     setError(null);
+    const skipped: FinishSetupStep[] = [];
+    if (parsePositiveNumber(incomeText) === null) skipped.push('income');
+    if (useCardsStore.getState().cards.length === 0) skipped.push('add-card');
+    if (!securityConfirmed) skipped.push('security');
+    useFinishSetupStore.getState().recordSkipped(skipped);
+
     const profileId = createSecureProfileId();
     // expo-crypto.randomUUID is missing in the render harness; production returns a UUID.
     if (typeof profileId === 'string' && profileId.length > 0) {
@@ -130,10 +141,10 @@ export default function OnboardingScreen(): React.ReactElement {
     completeOnboarding();
   }
 
-  function advance(): void {
+  function advance(securityConfirmed = false): void {
     const next = nextStep(currentStep);
     if (next === null) {
-      finishOnboarding();
+      finishOnboarding(securityConfirmed);
       return;
     }
     setCurrentStep(next);
@@ -153,7 +164,7 @@ export default function OnboardingScreen(): React.ReactElement {
       setError(t('יש להשלים שלב זה לפני המשך.'));
       return;
     }
-    advance();
+    advance(currentStep === 'security');
   }
 
   function handleSkip(): void {
@@ -162,7 +173,7 @@ export default function OnboardingScreen(): React.ReactElement {
       confirmLanguage('auto');
       return;
     }
-    advance();
+    advance(false);
   }
 
   function renderStep(): React.ReactElement {
