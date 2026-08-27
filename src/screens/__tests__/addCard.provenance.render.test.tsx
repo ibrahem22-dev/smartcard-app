@@ -4,8 +4,7 @@
 import React from 'react';
 import { fireEvent, within } from '@testing-library/react-native';
 
-import { currentCatalogProducts } from '../../data/adapter/catalogSearch';
-import { catalogFxPrefill } from '../../data/adapter/wizardProvenance';
+import { catalogFxPrefill, currentCatalogProducts } from '../../authority/addCardCatalog';
 import { renderScreen } from '../../../tools/p2/jest/renderScreen';
 import { AddCardScreen } from '../AddCardScreen';
 

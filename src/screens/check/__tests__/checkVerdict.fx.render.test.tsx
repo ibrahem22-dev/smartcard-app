@@ -10,7 +10,7 @@ import { render } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { CheckVerdictScreen } from '../CheckVerdictScreen';
-import { runPurchaseCheck } from '../runPurchaseCheck';
+import { runPurchaseCheck } from '../../../check/runPurchaseCheck';
 import type { CheckInputDraft } from '../CheckInputScreen';
 import { compareAbroad } from '../../../engines/fx';
 import { Currency } from '../../../types/purchase.types';

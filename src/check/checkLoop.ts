@@ -4,13 +4,13 @@
  * One `runPurchaseCheck` call. Load-engine available-limit is painted as the
  * impact strip; this file never subtracts limit − holds − logged itself.
  */
-import { evaluateFinancialLoad } from '../../engines/load';
-import { provenanced } from '../../engines/provenance';
-import type { UserProfile } from '../../types/user.types';
-import type { LoggedPurchase } from '../../types/activity.types';
-import { Currency, PurchaseCategory } from '../../types/purchase.types';
-import type { CheckInputDraft } from './CheckInputScreen';
-import type { CheckVerdictScreenProps } from './CheckVerdictScreen';
+import { evaluateFinancialLoad } from '../engines/load';
+import { provenanced } from '../engines/provenance';
+import type { UserProfile } from '../types/user.types';
+import type { LoggedPurchase } from '../types/activity.types';
+import { Currency, PurchaseCategory } from '../types/purchase.types';
+import type { CheckInputDraft } from '../screens/check/CheckInputScreen';
+import type { CheckVerdictScreenProps } from '../screens/check/CheckVerdictScreen';
 import { loadCardsFromVault } from './activityMapper';
 import { purchaseContextFromProfile } from './incomeAnchor';
 import { runPurchaseCheck } from './runPurchaseCheck';

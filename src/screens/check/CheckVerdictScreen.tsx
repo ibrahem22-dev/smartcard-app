@@ -9,7 +9,7 @@ import type { ChipView } from '../../components/provenanceChipState';
 import { RtlButton, RtlRow, RtlScreen } from '../../components/rtl';
 import { useActivityStore } from '../../store/useActivityStore';
 import type { LoggedPurchase } from '../../types/activity.types';
-import { writeLoggedPurchase, writeVerdictHistory } from './activityMapper';
+import { writeLoggedPurchase, writeVerdictHistory } from '../../check/activityMapper';
 import { useTranslation } from '../../hooks/useTranslation';
 import { FxCompareFromCheckVerdict } from '../fx/FxCompareFromCheckVerdict';
 import type { ConvertedAmount } from '../../engines/currency';
@@ -132,9 +132,9 @@ const BULLET_WORD: { readonly [K in ImpactBullet['kind']]: string } = {
   LOAD_AFTER_BILLING: 'עומס אחרי החיוב',
 };
 
-/** Display scale of an engine ratio. Not a second load calculation. */
-function asDisplayPercent(ratio: number): string {
-  return `${(ratio * 100).toFixed(1)}%`;
+/** Display scale of an engine unit share. Not a second load calculation. */
+function asDisplayPercent(unitShare: number): string {
+  return `${(unitShare * 100).toFixed(1)}%`;
 }
 
 function bulletClaim(bullet: ImpactBullet): string {
@@ -230,7 +230,7 @@ export function CheckVerdictScreen({
     return (
       <RtlScreen className={SURFACE.page} safe>
         <NotYetSurface
-          ownedBy="WP-1.5 — Check Verdict pill and Financial Impact from one computation (P4 D1+D2)"
+          ownedBy="WP-15 — Check Verdict pill and Financial Impact from one computation (P4 D1+D2)"
           testID="check-verdict-not-yet"
           title="בדיקה"
         />

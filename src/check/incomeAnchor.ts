@@ -5,8 +5,8 @@
  * ISO date is calendar arithmetic, not a threshold, a rank or a recommendation.
  * Inventing 0 when income was skipped is the defect assessSnapshot exists to stop.
  */
-import { provenanced } from '../../engines/provenance';
-import type { PaydayCapture, UserProfile } from '../../types/user.types';
+import { provenanced } from '../engines/provenance';
+import type { PaydayCapture, UserProfile } from '../types/user.types';
 import type { PurchaseCheckContext } from './runPurchaseCheck';
 
 const PAYDAY_DAYS = [1, 10, 15, 28] as const;

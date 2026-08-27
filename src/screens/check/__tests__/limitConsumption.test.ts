@@ -8,8 +8,8 @@ import type { UserProfile } from '../../../types/user.types';
 import {
   loadCardsFromVault,
   writeLoggedPurchase,
-} from '../activityMapper';
-import { verdictPropsFromDraft } from '../checkLoop';
+} from '../../../check/activityMapper';
+import { verdictPropsFromDraft } from '../../../check/checkLoop';
 import type { CheckInputDraft } from '../CheckInputScreen';
 
 const TODAY = '2026-08-27';

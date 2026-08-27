@@ -19,7 +19,7 @@ import { AppText } from '../../../components/AppText';
 import { CardTile } from '../../../components/CardTile';
 import { CheckInputScreen, type CheckInputDraft, type CheckInputFxReference } from '../CheckInputScreen';
 import { CheckVerdictScreen } from '../CheckVerdictScreen';
-import { runPurchaseCheck } from '../runPurchaseCheck';
+import { runPurchaseCheck } from '../../../check/runPurchaseCheck';
 import { FxCompareSheet } from '../../fx/FxCompareSheet';
 import { compareAbroad } from '../../../engines/fx';
 import { evaluateFinancialLoad } from '../../../engines/load';

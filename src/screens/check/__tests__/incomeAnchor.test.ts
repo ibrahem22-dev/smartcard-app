@@ -5,8 +5,8 @@ import {
   nextPaydayIso,
   paydayFromChip,
   purchaseContextFromProfile,
-} from '../incomeAnchor';
-import { runPurchaseCheck } from '../runPurchaseCheck';
+} from '../../../check/incomeAnchor';
+import { runPurchaseCheck } from '../../../check/runPurchaseCheck';
 import type { CheckInputDraft } from '../CheckInputScreen';
 
 const TODAY = '2026-08-27';

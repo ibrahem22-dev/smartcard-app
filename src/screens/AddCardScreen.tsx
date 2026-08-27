@@ -9,18 +9,16 @@ import { RtlRow, RtlScreen, RtlScrollView } from '../components/rtl';
 import type { ProvenanceRecord } from '../authority/provenanceChip';
 import {
   catalogDisplayName,
-  currentCatalogInstitutions,
-  searchCatalog,
-  type CatalogProductHit,
-} from '../data/adapter/catalogSearch';
-import type { ClubResolution } from '../data/adapter/clubResolver';
-import {
   catalogFxPrefill,
   catalogPrefillView,
+  currentCatalogInstitutions,
+  searchCatalog,
   unknownFieldView,
   userEnteredView,
-} from '../data/adapter/wizardProvenance';
-import { writeWizardCard } from '../data/adapter/wizardVault';
+  writeWizardCard,
+  type CatalogProductHit,
+  type ClubResolution,
+} from '../authority/addCardCatalog';
 import { ClubResolver } from './addCard/ClubResolver';
 import { useAppDirection } from '../hooks/useAppDirection';
 import { useTranslation } from '../hooks/useTranslation';
@@ -377,7 +375,7 @@ export function AddCardScreen(): React.ReactElement {
                 <Pressable
                   accessibilityRole="button"
                   accessibilityState={{ selected: issuerOrgId === undefined }}
-                  className={`min-h-[40px] items-center justify-center rounded-lg border px-3 ${
+                  className={`min-h-[44px] items-center justify-center rounded-lg border px-3 ${
                     issuerOrgId === undefined
                       ? `${ACCENT.border} ${ACCENT.surfaceStrong}`
                       : `${BORDER.hairline} ${SURFACE.card}`
@@ -397,7 +395,7 @@ export function AddCardScreen(): React.ReactElement {
                     <Pressable
                       accessibilityRole="button"
                       accessibilityState={{ selected: isSelected }}
-                      className={`min-h-[40px] items-center justify-center rounded-lg border px-3 ${
+                      className={`min-h-[44px] items-center justify-center rounded-lg border px-3 ${
                         isSelected
                           ? `${ACCENT.border} ${ACCENT.surfaceStrong}`
                           : `${BORDER.hairline} ${SURFACE.card}`

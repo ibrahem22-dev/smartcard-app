@@ -3,7 +3,7 @@ import { createNativeStackNavigator, type NativeStackScreenProps } from '@react-
 
 import { CheckInputScreen } from '../../screens/check/CheckInputScreen';
 import { CheckVerdictScreen } from '../../screens/check/CheckVerdictScreen';
-import { verdictPropsFromDraft } from '../../screens/check/checkLoop';
+import { verdictPropsFromDraft } from '../../check/checkLoop';
 import { useActivityStore } from '../../store/useActivityStore';
 import { useCardsStore } from '../../store/useCardsStore';
 import { useUserStore } from '../../store/useUserStore';

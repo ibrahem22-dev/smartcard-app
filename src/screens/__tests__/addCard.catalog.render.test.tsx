@@ -6,7 +6,7 @@
 import React from 'react';
 import { fireEvent } from '@testing-library/react-native';
 
-import { currentCatalogProducts } from '../../data/adapter/catalogSearch';
+import { currentCatalogProducts } from '../../authority/addCardCatalog';
 import { renderScreen } from '../../../tools/p2/jest/renderScreen';
 import { AddCardScreen } from '../AddCardScreen';
 

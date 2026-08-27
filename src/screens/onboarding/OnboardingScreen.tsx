@@ -15,7 +15,8 @@ import { useAuth } from '../../navigation/authContext';
 import { createSecureProfileId } from '../../security/keyVault';
 import { useLanguageStore } from '../../store/useLanguageStore';
 import { useUserStore } from '../../store/useUserStore';
-import { paydayFromChip } from '../check/incomeAnchor';
+import { APP_NAME } from '../../config/identity';
+import { paydayFromChip } from '../../check/incomeAnchor';
 import { useProfileStore } from '../../store/useProfileStore';
 import { useCardsStore } from '../../store/useCardsStore';
 import {
@@ -289,7 +290,7 @@ export default function OnboardingScreen(): React.ReactElement {
             className={`mt-2 text-sm font-bold ${TEXT.muted}`}
             testID="onboarding-where"
           >
-            {t('ככה SmartCard יודע מה בטוח. זה לא יוצא מהמכשיר.')}
+            {t('ככה {{app}} יודע מה בטוח. זה לא יוצא מהמכשיר.', { app: APP_NAME })}
           </AppText>
           <AppText className={`mt-2 text-sm font-bold ${TEXT.muted}`}>
             {t('דילוג מגביל את פסקי הבדיקה.')}

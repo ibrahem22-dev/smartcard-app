@@ -6,7 +6,7 @@ import {
   queryVerdictHistory,
   writeLoggedPurchase,
   writeVerdictHistory,
-} from '../activityMapper';
+} from '../../../check/activityMapper';
 
 describe('L1 — purchase logging mapper', () => {
   it('writeLoggedPurchase records amount, activityId and loggedAt', () => {

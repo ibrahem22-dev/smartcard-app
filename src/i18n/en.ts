@@ -93,7 +93,7 @@ export const en = {
     unknownLeg: 'Cards with no FX leg',
     empty: 'No comparison yet',
     settlementCaveat:
-      'Estimate — Visa/Mastercard settle at their own network rates, which may differ from the Bank of Israel reference rate.',
+      'Note — Visa/Mastercard settle at their own network rates, which may differ from the Bank of Israel reference rate.',
     howCalculated: 'How this is calculated',
     base: 'Base',
     markup: 'Markup',
@@ -511,8 +511,8 @@ export const enBySource: Readonly<Record<string, string>> = {
   'אחר כך': 'Later',
   אחרון: 'Last',
   'יום משכורת': 'Payday',
-  'ככה SmartCard יודע מה בטוח. זה לא יוצא מהמכשיר.':
-    'This is how SmartCard knows what\'s safe. It never leaves your device.',
+  'ככה {{app}} יודע מה בטוח. זה לא יוצא מהמכשיר.':
+    'This is how {{app}} knows what\'s safe. It never leaves your device.',
   'דילוג מגביל את פסקי הבדיקה.': 'Skipping limits verdicts.',
   'השפה קובעת איך האפליקציה מדברת איתך.':
     'Language decides how the app talks to you.',
@@ -913,7 +913,7 @@ export const enBySource: Readonly<Record<string, string>> = {
   המנצחת: en.fxCompare.winner,
   'כרטיסים בלי רגל מטח': en.fxCompare.unknownLeg,
   'אין השוואה עדיין': en.fxCompare.empty,
-  'הערכה — ויזה ומאסטרקארד מיישבים לפי שערי הרשת שלהם, שעשויים להיות שונים משער בנק ישראל':
+  'שימו לב — ויזה ומאסטרקארד מיישבים לפי שערי הרשת שלהם, שעשויים להיות שונים משער בנק ישראל':
     en.fxCompare.settlementCaveat,
   'איך זה מחושב': en.fxCompare.howCalculated,
   בסיס: en.fxCompare.base,

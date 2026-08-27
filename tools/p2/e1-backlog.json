@@ -104,9 +104,9 @@
       "id": "DEFER-MMKV-OUTSIDE-VAULT",
       "disposition": "DEFERRED",
       "rule": "R3",
-      "file": "^src/(i18n/locale\\.ts|navigation/authContext\\.tsx)$",
+      "file": "^src/(i18n/locale\\.ts|navigation/authContext\\.tsx|store/useFinishSetupStore\\.ts)$",
       "message": "local storage driver 'react-native-mmkv' imported outside",
-      "why": "THE STORAGE DRIVER REACHES TWO MODULES THAT ARE NOT THE VAULT. This is real and it is criterion B3's subject: the store split, which decides which module may own persistence and how the vault boundary is drawn. Repairing it here would mean guessing that split in Phase 3 and then meeting the criterion that defines it in Phase 10.",
+      "why": "THE STORAGE DRIVER REACHES MODULES THAT ARE NOT THE VAULT. This is real and it is criterion B3's subject: the store split, which decides which module may own persistence and how the vault boundary is drawn. locale.ts and authContext.tsx were the two sites at adoption. P4 onboarding added useFinishSetupStore.ts for skip/dismiss flags — the same unencrypted-preferences class, not a new driver. Repairing it here would mean guessing that split in Phase 3 and then meeting the criterion that defines it in Phase 10.",
       "deferredTo": "B3 — the store split, Phase 10 (inside P2)",
       "od": "OD-32",
       "odMeaning": "OD-32 adopted the contract in which B3 owns the vault/persistence boundary; this is a deferral to a later phase of THIS campaign, not out of it.",
@@ -162,6 +162,14 @@
       "why": "THE SAME REASON AS ALLOW-CROSSSET-RESOLVER, AND ONE MORE. The predecessor lint calls every module under src/data/adapter/** a pack module because src/authority/ was the boundary directory when it was adopted; a seam nothing may import is not a seam, and D2 forbids importing A PACK FILE, A RAW JSON DATASET OR THE DB DRIVER, not the boundary's own modules. The additional reason here is that conflictRenderPlan.ts imports the adapter AS A TYPE ONLY, so it is ERASED at runtime and carries no pack data, no adapter code and no Node API into a React Native bundle. That erasure is why it exists as a separate module at all: the render suite failed with 'Cannot find module @babel/runtime/helpers/interopRequireDefault' when the component reached the adapter's runtime through a file: junction resolving outside the app root. Scoped to the module BY NAME: a component importing conflictRender.ts, which does load the adapter, stays UNACCOUNTED here.",
       "reviewedBy": "WP-9.4",
       "reviewedAt": "2026-08-24"
+    },
+    {
+      "id": "ALLOW-WIZARD-CATALOG-PACK-READ",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/data/adapter/(catalogSearch|clubResolver)\\.ts$",
+      "message": "raw dataset '\\./packs/catalog/pack\\.json'",
+      "why": "THE WIZARD READS THE SHIPPED CATALOG FROM THE SANCTIONED DIRECTORY. D2 (lint-boundaries rule 3) permits only data/adapter/** to import a pack file. The predecessor lint still names src/authority/** as the adapter, so catalogSearch and clubResolver are accounted here rather than the lint being widened. Screens never open pack.json; they ask src/authority/addCardCatalog.ts, which re-exports these modules. Direct JSON rather than @smartcard/data-authority-adapter keeps the add-card render harness free of the adapter package's Node graph."
     },
     {
       "id": "ALLOW-DEV-PROBE-PACK-READS",

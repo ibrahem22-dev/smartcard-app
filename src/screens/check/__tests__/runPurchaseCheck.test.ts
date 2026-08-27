@@ -1,4 +1,4 @@
-import { runPurchaseCheck, type PurchaseCheckContext } from '../runPurchaseCheck';
+import { runPurchaseCheck, type PurchaseCheckContext } from '../../../check/runPurchaseCheck';
 import type { CheckInputDraft } from '../CheckInputScreen';
 import { Currency } from '../../../types/purchase.types';
 

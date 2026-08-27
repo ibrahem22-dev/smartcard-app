@@ -25,7 +25,7 @@ import { render } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { CheckVerdictScreen } from '../CheckVerdictScreen';
-import { runPurchaseCheck, type PurchaseCheckContext } from '../runPurchaseCheck';
+import { runPurchaseCheck, type PurchaseCheckContext } from '../../../check/runPurchaseCheck';
 import type { CheckInputDraft } from '../CheckInputScreen';
 import { Currency } from '../../../types/purchase.types';
 import type { PurchaseVerdict, PurchaseVerdictResult } from '../../../engines/verdict';

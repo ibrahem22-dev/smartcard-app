@@ -5,7 +5,7 @@ import React, { useState } from 'react';
 import { fireEvent } from '@testing-library/react-native';
 
 import { AppText } from '../../../components/AppText';
-import { currentCatalogClubs, type ClubResolution } from '../../../data/adapter/clubResolver';
+import { currentCatalogClubs, type ClubResolution } from '../../../authority/addCardCatalog';
 import { renderScreen } from '../../../../tools/p2/jest/renderScreen';
 import { ClubResolver } from '../ClubResolver';
 

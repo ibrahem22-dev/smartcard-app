@@ -12,7 +12,7 @@ import { render } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { CheckVerdictScreen, VERDICT_PILL } from '../CheckVerdictScreen';
-import { runPurchaseCheck, type PurchaseCheckContext } from '../runPurchaseCheck';
+import { runPurchaseCheck, type PurchaseCheckContext } from '../../../check/runPurchaseCheck';
 import type { CheckInputDraft } from '../CheckInputScreen';
 import { Currency } from '../../../types/purchase.types';
 import type { PurchaseVerdict } from '../../../engines/verdict';

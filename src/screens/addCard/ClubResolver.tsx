@@ -9,7 +9,7 @@ import {
   resolveClub,
   type CatalogClub,
   type ClubResolution,
-} from '../../data/adapter/clubResolver';
+} from '../../authority/addCardCatalog';
 import { useAppDirection } from '../../hooks/useAppDirection';
 import { useTranslation } from '../../hooks/useTranslation';
 import { ACCENT, BORDER, SURFACE, TEXT } from '../../theme/tokens';
@@ -57,7 +57,7 @@ export function ClubResolver({
             {institutions.map(orgId => (
               <Pressable
                 accessibilityRole="button"
-                className={`min-h-[40px] items-center justify-center rounded-lg border px-3 ${BORDER.hairline} ${SURFACE.card}`}
+                className={`min-h-[44px] items-center justify-center rounded-lg border px-3 ${BORDER.hairline} ${SURFACE.card}`}
                 key={orgId}
                 onPress={(): void => {
                   setQ1(orgId);

@@ -17,14 +17,14 @@
  * spine is shekel-only on purpose (execution plan: "default currency, no category, one
  * card, no FX").
  */
-import type { CheckInputDraft } from './CheckInputScreen';
-import { provenanced } from '../../engines/provenance';
+import type { CheckInputDraft } from '../screens/check/CheckInputScreen';
+import { provenanced } from '../engines/provenance';
 import {
   evaluatePurchaseVerdict,
   type PurchaseVerdictInput,
   type PurchaseVerdictResult,
-} from '../../engines/verdict';
-import { Currency } from '../../types/purchase.types';
+} from '../engines/verdict';
+import { Currency } from '../types/purchase.types';
 
 export interface PurchaseCheckContext {
   readonly monthlyIncomeIls: PurchaseVerdictInput['monthlyIncomeIls'];

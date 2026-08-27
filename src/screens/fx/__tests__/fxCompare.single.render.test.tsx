@@ -10,7 +10,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { compareAbroad } from '../../../engines/fx';
 import { CheckVerdictScreen } from '../../check/CheckVerdictScreen';
-import { runPurchaseCheck } from '../../check/runPurchaseCheck';
+import { runPurchaseCheck } from '../../../check/runPurchaseCheck';
 import type { CheckInputDraft } from '../../check/CheckInputScreen';
 import { Currency } from '../../../types/purchase.types';
 import { FxCompareSheet } from '../FxCompareSheet';

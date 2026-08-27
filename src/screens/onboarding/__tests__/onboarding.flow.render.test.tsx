@@ -8,13 +8,18 @@
  * each of them by name.
  */
 import React from 'react';
-import { MMKV } from 'react-native-mmkv';
+import { Text } from 'react-native';
 import { fireEvent, render } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { getDeviceLanguage } from '../../../i18n/locale';
-import { AuthProvider } from '../../../navigation/authContext';
+import { AuthProvider, useAuth } from '../../../navigation/authContext';
 import OnboardingScreen from '../OnboardingScreen';
+
+function OnboardingCompleteFlag(): React.ReactElement {
+  const { isOnboardingComplete } = useAuth();
+  return <Text testID="onboarding-complete-flag">{String(isOnboardingComplete)}</Text>;
+}
 
 const mountScreen = () =>
   render(
@@ -26,6 +31,7 @@ const mountScreen = () =>
     >
       <AuthProvider>
         <OnboardingScreen />
+        <OnboardingCompleteFlag />
       </AuthProvider>
     </SafeAreaProvider>,
   );
@@ -149,10 +155,7 @@ describe('Onboarding — O1: four steps in spec order, skippable except language
     fireEvent.press(getByTestId('onboarding-skip'));
 
     expect(queryByTestId('onboarding-error')).toBeNull();
-    const flag = new MMKV({ id: 'onboarding-temp' }).getBoolean(
-      'onboarding_complete',
-    );
-    expect(flag).toBe(true);
+    expect(getByTestId('onboarding-complete-flag').props.children).toBe('true');
   });
 
   it('the four steps appear in spec order and no other onboarding step is inserted', () => {

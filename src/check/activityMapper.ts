@@ -5,10 +5,10 @@
  * is input assembly, the same class as defaulting a missing installment count
  * to 1. Limit consumption stays inside `evaluateFinancialLoad`.
  */
-import { provenanced, type ProvenancedNumber } from '../../engines/provenance';
-import type { LoadCard } from '../../engines/load';
-import type { PurchaseVerdict } from '../../engines/verdict';
-import type { LoggedPurchase, VerdictHistoryRecord } from '../../types/activity.types';
+import { provenanced, type ProvenancedNumber } from '../engines/provenance';
+import type { LoadCard } from '../engines/load';
+import type { PurchaseVerdict } from '../engines/verdict';
+import type { LoggedPurchase, VerdictHistoryRecord } from '../types/activity.types';
 
 export function writeLoggedPurchase(input: {
   readonly activityId: string;

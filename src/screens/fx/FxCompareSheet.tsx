@@ -201,7 +201,7 @@ export function FxCompareSheet({
           </View>
         ) : null}
         <AppText className={`mt-4 text-xs ${TEXT.muted}`} testID="fx-compare-settlement-caveat">
-          {t('הערכה — ויזה ומאסטרקארד מיישבים לפי שערי הרשת שלהם, שעשויים להיות שונים משער בנק ישראל')}
+          {t('שימו לב — ויזה ומאסטרקארד מיישבים לפי שערי הרשת שלהם, שעשויים להיות שונים משער בנק ישראל')}
         </AppText>
           </>
         )}

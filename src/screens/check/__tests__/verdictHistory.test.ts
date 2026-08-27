@@ -1,7 +1,7 @@
 /**
  * L3 — verdict history is queryable substrate, not a write-only log.
  */
-import { queryVerdictHistory, writeVerdictHistory } from '../activityMapper';
+import { queryVerdictHistory, writeVerdictHistory } from '../../../check/activityMapper';
 
 const older = writeVerdictHistory({
   activityId: 'activity:older',

@@ -8,12 +8,12 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { CheckVerdictScreen } from '../CheckVerdictScreen';
 import type { CheckVerdictScreenProps } from '../CheckVerdictScreen';
-import { runPurchaseCheck } from '../runPurchaseCheck';
-import { verdictPropsFromDraft } from '../checkLoop';
+import { runPurchaseCheck } from '../../../check/runPurchaseCheck';
+import { verdictPropsFromDraft } from '../../../check/checkLoop';
 import {
   loadCardsFromVault,
   writeLoggedPurchase,
-} from '../activityMapper';
+} from '../../../check/activityMapper';
 import { evaluateFinancialLoad } from '../../../engines/load';
 import type { CheckInputDraft } from '../CheckInputScreen';
 import { Currency } from '../../../types/purchase.types';
