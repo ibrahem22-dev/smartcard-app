@@ -263,6 +263,36 @@ const CASES = [
     expect: 'pass',
     mustSay: 'P2-ALL OK — every step green',
   },
+
+  // ── the P4 ladder verdict (V2) ────────────────────────────────────────────────────────────
+  {
+    step: 'the whole P4 ladder (V2)',
+    label: 'a P4 ladder that printed nothing is refused',
+    ladder: '',
+    expect: 'fail',
+    mustSay: 'P4 V2 NOT SATISFIED',
+  },
+  {
+    step: 'the whole P4 ladder (V2)',
+    label: 'a RED P4 ladder is refused',
+    ladder: 'P4-ALL FAILED — 2 step(s) red' + NL,
+    expect: 'fail',
+    mustSay: 'P4 V2 NOT SATISFIED',
+  },
+  {
+    step: 'the whole P4 ladder (V2)',
+    label: 'a DEVICE-BLOCKED P4 ladder is refused',
+    ladder: 'P4-ALL DEVICE-BLOCKED — every gate that can run here is green' + NL,
+    expect: 'fail',
+    mustSay: 'P4 V2 NOT SATISFIED',
+  },
+  {
+    step: 'the whole P4 ladder (V2)',
+    label: 'a genuinely green P4 ladder is accepted',
+    ladder: 'P4-ALL OK — every step green' + NL,
+    expect: 'pass',
+    mustSay: 'P4-ALL OK — every step green',
+  },
 ];
 
 /**
@@ -297,18 +327,28 @@ try {
     if (c.ladder !== undefined) {
       // Replace ONLY the line that invokes the real ladder. If that line is not found, the step no
       // longer works the way this control assumes and we stop rather than test a fiction.
-      const marker = 'npm run p2:all 2>&1 | tee "$LADDER_LOG" || true';
-      if (!script.includes(marker)) {
-        throw new Error('the ladder step no longer contains ' + JSON.stringify(marker)
+      const markers = [
+        'npm run p2:all 2>&1 | tee "$LADDER_LOG" || true',
+        'npm run p4:all 2>&1 | tee "$P4_LADDER_LOG" || true',
+      ];
+      const marker = markers.find((m) => script.includes(m));
+      if (!marker) {
+        throw new Error('the ladder step no longer contains a known npm-run | tee invocation'
           + ' — this control cannot substitute a fixture and would be asserting nothing');
       }
       writeFileSync(join(dir, 'fixture.log'), c.ladder);
-      script = script.split(marker).join('cat fixture.log | tee "$LADDER_LOG"');
+      const teeTarget = marker.includes('P4_LADDER_LOG') ? '"$P4_LADDER_LOG"' : '"$LADDER_LOG"';
+      script = script.split(marker).join('cat fixture.log | tee ' + teeTarget);
     }
 
     const r = sh(script, {
       cwd: dir,
-      env: { ...c.env, GITHUB_STEP_SUMMARY: join(dir, 'summary.md'), LADDER_LOG: join(dir, 'ladder.log') },
+      env: {
+        ...c.env,
+        GITHUB_STEP_SUMMARY: join(dir, 'summary.md'),
+        LADDER_LOG: join(dir, 'ladder.log'),
+        P4_LADDER_LOG: join(dir, 'p4-ladder.log'),
+      },
     });
     const failed = r.status !== 0;
     const wanted = c.expect === 'fail';

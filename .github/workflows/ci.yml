@@ -498,6 +498,44 @@ jobs:
             echo '| V2 | `P3-ALL OK — every step green` (this runner, per OQ-004) |'
           } >> "$GITHUB_STEP_SUMMARY"
 
+      # ============================================================================================
+      # THE P4 LADDER (V2). Same discipline as the P2 and P3 ladders above: the whole ladder in one
+      # command, the verdict read from printed output, the exact contracted sentinel asserted by
+      # grep. P4 V2 is FRESH-flagged and OQ-004 names THIS runner as the machine that proves it.
+      # ============================================================================================
+      - name: the whole P4 ladder (V2)
+        working-directory: smartcard-app
+        env:
+          P4_LADDER_LOG: ${{ runner.temp }}/p4-ladder.log
+        run: |
+          set -o pipefail
+          npm run p4:all 2>&1 | tee "$P4_LADDER_LOG" || true
+
+          echo "----- verdict, read from printed output -----"
+
+          if ! grep -qF 'P4-ALL OK — every step green' "$P4_LADDER_LOG"; then
+            echo "::error::P4 V2 NOT SATISFIED — the P4 ladder did not print its sentinel."
+            grep -E '^\s+FAIL |^\s+MISS ' "$P4_LADDER_LOG" | head -8 | while IFS= read -r line; do
+              echo "::error::ladder red: $(echo "$line" | sed 's/^[[:space:]]*//')"
+            done
+            grep -E 'P4-ALL (FAILED|INCOMPLETE|DEVICE-BLOCKED)' "$P4_LADDER_LOG" | head -2 \
+              | while IFS= read -r line; do echo "::error::verdict: $line"; done
+            echo "An absent sentinel is a failure, not a pass. What the ladder did print:"
+            grep -E 'P4-ALL|FAILED|INCOMPLETE|DEVICE-BLOCKED' "$P4_LADDER_LOG" || tail -40 "$P4_LADDER_LOG"
+            exit 1
+          fi
+
+          echo "::notice title=P4 V2 sentinel::$(grep -F 'P4-ALL OK — every step green' "$P4_LADDER_LOG" | head -1)"
+          echo "::notice title=P4 ladder counts::$(grep -E '^\s+steps ' "$P4_LADDER_LOG" | head -1 | sed 's/^[[:space:]]*//')"
+          echo "::notice title=measured at::app $(git -C "$GITHUB_WORKSPACE/smartcard-app" rev-parse HEAD) · pipeline $(git -C "$GITHUB_WORKSPACE/smartcard-data-pipeline" rev-parse HEAD)"
+
+          {
+            echo ""
+            echo '| criterion | sentinel |'
+            echo '|---|---|'
+            echo '| P4 V2 | `P4-ALL OK — every step green` (this runner, per OQ-004) |'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       # The boundary rules are also proven CAPABLE OF FAILING, here. A rule that has never been
       # watched to fire is not a rule, and a control recorded only on a laptop is a claim about a
       # laptop.
@@ -527,6 +565,8 @@ jobs:
           path: |
             smartcard-app/reports/p2/
             smartcard-app/reports/p3/
+            smartcard-app/reports/p4/
             ${{ runner.temp }}/ladder.log
             ${{ runner.temp }}/p3-ladder.log
+            ${{ runner.temp }}/p4-ladder.log
           if-no-files-found: warn
