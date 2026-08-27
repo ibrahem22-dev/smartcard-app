@@ -20,6 +20,7 @@ import {
   unknownFieldView,
   userEnteredView,
 } from '../data/adapter/wizardProvenance';
+import { writeWizardCard } from '../data/adapter/wizardVault';
 import { ClubResolver } from './addCard/ClubResolver';
 import { useAppDirection } from '../hooks/useAppDirection';
 import { useTranslation } from '../hooks/useTranslation';
@@ -27,7 +28,6 @@ import type { WalletStackParamList } from '../navigation/types';
 import { useCardsStore } from '../store/useCardsStore';
 import { ACCENT, BORDER, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
 import { CardIssuer } from '../types/card.types';
-import { createManualCard } from '../utils/manualCard';
 import { parseAmount } from '../utils/parseAmount';
 
 type AddCardNavigation = NativeStackNavigationProp<WalletStackParamList, 'AddCard'>;
@@ -91,7 +91,7 @@ export function AddCardScreen(): React.ReactElement {
   const { t } = useTranslation();
   const { textAlign, writingDirection } = useAppDirection();
   const navigation = useNavigation<AddCardNavigation>();
-  const addCard = useCardsStore(state => state.addCard);
+  const addVaultEntry = useCardsStore(state => state.addVaultEntry);
   const institutions = currentCatalogInstitutions();
 
   const [path, setPath] = useState<WizardPath>('search');
@@ -176,19 +176,19 @@ export function AddCardScreen(): React.ReactElement {
       return;
     }
 
-    const card = createManualCard({
-      displayName: displayName.trim(),
-      last4,
-      issuer,
-      creditLimit,
-      currentBalance,
-      ...(billingDay === undefined ? {} : { billingDayOfMonth: billingDay }),
-      ...(fee === undefined ? {} : { foreignTransactionFee: fee }),
-      ...(selected === null ? {} : { cardProductId: selected.cardId }),
-      ...(clubResolution?.outcome === 'unknown' ? { unknownClub: true } : {}),
-    });
-
-    addCard(card);
+    addVaultEntry(
+      writeWizardCard({
+        displayName: displayName.trim(),
+        last4,
+        issuer,
+        creditLimit,
+        currentBalance,
+        ...(billingDay === undefined ? {} : { billingDayOfMonth: billingDay }),
+        ...(fee === undefined ? {} : { foreignTransactionFee: fee }),
+        ...(selected === null ? {} : { catalogCardId: selected.cardId }),
+        ...(clubResolution?.outcome === 'unknown' ? { unknownClub: true } : {}),
+      }),
+    );
     navigation.goBack();
   }
 

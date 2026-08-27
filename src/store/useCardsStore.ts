@@ -99,6 +99,12 @@ interface CardsState {
    */
   addCard(card: EngineCard, clubSuggestedByApp?: boolean): void;
 
+  /**
+   * Persist a vault write that is already split (W5). The wizard uses this so it
+   * never hands the store a mixed EngineCard or a raw dataset row.
+   */
+  addVaultEntry(entry: { readonly user: UserCard; readonly product: CardProduct }): void;
+
   /** Remove a card by its cardId. No-op if the id is not found. */
   removeCard(cardId: string): void;
 
@@ -289,6 +295,14 @@ export const useCardsStore = create<CardsState>()((set) => ({
   addCard(card: EngineCard, clubSuggestedByApp?: boolean) {
     set((state) => {
       const entries = [...state.entries, toEntry(card, clubSuggestedByApp)];
+      persist(entries, getActiveProfileId());
+      return { entries, cards: engineViews(entries) };
+    });
+  },
+
+  addVaultEntry(entry: { readonly user: UserCard; readonly product: CardProduct }) {
+    set((state) => {
+      const entries = [...state.entries, { user: entry.user, product: entry.product }];
       persist(entries, getActiveProfileId());
       return { entries, cards: engineViews(entries) };
     });
