@@ -264,7 +264,7 @@ export function AddCardScreen(): React.ReactElement {
         className={inputClass}
         keyboardType="number-pad"
         maxLength={4}
-        onChangeText={setLast4}
+        onChangeText={(text): void => setLast4(text.replace(/\D/g, '').slice(0, 4))}
         style={inputStyle}
         testID="add-card-last4"
         value={last4}
