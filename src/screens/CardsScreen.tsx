@@ -10,11 +10,14 @@ import { AppText } from '../components/AppText';
 import { RtlRow, RtlScreen, RtlScrollView } from '../components/rtl';
 import { useTheme } from '../hooks/useTheme';
 import { useTranslation, type UseTranslationResult } from '../hooks/useTranslation';
+import { resolveMedia } from '../media/resolveMedia';
+import { maskLast4 } from '../media/maskLast4';
 import type { WalletStackParamList } from '../navigation/types';
 import { useCardsStore } from '../store/useCardsStore';
-import { buildCardsViewModel } from './cardsEmptyState';
-import { CardIssuer, type CardInput } from '../types/card.types';
 import { ACCENT, BORDER, SURFACE, TEXT } from '../theme/tokens';
+import { CardIssuer, type CardInput } from '../types/card.types';
+import { ltrNumerals } from '../utils/calendar';
+import { buildCardsViewModel } from './cardsEmptyState';
 
 type CardsNavigation = NativeStackNavigationProp<
   WalletStackParamList,
@@ -108,7 +111,18 @@ export function CardsScreen(): React.ReactElement {
             </View>
           ) : (
             <View className="w-full gap-3">
-              {cards.map((card: CardInput): React.ReactElement => (
+              {cards.map((card: CardInput): React.ReactElement => {
+                const resolution = resolveMedia(
+                  {
+                    subjectKind: 'card',
+                    subjectId: card.cardId,
+                    fallbackClass: 'card',
+                  },
+                  [],
+                  { context: { issuerId: card.issuer } },
+                );
+                const mask = maskLast4(card.last4);
+                return (
                 <Pressable
                   accessibilityRole="button"
                   className={`min-h-[108px] w-full rounded-lg border p-4 ${BORDER.hairline} ${SURFACE.card}`}
@@ -120,6 +134,15 @@ export function CardsScreen(): React.ReactElement {
                 >
                   <RtlRow className="items-center justify-between">
                     <View className="flex-1 items-stretch">
+                      <View
+                        accessibilityLabel={
+                          resolution
+                            ? t(resolution.altTextKey)
+                            : t('ייצוג כללי של כרטיס')
+                        }
+                        className={`mb-2 h-16 rounded-md ${SURFACE.raised}`}
+                        testID="card-tile-surface"
+                      />
                       <AppText
                         className={`text-lg font-extrabold ${TEXT.heading}`}
                         style={[
@@ -141,6 +164,14 @@ export function CardsScreen(): React.ReactElement {
                       >
                         {t(ISSUER_LABELS[card.issuer])} · {getClubLabel(card, t)}
                       </AppText>
+                      {mask ? (
+                        <AppText
+                          className={`mt-1 text-sm ${TEXT.secondary}`}
+                          testID="card-tile-mask"
+                        >
+                          {ltrNumerals(mask)}
+                        </AppText>
+                      ) : null}
                       <AppText
                         className={`mt-1 text-sm ${TEXT.secondary}`}
                       >
@@ -163,7 +194,8 @@ export function CardsScreen(): React.ReactElement {
                     ) : null}
                   </RtlRow>
                 </Pressable>
-              ))}
+                );
+              })}
             </View>
           )}
         </View>
