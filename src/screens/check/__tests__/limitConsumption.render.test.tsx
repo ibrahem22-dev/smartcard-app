@@ -7,6 +7,7 @@ import { render } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { CheckVerdictScreen } from '../CheckVerdictScreen';
+import type { CheckVerdictScreenProps } from '../CheckVerdictScreen';
 import { runPurchaseCheck } from '../runPurchaseCheck';
 import { verdictPropsFromDraft } from '../checkLoop';
 import {
@@ -60,7 +61,7 @@ const afterProps = verdictPropsFromDraft(draft, {
   todayIso: '2026-08-27',
 });
 
-const mount = (strip: { readonly availableAfterPurchaseIls: { readonly value: number; readonly provenance: 'USER' | 'ESTIMATE' | 'VERIFIED' } }) =>
+const mount = (strip: NonNullable<CheckVerdictScreenProps['impactStrip']>) =>
   render(
     <SafeAreaProvider
       initialMetrics={{
