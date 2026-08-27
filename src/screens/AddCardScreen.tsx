@@ -4,7 +4,9 @@ import { useNavigation } from '@react-navigation/native';
 import type { NativeStackNavigationProp } from '@react-navigation/native-stack';
 
 import { AppText } from '../components/AppText';
+import { ProvenanceChip } from '../components/ProvenanceChip';
 import { RtlRow, RtlScreen, RtlScrollView } from '../components/rtl';
+import type { ProvenanceRecord } from '../authority/provenanceChip';
 import {
   catalogDisplayName,
   currentCatalogInstitutions,
@@ -12,6 +14,12 @@ import {
   type CatalogProductHit,
 } from '../data/adapter/catalogSearch';
 import type { ClubResolution } from '../data/adapter/clubResolver';
+import {
+  catalogFxPrefill,
+  catalogPrefillView,
+  unknownFieldView,
+  userEnteredView,
+} from '../data/adapter/wizardProvenance';
 import { ClubResolver } from './addCard/ClubResolver';
 import { useAppDirection } from '../hooks/useAppDirection';
 import { useTranslation } from '../hooks/useTranslation';
@@ -58,6 +66,25 @@ function issuerFromCatalogHit(hit: CatalogProductHit): CardIssuer | null {
   if (raw === 'org:cal') return CardIssuer.Cal;
   if (raw === 'org:isracard' || raw === 'org:amex-il') return CardIssuer.Isracard;
   return null;
+}
+
+function FieldHeading({
+  label,
+  fieldId,
+  view,
+}: {
+  readonly label: string;
+  readonly fieldId: string;
+  readonly view: ProvenanceRecord;
+}): React.ReactElement {
+  return (
+    <RtlRow className="items-center justify-between gap-2">
+      <AppText className={`text-sm font-bold ${TEXT.body}`}>{label}</AppText>
+      <View testID={`add-card-field-${fieldId}`}>
+        <ProvenanceChip view={view} />
+      </View>
+    </RtlRow>
+  );
 }
 
 export function AddCardScreen(): React.ReactElement {
@@ -112,6 +139,10 @@ export function AddCardScreen(): React.ReactElement {
     setSelected(hit);
     setDisplayName(catalogDisplayName(hit));
     setIssuer(issuerFromCatalogHit(hit));
+    const fx = catalogFxPrefill(hit.cardId);
+    if (fx !== null) {
+      setFeePercentText(fx.percentText);
+    }
     setPath('catalog');
   }
 
@@ -165,9 +196,36 @@ export function AddCardScreen(): React.ReactElement {
   const inputClass = `min-h-[50px] rounded-lg border px-4 text-base ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`;
   const labelClass = `text-sm font-bold ${TEXT.body}`;
 
+  const catalogName = selected !== null ? catalogDisplayName(selected) : '';
+  const catalogIssuer = selected !== null ? issuerFromCatalogHit(selected) : null;
+  const fxPrefill = selected !== null ? catalogFxPrefill(selected.cardId) : null;
+
+  const nameView =
+    path === 'catalog' && displayName === catalogName
+      ? catalogPrefillView()
+      : displayName.trim() === ''
+        ? unknownFieldView()
+        : userEnteredView();
+  const issuerView =
+    path === 'catalog' && issuer !== null && issuer === catalogIssuer
+      ? catalogPrefillView()
+      : issuer === null
+        ? unknownFieldView()
+        : userEnteredView();
+  const last4View = last4.trim() === '' ? unknownFieldView() : userEnteredView();
+  const limitView = creditLimitText.trim() === '' ? unknownFieldView() : userEnteredView();
+  const balanceView = currentBalanceText.trim() === '' ? unknownFieldView() : userEnteredView();
+  const billingView = billingDayText.trim() === '' ? unknownFieldView() : userEnteredView();
+  const fxView =
+    fxPrefill !== null && feePercentText === fxPrefill.percentText
+      ? fxPrefill.view
+      : feePercentText.trim() === ''
+        ? unknownFieldView()
+        : userEnteredView();
+
   const detailsForm = (
     <>
-      <AppText className={labelClass}>{t('שם הכרטיס')}</AppText>
+      <FieldHeading fieldId="displayName" label={t('שם הכרטיס')} view={nameView} />
       <TextInput
         className={inputClass}
         onChangeText={setDisplayName}
@@ -176,7 +234,7 @@ export function AddCardScreen(): React.ReactElement {
         value={displayName}
       />
 
-      <AppText className={labelClass}>{t('חברת האשראי')}</AppText>
+      <FieldHeading fieldId="issuer" label={t('חברת האשראי')} view={issuerView} />
       <RtlRow className="flex-wrap gap-2">
         {ISSUER_OPTIONS.map(option => {
           const isSelected = issuer === option.value;
@@ -201,7 +259,7 @@ export function AddCardScreen(): React.ReactElement {
         })}
       </RtlRow>
 
-      <AppText className={labelClass}>{t('4 ספרות אחרונות')}</AppText>
+      <FieldHeading fieldId="last4" label={t('4 ספרות אחרונות')} view={last4View} />
       <TextInput
         className={inputClass}
         keyboardType="number-pad"
@@ -212,7 +270,7 @@ export function AddCardScreen(): React.ReactElement {
         value={last4}
       />
 
-      <AppText className={labelClass}>{t('מסגרת אשראי (₪)')}</AppText>
+      <FieldHeading fieldId="creditLimit" label={t('מסגרת אשראי (₪)')} view={limitView} />
       <TextInput
         className={inputClass}
         keyboardType="decimal-pad"
@@ -221,7 +279,7 @@ export function AddCardScreen(): React.ReactElement {
         value={creditLimitText}
       />
 
-      <AppText className={labelClass}>{t('חיוב נוכחי (₪)')}</AppText>
+      <FieldHeading fieldId="currentBalance" label={t('חיוב נוכחי (₪)')} view={balanceView} />
       <TextInput
         className={inputClass}
         keyboardType="decimal-pad"
@@ -230,7 +288,7 @@ export function AddCardScreen(): React.ReactElement {
         value={currentBalanceText}
       />
 
-      <AppText className={labelClass}>{t('יום חיוב בחודש (אופציונלי)')}</AppText>
+      <FieldHeading fieldId="billingDay" label={t('יום חיוב בחודש (אופציונלי)')} view={billingView} />
       <TextInput
         className={inputClass}
         keyboardType="number-pad"
@@ -240,7 +298,7 @@ export function AddCardScreen(): React.ReactElement {
         value={billingDayText}
       />
 
-      <AppText className={labelClass}>{t('עמלת המרת מט"ח % (אופציונלי)')}</AppText>
+      <FieldHeading fieldId="fxFee" label={t('עמלת המרת מט"ח % (אופציונלי)')} view={fxView} />
       <TextInput
         className={inputClass}
         keyboardType="decimal-pad"
@@ -251,6 +309,7 @@ export function AddCardScreen(): React.ReactElement {
       <AppText className={`text-xs font-bold ${TEXT.muted}`}>
         {t('שדות לא ידועים נשארים לא ידועים — האפליקציה לא תמציא ערך.')}
       </AppText>
+      <AppText className={`text-xs font-bold ${TEXT.muted}`}>{t('אפשר לתקן בכל עת')}</AppText>
 
       {showClubResolver ? (
         <ClubResolver

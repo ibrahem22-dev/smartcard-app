@@ -379,6 +379,7 @@ export const enBySource: Readonly<Record<string, string>> = {
   'עמלת המרת מט"ח % (אופציונלי)': 'FX conversion fee % (optional)',
   'שדות לא ידועים נשארים לא ידועים — האפליקציה לא תמציא ערך.':
     'Unknown fields stay unknown — the app will not invent a value.',
+  'אפשר לתקן בכל עת': 'Correct anytime',
   'שמור כרטיס': 'Save card',
   'חפש כרטיס': 'Search cards',
   'סנן לפי מוסד': 'Filter by institution',
