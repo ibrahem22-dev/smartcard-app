@@ -14,6 +14,8 @@ import { useTranslation } from '../../hooks/useTranslation';
 import { useAuth } from '../../navigation/authContext';
 import { createSecureProfileId } from '../../security/keyVault';
 import { useLanguageStore } from '../../store/useLanguageStore';
+import { useUserStore } from '../../store/useUserStore';
+import { paydayFromChip } from '../check/incomeAnchor';
 import { useProfileStore } from '../../store/useProfileStore';
 import { useCardsStore } from '../../store/useCardsStore';
 import {
@@ -133,6 +135,18 @@ export default function OnboardingScreen(): React.ReactElement {
           languagePreference: useLanguageStore.getState().resolvedLanguage,
           cardIds: [],
         });
+        const monthlyIncome = parsePositiveNumber(incomeText);
+        const payday = paydayFromChip(paydayId);
+        if (monthlyIncome !== null) {
+          const now = Date.now();
+          useUserStore.getState().setProfile({
+            id: profileId,
+            monthlyIncome,
+            ...(payday !== undefined ? { payday } : {}),
+            createdAt: now,
+            updatedAt: now,
+          });
+        }
       } catch {
         setError(t('לא הצלחנו לשמור את ההגדרה המקומית. נסה שוב.'));
         return;

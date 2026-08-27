@@ -47,10 +47,21 @@ describe('DR-012.2 stored profile parsing', () => {
     expect(parseStoredProfile('not json at all')).toBeNull();
   });
 
-  it('rejects a record missing a required financial field', () => {
+  it('rejects a record missing monthly income — that is not a stored profile', () => {
     const { monthlyIncome: _dropped, ...withoutIncome } = VALID;
     expect(parseStoredProfile(JSON.stringify(withoutIncome))).toBeNull();
     expect(isUserProfile(withoutIncome)).toBe(false);
+  });
+
+  it('accepts income and payday without inventing a balance', () => {
+    const incomeOnly: UserProfile = {
+      id: 'user-1',
+      monthlyIncome: 12_000,
+      payday: { kind: 'day', day: 15 },
+      createdAt: 1_700_000_000_000,
+      updatedAt: 1_700_000_000_000,
+    };
+    expect(parseStoredProfile(JSON.stringify(incomeOnly))).toEqual(incomeOnly);
   });
 
   it('rejects non-finite or wrongly-typed financial values', () => {

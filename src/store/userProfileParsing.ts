@@ -18,7 +18,7 @@
  * Gate refuses rather than computing on rubbish.
  */
 
-import type { UserProfile } from '../types/user.types';
+import type { PaydayCapture, UserProfile } from '../types/user.types';
 
 function isRecord(value: unknown): value is Record<string, unknown> {
   return typeof value === 'object' && value !== null;
@@ -32,19 +32,37 @@ function isOptionalString(value: unknown): boolean {
   return value === undefined || typeof value === 'string';
 }
 
+function isOptionalFiniteNumber(value: unknown): boolean {
+  return value === undefined || isFiniteNumber(value);
+}
+
+function isPaydayCapture(value: unknown): value is PaydayCapture {
+  if (!isRecord(value) || typeof value.kind !== 'string') {
+    return false;
+  }
+  if (value.kind === 'last') {
+    return true;
+  }
+  return (
+    value.kind === 'day' &&
+    (value.day === 1 || value.day === 10 || value.day === 15 || value.day === 28)
+  );
+}
+
 export function isUserProfile(value: unknown): value is UserProfile {
   return (
     isRecord(value) &&
     typeof value.id === 'string' &&
     value.id !== '' &&
     isFiniteNumber(value.monthlyIncome) &&
-    isFiniteNumber(value.currentBalance) &&
+    isOptionalFiniteNumber(value.currentBalance) &&
     isFiniteNumber(value.createdAt) &&
     isFiniteNumber(value.updatedAt) &&
     isOptionalString(value.bankName) &&
     isOptionalString(value.phoneNumber) &&
     (value.dangerThreshold === undefined ||
-      isFiniteNumber(value.dangerThreshold))
+      isFiniteNumber(value.dangerThreshold)) &&
+    (value.payday === undefined || isPaydayCapture(value.payday))
   );
 }
 
