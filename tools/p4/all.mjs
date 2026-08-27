@@ -173,11 +173,16 @@ const sha = git('rev-parse', 'HEAD') ?? 'nogit';
  * the previous run at the same sha.
  */
 const OWN_REPORT = /^reports[/]p4[/][0-9a-f]{12}(-dirty)?[.]json$/;
+/** Intake-pinned inherited untracked (P3 report, other-tool config). Not P4 dirt. PD-P4-006. */
+const INHERITED_UNTRACKED = /^(?:\.claude\/|reports[/]p3\/)/;
 const dirty = String(spawnSync('git', ['status', '--porcelain'], { cwd: ROOT, encoding: 'utf8' }).stdout || '')
   .trim()
   .split(String.fromCharCode(10))
   .filter((line) => line.trim().length > 0)
-  .filter((line) => !OWN_REPORT.test(line.slice(3).trim().split(String.fromCharCode(92)).join('/')))
+  .filter((line) => {
+    const path = line.slice(3).trim().split(String.fromCharCode(92)).join('/');
+    return !OWN_REPORT.test(path) && !INHERITED_UNTRACKED.test(path);
+  })
   .length > 0;
 
 console.log('');
