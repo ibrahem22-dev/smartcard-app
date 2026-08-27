@@ -380,6 +380,11 @@ export const enBySource: Readonly<Record<string, string>> = {
   'שדות לא ידועים נשארים לא ידועים — האפליקציה לא תמציא ערך.':
     'Unknown fields stay unknown — the app will not invent a value.',
   'שמור כרטיס': 'Save card',
+  'חפש כרטיס': 'Search cards',
+  'סנן לפי מוסד': 'Filter by institution',
+  'כל המוסדות': 'All institutions',
+  'לא מוצאים? הזנה ידנית': "Can't find it? Enter manually",
+  'חזרה לחיפוש': 'Back to search',
   'יש למלא שם, מנפיק, 4 ספרות, מסגרת וחיוב תקינים. יום חיוב 1–31 ועמלת מט"ח 0–100% הם אופציונליים.':
     'Enter a valid name, issuer, 4 digits, credit limit and balance. Billing day 1–31 and FX fee 0–100% are optional.',
   'מועדון לא ידוע 🔍': en.cards.unknownClub,

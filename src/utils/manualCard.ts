@@ -36,6 +36,8 @@ export interface ManualCardInput {
   /** Fraction, e.g. 0.03 = 3%. Omit when unknown — stays unknown (NaN). */
   readonly foreignTransactionFee?: number;
   readonly bankName?: string;
+  /** Catalog cardId when the user picked a CURRENT product; omit on the generic path. */
+  readonly cardProductId?: string;
 }
 
 // Metadata only: not read by the MVP Purchase Gate. Replaced by verified issuer
@@ -50,7 +52,7 @@ export function createManualCard(input: ManualCardInput): EngineCard {
   const cardId = Crypto.randomUUID();
   return {
     cardId,
-    cardProductId: 'manual:' + cardId,
+    cardProductId: input.cardProductId ?? 'manual:' + cardId,
     displayName: input.displayName,
     last4: input.last4,
     issuer: input.issuer,

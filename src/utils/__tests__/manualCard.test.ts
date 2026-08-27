@@ -66,4 +66,12 @@ describe('createManualCard (LOCK-007: unknown stays unknown)', () => {
     expect(product).not.toHaveProperty('last4');
     expect(product).not.toHaveProperty('artworkUrl');
   });
+
+  test('a catalog pick keeps the catalog cardProductId rather than minting manual:', () => {
+    const card = createManualCard({
+      ...BASE,
+      cardProductId: 'card:max:example',
+    });
+    expect(card.cardProductId).toBe('card:max:example');
+  });
 });
