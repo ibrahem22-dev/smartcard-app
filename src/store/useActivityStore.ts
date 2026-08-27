@@ -120,8 +120,10 @@ export const useActivityStore = create<ActivityState>()((set, get) => ({
 
   queryVerdicts(filter) {
     const records = get().verdicts;
-    if (filter?.cardId === undefined) return records;
-    return records.filter((record) => record.cardId === filter.cardId);
+    const filtered = filter?.cardId === undefined
+      ? records
+      : records.filter((record) => record.cardId === filter.cardId);
+    return [...filtered].sort((a, b) => (a.at < b.at ? -1 : a.at > b.at ? 1 : 0));
   },
 
   clearActivity() {
