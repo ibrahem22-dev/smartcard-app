@@ -56,7 +56,7 @@
     {
       "id": "DEFER-ENGLISH-COPY",
       "disposition": "DEFERRED",
-      "file": "^src/(screens|components|navigation|hooks|services|types|authority)/",
+      "file": "^src/(screens|components|navigation|hooks|services|types|authority|check)/",
       "why": "UI COPY WITHOUT AN ENGLISH RENDERING, and in 77 cases without an Arabic one either. Every one is a sentence somebody has to write, in a financial register, in a language the author of this campaign is not qualified to compose for a lender-facing product. A wrong translation of a refusal is a confident false statement about somebody's money; a visible gap is not. The audit makes the gap visible, which is what A7 asks for, and the list is regenerable at any moment rather than transcribed here.",
       "deferredTo": "Owner or a translator — the register is the deliverable, the sentences are not this campaign's to invent",
       "od": "OD-32",
