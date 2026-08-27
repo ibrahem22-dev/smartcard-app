@@ -12,7 +12,7 @@ export const CRITERIA = ['L3'];
 export const SENTINEL = 'VERDICT-HISTORY OK';
 export const MEASURES = 'unit';
 
-const MAPPER = 'src/screens/check/activityMapper.ts';
+const MAPPER = 'src/check/activityMapper.ts';
 const STORE = 'src/store/useActivityStore.ts';
 const UNIT = 'src/screens/check/__tests__/verdictHistory.test.ts';
 const JEST_CONFIG = 'jest.config.cjs';

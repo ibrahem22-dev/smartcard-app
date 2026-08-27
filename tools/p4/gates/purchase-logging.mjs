@@ -12,7 +12,7 @@ export const CRITERIA = ['L1'];
 export const SENTINEL = 'PURCHASE-LOGGING OK';
 export const MEASURES = 'unit+render';
 
-const MAPPER = 'src/screens/check/activityMapper.ts';
+const MAPPER = 'src/check/activityMapper.ts';
 const STORE = 'src/store/useActivityStore.ts';
 const SCREEN = 'src/screens/check/CheckVerdictScreen.tsx';
 const UNIT = 'src/screens/check/__tests__/purchaseLogging.test.ts';

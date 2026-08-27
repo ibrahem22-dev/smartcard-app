@@ -13,8 +13,8 @@ export const CRITERIA = ['L2'];
 export const SENTINEL = 'LIMIT-CONSUMPTION OK';
 export const MEASURES = 'unit+render';
 
-const MAPPER = 'src/screens/check/activityMapper.ts';
-const LOOP = 'src/screens/check/checkLoop.ts';
+const MAPPER = 'src/check/activityMapper.ts';
+const LOOP = 'src/check/checkLoop.ts';
 const SCREEN = 'src/screens/check/CheckVerdictScreen.tsx';
 const UNIT = 'src/screens/check/__tests__/limitConsumption.test.ts';
 const RENDER = 'src/screens/check/__tests__/limitConsumption.render.test.tsx';

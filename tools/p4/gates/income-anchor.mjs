@@ -14,7 +14,7 @@ export const CRITERIA = ['O5'];
 export const SENTINEL = 'INCOME-ANCHOR OK';
 export const MEASURES = 'artifact';
 
-const MAPPER = 'src/screens/check/incomeAnchor.ts';
+const MAPPER = 'src/check/incomeAnchor.ts';
 const TYPES = 'src/types/user.types.ts';
 const PARSE = 'src/store/userProfileParsing.ts';
 const SUITE = 'src/screens/check/__tests__/incomeAnchor.test.ts';

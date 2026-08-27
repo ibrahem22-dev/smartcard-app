@@ -29,7 +29,7 @@ export const CRITERIA = ['B1'];
 export const SENTINEL = 'SURFACES-PURE OK';
 export const MEASURES = 'source';
 
-const SEAM = 'src/screens/check/runPurchaseCheck.ts';
+const SEAM = 'src/check/runPurchaseCheck.ts';
 const SURFACE_ROOTS = ['src/screens', 'src/components'];
 const ENGINE_ROOT = 'src/engines';
 
