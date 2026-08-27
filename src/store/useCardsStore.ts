@@ -270,14 +270,29 @@ export const useCardsStore = create<CardsState>()((set) => ({
   },
 
   hydrateProfile(profileId: string) {
-    const handle = keyVault.getEncryptedStorage();
-    const entries = parseEntries(
-      handle.getString(MMKV_KEYS.profileCards(profileId)),
-    );
-    const obligations = parseObligations(
-      handle.getString(MMKV_KEYS.profileCardObligations(profileId)),
-    );
-    set({ entries, cards: engineViews(entries), obligations });
+    set({ hydration: HYDRATING });
+    try {
+      const handle = keyVault.getEncryptedStorage();
+      const entries = parseEntries(
+        handle.getString(MMKV_KEYS.profileCards(profileId)),
+      );
+      const obligations = parseObligations(
+        handle.getString(MMKV_KEYS.profileCardObligations(profileId)),
+      );
+      set({
+        entries,
+        cards: engineViews(entries),
+        obligations,
+        hydration: hydrated(new Date().toISOString()),
+      });
+    } catch (error: unknown) {
+      set({
+        entries: [],
+        cards: [],
+        obligations: [],
+        hydration: hydrationFailed(describeHydrationError(error)),
+      });
+    }
   },
 
   persistProfile(profileId: string) {
