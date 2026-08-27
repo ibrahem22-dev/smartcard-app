@@ -54,6 +54,24 @@ export interface TrackContext {
   readonly transport?: AnalyticsTransport;
 }
 
+export function findLast4Carrier(value: unknown, path = 'props'): string | null {
+  if (value === null || value === undefined) return null;
+  if (typeof value !== 'object') return null;
+  if (Object.prototype.hasOwnProperty.call(value, 'last4')) return path + '.last4';
+  if (Array.isArray(value)) {
+    for (let i = 0; i < value.length; i++) {
+      const hit = findLast4Carrier(value[i], path + '[' + i + ']');
+      if (hit !== null) return hit;
+    }
+    return null;
+  }
+  for (const [key, nested] of Object.entries(value)) {
+    const hit = findLast4Carrier(nested, path + '.' + key);
+    if (hit !== null) return hit;
+  }
+  return null;
+}
+
 /**
  * Record one product-usage event, if everything about it is permitted.
  *
@@ -76,6 +94,19 @@ export function track<E extends AnalyticsEvent>(
         `analytics consent is ${context.consent}. Nothing is collected, buffered or queued before ` +
         'consent — this event is dropped and cannot be recovered, because a queue that flushed on ' +
         'grant would upload everything the user did before they agreed.',
+    };
+  }
+
+  // ── W7: last4 never leaves the vault via track(), even smuggled inside an object ─
+  const last4At = findLast4Carrier(props);
+  if (last4At !== null) {
+    return {
+      sent: false,
+      reason: 'DISALLOWED_PROP',
+      outboundRequests: 0,
+      why:
+        `last4 cannot leave the encrypted vault via track() (${last4At}). The only authorised ` +
+        'path off the device is the user-initiated profile transfer.',
     };
   }
 
