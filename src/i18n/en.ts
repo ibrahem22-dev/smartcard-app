@@ -385,6 +385,11 @@ export const enBySource: Readonly<Record<string, string>> = {
   'כל המוסדות': 'All institutions',
   'לא מוצאים? הזנה ידנית': "Can't find it? Enter manually",
   'חזרה לחיפוש': 'Back to search',
+  'באיזה מוסד המועדון קשור?': 'Which institution is the club tied to?',
+  'זוכרים מילה משם המועדון?': 'Do you remember a word from the club name?',
+  'זה אחד מהמועדונים האלה?': 'Is it one of these clubs?',
+  'לא בטוח': 'Not sure',
+  'אף אחד מאלה': 'None of these',
   'יש למלא שם, מנפיק, 4 ספרות, מסגרת וחיוב תקינים. יום חיוב 1–31 ועמלת מט"ח 0–100% הם אופציונליים.':
     'Enter a valid name, issuer, 4 digits, credit limit and balance. Billing day 1–31 and FX fee 0–100% are optional.',
   'מועדון לא ידוע 🔍': en.cards.unknownClub,

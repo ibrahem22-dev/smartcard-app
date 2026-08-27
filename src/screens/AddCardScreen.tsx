@@ -11,6 +11,8 @@ import {
   searchCatalog,
   type CatalogProductHit,
 } from '../data/adapter/catalogSearch';
+import type { ClubResolution } from '../data/adapter/clubResolver';
+import { ClubResolver } from './addCard/ClubResolver';
 import { useAppDirection } from '../hooks/useAppDirection';
 import { useTranslation } from '../hooks/useTranslation';
 import type { WalletStackParamList } from '../navigation/types';
@@ -78,6 +80,8 @@ export function AddCardScreen(): React.ReactElement {
   const [billingDayText, setBillingDayText] = useState('');
   const [feePercentText, setFeePercentText] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
+  const [showClubResolver, setShowClubResolver] = useState(false);
+  const [clubResolution, setClubResolution] = useState<ClubResolution | null>(null);
 
   const hits = useMemo(
     () => searchCatalog(query, issuerOrgId === undefined ? undefined : { issuerOrgId }),
@@ -93,6 +97,8 @@ export function AddCardScreen(): React.ReactElement {
     setBillingDayText('');
     setFeePercentText('');
     setFormError(null);
+    setShowClubResolver(false);
+    setClubResolution(null);
   }
 
   function openGeneric(): void {
@@ -148,6 +154,7 @@ export function AddCardScreen(): React.ReactElement {
       ...(billingDay === undefined ? {} : { billingDayOfMonth: billingDay }),
       ...(fee === undefined ? {} : { foreignTransactionFee: fee }),
       ...(selected === null ? {} : { cardProductId: selected.cardId }),
+      ...(clubResolution?.outcome === 'unknown' ? { unknownClub: true } : {}),
     });
 
     addCard(card);
@@ -244,6 +251,30 @@ export function AddCardScreen(): React.ReactElement {
       <AppText className={`text-xs font-bold ${TEXT.muted}`}>
         {t('שדות לא ידועים נשארים לא ידועים — האפליקציה לא תמציא ערך.')}
       </AppText>
+
+      {showClubResolver ? (
+        <ClubResolver
+          onResolved={(resolution): void => {
+            setClubResolution(resolution);
+            setShowClubResolver(false);
+          }}
+        />
+      ) : (
+        <Pressable
+          accessibilityRole="button"
+          className={`min-h-[48px] items-center justify-center rounded-lg border ${BORDER.hairline} ${SURFACE.card}`}
+          onPress={(): void => setShowClubResolver(true)}
+          testID="add-card-unknown-club"
+        >
+          <AppText className={`text-center text-sm font-extrabold ${TEXT.heading}`}>
+            {clubResolution?.outcome === 'identified'
+              ? clubResolution.club.displayName
+              : clubResolution?.outcome === 'unknown'
+                ? t('מועדון לא ידוע 🔍')
+                : t('אני לא יודע את המועדון 🔍')}
+          </AppText>
+        </Pressable>
+      )}
 
       {formError !== null ? (
         <AppText className={`text-sm font-bold ${ROLE_TEXT.danger}`}>{formError}</AppText>

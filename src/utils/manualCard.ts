@@ -38,6 +38,7 @@ export interface ManualCardInput {
   readonly bankName?: string;
   /** Catalog cardId when the user picked a CURRENT product; omit on the generic path. */
   readonly cardProductId?: string;
+  readonly unknownClub?: boolean;
 }
 
 // Metadata only: not read by the MVP Purchase Gate. Replaced by verified issuer
@@ -75,5 +76,6 @@ export function createManualCard(input: ManualCardInput): EngineCard {
     annualFee: 0,
     isActive: true,
     ...(input.bankName === undefined ? {} : { bankName: input.bankName }),
+    ...(input.unknownClub === true ? { unknownClub: true } : {}),
   };
 }
