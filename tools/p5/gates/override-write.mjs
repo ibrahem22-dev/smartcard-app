@@ -151,10 +151,36 @@ export const run = async ({ root }) => {
     }
   }
 
-  /* 5. NO LOCAL COPY. The clause a render test cannot see. */
-  if (/useState\s*<[^>]*\bCardCostReading\b/.test(sectionSrc) || /useState[^;]*\b(value|amount|fee|cost)\b[^;]*=/.test(sectionSrc)) {
-    const held = (sectionSrc.match(/const\s*\[\s*([A-Za-z0-9_]+)[^\]]*\]\s*=\s*useState[^;]*;/g) ?? []).join(' · ');
-    problems.push(SECTION + ' holds a cost value in component state — N3: "no component holds a local copy". Draft text in an open editor is fine; the RESOLVED VALUE is not. Found: ' + held.slice(0, 200));
+  /*
+   * 5. NO LOCAL COPY — the clause a render test cannot see, and the one this gate got wrong first.
+   *
+   * The original rule was /useState[^;]*\b(value|amount|fee|cost)\b[^;]*=/, which looks for the
+   * word AFTER useState. In `const [cachedValue, setCachedValue] = useState('')` the name comes
+   * BEFORE it, so the rule could only ever match a type parameter. It was watched not firing
+   * against exactly that mutation, which is the only reason it is not still there.
+   *
+   * The binding NAME is the thing to read, and two structural forms besides: state seeded from the
+   * resolver, and a setter fed by it. Any of the three is a second copy of a value whose home is
+   * the vault, and the copy is what goes stale.
+   */
+  const stateBindings = [...sectionSrc.matchAll(/const\s*\[\s*([A-Za-z0-9_]+)\s*,\s*([A-Za-z0-9_]+)\s*\]\s*=\s*useState/g)];
+  for (const [, name] of stateBindings) {
+    if (/(value|amount|fee|cost|reading|resolved|chip)/i.test(name)) {
+      problems.push(
+        SECTION + ' holds "' + name + '" in component state — N3: "no component holds a local copy". '
+          + 'Draft text in an open editor is fine and should be named so; a RESOLVED VALUE is not, '
+          + 'because the copy is what keeps rendering after the vault has moved on',
+      );
+    }
+  }
+  if (/useState\s*(<[^>]*>)?\s*\(\s*readCardCost/.test(sectionSrc)) {
+    problems.push(SECTION + ' seeds component state from readCardCost — that is the local copy, written once and never re-read');
+  }
+  if (/set[A-Z][A-Za-z0-9_]*\s*\(\s*readCardCost/.test(sectionSrc)) {
+    problems.push(SECTION + ' pushes readCardCost into a setter — the resolver becomes a one-time fetch and the row stops tracking the store');
+  }
+  if (/useState\s*<[^>]*\bCardCostReading\b/.test(sectionSrc)) {
+    problems.push(SECTION + ' holds a CardCostReading in component state');
   }
 
   /* 6. THE SURFACE DOES NOT RESOLVE. Resolution moved out; the component renders what it is given. */
