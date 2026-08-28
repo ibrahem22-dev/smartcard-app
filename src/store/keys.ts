@@ -12,6 +12,8 @@ export const MMKV_KEYS = {
   profileDataSuffix: ':data',
   profileUser: (id: string): string => `profile_${id}:user`,
   profileCards: (id: string): string => `profile_${id}:cards`,
+  profileCardOverrides: (id: string): string =>
+    `profile_${id}:card_overrides`,
   profileCardObligations: (id: string): string =>
     `profile_${id}:card_obligations`,
   profilePinVerifier: (id: string): string => `profile_${id}:pin_verifier`,

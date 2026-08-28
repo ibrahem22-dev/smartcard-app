@@ -940,4 +940,5 @@ export const enBySource: Readonly<Record<string, string>> = {
   'שיעורי ריבית': 'Interest rates',
   'עלויות נוספות': 'Other costs',
   'להוסיף את זה': 'Add this',
+  'שמירה': 'Save',
 };

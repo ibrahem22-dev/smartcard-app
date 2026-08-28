@@ -1,5 +1,5 @@
-import React from 'react';
-import { Pressable, View } from 'react-native';
+import React, { useState } from 'react';
+import { Pressable, TextInput, View } from 'react-native';
 
 import { AppText } from '../../components/AppText';
 import { ProvenanceChip } from '../../components/ProvenanceChip';
@@ -10,14 +10,14 @@ import {
   type UseTranslationResult,
 } from '../../hooks/useTranslation';
 import { BORDER, TEXT } from '../../theme/tokens';
-import type { ProvenanceChip as ProvenanceChipState } from '../../authority/provenanceChip';
+import {
+  readCardCost,
+  type CardCostReading,
+} from '../../store/cardCostResolution';
+import { writeCardCostOverride } from '../../store/cardOverrides';
 import type { EngineCard } from '../../types/card.types';
 import { TABULAR_NUMERALS } from '../../utils/money';
 import { CARD_COST_ROWS, type CardCostRowId } from './costRows';
-
-type CostRowValue =
-  | { readonly kind: 'known'; readonly text: string; readonly chip: ProvenanceChipState }
-  | { readonly kind: 'unknown' };
 
 export interface SectionACostsProps {
   readonly card: EngineCard | undefined;
@@ -43,73 +43,53 @@ function labelFor(
   }
 }
 
-function cardRatesChip(card: EngineCard): ProvenanceChipState {
-  return card.cardRates?.source === 'manual' ? 'USER' : 'ESTIMATE';
-}
-
-function valueFor(
+function formattedValue(
   id: CardCostRowId,
-  card: EngineCard | undefined,
+  reading: Extract<CardCostReading, { readonly kind: 'known' }>,
   format: Pick<UseMoneyResult, 'money' | 'percent'>,
-): CostRowValue {
-  if (card === undefined) return { kind: 'unknown' };
-
+): string {
+  const numeric = Number(reading.value);
   switch (id) {
     case 'annual-fee':
-      // annualFee is required, so 0 cannot be distinguished from missing; calling the card free would be a fake number.
-      return card.annualFee === 0
-        ? { kind: 'unknown' }
-        : {
-            kind: 'known',
-            text: format.money(card.annualFee),
-            chip: 'ESTIMATE',
-          };
     case 'monthly-fee':
-      return card.cardRates === undefined
-        ? { kind: 'unknown' }
-        : {
-            kind: 'known',
-            text: format.money(card.cardRates.monthlyFee),
-            chip: cardRatesChip(card),
-          };
-    case 'fx-commission':
-      // foreignTransactionFee is required, so 0 cannot be distinguished from missing; calling the card free would be a fake number.
-      return card.foreignTransactionFee === 0
-        ? { kind: 'unknown' }
-        : {
-            kind: 'known',
-            text: format.percent(card.foreignTransactionFee * 100),
-            chip: 'ESTIMATE',
-          };
     case 'foreign-atm-fee':
-      // EngineCard has no field for a foreign ATM fee, so there is no known value to display.
-      return { kind: 'unknown' };
-    case 'interest-rates':
-      return card.cardRates === undefined
-        ? { kind: 'unknown' }
-        : {
-            kind: 'known',
-            text: [
-              format.percent(card.cardRates.creditInterestRate),
-              format.percent(card.cardRates.installmentInterestRate),
-              format.percent(card.cardRates.cardLoanInterestRate),
-            ].join(' · '),
-            chip: cardRatesChip(card),
-          };
     case 'other-costs':
-      // EngineCard has no general other-costs field, so there is no known value to display.
-      return { kind: 'unknown' };
+      return Number.isFinite(numeric) ? format.money(numeric) : reading.value;
+    case 'fx-commission':
+      return Number.isFinite(numeric) ? format.percent(numeric) : reading.value;
+    case 'interest-rates':
+      return reading.value
+        .split('|')
+        .map((part) => {
+          const rate = Number(part);
+          return Number.isFinite(rate) ? format.percent(rate) : part;
+        })
+        .join(' · ');
   }
 }
 
 export function SectionACosts({ card }: SectionACostsProps): React.ReactElement {
   const { t } = useTranslation();
   const { money, percent } = useMoney();
+  const [editingRow, setEditingRow] = useState<CardCostRowId | null>(null);
+  const [draft, setDraft] = useState('');
+
+  const openEditor = (rowId: CardCostRowId, reading: CardCostReading): void => {
+    setEditingRow(rowId);
+    setDraft(reading.kind === 'known' ? reading.value : '');
+  };
+
+  const saveDraft = (rowId: CardCostRowId): void => {
+    if (card === undefined || draft.trim().length === 0) return;
+    writeCardCostOverride(card.cardId, rowId, draft.trim());
+    setEditingRow(null);
+    setDraft('');
+  };
 
   return (
     <View>
       {CARD_COST_ROWS.map((row) => {
-        const value = valueFor(row.id, card, { money, percent });
+        const reading = readCardCost(card, row.id);
 
         return (
           <RtlRow
@@ -121,24 +101,25 @@ export function SectionACosts({ card }: SectionACostsProps): React.ReactElement 
               <AppText className={`text-sm font-bold ${TEXT.body}`}>
                 {labelFor(row.id, t)}
               </AppText>
-              {value.kind === 'known' ? (
+              {reading.kind === 'known' ? (
                 <RtlRow className="items-center gap-2">
                   <AppText
                     className={`text-sm font-extrabold ${TEXT.heading}`}
                     style={TABULAR_NUMERALS}
                     testID={`${row.testID}-value`}
                   >
-                    {value.text}
+                    {formattedValue(row.id, reading, { money, percent })}
                   </AppText>
                   <ProvenanceChip
                     testID={`${row.testID}-chip`}
-                    view={{ chip: value.chip, stale: false }}
+                    view={{ chip: reading.chip, stale: false }}
                   />
                 </RtlRow>
               ) : (
                 <Pressable
                   accessibilityRole="button"
                   className="min-h-[44px] justify-center"
+                  onPress={(): void => openEditor(row.id, reading)}
                   testID={`${row.testID}-add`}
                 >
                   <AppText className={`text-sm ${TEXT.muted}`}>
@@ -146,11 +127,34 @@ export function SectionACosts({ card }: SectionACostsProps): React.ReactElement 
                   </AppText>
                 </Pressable>
               )}
+              {editingRow === row.id ? (
+                <RtlRow className="items-center gap-2">
+                  <TextInput
+                    accessibilityLabel={labelFor(row.id, t)}
+                    className={`min-h-[44px] flex-1 rounded-lg border px-3 ${BORDER.hairline}`}
+                    keyboardType="decimal-pad"
+                    onChangeText={setDraft}
+                    testID={`${row.testID}-input`}
+                    value={draft}
+                  />
+                  <Pressable
+                    accessibilityRole="button"
+                    className="min-h-[44px] justify-center px-3"
+                    onPress={(): void => saveDraft(row.id)}
+                    testID={`${row.testID}-save`}
+                  >
+                    <AppText className={`text-sm font-bold ${TEXT.body}`}>
+                      {t('שמירה')}
+                    </AppText>
+                  </Pressable>
+                </RtlRow>
+              ) : null}
             </View>
             <Pressable
               accessibilityLabel={t('עריכה')}
               accessibilityRole="button"
               className="min-h-[44px] min-w-[44px] items-center justify-center"
+              onPress={(): void => openEditor(row.id, reading)}
               testID={`${row.testID}-pencil`}
             >
               <AppText className={`text-base ${TEXT.secondary}`}>✎</AppText>
