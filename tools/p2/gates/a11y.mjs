@@ -39,6 +39,7 @@ import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, relative, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { contrastRatio, hexForClass, AA_BODY, AA_LARGE } from '../lib/contrast.mjs';
+import { splitModes, pick, readTokenMap, readLegibleOn } from '../lib/tokens.mjs';
 import { ok, fail } from '../lib/report.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -63,41 +64,6 @@ const stripComments = (src) => src
   .replace(/(^|[^:])\/\/[^\n]*/g, '$1 ');
 
 const lineAt = (code, i) => code.slice(0, i).split('\n').length;
-
-/** Split a token's class string into its light and dark halves. */
-const splitModes = (classes) => {
-  const light = [], dark = [];
-  for (const c of classes.split(/\s+/).filter(Boolean)) {
-    (c.startsWith('dark:') ? dark : light).push(c.replace(/^dark:/, ''));
-  }
-  return { light, dark };
-};
-
-const pick = (list, prefix) => list.find((c) => c.startsWith(prefix + '-')) ?? null;
-
-/** Read `export const NAME = { key: 'classes', ... }` out of the token module. */
-const readTokenMap = (src, name) => {
-  const m = src.match(new RegExp('export const ' + name + '[^=]*=\\s*\\{([\\s\\S]*?)\\n\\}'));
-  if (!m) return null;
-  const out = {};
-  for (const line of m[1].split('\n')) {
-    const kv = line.match(/^\s*([A-Za-z_$][\w$]*)\s*:\s*'([^']*)'/);
-    if (kv) out[kv[1]] = kv[2];
-  }
-  return out;
-};
-
-/** Read `export const LEGIBLE_ON ... = { surface: ['text', ...], ... }` out of the token module. */
-const readLegibleOn = (src) => {
-  const m = src.match(/export const LEGIBLE_ON[^=]*=\s*\{([\s\S]*?)\n\}/);
-  if (!m) return null;
-  const out = {};
-  for (const line of m[1].split('\n')) {
-    const kv = line.match(/^\s*([A-Za-z_$][\w$]*)\s*:\s*\[([^\]]*)\]/);
-    if (kv) out[kv[1]] = [...kv[2].matchAll(/'([^']+)'/g)].map((x) => x[1]);
-  }
-  return out;
-};
 
 export const run = async ({ root }) => {
   const problems = [];

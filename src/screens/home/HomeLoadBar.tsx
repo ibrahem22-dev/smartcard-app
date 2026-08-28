@@ -163,7 +163,7 @@ export function HomeLoadBar({ context }: HomeLoadBarProps): React.ReactElement {
             accessibilityLabel={t('סף אזהרה חזקה')}
             accessibilityValue={{ text: String(strongWarningRatio) }}
             className={`absolute text-xs ${TEXT.muted}`}
-            style={{ start: tickPosition(strongWarningRatio) }}
+            style={[TABULAR_NUMERALS, { start: tickPosition(strongWarningRatio) }]}
             testID="home-load-bar-tick-strong"
           >
             {percent(strongWarningRatio)}
@@ -172,7 +172,7 @@ export function HomeLoadBar({ context }: HomeLoadBarProps): React.ReactElement {
             accessibilityLabel={t('סף חסימה')}
             accessibilityValue={{ text: String(blockedRatio) }}
             className={`absolute text-xs ${TEXT.muted}`}
-            style={{ start: tickPosition(blockedRatio) }}
+            style={[TABULAR_NUMERALS, { start: tickPosition(blockedRatio) }]}
             testID="home-load-bar-tick-blocked"
           >
             {percent(blockedRatio)}

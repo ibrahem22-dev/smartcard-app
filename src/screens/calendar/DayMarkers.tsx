@@ -15,6 +15,7 @@ import {
   ROLE_TEXT,
   TEXT,
 } from '../../theme/tokens';
+import { riskPresentation } from '../../theme/riskPresentation';
 import { markersFor, type DayMarker } from './dayMarkers';
 
 export interface DayMarkersProps {
@@ -22,36 +23,6 @@ export interface DayMarkersProps {
   readonly results?: SurfaceEngineResults;
   readonly context?: SurfaceContext;
 }
-
-const riskPresentation = (level: string): { readonly cue: string; readonly className: string } => {
-  switch (level) {
-    case 'safe':
-      return {
-        cue: '✓',
-        className: `${ROLE_SURFACE_BG.positive} ${ROLE_BORDER.positive} ${ROLE_TEXT.positive}`,
-      };
-    case 'caution':
-      return {
-        cue: '!',
-        className: `${ROLE_SURFACE_BG.advisory} ${ROLE_BORDER.advisory} ${ROLE_TEXT.advisory}`,
-      };
-    case 'high':
-      return {
-        cue: '▲',
-        className: `${ROLE_SURFACE_BG.danger} ${ROLE_BORDER.danger} ${ROLE_TEXT.danger}`,
-      };
-    case 'critical':
-      return {
-        cue: '✕',
-        className: `${ROLE_SURFACE_BG.danger} ${ROLE_BORDER.danger} ${ROLE_TEXT.danger}`,
-      };
-    default:
-      return {
-        cue: '?',
-        className: `${ROLE_SURFACE_BG.neutral} ${ROLE_BORDER.neutral} ${ROLE_TEXT.neutral}`,
-      };
-  }
-};
 
 function Marker({ iso, marker }: { readonly iso: string; readonly marker: DayMarker }): React.ReactElement {
   const { t } = useTranslation();
@@ -62,14 +33,14 @@ function Marker({ iso, marker }: { readonly iso: string; readonly marker: DayMar
     const presentation = riskPresentation(level);
     return (
       <View
-        accessibilityLabel={`${t('סיכון')}: ${level}`}
+        accessibilityLabel={`${t('סיכון')}: ${t(presentation.labelKey)}`}
         accessibilityRole="image"
         accessibilityValue={{ text: level }}
         className={`h-4 w-4 items-center justify-center rounded-full border ${presentation.className}`}
         testID={testID}
       >
         <AppText
-          className={`text-[9px] font-black ${ROLE_TEXT.neutral}`}
+          className={`text-[12px] font-black ${ROLE_TEXT.neutral}`}
           testID={`${testID}-cue`}
         >
           {presentation.cue}
@@ -87,7 +58,7 @@ function Marker({ iso, marker }: { readonly iso: string; readonly marker: DayMar
         testID={testID}
       >
         <AppText
-          className={`text-[9px] font-black ${ROLE_TEXT.neutral}`}
+          className={`text-[12px] font-black ${ROLE_TEXT.neutral}`}
           testID={`${testID}-cue`}
         >
           ₪
@@ -104,7 +75,7 @@ function Marker({ iso, marker }: { readonly iso: string; readonly marker: DayMar
       testID={testID}
     >
       <AppText
-        className={`text-[9px] font-black ${ROLE_TEXT.neutral}`}
+        className={`text-[12px] font-black ${ROLE_TEXT.neutral}`}
         testID={`${testID}-cue`}
       >
         ▣

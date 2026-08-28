@@ -188,6 +188,7 @@ export function CommitmentsSummary({
               <AppText
                 accessibilityValue={{ text: String(load.thresholds.warningRatio.value) }}
                 className={`text-xs ${TEXT.muted}`}
+                style={TABULAR_NUMERALS}
                 testID="commitments-summary-threshold-warning"
               >
                 {t('סף אזהרה')} {percent(load.thresholds.warningRatio.value)}
@@ -195,6 +196,7 @@ export function CommitmentsSummary({
               <AppText
                 accessibilityValue={{ text: String(load.thresholds.strongWarningRatio.value) }}
                 className={`text-xs ${TEXT.muted}`}
+                style={TABULAR_NUMERALS}
                 testID="commitments-summary-threshold-strong-warning"
               >
                 {t('סף אזהרה חזקה')} {percent(load.thresholds.strongWarningRatio.value)}
@@ -202,6 +204,7 @@ export function CommitmentsSummary({
               <AppText
                 accessibilityValue={{ text: String(load.thresholds.blockedRatio.value) }}
                 className={`text-xs ${TEXT.muted}`}
+                style={TABULAR_NUMERALS}
                 testID="commitments-summary-threshold-blocked"
               >
                 {t('סף חסימה')} {percent(load.thresholds.blockedRatio.value)}

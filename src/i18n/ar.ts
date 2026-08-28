@@ -154,6 +154,9 @@ export const arBySource: Readonly<Record<string, string>> = {
   'סיכון': 'مخاطر',
   'משכורת': 'الراتب',
   'חיוב כרטיס': 'استحقاق البطاقة',
+  // R4 — the risk level a marker and the Home strip speak.
+  'בטוח': 'آمن',
+  'סיכון גבוה': 'مخاطر عالية',
   // K3 — Plan Calendar day sheet. Calls use these Hebrew source keys literally.
   'משכורת נכנסת': 'راتب داخل',
   'חיובי כרטיסים': 'استحقاقات البطاقات',

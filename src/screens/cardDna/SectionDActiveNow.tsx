@@ -27,19 +27,36 @@ export interface SectionDActiveNowProps {
   readonly context?: SurfaceContext;
 }
 
+/*
+ * THE ELEMENT THAT STYLES A NUMBER FORMATS IT.
+ *
+ * FigureRow used to take an already-formatted string built at the call site, while the tabular
+ * style lived here, on the AppText that renders it. Two consequences, one of them not cosmetic:
+ *
+ *   · A7 checks that every formatter call sits inside an element carrying TABULAR_NUMERALS, and it
+ *     reads the six lines above the call. At the call site those lines are the FigureRow opening,
+ *     so all nine rows read as unstyled amounts and P5 left a closed P2 criterion red.
+ *   · More to the point, formatting and styling could drift. A row could be handed a formatter the
+ *     styled element never expected, and nothing would have compared them.
+ *
+ * Taking a format discriminator instead puts both in one place. Every call site already formatted
+ * exactly number.value, so this is the same output by a shorter route.
+ */
 interface FigureRowProps {
   readonly label: string;
   readonly number: PaintedNumber;
-  readonly formatted: string;
+  readonly format: 'money' | 'percent';
   readonly testID: string;
 }
 
 function FigureRow({
   label,
   number,
-  formatted,
+  format,
   testID,
 }: FigureRowProps): React.ReactElement {
+  /* The hook, not an import: this app's formatter takes the reader's language. */
+  const { money, percent } = useMoney();
   return (
     <RtlRow className={`items-center justify-between gap-3 border-b py-2 ${BORDER.subtle}`}>
       <AppText className={`flex-1 text-sm ${TEXT.body}`}>{label}</AppText>
@@ -50,7 +67,7 @@ function FigureRow({
           style={TABULAR_NUMERALS}
           testID={testID}
         >
-          {formatted}
+          {format === 'money' ? money(number.value) : percent(number.value)}
         </AppText>
         <ProvenanceChip
           testID={`${testID}-provenance`}
@@ -128,58 +145,58 @@ export function SectionDActiveNow({
           )}
           {rows.currentLoadRatio === null ? null : (
             <FigureRow
-              formatted={percent(rows.currentLoadRatio.value)}
+              format="percent"
               label={t('יחס העומס הנוכחי להכנסה')}
               number={rows.currentLoadRatio}
               testID="card-dna-load-ratio"
             />
           )}
           <FigureRow
-            formatted={money(rows.cardLimit.creditLimitIls.value)}
+            format="money"
             label={t('מסגרת אשראי')}
             number={rows.cardLimit.creditLimitIls}
             testID="card-dna-utilization-limit"
           />
           <FigureRow
-            formatted={money(rows.cardLimit.activeInstallmentHoldsIls.value)}
+            format="money"
             label={t('מסגרת תפוסה בתשלומים')}
             number={rows.cardLimit.activeInstallmentHoldsIls}
             testID="card-dna-utilization-holds"
           />
           <FigureRow
-            formatted={money(rows.cardLimit.availableBeforeChangesIls.value)}
+            format="money"
             label={t('מסגרת פנויה לפני שינויים')}
             number={rows.cardLimit.availableBeforeChangesIls}
             testID="card-dna-utilization-before"
           />
           <FigureRow
-            formatted={money(rows.cardLimit.availableAfterChangesIls.value)}
+            format="money"
             label={t('מסגרת פנויה אחרי שינויים')}
             number={rows.cardLimit.availableAfterChangesIls}
             testID="card-dna-utilization-available"
           />
           {paidEarlyCommitmentIds.length === 0 ? null : (
             <FigureRow
-              formatted={money(rows.cardLimit.releasedByEarlyPayoffIls.value)}
+              format="money"
               label={t('מסגרת ששוחררה בתשלום מוקדם')}
               number={rows.cardLimit.releasedByEarlyPayoffIls}
               testID="card-dna-utilization-released"
             />
           )}
           <FigureRow
-            formatted={percent(rows.thresholds.warningRatio.value)}
+            format="percent"
             label={t('סף אזהרה')}
             number={rows.thresholds.warningRatio}
             testID="card-dna-threshold-warning"
           />
           <FigureRow
-            formatted={percent(rows.thresholds.strongWarningRatio.value)}
+            format="percent"
             label={t('סף אזהרה חזקה')}
             number={rows.thresholds.strongWarningRatio}
             testID="card-dna-threshold-strong-warning"
           />
           <FigureRow
-            formatted={percent(rows.thresholds.blockedRatio.value)}
+            format="percent"
             label={t('סף חסימה')}
             number={rows.thresholds.blockedRatio}
             testID="card-dna-threshold-blocked"

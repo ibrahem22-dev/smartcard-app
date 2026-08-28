@@ -136,7 +136,7 @@ export function DaySheet({
           {t('יש לבחור יום כדי לראות מה מתוזמן')}
         </AppText>
         <AppText
-          className={`text-sm ${TEXT.muted}`}
+          className={`text-sm ${TEXT.secondary}`}
           testID="calendar-day-sheet-empty"
         >
           {t('עדיין לא נבחר יום')}
@@ -155,7 +155,7 @@ export function DaySheet({
       <PressureSummary iso={iso} results={results} />
       {events.length === 0 ? (
         <AppText
-          className={`text-sm ${TEXT.muted}`}
+          className={`text-sm ${TEXT.secondary}`}
           testID="calendar-day-sheet-empty"
         >
           {t('שום דבר לא מתוזמן ליום הזה')}

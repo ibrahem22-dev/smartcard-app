@@ -22,42 +22,13 @@ import {
   SURFACE,
   TEXT,
 } from '../../theme/tokens';
+import { riskPresentation } from '../../theme/riskPresentation';
 
 export interface HomeRiskStripProps {
   readonly context?: SurfaceContext;
 }
 
 const DAY_MS = 24 * 60 * 60 * 1000;
-
-const riskPresentation = (level: string): { readonly cue: string; readonly className: string } => {
-  switch (level) {
-    case 'safe':
-      return {
-        cue: '✓',
-        className: `${ROLE_SURFACE_BG.positive} ${ROLE_BORDER.positive} ${ROLE_TEXT.positive}`,
-      };
-    case 'caution':
-      return {
-        cue: '!',
-        className: `${ROLE_SURFACE_BG.advisory} ${ROLE_BORDER.advisory} ${ROLE_TEXT.advisory}`,
-      };
-    case 'high':
-      return {
-        cue: '▲',
-        className: `${ROLE_SURFACE_BG.danger} ${ROLE_BORDER.danger} ${ROLE_TEXT.danger}`,
-      };
-    case 'critical':
-      return {
-        cue: '✕',
-        className: `${ROLE_SURFACE_BG.danger} ${ROLE_BORDER.danger} ${ROLE_TEXT.danger}`,
-      };
-    default:
-      return {
-        cue: '?',
-        className: `${ROLE_SURFACE_BG.neutral} ${ROLE_BORDER.neutral} ${ROLE_TEXT.neutral}`,
-      };
-  }
-};
 
 function isoAtOffset(asOfDate: string, offset: number): string {
   const start = new Date(`${asOfDate}T00:00:00.000Z`);
@@ -153,7 +124,7 @@ export function HomeRiskStrip({ context }: HomeRiskStripProps): React.ReactEleme
 
           return (
             <View
-              accessibilityLabel={`${t('רמת הסיכון ליום {{date}}', { date: iso })}: ${level}`}
+              accessibilityLabel={`${t('רמת הסיכון ליום {{date}}', { date: iso })}: ${t(presentation.labelKey)}`}
               accessibilityValue={{ text: level }}
               className="min-w-[42px] flex-1 items-center gap-1"
               key={iso}
@@ -173,10 +144,10 @@ export function HomeRiskStrip({ context }: HomeRiskStripProps): React.ReactEleme
                   {presentation.cue}
                 </AppText>
               </Pressable>
-              <AppText className={`text-[10px] font-bold ${TEXT.secondary}`}>
+              <AppText className={`text-[12px] font-bold ${TEXT.secondary}`}>
                 {iso.slice(5)}
               </AppText>
-              <AppText className={`text-[10px] font-extrabold ${presentation.className}`}>
+              <AppText className={`text-[12px] font-extrabold ${presentation.className}`}>
                 {level}
               </AppText>
               {explanationVisible ? (

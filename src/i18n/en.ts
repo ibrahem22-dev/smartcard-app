@@ -119,6 +119,8 @@ export const en = {
   },
   calendar: {
     empty: 'No scheduled charges 📅',
+    riskSafe: 'Safe',
+    riskHigh: 'High risk',
     day: 'Calendar day {{day}}',
     risk: 'Risk',
     salary: 'Salary',
@@ -453,6 +455,10 @@ export const enBySource: Readonly<Record<string, string>> = {
   'סיכון': en.calendar.risk,
   'משכורת': en.calendar.salary,
   'חיוב כרטיס': en.calendar.cardBilling,
+  // R4 — the risk level a marker and the Home strip speak. Without these the label read
+  // "Risk: critical" to an English reader and "مخاطر: critical" to an Arabic one.
+  'בטוח': en.calendar.riskSafe,
+  'סיכון גבוה': en.calendar.riskHigh,
   // K3 — Plan Calendar day sheet. Calls use these Hebrew source keys literally.
   'משכורת נכנסת': 'Salary in',
   'חיובי כרטיסים': 'Card billings',
