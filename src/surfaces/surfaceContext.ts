@@ -23,7 +23,7 @@ import type { EngineCard } from '../types/card.types';
 import type { ImportedInstallment } from '../types/installment.types';
 import type { Loan } from '../types/loan.types';
 import type { UserProfile } from '../types/user.types';
-import type { LoadThresholds } from '../engines/load';
+import type { LoadCommitment, LoadThresholds } from '../engines/load';
 
 /**
  * Everything the five P5 surfaces are rendered from, in one record.
@@ -69,6 +69,21 @@ export interface SurfaceContext {
    * A1 is what proves the Wallet chips, Card DNA section C and Check all rank the same result.
    */
   readonly scoringCosts?: Readonly<Record<string, number>>;
+  /**
+   * A purchase or plan being considered but not yet committed.
+   *
+   * WHY A P5 CONTEXT CARRIES ONE AT ALL. No P5 surface offers a prospective purchase — that is
+   * P4's Check Input. But criterion A4 names **the Verdict's impact strip** as one of the three
+   * surfaces that must read `cardLimits` from the load engine, and the impact strip is the
+   * available limit AFTER a prospective purchase. Comparing it with Wallet's bar means evaluating
+   * the load engine over the same inputs the Verdict was rendered from, and those inputs include
+   * the purchase. Without this field the property would be comparing two different questions and
+   * calling their different answers a disagreement.
+   *
+   * The engine does not persist it: *"a possible new installment or other obligation. It is not
+   * persisted by this engine."*
+   */
+  readonly prospectiveCommitment?: LoadCommitment;
 }
 
 /**

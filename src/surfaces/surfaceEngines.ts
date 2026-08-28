@@ -221,6 +221,7 @@ export function evaluateSurfaceEngines(ctx: SurfaceContext): SurfaceEngineResult
       commitments: commitmentsFrom(ctx),
       cards: loadCards,
       ...(ctx.paidEarlyCommitmentIds ? { paidEarlyCommitmentIds: ctx.paidEarlyCommitmentIds } : {}),
+      ...(ctx.prospectiveCommitment ? { prospectiveCommitment: ctx.prospectiveCommitment } : {}),
       ...(thresholds ? { thresholds } : {}),
     });
   }
