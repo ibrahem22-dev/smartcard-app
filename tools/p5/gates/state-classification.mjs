@@ -183,8 +183,33 @@ export const run = async ({ root }) => {
       if (profileMembers && profileMembers.includes(r.field)) {
         problems.push(r.field + ' is classified as its own storage key but is ALSO a UserProfile field — one piece of state with two homes is how the two disagree');
       }
+    } else if (r.home === 'in-memory') {
+      /*
+       * IN-MEMORY IS A FOURTH HOME, AND IT IS NOT "none".
+       *
+       * A5 and U4 need the three derived caches classified. They are neither a UserProfile field
+       * nor an MMKV key — they live in module memory for the life of a session and are invalidated
+       * rather than persisted. Filing them under `none` would have been available and wrong: in
+       * this table `none` means PROHIBITED AND DELIBERATELY ABSENT, which is the record of a
+       * refusal. A cache that exists and is local is a different fact, and one word cannot carry
+       * both without the table losing the distinction it exists to draw.
+       *
+       * The worker building the caches hit this and stopped rather than forcing a row into a home
+       * that would misdescribe it. That is the right answer to a bind, and it is why the
+       * vocabulary grew instead of the row bending.
+       *
+       * What is checked here: an in-memory row must NOT be a UserProfile field and must NOT be an
+       * MMKV key. If either were true the row would be lying about where the state lives, which is
+       * the whole failure U1 exists to catch.
+       */
+      if (profileMembers && profileMembers.includes(r.field)) {
+        problems.push(r.field + ' is classified in-memory but is also a UserProfile field — a cache that is persisted is not a cache, it is state');
+      }
+      if (new RegExp('\\b' + r.field + '\\s*:').test(keysSrc)) {
+        problems.push(r.field + ' is classified in-memory and yet has an MMKV key — U4 says the derived caches are local-only and never written to a shared or exported store');
+      }
     } else if (r.home !== 'none') {
-      problems.push(r.field + ' declares home "' + String(r.home) + '", which is not one of user-profile, mmkv-key, none');
+      problems.push(r.field + ' declares home "' + String(r.home) + '", which is not one of user-profile, mmkv-key, in-memory, none');
     }
   }
 
