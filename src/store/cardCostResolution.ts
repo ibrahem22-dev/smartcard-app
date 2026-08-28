@@ -4,7 +4,6 @@ import type { EngineCard } from '../types/card.types';
 import {
   cardCostOverrideKey,
   cardCostOverrideVault,
-  readCardCostOverride,
 } from './cardOverrides';
 import { resolveValue } from './storeAdapter';
 
@@ -18,10 +17,8 @@ export type CardCostReading =
   | { readonly kind: 'unknown' };
 
 /**
- * The pack set that holds catalog card-cost rows. `catalogReading()` does not currently consult
- * the pack store: it reads only `EngineCard` fields, so importing a pack cannot change Section A
- * today. Wiring the catalog path to the pack store belongs to N4; until then, a durability claim
- * measured through this module would be vacuous.
+ * The pack set that holds catalog card-cost rows. The adapter reads it before `catalogReading()`
+ * falls back to the transitional `EngineCard` catalog.
  */
 export const CARD_COST_PACK_SET = 'catalog';
 
@@ -92,24 +89,23 @@ export function readCardCost(
 ): CardCostReading {
   if (card === undefined) return { kind: 'unknown' };
 
-  // Avoid opening the pack database for the overwhelmingly common no-override read. When a vault
-  // value exists, the adapter still performs the only precedence comparison against pack data.
-  if (readCardCostOverride(card.cardId, rowId) !== null) {
-    const resolved = resolveValue(
-      cardCostOverrideVault,
-      CARD_COST_PACK_SET,
-      cardCostOverrideKey(card.cardId, rowId),
-    );
-    if (resolved?.source === 'vault') {
-      // Unlike an ambiguous catalog zero, USER 0 is known: somebody asserted that their card is free.
-      return {
-        kind: 'known',
-        value: resolved.value,
-        chip: resolved.chip,
-        source: 'user',
-      };
-    }
+  const resolved = resolveValue(
+    cardCostOverrideVault,
+    CARD_COST_PACK_SET,
+    cardCostOverrideKey(card.cardId, rowId),
+  );
+  if (resolved !== null) {
+    // Unlike an ambiguous EngineCard catalog zero, USER 0 and an explicit pack zero are known.
+    return {
+      kind: 'known',
+      value: resolved.value,
+      chip: resolved.chip,
+      source: resolved.source === 'vault' ? 'user' : 'catalog',
+    };
   }
 
+  // Nothing populates the pack store with card-cost rows in production yet, so EngineCard is the
+  // catalog of last resort until it does. This transitional third source should disappear when
+  // the pack store is fed.
   return catalogReading(card, rowId);
 }

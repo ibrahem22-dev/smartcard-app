@@ -3,6 +3,26 @@ import { act, render, within } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { CardDnaScreen } from '../CardDnaScreen';
+
+/*
+ * SECTION A NOW READS THROUGH THE PACK STORE, SO RENDERING OPENS SQLITE.
+ *
+ * That is D-015's required fix landing: until WP-2.4, the catalog path read EngineCard fields and a
+ * pack import could not change what Section A showed, which made N4 unfalsifiable. The cost is that
+ * this suite — which is about LAYOUT and does not care what any row contains — now needs a driver.
+ *
+ * An empty catalog is the right fixture for it. Every row resolves to unknown, the four section
+ * containers still render in spec §11 order, and the order is what N1 measures.
+ */
+const fakeDb = {
+  execSync: (): void => { /* the layout suite needs only an empty catalog table */ },
+  closeSync: (): void => { /* no native handle to close */ },
+  getFirstSync: <T,>(): T | null => null,
+};
+
+jest.mock('expo-sqlite', () => ({
+  openDatabaseSync: (): unknown => fakeDb,
+}));
 import { CARD_DNA_SECTIONS } from '../sections';
 import { useCardsStore } from '../../../store/useCardsStore';
 import { CardIssuer, CardNetwork, type EngineCard } from '../../../types/card.types';

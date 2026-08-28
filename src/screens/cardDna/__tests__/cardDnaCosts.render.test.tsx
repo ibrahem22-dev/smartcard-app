@@ -16,6 +16,16 @@ import { Currency } from '../../../types/purchase.types';
 import { CardDnaScreen } from '../CardDnaScreen';
 import { CARD_COST_ROWS } from '../costRows';
 
+const fakeDb = {
+  execSync: (): void => { /* the render suite needs only an empty catalog table */ },
+  closeSync: (): void => { /* no native handle to close */ },
+  getFirstSync: <T,>(): T | null => null,
+};
+
+jest.mock('expo-sqlite', () => ({
+  openDatabaseSync: (): unknown => fakeDb,
+}));
+
 const CARD_WITH_UNKNOWN_COSTS: EngineCard = {
   cardId: 'card:dna-costs',
   cardProductId: 'product:dna-costs',
