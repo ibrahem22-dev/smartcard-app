@@ -378,8 +378,17 @@ const deviceGates = new Set((req2?.gates ?? []).filter((g) => (g.flags ?? []).in
 const v = verdictFor(results, { stoppedEarly, deviceGates });
 
 /** What the report says about group A, so closure test 2 has something to read. */
+/**
+ * PRESENT MEANS ON DISK AND RUN, NOT "HAS A ROW".
+ *
+ * The first version of this counted every row carrying `agreement`, which includes the MISSING rows
+ * the runner adds for gates nobody has written — so with zero gates on disk it printed
+ * `agreement gates 5 of 5 present`, next to forty-six MISSING lines. It was true of the rows and
+ * false of the world, which is the sentence this whole campaign is about.
+ */
 const agreementRows = results.filter((r) => r.agreement);
-const agreementGreen = agreementRows.length > 0 && agreementRows.every((r) => r.ok);
+const agreementRan = agreementRows.filter((r) => !r.missing);
+const agreementGreen = agreementRan.length === AGREEMENT_GATES.length && agreementRan.every((r) => r.ok);
 
 mkdirSync(OUT_DIR, { recursive: true });
 const outPath = join(OUT_DIR, sha.slice(0, 12) + (dirty ? '-dirty' : '') + '.json');
@@ -401,7 +410,8 @@ writeFileSync(outPath, JSON.stringify({
   contractVersion,
   agreement: {
     gates: AGREEMENT_GATES,
-    present: agreementRows.map((r) => r.step),
+    onDisk: agreementRan.map((r) => r.step),
+    missing: agreementRows.filter((r) => r.missing).map((r) => r.step),
     green: agreementGreen,
     $comment: 'Contract §16 test 2 is a separate test from test 1 because agreement is the one thing P5 exists to prove. A report that cannot say which steps were the agreement properties cannot support it.',
   },
@@ -413,7 +423,7 @@ console.log('  steps ' + results.length
   + ' · gates required ' + (requiredCount ?? '?')
   + ' · failed ' + v.failed.length + ' · missing ' + v.missing.length
   + ' · not implemented ' + v.todo.length + ' · skipped ' + v.skipped.length);
-console.log('  agreement gates ' + agreementRows.length + ' of ' + AGREEMENT_GATES.length + ' present · ' + (agreementGreen ? 'all green' : 'NOT all green'));
+console.log('  agreement gates ' + agreementRan.length + ' of ' + AGREEMENT_GATES.length + ' written and run' + (agreementRan.length < AGREEMENT_GATES.length ? ' · ' + (AGREEMENT_GATES.length - agreementRan.length) + ' MISSING' : '') + ' · ' + (agreementGreen ? 'all green' : 'NOT all green'));
 console.log('  report  reports/p5/' + outPath.split(/[\\/]/).pop());
 console.log('');
 
