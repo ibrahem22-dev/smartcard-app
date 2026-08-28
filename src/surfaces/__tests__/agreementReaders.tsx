@@ -37,6 +37,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { CheckVerdictScreen } from '../../screens/check/CheckVerdictScreen';
 import { SectionCWhenBest } from '../../screens/cardDna/SectionCWhenBest';
 import { SectionDActiveNow } from '../../screens/cardDna/SectionDActiveNow';
+import { HomeLoadBar } from '../../screens/home/HomeLoadBar';
 import { WalletBestForChips } from '../../screens/wallet/WalletBestForChips';
 import { WalletLimitBar } from '../../screens/wallet/WalletLimitBar';
 import { verdictPropsFromDraft } from '../../check/checkLoop';
@@ -147,7 +148,14 @@ export function readVerdictLoadRatio(ctx: SurfaceContext): PaintedNumber {
 }
 
 /** Home's monthly load bar. Built in PHASE-7 (H3). */
-export function readHomeLoadBar(_ctx: SurfaceContext): PaintedNumber { return NOT_BUILT; }
+export function readHomeLoadBar(ctx: SurfaceContext): PaintedNumber {
+  const tree = render(wrap(<HomeLoadBar context={ctx} />));
+  try {
+    return paintedValue(tree, 'home-load-bar-ratio');
+  } finally {
+    tree.unmount();
+  }
+}
 
 /** Plan Commitments' sticky summary ratio. Built in PHASE-5 (J1). */
 export function readCommitmentsSummaryRatio(_ctx: SurfaceContext): PaintedNumber { return NOT_BUILT; }

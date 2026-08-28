@@ -1017,6 +1017,7 @@ export const enBySource: Readonly<Record<string, string>> = {
   להטבות: 'Benefits',
   // Home — Safe to commit hero.
   'בטוח להתחייב החודש': 'Safe to commit this cycle',
+  'התחייבויות חודשיות': 'Monthly commitments',
   'מהנתונים שלך': 'From your data',
   'לחצו כדי לראות ממה הסכום מורכב': 'Tap to see what makes up this amount',
   'הכנסה {{income}} מהפרופיל שלך, פחות התחייבויות {{obligations}} שמנוע העומס אסף למחזור הזה, פחות כרית ביטחון {{buffer}} מהגדרת האפליקציה.':

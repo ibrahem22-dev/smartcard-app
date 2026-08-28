@@ -19,6 +19,7 @@ import {
 import { ACCENT, BORDER, CHROME, ROLE_BORDER, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
 import { RAISED_ACTION_ROUTE } from '../navigation/ia';
 import { HomeHero } from './home/HomeHero';
+import { HomeLoadBar } from './home/HomeLoadBar';
 
 const FINISH_SETUP_LABELS: Readonly<Record<FinishSetupStep, string>> = {
   income: 'השלם הכנסה ויום משכורת',
@@ -65,6 +66,7 @@ export function HomeScreen(): React.ReactElement {
       >
         <View className="min-h-full w-full px-5 pb-28 pt-5">
           <HomeHero />
+          <HomeLoadBar />
 
           <View
             className="mb-5 w-full"
