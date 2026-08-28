@@ -35,6 +35,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { CheckVerdictScreen } from '../../screens/check/CheckVerdictScreen';
 import { SectionCWhenBest } from '../../screens/cardDna/SectionCWhenBest';
+import { SectionDActiveNow } from '../../screens/cardDna/SectionDActiveNow';
 import { verdictPropsFromDraft } from '../../check/checkLoop';
 import { Currency } from '../../types/purchase.types';
 import type { SurfaceContext } from '../surfaceContext';
@@ -135,7 +136,16 @@ export function readHomeLoadBar(_ctx: SurfaceContext): PaintedNumber { return NO
 export function readCommitmentsSummaryRatio(_ctx: SurfaceContext): PaintedNumber { return NOT_BUILT; }
 
 /** Card DNA §D's utilization ratio. Built in PHASE-3 (N7). */
-export function readCardDnaUtilizationRatio(_ctx: SurfaceContext): PaintedNumber { return NOT_BUILT; }
+export function readCardDnaUtilizationRatio(ctx: SurfaceContext): PaintedNumber {
+  const cardId = ctx.cards[0]?.cardId;
+  if (cardId === undefined) return NOT_BUILT;
+  const tree = render(wrap(<SectionDActiveNow cardId={cardId} context={ctx} />));
+  try {
+    return paintedValue(tree, 'card-dna-utilization-available');
+  } finally {
+    tree.unmount();
+  }
+}
 
 /**
  * A per-day risk level, as a surface paints it. `null` where the surface has no dot for that day.

@@ -15,6 +15,7 @@ import {
 import { SectionACosts } from './SectionACosts';
 import { SectionBGives } from './SectionBGives';
 import { SectionCWhenBest } from './SectionCWhenBest';
+import { SectionDActiveNow } from './SectionDActiveNow';
 
 export interface CardDnaScreenProps {
   readonly route?: {
@@ -95,7 +96,9 @@ export function CardDnaScreen({
                 <SectionCWhenBest {...(card === undefined ? {} : { cardId: card.cardId })} />
               </View>
             ) : (
-              <View testID={`${section.testID}-content`} />
+              <View testID={`${section.testID}-content`}>
+                <SectionDActiveNow {...(card === undefined ? {} : { cardId: card.cardId })} />
+              </View>
             )}
           </View>
         ))}
