@@ -1040,4 +1040,7 @@ export const enBySource: Readonly<Record<string, string>> = {
     'After this day’s activity, the projected balance is {{amount}}.',
   'לא הוזנה יתרה נוכחית, ולכן אין תחזית יתרה ליום הזה.':
     'No current balance was entered, so there is no balance projection for this day.',
+  // Home — nearest upcoming card billing.
+  'מועד החיוב הקרוב': 'Upcoming billing',
+  'לצפייה בתכנון': 'View in Plan',
 };

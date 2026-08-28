@@ -21,6 +21,7 @@ import { RAISED_ACTION_ROUTE } from '../navigation/ia';
 import { HomeHero } from './home/HomeHero';
 import { HomeLoadBar } from './home/HomeLoadBar';
 import { HomeRiskStrip } from './home/HomeRiskStrip';
+import { HomeUpcomingBilling } from './home/HomeUpcomingBilling';
 
 const FINISH_SETUP_LABELS: Readonly<Record<FinishSetupStep, string>> = {
   income: 'השלם הכנסה ויום משכורת',
@@ -67,8 +68,19 @@ export function HomeScreen(): React.ReactElement {
       >
         <View className="min-h-full w-full px-5 pb-28 pt-5">
           <HomeHero />
+          <Pressable
+            accessibilityRole="button"
+            className={`mb-4 min-h-[50px] items-center justify-center rounded-lg ${ACCENT.solid}`}
+            onPress={handleCheckPurchase}
+            testID="home-check-cta"
+          >
+            <AppText className={`text-center text-base font-extrabold ${TEXT.onAccent}`}>
+              {t('בדוק רכישה')}
+            </AppText>
+          </Pressable>
           <HomeLoadBar />
           <HomeRiskStrip />
+          <HomeUpcomingBilling />
 
           <View
             className="mb-5 w-full"
@@ -168,18 +180,6 @@ export function HomeScreen(): React.ReactElement {
         </View>
       </RtlScrollView>
 
-      {/* rtl-ok: full-width footer dock spans both edges intentionally */}
-      <View className={`absolute bottom-0 left-0 right-0 border-t p-4 ${BORDER.subtle} ${SURFACE.card}`}>
-        <Pressable
-          accessibilityRole="button"
-          className={`min-h-[50px] items-center justify-center rounded-lg ${ACCENT.solid}`}
-          onPress={handleCheckPurchase}
-        >
-          <AppText className={`text-center text-base font-extrabold ${TEXT.onAccent}`}>
-            {t('בדוק רכישה')}
-          </AppText>
-        </Pressable>
-      </View>
     </RtlScreen>
   );
 }
