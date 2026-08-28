@@ -21,6 +21,7 @@ import {
 } from './tileElements';
 import type { WalletTileElementId } from './tileElements';
 import { WaiverBadge } from './WaiverBadge';
+import { WalletBestForChips } from './WalletBestForChips';
 import { WalletLimitBar } from './WalletLimitBar';
 
 type WalletNavigation = NativeStackNavigationProp<
@@ -165,7 +166,11 @@ export function WalletTile({ card }: WalletTileProps): React.ReactElement {
           </View>
         );
       case 'best-for-chips':
-        return <View key={id} testID={testID} />;
+        return (
+          <View key={id} testID={testID}>
+            <WalletBestForChips cardId={card.cardId} />
+          </View>
+        );
     }
   };
 

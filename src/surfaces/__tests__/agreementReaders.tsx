@@ -31,11 +31,13 @@
  */
 import React from 'react';
 import { render } from '@testing-library/react-native';
+import { NavigationContainer } from '@react-navigation/native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { CheckVerdictScreen } from '../../screens/check/CheckVerdictScreen';
 import { SectionCWhenBest } from '../../screens/cardDna/SectionCWhenBest';
 import { SectionDActiveNow } from '../../screens/cardDna/SectionDActiveNow';
+import { WalletBestForChips } from '../../screens/wallet/WalletBestForChips';
 import { WalletLimitBar } from '../../screens/wallet/WalletLimitBar';
 import { verdictPropsFromDraft } from '../../check/checkLoop';
 import { Currency } from '../../types/purchase.types';
@@ -165,7 +167,17 @@ export function readCalendarRiskDotDay(_ctx: SurfaceContext, _date: string): Pai
 
 /** A ranked card list, as a surface paints it. Built in PHASE-4 (W4), PHASE-3 (N6). */
 export type PaintedRanking = readonly string[] | typeof NOT_BUILT;
-export function readWalletBestForChips(_ctx: SurfaceContext): PaintedRanking { return NOT_BUILT; }
+export function readWalletBestForChips(ctx: SurfaceContext): PaintedRanking {
+  const tree = render(wrap(<NavigationContainer><>{ctx.cards.map((card) => (
+    <WalletBestForChips cardId={card.cardId} context={ctx} key={card.cardId} />
+  ))}</></NavigationContainer>));
+  try {
+    return tree.queryAllByTestId(/^wallet-best-for-/)
+      .map((node) => String(node.props.testID).slice('wallet-best-for-'.length));
+  } finally {
+    tree.unmount();
+  }
+}
 export function readCardDnaWhenBestChips(ctx: SurfaceContext): PaintedRanking {
   const tree = render(wrap(<SectionCWhenBest context={ctx} />));
   try {
