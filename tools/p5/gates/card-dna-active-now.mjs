@@ -84,6 +84,22 @@ const DERIVES = [
   [/releasedByEarlyPayoffIls\s*[-+]/, 'does arithmetic on the freed figure — the engine reports what early payoff frees; the surface renders it'],
 ];
 
+/*
+ * ENGINE FIGURES ARE ProvenancedNumber, SO ARITHMETIC WEARS A `.value` FIRST.
+ *
+ * The first version of this rule was /releasedByEarlyPayoffIls\s*[-+]/, and it was watched NOT
+ * firing against `releasedByEarlyPayoffIls.value + 0` — because every figure the load engine
+ * publishes is a ProvenancedNumber, and the only way to do arithmetic on one is to unwrap it.
+ * The rule was looking for the shape arithmetic CANNOT take here.
+ *
+ * It now matches the field with an optional `.value` on either side of an operator. Formatting
+ * (`money(x.value)`) stays legal, because a call is not an operator; deriving a third number from
+ * two engine fields does not.
+ */
+const FIELD_ARITHMETIC = [
+  [new RegExp("(creditLimitIls|activeInstallmentHoldsIls|loggedThisCyclePurchasesIls|availableBeforeChangesIls|availableAfterChangesIls|releasedByEarlyPayoffIls|prospectiveHoldIls|monthlyObligationsIls|ratioOfIncome)(\\.value)?\\s*[-+*/]\\s*(?![/*])"), "does arithmetic on an engine figure"],
+  [new RegExp("[-+*/]\\s*[A-Za-z0-9_.]*(creditLimitIls|activeInstallmentHoldsIls|loggedThisCyclePurchasesIls|availableBeforeChangesIls|availableAfterChangesIls|releasedByEarlyPayoffIls|prospectiveHoldIls|monthlyObligationsIls|ratioOfIncome)"), "feeds an engine figure into arithmetic"],
+];
 /** A second early-payoff implementation, which is precisely what A4 is waiting to catch. */
 const LOCAL_PAYOFF = /\b(computeReleased|calculateFreed|freedAmountFor|releaseFor)\s*\(/;
 
@@ -117,6 +133,16 @@ export const run = async ({ root }) => {
     for (const [re, why] of DERIVES) {
       if (re.test(f.s)) {
         problems.push(f.n + ' ' + why + '. §2 rule 11: a rendered figure traces to the engine result FIELD');
+      }
+    }
+    for (const [re, why] of FIELD_ARITHMETIC) {
+      const hit = f.s.match(re);
+      if (hit) {
+        problems.push(
+          f.n + ' ' + why + ' (' + hit[0].trim().slice(0, 48) + '). Every figure the engine publishes is a '
+            + 'ProvenancedNumber, so deriving a new number means unwrapping one first — which is what this catches. '
+            + 'Formatting is fine; a second opinion about the user\'s money is not',
+        );
       }
     }
     if (LOCAL_PAYOFF.test(f.s)) {
