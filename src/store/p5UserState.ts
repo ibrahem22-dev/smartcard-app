@@ -63,6 +63,8 @@ export type P5StateHome =
   | 'user-profile'
   /** Its own key in `MMKV_KEYS`, holding a record of its own. */
   | 'mmkv-key'
+  /** Module-scoped session memory. `none` means prohibited and absent, so it cannot name a real cache. */
+  | 'in-memory'
   /** Nowhere, and deliberately — the home a `prohibited` row has. */
   | 'none';
 
@@ -121,6 +123,14 @@ export const P5_USER_STATE: readonly P5StateField[] = [
       + 'learned to say so.',
   },
   {
+    field: 'derivedCache',
+    class: 'derived-cache',
+    home: 'in-memory',
+    where: 'src/surfaces/derivedCache.ts — module-scoped session memory',
+    why: 'A5 and U4 — the derived-cache mechanism is local-only and invalidated when its input '
+      + 'fingerprint moves, rather than persisted or shipped stale.',
+  },
+  {
     field: 'homeSuggestionDismissed',
     class: 'prohibited',
     home: 'none',
@@ -147,6 +157,11 @@ export const P5_STATE_PROFILE_FIELDS = P5_USER_STATE
 /** Rows that must name a real entry in `MMKV_KEYS`. */
 export const P5_STATE_MMKV_KEYS = P5_USER_STATE
   .filter((f) => f.home === 'mmkv-key')
+  .map((f) => f.field);
+
+/** Rows whose only home is module-scoped session memory. */
+export const P5_STATE_IN_MEMORY_FIELDS = P5_USER_STATE
+  .filter((f) => f.home === 'in-memory')
   .map((f) => f.field);
 
 export const P5_STATE_FORBIDDEN_IN_CODE = P5_USER_STATE

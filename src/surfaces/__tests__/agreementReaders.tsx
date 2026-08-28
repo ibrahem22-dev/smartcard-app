@@ -43,7 +43,9 @@ import { WalletBestForChips } from '../../screens/wallet/WalletBestForChips';
 import { WalletLimitBar } from '../../screens/wallet/WalletLimitBar';
 import { verdictPropsFromDraft } from '../../check/checkLoop';
 import { Currency } from '../../types/purchase.types';
+import { evaluateSurfaceEngines } from '../surfaceEngines';
 import type { SurfaceContext } from '../surfaceContext';
+import { getCached, putCached } from '../derivedCache';
 
 const { DayMarkers } = require('../../screens/calendar/DayMarkers.tsx') as {
   readonly DayMarkers: React.ComponentType<{
@@ -228,6 +230,46 @@ export function readCardDnaWhenBestChips(ctx: SurfaceContext): PaintedRanking {
 }
 export function readCheckRecommendation(_ctx: SurfaceContext): PaintedRanking { return NOT_BUILT; }
 
+const CACHE_BEST_FOR = 'cache-best-for';
+const CACHE_LOAD_RATIO = 'cache-load-ratio';
+const CACHE_CALENDAR_RISK = 'cache-calendar-risk';
+
+/** Wallet and Card DNA's ordered best-for card ids, cached only for the exact engine inputs. */
+export function readCacheBestFor(ctx: SurfaceContext): PaintedRanking {
+  const fresh = evaluateSurfaceEngines(ctx).scoring;
+  if (fresh === null) {
+    getCached<readonly string[]>(CACHE_BEST_FOR, ctx);
+    return NOT_BUILT;
+  }
+  putCached(CACHE_BEST_FOR, ctx, fresh.ranked.map((card) => card.cardId));
+  return getCached<readonly string[]>(CACHE_BEST_FOR, ctx) ?? NOT_BUILT;
+}
+
+/** Home's load ratio, cached only for the exact engine inputs. */
+export function readCacheLoadRatio(ctx: SurfaceContext): PaintedNumber {
+  const fresh = evaluateSurfaceEngines(ctx).load;
+  if (fresh === null) {
+    getCached<number>(CACHE_LOAD_RATIO, ctx);
+    return NOT_BUILT;
+  }
+  putCached(CACHE_LOAD_RATIO, ctx, fresh.current.ratioOfIncome.value);
+  return getCached<number>(CACHE_LOAD_RATIO, ctx) ?? NOT_BUILT;
+}
+
+type CalendarRiskCache = Readonly<Record<string, string>>;
+
+/** Plan Calendar's per-day risk levels, cached only for the exact engine inputs. */
+export function readCacheCalendarRisk(ctx: SurfaceContext, iso: string): PaintedLevel {
+  const fresh = evaluateSurfaceEngines(ctx).risk;
+  if (fresh === null) {
+    getCached<CalendarRiskCache>(CACHE_CALENDAR_RISK, ctx);
+    return NOT_BUILT;
+  }
+  const levels = Object.fromEntries(fresh.days.map((day) => [day.date, day.riskLevel]));
+  putCached<CalendarRiskCache>(CACHE_CALENDAR_RISK, ctx, levels);
+  return getCached<CalendarRiskCache>(CACHE_CALENDAR_RISK, ctx)?.[iso] ?? NOT_BUILT;
+}
+
 /**
  * The derived caches of spec §21C — best-for, load %, calendar risk, savings totals.
  *
@@ -239,8 +281,35 @@ export interface CachedValue {
   readonly key: string;
   readonly value: number;
 }
-export function readDerivedCaches(_ctx: SurfaceContext): readonly CachedValue[] | typeof NOT_BUILT {
-  return NOT_BUILT;
+export function readDerivedCaches(ctx: SurfaceContext): readonly CachedValue[] | typeof NOT_BUILT {
+  const fresh = evaluateSurfaceEngines(ctx);
+  const out: CachedValue[] = [];
+
+  const ranking = readCacheBestFor(ctx);
+  if (ranking !== NOT_BUILT && ranking.length > 0) {
+    out.push({ cache: 'best-for', key: ranking[0] as string, value: 0 });
+  }
+
+  const loadRatio = readCacheLoadRatio(ctx);
+  if (loadRatio !== NOT_BUILT) {
+    out.push({ cache: 'load-ratio', key: 'current', value: loadRatio });
+  }
+
+  const firstRiskDay = fresh.risk?.days[0];
+  if (firstRiskDay !== undefined) {
+    const riskLevel = readCacheCalendarRisk(ctx, firstRiskDay.date);
+    if (riskLevel !== NOT_BUILT) {
+      out.push({
+        cache: 'calendar-risk',
+        key: firstRiskDay.date,
+        value: Number(riskLevel === 'safe'),
+      });
+    }
+  } else {
+    getCached<CalendarRiskCache>(CACHE_CALENDAR_RISK, ctx);
+  }
+
+  return out;
 }
 
 /**
