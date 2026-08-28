@@ -23,15 +23,19 @@
  * `commitments: []` unconditionally, so the Check loop evaluates every purchase as if the user had
  * no existing obligations. That is raised as Owner question `OQ-P5-001`; it is not repaired here.
  */
-import { derivedContexts } from '../population';
+import { derivedContexts } from './derivedPopulation';
 import { evaluateSurfaceEngines } from '../surfaceEngines';
 import { REQUIRED_PARTICIPANTS, notBuiltYet } from './agreementParticipants';
 import {
   NOT_BUILT,
+  readCardDnaBand,
   readCardDnaUtilizationRatio,
+  readCommitmentsBand,
+  readHomeLoadBand,
   readCommitmentsSummaryRatio,
   readHomeLoadBar,
   readVerdictLoadRatio,
+  type PaintedBand,
   type PaintedNumber,
 } from './agreementReaders';
 import type { SurfaceContext } from '../surfaceContext';
@@ -46,6 +50,20 @@ const assertAllEqual = (
   for (const a of actuals) {
     if (a.painted === NOT_BUILT) { problems.push(`${where}: ${a.who} painted nothing`); continue; }
     if (a.painted !== expected) problems.push(`${where}: ${a.who} painted ${a.painted}, the load engine says ${expected}`);
+  }
+  return problems;
+};
+
+/** The band comparison, same shape: every surface against the engine's band and each other. */
+const assertBandsEqual = (
+  expected: string,
+  actuals: readonly { readonly who: string; readonly painted: PaintedBand }[],
+  where: string,
+): readonly string[] => {
+  const problems: string[] = [];
+  for (const a of actuals) {
+    if (a.painted === NOT_BUILT) { problems.push(`${where}: ${a.who} paints no band yet`); continue; }
+    if (a.painted !== expected) problems.push(`${where}: ${a.who} painted band "${a.painted}", the load engine says "${expected}"`);
   }
   return problems;
 };
@@ -67,7 +85,7 @@ const withProspective = (ctx: SurfaceContext, amount: number): SurfaceContext =>
 describe('A2 — one load', () => {
   it('every participant the criterion names has a reader', () => {
     const missing = REQUIRED_PARTICIPANTS['one-load'].filter((p) => {
-      const ctx = {} as SurfaceContext;
+      const ctx = derivedContexts()[0]?.context as SurfaceContext;
       if (p.id === 'home-load-bar') return readHomeLoadBar(ctx) === NOT_BUILT;
       if (p.id === 'commitments-summary') return readCommitmentsSummaryRatio(ctx) === NOT_BUILT;
       if (p.id === 'card-dna-utilization') return readCardDnaUtilizationRatio(ctx) === NOT_BUILT;
@@ -112,12 +130,19 @@ describe('A2 — one load', () => {
     for (const { label, context } of derivedContexts()) {
       const engine = evaluateSurfaceEngines(context);
       if (engine.load === null) continue;
-      /* Every surface that paints a load band must paint the engine's band for that ratio. Until a
-         surface paints one there is nothing to compare, and the property says so rather than
-         passing: a band comparison over zero surfaces is the vacuous pass §2 rule 5 refuses. */
-      const painters = REQUIRED_PARTICIPANTS['one-load'].filter((p) => p.surface !== 'check-verdict');
-      const bandOf = engine.load.current.band;
-      problems.push(...painters.map((p) => `${label}: ${p.renders} paints no band yet, so "${bandOf}" is compared with nothing`));
+
+      /* The band, from the same ONE result the ratio came from. A surface that classified the
+         ratio itself would be holding recommendation logic, which B1 forbids at build time and
+         this property is the runtime half of. */
+      const home = readHomeLoadBand(context);
+      const commitments = readCommitmentsBand(context);
+      const cardDna = readCardDnaBand(context);
+
+      problems.push(...assertBandsEqual(engine.load.current.band, [
+        { who: "Home's load bar", painted: home },
+        { who: "Plan Commitments' summary", painted: commitments },
+        { who: "Card DNA §D's utilization", painted: cardDna },
+      ], label));
       checked += 1;
     }
 

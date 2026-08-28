@@ -164,3 +164,18 @@ export interface CachedValue {
 export function readDerivedCaches(_ctx: SurfaceContext): readonly CachedValue[] | typeof NOT_BUILT {
   return NOT_BUILT;
 }
+
+/**
+ * The load BAND a surface paints — safe · warning · strong_warning · blocked.
+ *
+ * Separate from the ratio on purpose. `P5_VALIDATION_PLAN.md` §3.2: *"comparing the ratio but not
+ * the band — the boundary is where they disagree, and >= versus > at exactly 35% is the canonical
+ * defect."* Two surfaces agreeing on 0.35 and disagreeing on what 0.35 MEANS is the failure, and a
+ * property that read only the ratio would report agreement.
+ *
+ * Built in PHASE-7 (H3), PHASE-5 (J1) and PHASE-3 (N7).
+ */
+export type PaintedBand = string | typeof NOT_BUILT;
+export function readHomeLoadBand(_ctx: SurfaceContext): PaintedBand { return NOT_BUILT; }
+export function readCommitmentsBand(_ctx: SurfaceContext): PaintedBand { return NOT_BUILT; }
+export function readCardDnaBand(_ctx: SurfaceContext): PaintedBand { return NOT_BUILT; }

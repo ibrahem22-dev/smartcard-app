@@ -20,6 +20,22 @@
  * shipped catalog pack. Neither is restated here.
  *
  * ─────────────────────────────────────────────────────────────────────────────────────────────
+ * WHY IT LIVES UNDER `__tests__` AND WHAT THAT IS NOT
+ *
+ * It builds fixture vaults, and it is imported only by the group-A properties and read only by
+ * the `agreement-population` gate. It is test support, and it must never be in the shipped
+ * bundle. It began life at `src/surfaces/population.ts`, and criterion **B3** — P4's
+ * `no-magic-numbers`, run at a P5 sha by **B12** — correctly refused it there: a fixture credit
+ * limit and a fixture FX fee are numeric literals that look like rates, in application source.
+ * The scanner skips `__tests__` because *"fixtures are data"*, in its own words.
+ *
+ * **Moving it is not how the thresholds were fixed.** The three ratios below are imported from
+ * `src/config/financial.ts` — the one home P3's engines read rather than embed — so that a
+ * context called *"exactly the strong-warning threshold"* lands exactly on it even after the
+ * threshold moves. Restating them here would have been a second home for a fact, and it would
+ * have stayed one in any directory.
+ *
+ * ─────────────────────────────────────────────────────────────────────────────────────────────
  * ONE SURFACE CANNOT COME FROM `ia.ts`, AND PRETENDING OTHERWISE WOULD BE THE DEFECT
  *
  * **Card DNA is not in `BOTTOM_NAVIGATION`, and correctly so.** It is contextual — route
@@ -32,13 +48,18 @@
  * something comparing it to the declaration that owns it. A list nothing checks is the thing A6
  * forbids; a claim with a check against its source is how the other four are derived too.
  */
-import { BOTTOM_NAVIGATION } from '../navigation/ia';
-import { currentCatalogProducts } from '../data/adapter/catalogSearch';
-import { CardIssuer, CardNetwork, type EngineCard } from '../types/card.types';
-import { Currency } from '../types/purchase.types';
-import type { ImportedInstallment } from '../types/installment.types';
-import type { UserProfile } from '../types/user.types';
-import type { SurfaceContext } from './surfaceContext';
+import { BOTTOM_NAVIGATION } from '../../navigation/ia';
+import { currentCatalogProducts } from '../../data/adapter/catalogSearch';
+import { CardIssuer, CardNetwork, type EngineCard } from '../../types/card.types';
+import { Currency } from '../../types/purchase.types';
+import type { ImportedInstallment } from '../../types/installment.types';
+import type { UserProfile } from '../../types/user.types';
+import type { SurfaceContext } from '../surfaceContext';
+import {
+  INSTALLMENT_BLOCKED_RATIO_OF_INCOME,
+  INSTALLMENT_STRONG_WARNING_RATIO_OF_INCOME,
+  INSTALLMENT_WARNING_RATIO_OF_INCOME,
+} from '../../config/financial';
 
 /** The five surfaces contract §1 names. Ids are this module's, the membership is not. */
 export type P5SurfaceId =
@@ -223,15 +244,17 @@ export function derivedContexts(): readonly DerivedContext[] {
   });
 
   return [
-    at(0.25, 'exactly the warning threshold'),
-    at(0.35, 'exactly the strong-warning threshold'),
-    at(0.5, 'exactly the blocked threshold'),
-    at(0.1, 'comfortably safe'),
-    at(0.7, 'well past blocked'),
+    at(INSTALLMENT_WARNING_RATIO_OF_INCOME, 'exactly the warning threshold'),
+    at(INSTALLMENT_STRONG_WARNING_RATIO_OF_INCOME, 'exactly the strong-warning threshold'),
+    at(INSTALLMENT_BLOCKED_RATIO_OF_INCOME, 'exactly the blocked threshold'),
+    /* Well inside and well outside, expressed against the thresholds rather than as numbers a
+       reader has to check against them. */
+    at(INSTALLMENT_WARNING_RATIO_OF_INCOME / 2, 'comfortably safe'),
+    at(INSTALLMENT_BLOCKED_RATIO_OF_INCOME * 1.4, 'well past blocked'),
     {
       label: 'a settled hold the user marked Paid early',
       context: {
-        ...at(0.35, 'paid-early base').context,
+        ...at(INSTALLMENT_STRONG_WARNING_RATIO_OF_INCOME, 'paid-early base').context,
         paidEarlyCommitmentIds: ['inst:paid-early base'],
       },
     },

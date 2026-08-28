@@ -32,7 +32,7 @@ export const CRITERIA = ['A6'];
 export const SENTINEL = 'AGREEMENT-POPULATION OK';
 export const MEASURES = 'source';
 
-const GENERATOR = 'src/surfaces/population.ts';
+const GENERATOR = 'src/surfaces/__tests__/derivedPopulation.ts';
 const SUITE = 'src/surfaces/__tests__/population.test.ts';
 const IA = 'src/navigation/ia.ts';
 const WALLET_STACK = 'src/navigation/stacks/WalletStack.tsx';
@@ -69,7 +69,7 @@ export const run = async ({ root }) => {
   const src = readFileSync(join(root, GENERATOR), 'utf8');
   const problems = [];
 
-  if (!/from\s+'\.\.\/navigation\/ia'/.test(src) || !/\bBOTTOM_NAVIGATION\b/.test(src)) {
+  if (!/from\s+'\.\.\/\.\.\/navigation\/ia'/.test(src) || !/\bBOTTOM_NAVIGATION\b/.test(src)) {
     problems.push(GENERATOR + ' does not read BOTTOM_NAVIGATION from ' + IA + ' — the surface set would then be this file\'s opinion');
   }
   if (!/currentCatalogProducts/.test(src) || !/adapter\/catalogSearch/.test(src)) {

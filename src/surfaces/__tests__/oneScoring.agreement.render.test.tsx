@@ -24,7 +24,7 @@
  * `unknownCostCards` and ranks none, and this property fails naming all three rather than agreeing
  * over an empty ranking.
  */
-import { derivedContexts } from '../population';
+import { derivedContexts } from './derivedPopulation';
 import { evaluateSurfaceEngines } from '../surfaceEngines';
 import { REQUIRED_PARTICIPANTS, notBuiltYet } from './agreementParticipants';
 import {
@@ -61,7 +61,7 @@ const priced = (ctx: SurfaceContext): SurfaceContext => {
 describe('A1 — one scoring', () => {
   it('every participant the criterion names has a reader', () => {
     const missing = REQUIRED_PARTICIPANTS['one-scoring'].filter((p) => {
-      const ctx = {} as SurfaceContext;
+      const ctx = derivedContexts()[0]?.context as SurfaceContext;
       if (p.id === 'wallet-best-for-chips') return readWalletBestForChips(ctx) === NOT_BUILT;
       if (p.id === 'card-dna-when-best') return readCardDnaWhenBestChips(ctx) === NOT_BUILT;
       if (p.id === 'check-recommendation') return readCheckRecommendation(ctx) === NOT_BUILT;

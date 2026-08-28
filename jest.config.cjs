@@ -23,8 +23,44 @@
  * claim the same file — a test picked up by both would run in two environments and be reported
  * twice, and a test picked up by neither would be silently absent, which is the shape of defect
  * this campaign keeps finding.
+ *
+ * ─────────────────────────────────────────────────────────────────────────────────────────────
+ * A THIRD PROJECT, ADDED 2026-08-28 — P5's group-A properties, and why they are not in `render`
+ *
+ * The five cross-surface agreement properties are **deliberately red** until the surfaces they
+ * compare exist. `campaign-p5/P5_EXECUTION_PLAN.md` §1.1: *"PHASE-1 delivers A1 through A5 as
+ * failing properties with nothing to satisfy them yet… a property that has never been red is a
+ * property nobody has watched."*
+ *
+ * They are `*.render.test.tsx`, so `render` would claim them, so `npx jest` would fail — and
+ * `npx jest` is the **suite step of both `tools/p4/all.mjs` and `tools/p5/all.mjs`**. P4's ladder
+ * would then be red at a P5 sha, and criterion B12's designed reading of that is *"P5 broke it"*.
+ * That reading would be false, and a check that is expected to fail is a check nobody reads.
+ *
+ * So they get their own project and run through their own gates, on every ladder. Nothing leaves
+ * the measurement. `tools/p5/lib/agreementProject.mjs` asserts, per gate, that a property file is
+ * claimed by `agreement` and NOT by `render` — because the paragraph above is exactly the risk of
+ * a file claimed by both or by neither, and it should be checked rather than promised.
+ * See `campaign-p5/DEVIATIONS.md` D-010 / PD-P5-010.
  */
+const AGREEMENT_PROPERTIES = '**/__tests__/**/*.agreement.render.test.tsx';
+const AGREEMENT_PROPERTY_PATTERN = '\\.agreement\\.render\\.test\\.tsx$';
+
+const EXPO_TRANSFORM_IGNORE = [
+  'node_modules/(?!(.pnpm|(jest-)?react-native|@react-native|@react-native-community'
+    + '|expo|@expo|@expo-google-fonts|react-navigation|@react-navigation'
+    + '|@sentry/react-native|native-base|standard-navigation'
+    // added for this app, from its own dependencies:
+    + '|react-native-safe-area-context|react-native-screens|react-native-svg'
+    + '|react-native-qrcode-svg|react-native-purchases|react-native-css-interop'
+    + '|nativewind|@noble|@supabase|zustand|uuid))',
+  'node_modules/react-native-reanimated/plugin/',
+  'node_modules/@react-native/babel-preset/',
+];
+
 module.exports = {
+  AGREEMENT_PROPERTIES,
+  AGREEMENT_PROPERTY_PATTERN,
   projects: [
     {
       displayName: 'unit',
@@ -39,6 +75,9 @@ module.exports = {
       preset: 'jest-expo',
       roots: ['<rootDir>/src'],
       testMatch: ['**/__tests__/**/*.render.test.tsx'],
+      /* The group-A properties are `*.agreement.render.test.tsx` and belong to the third project.
+         Without this they would be claimed by both, run twice, and fail the blanket suite. */
+      testPathIgnorePatterns: [AGREEMENT_PROPERTY_PATTERN],
       modulePathIgnorePatterns: ['<rootDir>/.expo/'],
       setupFilesAfterEnv: ['<rootDir>/tools/p2/jest/render-setup.ts'],
       /**
@@ -55,19 +94,32 @@ module.exports = {
        * run, so a package added later that breaks a screen shows up as a screen that stopped
        * rendering, which is a failure rather than a silence.
        */
-      transformIgnorePatterns: [
-        'node_modules/(?!(.pnpm|(jest-)?react-native|@react-native|@react-native-community'
-          + '|expo|@expo|@expo-google-fonts|react-navigation|@react-navigation'
-          + '|@sentry/react-native|native-base|standard-navigation'
-          // added for this app, from its own dependencies:
-          + '|react-native-safe-area-context|react-native-screens|react-native-svg'
-          + '|react-native-qrcode-svg|react-native-purchases|react-native-css-interop'
-          + '|nativewind|@noble|@supabase|zustand|uuid))',
-        'node_modules/react-native-reanimated/plugin/',
-        'node_modules/@react-native/babel-preset/',
-      ],
+      transformIgnorePatterns: EXPO_TRANSFORM_IGNORE,
     },
   ],
+
+  /**
+   * P5's cross-surface agreement properties — a project, DELIBERATELY NOT IN `projects`.
+   *
+   * Identical environment to `render`; they mount the same components. It is separate, and it is
+   * not in the default set, because these five are **deliberately red** until the surfaces they
+   * compare exist, and `npx jest` with no arguments — the suite step of both ladders — runs every
+   * project it is given.
+   *
+   * They are not skipped. `tools/p5/gates/one-*.mjs` run them with this exact config on every
+   * ladder, by named case, and `tools/p5/lib/agreementProject.mjs` refuses if a property file is
+   * not matched here or is also claimed by `render`. A file claimed by neither is the failure this
+   * arrangement could produce, so it is checked rather than promised.
+   */
+  agreementProject: {
+    displayName: 'agreement',
+    preset: 'jest-expo',
+    roots: ['<rootDir>/src'],
+    testMatch: [AGREEMENT_PROPERTIES],
+    modulePathIgnorePatterns: ['<rootDir>/.expo/'],
+    setupFilesAfterEnv: ['<rootDir>/tools/p2/jest/render-setup.ts'],
+    transformIgnorePatterns: EXPO_TRANSFORM_IGNORE,
+  },
   collectCoverageFrom: [
     'src/engines/purchaseGate.ts',
     'src/engines/cardRoleEngine.ts',

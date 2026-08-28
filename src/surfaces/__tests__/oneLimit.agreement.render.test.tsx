@@ -47,7 +47,7 @@
  * all three by the engine's own `releasedByEarlyPayoffIls`** — which is the part a per-surface test
  * cannot see, because a surface that released the hold itself would move correctly on its own.
  */
-import { derivedContexts } from '../population';
+import { derivedContexts } from './derivedPopulation';
 import { evaluateSurfaceEngines } from '../surfaceEngines';
 import { REQUIRED_PARTICIPANTS, notBuiltYet } from './agreementParticipants';
 import {
@@ -97,12 +97,15 @@ const withProspective = (ctx: SurfaceContext, amount: number): SurfaceContext =>
   };
 };
 
+/** A real derived context — a reader implemented later must never be handed an empty object. */
+const realContext = (): SurfaceContext => derivedContexts()[0]?.context as SurfaceContext;
+
 describe('A4 — one available limit', () => {
   it('every participant the criterion names has a reader', () => {
     const missing = REQUIRED_PARTICIPANTS['one-limit'].filter((p) => {
       if (p.id === 'verdict-impact-strip') return false;
-      if (p.id === 'wallet-limit-bar') return readWalletLimitBar({} as SurfaceContext) === NOT_BUILT;
-      if (p.id === 'card-dna-utilization') return readCardDnaUtilizationLimit({} as SurfaceContext) === NOT_BUILT;
+      if (p.id === 'wallet-limit-bar') return readWalletLimitBar(realContext()) === NOT_BUILT;
+      if (p.id === 'card-dna-utilization') return readCardDnaUtilizationLimit(realContext()) === NOT_BUILT;
       return true;
     });
     expect(missing.map((p) => notBuiltYet('one-limit', p))).toEqual([]);

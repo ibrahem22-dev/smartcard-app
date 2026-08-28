@@ -25,7 +25,7 @@
  * participant id against it, so a participant naming a surface the navigation declaration does not
  * carry fails rather than passing unnoticed.
  */
-import type { P5SurfaceId } from '../population';
+import type { P5SurfaceId } from './derivedPopulation';
 
 /** The five properties closure test 2 gates on. */
 export type AgreementProperty =

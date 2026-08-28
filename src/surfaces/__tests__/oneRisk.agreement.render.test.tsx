@@ -23,7 +23,7 @@
  * through the seam. Until then the calendar paints a level this property cannot compare, and it
  * says so rather than comparing two different engines and reporting agreement.
  */
-import { derivedContexts } from '../population';
+import { derivedContexts } from './derivedPopulation';
 import { evaluateSurfaceEngines } from '../surfaceEngines';
 import { REQUIRED_PARTICIPANTS, notBuiltYet } from './agreementParticipants';
 import {
@@ -50,7 +50,7 @@ const assertAllEqual = (
 describe('A3 — one risk', () => {
   it('every participant the criterion names has a reader', () => {
     const missing = REQUIRED_PARTICIPANTS['one-risk'].filter((p) => {
-      const ctx = {} as SurfaceContext;
+      const ctx = derivedContexts()[0]?.context as SurfaceContext;
       if (p.id === 'home-risk-strip') return readHomeRiskStripDay(ctx, '') === NOT_BUILT;
       if (p.id === 'calendar-risk-dots') return readCalendarRiskDotDay(ctx, '') === NOT_BUILT;
       return false;

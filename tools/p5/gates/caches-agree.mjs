@@ -19,37 +19,27 @@
  */
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { createRequire } from 'node:module';
 import { ok, fail, requireJestCases } from '../lib/report.mjs';
+import { agreementConfigFor } from '../lib/agreementProject.mjs';
 
 export const CRITERIA = ['A5'];
 export const SENTINEL = 'CACHES-AGREE OK';
 export const MEASURES = 'agreement';
 export const AGREEMENT_PROPERTY = 'src/surfaces/__tests__/cachesAgree.agreement.render.test.tsx';
 
-const JEST_CONFIG = 'jest.config.cjs';
-const RENDER_PROJECT = 'render';
-
 const REQUIRED_CASES = [
   'every cache the criterion names has a reader',
   'each cached value equals what the engine says now, for the same inputs, and no cache is empty',
 ];
 
-const renderConfigFor = (root) => {
-  const configPath = join(root, JEST_CONFIG);
-  if (!existsSync(configPath)) return { error: JEST_CONFIG + ' does not exist — there is no rendering harness, and an agreement property that cannot render can only compare inputs' };
-  const config = createRequire(import.meta.url)(configPath);
-  const projects = Array.isArray(config.projects) ? config.projects : [];
-  const render = projects.find((p) => p && p.displayName === RENDER_PROJECT);
-  if (!render) return { error: JEST_CONFIG + ' has no "' + RENDER_PROJECT + '" project' };
-  return { config: { ...render, rootDir: root, testMatch: ['**/' + AGREEMENT_PROPERTY] } };
-};
-
 export const run = async ({ root }) => {
   if (!existsSync(join(root, AGREEMENT_PROPERTY))) {
     return fail(AGREEMENT_PROPERTY + ' does not exist — A5 has no property');
   }
-  const { config, error } = renderConfigFor(root);
+  /* One shared resolver, which also asserts this property is claimed by the `agreement` jest
+     project and NOT by `render` — a property claimed by neither would be silently absent, and
+     five green gates over a property nobody ran is the worst outcome available here. */
+  const { config, claim, error } = agreementConfigFor(root, AGREEMENT_PROPERTY);
   if (error) return fail(error);
 
   const { problems, summary, output } = requireJestCases(root, AGREEMENT_PROPERTY, REQUIRED_CASES, [
@@ -68,6 +58,6 @@ export const run = async ({ root }) => {
     '    value that was cached, which is the same number by construction',
     '  · and a cache with no engine field to be re-derived from, which cannot be shown current',
     'over the derived population, with no expected number anywhere in the file.',
-    REQUIRED_CASES.length + ' case(s) required BY NAME · ' + summary,
+    REQUIRED_CASES.length + ' case(s) required BY NAME · ' + claim + ' · ' + summary,
   ].join('\n'));
 };

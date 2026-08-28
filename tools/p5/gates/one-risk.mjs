@@ -19,16 +19,13 @@
  */
 import { existsSync } from 'node:fs';
 import { join } from 'node:path';
-import { createRequire } from 'node:module';
 import { ok, fail, requireJestCases } from '../lib/report.mjs';
+import { agreementConfigFor } from '../lib/agreementProject.mjs';
 
 export const CRITERIA = ['A3'];
 export const SENTINEL = 'ONE-RISK OK';
 export const MEASURES = 'agreement';
 export const AGREEMENT_PROPERTY = 'src/surfaces/__tests__/oneRisk.agreement.render.test.tsx';
-
-const JEST_CONFIG = 'jest.config.cjs';
-const RENDER_PROJECT = 'render';
 
 const REQUIRED_CASES = [
   'every participant the criterion names has a reader',
@@ -36,21 +33,14 @@ const REQUIRED_CASES = [
   'both surfaces read the SAME risk result, not two evaluations of the same window',
 ];
 
-const renderConfigFor = (root) => {
-  const configPath = join(root, JEST_CONFIG);
-  if (!existsSync(configPath)) return { error: JEST_CONFIG + ' does not exist — there is no rendering harness, and an agreement property that cannot render can only compare inputs' };
-  const config = createRequire(import.meta.url)(configPath);
-  const projects = Array.isArray(config.projects) ? config.projects : [];
-  const render = projects.find((p) => p && p.displayName === RENDER_PROJECT);
-  if (!render) return { error: JEST_CONFIG + ' has no "' + RENDER_PROJECT + '" project' };
-  return { config: { ...render, rootDir: root, testMatch: ['**/' + AGREEMENT_PROPERTY] } };
-};
-
 export const run = async ({ root }) => {
   if (!existsSync(join(root, AGREEMENT_PROPERTY))) {
     return fail(AGREEMENT_PROPERTY + ' does not exist — A3 has no property');
   }
-  const { config, error } = renderConfigFor(root);
+  /* One shared resolver, which also asserts this property is claimed by the `agreement` jest
+     project and NOT by `render` — a property claimed by neither would be silently absent, and
+     five green gates over a property nobody ran is the worst outcome available here. */
+  const { config, claim, error } = agreementConfigFor(root, AGREEMENT_PROPERTY);
   if (error) return fail(error);
 
   const { problems, summary, output } = requireJestCases(root, AGREEMENT_PROPERTY, REQUIRED_CASES, [
@@ -70,6 +60,6 @@ export const run = async ({ root }) => {
     '    and the calendar shows a month, and element 0 against element 0 would agree on the',
     '    first of every month for the wrong reason',
     'over the derived population, with no expected number anywhere in the file.',
-    REQUIRED_CASES.length + ' case(s) required BY NAME · ' + summary,
+    REQUIRED_CASES.length + ' case(s) required BY NAME · ' + claim + ' · ' + summary,
   ].join('\n'));
 };

@@ -17,7 +17,7 @@ import {
   derivedSurfaces,
   POPULATION_AS_OF,
   POPULATION_THROUGH,
-} from '../population';
+} from './derivedPopulation';
 import { evaluateSurfaceEngines } from '../surfaceEngines';
 
 describe('the derived agreement population', () => {

@@ -29,7 +29,7 @@
  * contract §2 rule 5 refuses — *"a check over zero items fails"* — and it would go on passing on
  * the day a cache landed without a reader here. So the absence is asserted as a failure, naming it.
  */
-import { derivedContexts } from '../population';
+import { derivedContexts } from './derivedPopulation';
 import { evaluateSurfaceEngines } from '../surfaceEngines';
 import { REQUIRED_PARTICIPANTS, notBuiltYet } from './agreementParticipants';
 import { NOT_BUILT, readDerivedCaches, type CachedValue } from './agreementReaders';
@@ -54,10 +54,13 @@ const assertAllEqual = (
   return problems;
 };
 
+/** A real derived context — a reader implemented later must never be handed an empty object. */
+const realContext = (): SurfaceContext => derivedContexts()[0]?.context as SurfaceContext;
+
 describe('A5 — every derived cache equals a fresh engine call', () => {
   it('every cache the criterion names has a reader', () => {
     const missing = REQUIRED_PARTICIPANTS['caches-agree'].filter(
-      () => readDerivedCaches({} as SurfaceContext) === NOT_BUILT,
+      () => readDerivedCaches(realContext()) === NOT_BUILT,
     );
     expect(missing.map((p) => notBuiltYet('caches-agree', p))).toEqual([]);
   });
