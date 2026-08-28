@@ -940,6 +940,8 @@ export const enBySource: Readonly<Record<string, string>> = {
   'אין כרטיסים בכספת': 'There are no cards in the vault',
   'אין מועדי חיוב זמינים': 'No billing dates are available',
   'הסכום המוחלט והאחוז מוצגים יחד כדי להמחיש את העומס': 'The absolute amount and percentage are shown together to make the load tangible',
+  'פתיחת פרטי התחייבות': 'Open commitment details',
+  'פרטי ההתחייבות עדיין לא נבנו': 'Commitment details have not been built yet',
   // Card DNA — spec section 11 shell.
   'מה זה עולה לי': 'What it costs me',
   'מה זה נותן לי': 'What it gives me',

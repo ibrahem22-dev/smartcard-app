@@ -40,20 +40,28 @@ import React from 'react';
 import { View } from 'react-native';
 
 import { AppText } from '../../components/AppText';
-import { RtlRow, RtlScreen, RtlScrollView } from '../../components/rtl';
-import { useMoney } from '../../hooks/useMoney';
+import { RtlScreen, RtlScrollView } from '../../components/rtl';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useCardsStore } from '../../store/useCardsStore';
 import { useLoansStore } from '../../store/useLoansStore';
 import { BORDER, SURFACE, TEXT } from '../../theme/tokens';
-import { TABULAR_NUMERALS } from '../../utils/money';
+import type { EngineCard } from '../../types/card.types';
+import { CommitmentRow } from './CommitmentRow';
 import { CommitmentsSummary } from './CommitmentsSummary';
 
 /** One line in a group: what it is, and what it costs a month. */
-interface CommitmentRow {
+interface CommitmentListRow {
   readonly id: string;
   readonly name: string;
   readonly monthlyIls: number;
+  readonly paymentProgress?: {
+    readonly position: number;
+    readonly total: number;
+  };
+  readonly linkedCard?: Pick<
+    EngineCard,
+    'cardId' | 'displayName' | 'issuer' | 'last4'
+  >;
 }
 
 interface CommitmentGroup {
@@ -69,16 +77,22 @@ interface CommitmentGroup {
    * nine; it simply could not see the other eight.
    */
   readonly title: string;
-  readonly rows: readonly CommitmentRow[];
+  readonly rows: readonly CommitmentListRow[];
   /** What an empty group means. Never a blank, never a spinner. */
   readonly emptyLine: string;
 }
 
 export function CommitmentsScreen(): React.ReactElement {
   const { t } = useTranslation();
-  const { money } = useMoney();
+  const cards = useCardsStore((s) => s.cards);
   const obligations = useCardsStore((s) => s.obligations);
   const loans = useLoansStore((s) => s.loans);
+  const linkedCardFor = (
+    cardId: string | undefined,
+  ): Pick<CommitmentListRow, 'linkedCard'> | Record<string, never> => {
+    const linkedCard = cards.find((card) => card.cardId === cardId);
+    return linkedCard === undefined ? {} : { linkedCard };
+  };
 
   /* THE ORDER IS SPEC §15's, NOT THIS FILE'S PREFERENCE — criterion J2. */
   const groups: readonly CommitmentGroup[] = [
@@ -90,6 +104,7 @@ export function CommitmentsScreen(): React.ReactElement {
         id: o.installmentId,
         name: o.merchantName,
         monthlyIls: o.monthlyPayment,
+        ...linkedCardFor(o.billingCardId),
       })),
     },
     {
@@ -98,7 +113,13 @@ export function CommitmentsScreen(): React.ReactElement {
       emptyLine: t('אין הלוואות'),
       rows: loans
         .filter((l) => l.loanType !== 'mortgage')
-        .map((l) => ({ id: l.id, name: l.lenderName, monthlyIls: l.monthlyPayment })),
+        .map((l) => ({
+          id: l.id,
+          name: l.lenderName,
+          monthlyIls: l.monthlyPayment,
+          paymentProgress: { position: l.monthsPaid, total: l.totalMonths },
+          ...linkedCardFor(l.linkedCardId),
+        })),
     },
     {
       key: 'mortgage',
@@ -106,7 +127,13 @@ export function CommitmentsScreen(): React.ReactElement {
       emptyLine: t('אין משכנתא'),
       rows: loans
         .filter((l) => l.loanType === 'mortgage')
-        .map((l) => ({ id: l.id, name: l.lenderName, monthlyIls: l.monthlyPayment })),
+        .map((l) => ({
+          id: l.id,
+          name: l.lenderName,
+          monthlyIls: l.monthlyPayment,
+          paymentProgress: { position: l.monthsPaid, total: l.totalMonths },
+          ...linkedCardFor(l.linkedCardId),
+        })),
     },
     {
       key: 'fixed-orders',
@@ -139,19 +166,7 @@ export function CommitmentsScreen(): React.ReactElement {
               </AppText>
             ) : (
               group.rows.map((row) => (
-                <RtlRow className="mt-3 items-center justify-between" key={row.id}>
-                  <AppText className={`text-sm ${TEXT.body}`} testID={`commitments-row-${row.id}`}>
-                    {row.name}
-                  </AppText>
-                  <AppText
-                    accessibilityValue={{ text: String(row.monthlyIls) }}
-                    className={`text-sm font-bold ${TEXT.heading}`}
-                    style={TABULAR_NUMERALS}
-                    testID={`commitments-monthly-${row.id}`}
-                  >
-                    {money(row.monthlyIls)}
-                  </AppText>
-                </RtlRow>
+                <CommitmentRow key={row.id} {...row} />
               ))
             )}
           </View>
