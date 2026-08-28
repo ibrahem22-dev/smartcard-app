@@ -15,6 +15,7 @@ import {
 } from '../../surfaces';
 import { BORDER, SURFACE, TEXT } from '../../theme/tokens';
 import { monthGridFor, type MonthGridDay } from './monthGrid';
+import { DaySheet } from './DaySheet';
 
 const { DayMarkers, DayMarkersLegend } = require('./DayMarkers.tsx') as {
   readonly DayMarkers: React.ComponentType<{
@@ -38,6 +39,7 @@ export function MonthGrid({
   onDayPress,
 }: MonthGridProps): React.ReactElement {
   const { t } = useTranslation();
+  const [selectedDay, setSelectedDay] = React.useState<MonthGridDay | null>(null);
   const weeks = monthGridFor(year, month);
   const storedCards = useCardsStore((state) => state.cards);
   const storedInstallments = useCardsStore((state) => state.obligations);
@@ -54,47 +56,56 @@ export function MonthGrid({
     loans: storedLoans,
     purchases: storedPurchases,
   };
-  const results = evaluateSurfaceEngines(context ?? fallbackContext);
+  const activeContext = context ?? fallbackContext;
+  const results = evaluateSurfaceEngines(activeContext);
 
   return (
-    <View
-      className={`mb-5 overflow-hidden rounded-lg border ${SURFACE.card} ${BORDER.hairline}`}
-      testID="calendar-month-grid"
-    >
-      <WeekHeader />
-      <DayMarkersLegend />
-      {weeks.map((week, weekIndex) => (
-        <View
-          // The weekday header uses the same deliberate exception: RTL writing direction already
-          // places WEEK_ORDER right-to-left, so a direction-aware row would reverse it twice.
-          // rtl-ok
-          className="flex-row"
-          key={week[0]?.iso ?? String(weekIndex)}
-          testID={`calendar-week-${String(weekIndex)}`}
-        >
-          {week.map((day) => (
-            <Pressable
-              accessibilityLabel={t('יום {{day}}', { day: day.dayOfMonth })}
-              accessibilityRole="button"
-              className="min-h-[52px] flex-1 items-center justify-center gap-0.5 py-1"
-              key={day.iso}
-              onPress={(): void => onDayPress?.(day)}
-              testID={`calendar-day-${day.iso}`}
-            >
-              <View
-                testID={day.inMonth ? undefined : `calendar-day-${day.iso}-outside`}
+    <>
+      <View
+        className={`mb-5 overflow-hidden rounded-lg border ${SURFACE.card} ${BORDER.hairline}`}
+        testID="calendar-month-grid"
+      >
+        <WeekHeader />
+        <DayMarkersLegend />
+        {weeks.map((week, weekIndex) => (
+          <View
+            // The weekday header uses the same deliberate exception: RTL writing direction already
+            // places WEEK_ORDER right-to-left, so a direction-aware row would reverse it twice.
+            // rtl-ok
+            className="flex-row"
+            key={week[0]?.iso ?? String(weekIndex)}
+            testID={`calendar-week-${String(weekIndex)}`}
+          >
+            {week.map((day) => (
+              <Pressable
+                accessibilityLabel={t('יום {{day}}', { day: day.dayOfMonth })}
+                accessibilityRole="button"
+                className="min-h-[52px] flex-1 items-center justify-center gap-0.5 py-1"
+                key={day.iso}
+                onPress={(): void => {
+                  setSelectedDay(day);
+                  onDayPress?.(day);
+                }}
+                testID={`calendar-day-${day.iso}`}
               >
-                <AppText
-                  className={`text-sm ${day.inMonth ? TEXT.body : TEXT.muted}`}
+                <View
+                  testID={day.inMonth ? undefined : `calendar-day-${day.iso}-outside`}
                 >
-                  {String(day.dayOfMonth)}
-                </AppText>
-              </View>
-              <DayMarkers iso={day.iso} results={results} />
-            </Pressable>
-          ))}
-        </View>
-      ))}
-    </View>
+                  <AppText
+                    className={`text-sm ${day.inMonth ? TEXT.body : TEXT.muted}`}
+                  >
+                    {String(day.dayOfMonth)}
+                  </AppText>
+                </View>
+                <DayMarkers iso={day.iso} results={results} />
+              </Pressable>
+            ))}
+          </View>
+        ))}
+      </View>
+      {selectedDay === null ? null : (
+        <DaySheet context={activeContext} iso={selectedDay.iso} results={results} />
+      )}
+    </>
   );
 }
