@@ -45,10 +45,33 @@ export type P5StateClass =
   /** Considered and refused. Present so the refusal is on the record rather than an absence. */
   | 'prohibited';
 
+/**
+ * WHERE A FIELD LIVES, AS A THING THE GATE CAN CHECK RATHER THAN PROSE IT CANNOT.
+ *
+ * The table's first version assumed every piece of P5 state would be a field on `UserProfile`,
+ * because the first one was. N3's override layer is not: it is a profile-scoped record under its own
+ * `MMKV_KEYS` entry, and the gate — which required every non-prohibited row to be a member of
+ * `P5UserProfileFields` AND `UserProfile` — could not have described it without failing.
+ *
+ * The failure that mattered was the other direction. The reverse check asked whether any MMKV key
+ * whose NAME CONTAINS "p5" lacked a row. `profileCardOverrides` does not contain "p5", so a whole
+ * persisted store of the user's own financial figures could have shipped unclassified and the gate
+ * would have said OK. A heuristic over a name is not a population (§2 rule 4).
+ */
+export type P5StateHome =
+  /** A field on `UserProfile`, persisted with the profile record. */
+  | 'user-profile'
+  /** Its own key in `MMKV_KEYS`, holding a record of its own. */
+  | 'mmkv-key'
+  /** Nowhere, and deliberately — the home a `prohibited` row has. */
+  | 'none';
+
 export interface P5StateField {
-  /** The field name as the code spells it. */
+  /** The field name as the code spells it. For an `mmkv-key` row, the key's name in `MMKV_KEYS`. */
   readonly field: string;
   readonly class: P5StateClass;
+  /** Which home the gate should look in. Prose cannot be checked; this can. */
+  readonly home: P5StateHome;
   /** Where it lives, so the gate and a reader can both find it. */
   readonly where: string;
   /** The criterion that introduces it, and the reason the class is that one. */
@@ -81,13 +104,26 @@ export const P5_USER_STATE: readonly P5StateField[] = [
   {
     field: 'commitmentCapIls',
     class: 'vault',
+    home: 'user-profile',
     where: 'UserProfile, persisted under MMKV_KEYS.profileUser(profileId)',
     why: 'J1 and H3 — the editable absolute ₪ cap. It is the user\'s own financial preference, so it '
       + 'goes to the encrypted vault through the store (U2) and may never reach track() (U3, spec §18-A).',
   },
   {
+    field: 'profileCardOverrides',
+    class: 'vault',
+    home: 'mmkv-key',
+    where: 'MMKV_KEYS.profileCardOverrides(profileId) — a profile-scoped record in the encrypted vault',
+    why: 'N3 — the section A pencil. Every figure in it is a number the user typed about their own card, '
+      + 'which is why the writer stores it with chip USER and never VERIFIED or ESTIMATE (§25: "USER REPORT '
+      + '→ Your value"). It is vault, it reaches the vault through the store (U2), and it may never reach '
+      + 'track() (U3, spec §18-A). It is NOT a UserProfile field, and this row is the reason the table '
+      + 'learned to say so.',
+  },
+  {
     field: 'homeSuggestionDismissed',
     class: 'prohibited',
+    home: 'none',
     where: 'nowhere — and that is the point',
     why: 'Contract §12 lists dismissal flags among P5\'s new state, but H6 requires Home\'s contextual-'
       + 'suggestion slot to SHIP EMPTY (spec §5 marks suggestions V1.x, §19 feature 43). There is nothing '
@@ -101,6 +137,16 @@ export const P5_STATE_FIELDS = P5_USER_STATE.map((f) => f.field);
 /** The fields that must exist in the code. `prohibited` ones must NOT. */
 export const P5_STATE_EXPECTED_IN_CODE = P5_USER_STATE
   .filter((f) => f.class !== 'prohibited')
+  .map((f) => f.field);
+
+/** Rows that must be members of the persisted UserProfile shape. */
+export const P5_STATE_PROFILE_FIELDS = P5_USER_STATE
+  .filter((f) => f.home === 'user-profile')
+  .map((f) => f.field);
+
+/** Rows that must name a real entry in `MMKV_KEYS`. */
+export const P5_STATE_MMKV_KEYS = P5_USER_STATE
+  .filter((f) => f.home === 'mmkv-key')
   .map((f) => f.field);
 
 export const P5_STATE_FORBIDDEN_IN_CODE = P5_USER_STATE

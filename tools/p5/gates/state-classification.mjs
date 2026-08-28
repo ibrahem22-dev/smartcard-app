@@ -36,7 +36,41 @@
 import { existsSync, readFileSync } from 'node:fs';
 import { join } from 'node:path';
 import { createRequire } from 'node:module';
+import { spawnSync } from 'node:child_process';
 import { ok, fail, requireJestCases } from '../lib/report.mjs';
+
+/** The app sha P5 started from. Written by the intake; never guessed. */
+const intakeAppSha = (root) => {
+  const candidates = [
+    join(root, '..', 'smartcard-data-pipeline', 'campaign-p5', 'state', 'INTAKE.json'),
+    join(root, '..', 'campaign-p5', 'state', 'INTAKE.json'),
+  ];
+  for (const abs of candidates) {
+    try {
+      const found = JSON.parse(readFileSync(abs, 'utf8'));
+      const sha = found?.accepted?.shas?.app ?? null;
+      if (sha) return String(sha);
+    } catch { /* try the next */ }
+  }
+  return null;
+};
+
+const git = (root, args) => {
+  const r = spawnSync('git', args, { cwd: root, encoding: 'utf8' });
+  return r.status === 0 ? String(r.stdout) : null;
+};
+
+/** Files under src/ that did not exist at `sha`. Exact, and from git rather than a convention. */
+const filesCreatedSince = (root, sha) => {
+  const out = git(root, ['diff', '--name-only', '--diff-filter=A', sha + '..HEAD', '--', 'src/']);
+  return out === null ? [] : out.split('\n').map((l) => l.trim()).filter(Boolean);
+};
+
+/** The MMKV key names that already existed at `sha`, so P5 is only asked about the ones it added. */
+const keysAtSha = (root, sha) => {
+  const out = git(root, ['show', sha + ':' + KEYS]);
+  return out === null ? [] : [...out.matchAll(/^\s{2}([A-Za-z0-9_]+)\s*:/gm)].map((m) => m[1]);
+};
 
 export const CRITERIA = ['U1'];
 export const SENTINEL = 'STATE-CLASSIFICATION OK';
@@ -54,6 +88,7 @@ const CLASSES = ['canonical', 'vault', 'derived-cache', 'transient', 'permitted-
 const REQUIRED_CASES = [
   'declares at least one field — a table over nothing classifies nothing',
   'gives every field exactly one of the six classes contract §12 names',
+  'gives every field a home the gate can look in',
   'names where each field lives and why its class is that one',
   'records the refusal H6 requires, rather than leaving it as an absence',
   'adds no MMKV key of its own — P5 state rides the profile record that already exists',
@@ -61,8 +96,8 @@ const REQUIRED_CASES = [
 
 /** Rows of the declared table, read from its source. */
 const tableRows = (src) =>
-  [...src.matchAll(/\{\s*\n\s*field:\s*'([^']+)',\s*\n\s*class:\s*'([^']+)',/g)]
-    .map((m) => ({ field: m[1], class: m[2] }));
+  [...src.matchAll(/\{\s*\n\s*field:\s*'([^']+)',\s*\n\s*class:\s*'([^']+)',\s*\n\s*home:\s*'([^']+)',/g)]
+    .map((m) => ({ field: m[1], class: m[2], home: m[3] }));
 
 /** Members of an interface, by name. */
 const interfaceMembers = (src, name) => {
@@ -123,13 +158,33 @@ export const run = async ({ root }) => {
   if (profileMembers === null) {
     problems.push(PROFILE + ' declares no UserProfile interface');
   }
-  const expected = rows.filter((r) => r.class !== 'prohibited').map((r) => r.field);
-  for (const field of expected) {
-    if (declaredShape && !declaredShape.includes(field)) {
-      problems.push(field + ' is in the table but not in P5UserProfileFields — the table has stopped describing the shape beside it');
-    }
-    if (profileMembers && !profileMembers.includes(field)) {
-      problems.push(field + ' is in the table but not on UserProfile — the table has stopped describing the product');
+  /*
+   * EACH ROW IS CHECKED AGAINST THE HOME IT DECLARES, not against the only home the first row had.
+   *
+   * The table's first version assumed all P5 state would be a `UserProfile` field, so this loop
+   * required every non-prohibited row to be a member of `P5UserProfileFields` AND `UserProfile`.
+   * N3's override store is neither: it is a profile-scoped record under its own `MMKV_KEYS` entry,
+   * and the table could not have described it without failing this check. A classification table
+   * that cannot name a thing is a table that will be left silent about it.
+   */
+  const expected = rows.filter((r) => r.class !== 'prohibited');
+  for (const r of expected) {
+    if (r.home === 'user-profile') {
+      if (declaredShape && !declaredShape.includes(r.field)) {
+        problems.push(r.field + ' is in the table as a user-profile field but not in P5UserProfileFields — the table has stopped describing the shape beside it');
+      }
+      if (profileMembers && !profileMembers.includes(r.field)) {
+        problems.push(r.field + ' is in the table as a user-profile field but not on UserProfile — the table has stopped describing the product');
+      }
+    } else if (r.home === 'mmkv-key') {
+      if (!new RegExp('\\b' + r.field + '\\s*:').test(keysSrc)) {
+        problems.push(r.field + ' is classified as its own storage key and ' + KEYS + ' has no such entry — the table describes a store that does not exist');
+      }
+      if (profileMembers && profileMembers.includes(r.field)) {
+        problems.push(r.field + ' is classified as its own storage key but is ALSO a UserProfile field — one piece of state with two homes is how the two disagree');
+      }
+    } else if (r.home !== 'none') {
+      problems.push(r.field + ' declares home "' + String(r.home) + '", which is not one of user-profile, mmkv-key, none');
     }
   }
 
@@ -150,11 +205,47 @@ export const run = async ({ root }) => {
     }
   }
 
-  /* 6. No P5 storage key may be added without a row. */
-  const p5Keys = [...keysSrc.matchAll(/^\s{2}([A-Za-z0-9_]*[Pp]5[A-Za-z0-9_]*)\s*:/gm)].map((m) => m[1]);
-  for (const k of p5Keys) {
-    if (!rows.some((r) => r.field === k)) {
-      problems.push('MMKV key "' + k + '" names P5 and has no row in the table');
+  /*
+   * 6. THE REVERSE DIRECTION, AND IT USED TO BE A GUESS ABOUT A NAME.
+   *
+   * This asked whether any MMKV key whose NAME CONTAINS "p5" lacked a row. N3 then added
+   * `profileCardOverrides` — a persisted store of the user's own figures about their own cards —
+   * and that name contains no "p5", so the whole store could have shipped unclassified with this
+   * gate printing OK. `P5_VALIDATION_PLAN.md` §5 puts the weight on exactly this direction:
+   * *"a field in the table and not the code fails too — the second direction catches a table that
+   * stopped describing the product."* A heuristic over a spelling is not a population (§2 rule 4).
+   *
+   * So the population is DERIVED FROM GIT: every file under `src/` that did not exist at the
+   * intake pin is a file P5 created, and every `MMKV_KEYS.<name>` those files touch is a key P5
+   * introduced. That is exact, it needs no naming convention, and it cannot be satisfied by calling
+   * a key something else.
+   *
+   * If the pin cannot be resolved this FAILS rather than skipping. A reverse check that quietly
+   * stops running is the shape of every false green this campaign has already paid for.
+   */
+  const pin = intakeAppSha(root);
+  if (!pin) {
+    problems.push('the intake app sha could not be read from state/INTAKE.json, so the set of files P5 created cannot be derived — and a reverse check that cannot derive its population is not running');
+  } else {
+    const created = filesCreatedSince(root, pin);
+    if (created.length === 0) {
+      problems.push('no file under src/ was created after the intake pin ' + pin.slice(0, 12) + ' — P5 has built five surfaces, so an empty set means the derivation is broken, not that the work is absent');
+    }
+    const introduced = new Map();
+    for (const rel of created) {
+      let src;
+      try { src = readFileSync(join(root, rel), 'utf8'); } catch { continue; }
+      for (const m of src.matchAll(/(?<![A-Za-z0-9_])MMKV_KEYS\.([A-Za-z0-9_]+)/g)) {
+        if (!introduced.has(m[1])) introduced.set(m[1], rel);
+      }
+    }
+    /* Keys that existed before P5 are not P5's to classify — only ones declared after the pin. */
+    const preexisting = new Set(keysAtSha(root, pin));
+    for (const [key, where] of introduced) {
+      if (preexisting.has(key)) continue;
+      if (!rows.some((r) => r.field === key)) {
+        problems.push('MMKV key "' + key + '" was introduced by P5 (first seen in ' + where + ', absent from ' + KEYS + ' at the intake pin) and has no row in the table — a field with no class is a field whose privacy nobody decided');
+      }
     }
   }
 
@@ -173,11 +264,15 @@ export const run = async ({ root }) => {
 
   return ok(SENTINEL, [
     TABLE + ' classifies ' + rows.length + ' field(s), each into one of the six contract §12 classes:',
-    ...rows.map((r) => '  · ' + r.field + ' → ' + r.class),
+    ...rows.map((r) => '  · ' + r.field + ' → ' + r.class + '  (home: ' + r.home + ')'),
     'Checked BOTH ways: every non-prohibited row is a member of P5UserProfileFields and of',
     'UserProfile in ' + PROFILE + ', and every member of that shape has a row.',
     'Checked in reverse for the refusals: no prohibited field exists in the code.',
-    'And ' + KEYS + ' carries no P5-named storage key without a row.',
+    'And the reverse direction is DERIVED, not guessed: every file under src/ that did not exist',
+    '  at the intake pin is a file P5 created, and every MMKV key those files touch which was not',
+    '  already in ' + KEYS + ' at that pin must carry a row. The old rule asked whether a key name',
+    '  contained "p5" — which profileCardOverrides does not, so N3 could have shipped a store of the',
+    '  user\'s own figures unclassified while this printed OK.',
     REQUIRED_CASES.length + ' case(s) required BY NAME · ' + summary,
   ].join('\n'));
 };

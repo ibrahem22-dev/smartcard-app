@@ -10,6 +10,8 @@
  */
 import {
   P5_STATE_EXPECTED_IN_CODE,
+  P5_STATE_MMKV_KEYS,
+  P5_STATE_PROFILE_FIELDS,
   P5_STATE_FIELDS,
   P5_STATE_FORBIDDEN_IN_CODE,
   P5_USER_STATE,
@@ -44,6 +46,20 @@ describe('U1 — P5 user state is classified', () => {
       /* A reason that cites nothing is a reason nobody can check. */
       expect(f.why).toMatch(/§|criterion|[A-Z]\d/);
     }
+  });
+
+  it('gives every field a home the gate can look in', () => {
+    /* The table's first version assumed all P5 state was a UserProfile field, because the first
+       one was. N3's override store is its own MMKV record, and a table that cannot NAME a home
+       is a table that will be left silent about the state that does not fit. */
+    const HOMES = ['user-profile', 'mmkv-key', 'none'];
+    for (const f of P5_USER_STATE) {
+      expect(HOMES).toContain(f.home);
+      if (f.class === 'prohibited') expect(f.home).toBe('none');
+      else expect(f.home).not.toBe('none');
+    }
+    expect(P5_STATE_PROFILE_FIELDS.length + P5_STATE_MMKV_KEYS.length)
+      .toBe(P5_USER_STATE.filter((f) => f.class !== 'prohibited').length);
   });
 
   it('declares no field twice', () => {
