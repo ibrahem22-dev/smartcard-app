@@ -42,9 +42,29 @@ const assertAllEqual = (
 ): readonly string[] => {
   const problems: string[] = [];
   for (const a of actuals) {
-    if (a.cached === null) { problems.push(`${where}: ${a.who} is absent, so it is compared with nothing`); continue; }
+    /*
+     * THE ENGINE HAVING NO VALUE IS NOT A DEFECT — IT IS THE CASE A5 IS ABOUT.
+     *
+     * This required every cache to be present for every derived context, and the population
+     * deliberately contains contexts the engine cannot value: no income captured, no cards in the
+     * vault. In those, a missing cache failed as "compared with nothing" and a present cache failed
+     * as "cannot be shown current". Both branches failed. It was a red no honest implementation
+     * could clear — the fifth instance of that pattern in this campaign, and the first inside an
+     * agreement property.
+     *
+     * A5's own wording resolves it: a cache that cannot be shown current is INVALIDATED rather than
+     * rendered. So where the engine has no value, the correct cache state is ABSENT, and this now
+     * requires that instead of forbidding it — which also means the invalidation path is tested
+     * rather than merely described.
+     */
     if (a.fresh === null) {
-      problems.push(`${where}: ${a.who} has no engine field to be re-derived from — a cache that cannot be shown current must be invalidated rather than rendered`);
+      if (a.cached !== null) {
+        problems.push(`${where}: ${a.who} holds ${a.cached.value} while the engine has no value for it — a cache that cannot be shown current must be invalidated rather than rendered`);
+      }
+      continue;
+    }
+    if (a.cached === null) {
+      problems.push(`${where}: ${a.who} is absent while the engine HAS a value for it — that is a cache that quietly stopped caching, not an invalidation`);
       continue;
     }
     if (a.fresh !== a.cached.value) {
