@@ -920,4 +920,12 @@ export const enBySource: Readonly<Record<string, string>> = {
   עמלה: en.fxCompare.markup,
   'עמלה קבועה': en.fxCompare.fixedFee,
   'סה״כ': en.fxCompare.total,
+  // B2 / J2 — Plan Commitments: the four groups spec §15 fixes, in order, and what an
+  // empty group means. "Fixed orders are not stored yet" is not "you have none".
+  'הוראות קבע': 'Fixed orders',
+  'אין תשלומים פעילים': 'No active installments',
+  'אין הלוואות': 'No loans',
+  'אין משכנתא': 'No mortgage',
+  'הוראות קבע עדיין לא נשמרות באפליקציה': 'Fixed orders are not stored in the app yet',
+  'הסיכום החודשי, מד העומס והתקרה מגיעים בהמשך': 'The monthly summary, load bar and cap come later',
 };

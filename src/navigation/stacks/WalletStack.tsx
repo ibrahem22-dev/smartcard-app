@@ -20,9 +20,17 @@ const Stack = createNativeStackNavigator<WalletStackParamList>();
  * agreeing with a five-item navigation bar — a segmented control that registered routes would make
  * the tree say seven where the spec says five, and A1 measures exactly that.
  *
- * Benefits renders `NotYetSurface`: contract §9 sends the Wallet CONTENT surfaces to P5a/P5b and
- * this work package is the shell. A route that exists and says "not yet" is honest; a route missing
- * from the IA would put the shell out of step with the spec, which is the thing being measured.
+ * Benefits renders `NotYetSurface`, and it is **not P5's**. Spec §26 and P5 contract §17 keep the
+ * Benefits Hub, Benefit Detail, matching, the cost breakdown and stacking in **V1.x**, so this route
+ * keeps its evidenced empty state and P5 does not build the destination — criterion N8 requires
+ * Card DNA's "View all benefits" link to behave honestly about a screen that is not built, not to
+ * build it. A route that exists and says "not yet" is honest; a route missing from the IA would put
+ * the shell out of step with the spec, which is the thing being measured.
+ *
+ * Its `ownedBy` used to read "P5b — Benefits Hub", which was the only place in the shipped product
+ * telling a reader that P5 owed a Benefits Hub. `OWNER_AMENDMENTS_RAISED.md` A-4 recorded the
+ * disagreement as advisory and one-directional — *"it cannot add work to P5, it can only mislead a
+ * reader"* — and delegated the correction to the P5 work package already editing this file.
  *
  * The segments come from `ia.ts`, not from a list here — one declaration, and the gate reads it.
  */
@@ -38,7 +46,7 @@ function WalletRoot(): React.ReactElement {
           <CardsScreen />
         ) : (
           <NotYetSurface
-            ownedBy="P5b — Benefits Hub (contract §9: Wallet content surfaces)"
+            ownedBy="V1.x — Benefits Hub (spec §26; P5 contract §17)"
             testID="wallet-benefits-not-yet"
             title="הטבות"
           />

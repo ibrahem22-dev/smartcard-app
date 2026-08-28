@@ -2,7 +2,7 @@ import React from 'react';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { CalendarScreen } from '../../screens/CalendarScreen';
-import { NotYetSurface } from '../../components/NotYetSurface';
+import { CommitmentsScreen } from '../../screens/plan/CommitmentsScreen';
 import { SegmentedTab } from '../SegmentedTab';
 import { BOTTOM_NAVIGATION } from '../ia';
 import type { PlanStackParamList } from '../types';
@@ -15,7 +15,10 @@ const Stack = createNativeStackNavigator<PlanStackParamList>();
  * Same shape as Wallet and the same component, deliberately: two segmented controls written twice
  * are two controls that start behaving differently, and a user learns the pattern is not a pattern.
  *
- * Commitments renders `NotYetSurface` — contract §9 sends the Plan content surfaces to P5a/P5b.
+ * Commitments used to render `NotYetSurface`, owned by "P5b — Commitments". **P5 built it**, so
+ * that placeholder is gone from this route and from the bundle: criterion B2, and *"a placeholder
+ * that is still reachable is still shipped."* Calendar is a P2/P3 screen P5 extends in PHASE-6
+ * rather than replaces — four of the five P5 surfaces were never placeholders (assumption A10).
  */
 const PLAN = BOTTOM_NAVIGATION.find((i) => i.key === 'Plan');
 
@@ -25,15 +28,7 @@ function PlanRoot(): React.ReactElement {
       segments={PLAN?.segments ?? []}
       testID="plan-segments"
       render={(segment): React.ReactElement =>
-        segment === 'Calendar' ? (
-          <CalendarScreen />
-        ) : (
-          <NotYetSurface
-            ownedBy="P5b — Commitments (contract §9: Plan content surfaces)"
-            testID="plan-commitments-not-yet"
-            title="התחייבויות"
-          />
-        )
+        segment === 'Calendar' ? <CalendarScreen /> : <CommitmentsScreen />
       }
     />
   );

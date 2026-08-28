@@ -1,0 +1,775 @@
+{
+  "$comment": "Written by tools/p4/all.mjs. Every step decided on printed output; acceptance requires every step green.",
+  "sha": "56981811998ea700b8231b46fea79b8a4cfef95a",
+  "worktreeDirty": false,
+  "node": "v20.20.2",
+  "acceptanceRun": false,
+  "ok": false,
+  "verdict": "FAILED",
+  "noFailures": false,
+  "failed": [
+    "gate:check-input-contract",
+    "gate:check-input-taps",
+    "gate:club-resolver",
+    "gate:finish-setup",
+    "gate:fx-activation",
+    "gate:fx-compare-explainer",
+    "gate:fx-compare-honesty",
+    "gate:fx-compare-identical",
+    "gate:fx-compare-rows",
+    "gate:fx-compare-single",
+    "gate:impact-and-freshness",
+    "gate:income-anchor",
+    "gate:installments-stepper",
+    "gate:last4-stays-local",
+    "gate:limit-consumption",
+    "gate:loop-provenance",
+    "gate:match-score-demoted",
+    "gate:media-deterministic",
+    "gate:media-resolves",
+    "gate:no-account-surface",
+    "gate:no-card-credentials",
+    "gate:onboarding-flow",
+    "gate:onboarding-honesty",
+    "gate:one-verdict",
+    "gate:pill-panel-agree",
+    "gate:purchase-logging",
+    "gate:runner-up",
+    "gate:verdict-fx-block",
+    "gate:verdict-history",
+    "gate:verdict-layout",
+    "gate:verdict-provenance",
+    "gate:verdict-states",
+    "gate:wizard-adapter-only",
+    "gate:wizard-provenance"
+  ],
+  "skipped": [],
+  "notImplemented": [],
+  "gatesMissing": [],
+  "gatesNotRequired": [
+    "media-deterministic",
+    "media-resolves"
+  ],
+  "gatesRequired": 41,
+  "contractVersion": "1.0-DRAFT",
+  "steps": [
+    {
+      "step": "typecheck",
+      "ok": true,
+      "skipped": false,
+      "ms": 4615,
+      "decidedOn": "output",
+      "line": "TYPECHECK OK",
+      "processStatus": 0,
+      "tail": "TYPECHECK OK"
+    },
+    {
+      "step": "lint",
+      "ok": true,
+      "skipped": false,
+      "ms": 2449,
+      "decidedOn": "output",
+      "line": "LINT OK",
+      "processStatus": 0,
+      "tail": "LINT OK"
+    },
+    {
+      "step": "suite",
+      "ok": true,
+      "skipped": false,
+      "ms": 69155,
+      "decidedOn": "output",
+      "line": "Tests:       983 passed, 983 total",
+      "processStatus": 0,
+      "tail": "PASS render src/screens/check/__tests__/checkVerdict.runnerUp.render.test.tsx (22.74 s)\nPASS render src/components/__tests__/WeekHeader.render.test.tsx (22.805 s)\nTest Suites: 122 passed, 122 total\nTests:       983 passed, 983 total\nSnapshots:   0 total\nTime:        68.163 s"
+    },
+    {
+      "step": "gate:activity-stays-local",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "L4"
+      ],
+      "measures": "unit+source",
+      "ms": 2341,
+      "decidedOn": "output",
+      "line": "ACTIVITY-STAYS-LOCAL OK",
+      "processStatus": null,
+      "tail": "src/analytics/track.ts refuses activityId after consent, without importing activity types\nsrc/analytics/__tests__/activityStaysLocal.test.ts · Tests:       3 passed, 3 total"
+    },
+    {
+      "step": "gate:benefit-hint",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "C5"
+      ],
+      "measures": "render",
+      "ms": 13116,
+      "decidedOn": "output",
+      "line": "BENEFIT-HINT OK",
+      "processStatus": null,
+      "tail": "src/screens/check/__tests__/checkInput.benefitHint.render.test.tsx mounts src/screens/check/CheckInputScreen.tsx:\n  · hint paints only a supplied match; omission invents nothing\nall 4 cases required BY NAME · Tests:       4 passed, 4 total"
+    },
+    {
+      "step": "gate:card-identity-split",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "M6"
+      ],
+      "measures": "source",
+      "ms": 2,
+      "decidedOn": "output",
+      "line": "CARD-IDENTITY-SPLIT OK",
+      "processStatus": null,
+      "tail": "UserCard        src/types/card.types.ts — product reference + optional last4 + local state; no artwork, no product facts\nCardProduct     src/types/card.types.ts — shared facts; no user state\nCardEntry       src/store/useCardsStore.ts — persists user + product, not a mixed card\ninterface CardInput is absent (composed engine view may alias EngineCard)"
+    },
+    {
+      "step": "gate:card-tile-render",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "M5"
+      ],
+      "measures": "render",
+      "ms": 13082,
+      "decidedOn": "output",
+      "line": "CARD-TILE-RENDER OK",
+      "processStatus": null,
+      "tail": "src/components/__tests__/CardTile.render.test.tsx mounts src/components/CardTile.tsx:\n  · resolver surface + nickname; mask from last4 alone; omit is normal; no Image path\nall 4 cases required BY NAME · Tests:       4 passed, 4 total"
+    },
+    {
+      "step": "gate:catalog-reach",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "W2"
+      ],
+      "measures": "unit+render",
+      "ms": 16708,
+      "decidedOn": "output",
+      "line": "CATALOG-REACH OK",
+      "processStatus": null,
+      "tail": "src/data/adapter/catalogSearch.ts derives CURRENT products through CardsAdapter; search hits every one\nreached 378 / 378\nsrc/data/adapter/__tests__/catalogSearch.test.ts · Tests:       4 passed, 4 total\nsrc/screens/__tests__/addCard.catalog.render.test.tsx mounts src/screens/AddCardScreen.tsx as search-first with a generic path · Tests:       3 passed, 3 total"
+    },
+    {
+      "step": "gate:check-input-contract",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "C1"
+      ],
+      "measures": "render",
+      "ms": 9,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"renders with the shekel already selected, before any user action\" · did not pass: \"refuses to proceed with no amount typed\" · did not pass: \"refuses zero, a negative amount and text that is not a number\" · did not pass: \"proceeds on a positive amount with no category, no installments and no card chosen\" · did not pass: \"sends the shekel as the currency when the user changed nothing\" · did not pass: \"lets the amount become usable and unusable again as the field is edited\" · did not pass: \"offers every currency the type defines and switches to the one tapped\" · did not pass: \"shows no figure the screen computed — only the amount the person typed\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:check-input-taps",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "C2"
+      ],
+      "measures": "render",
+      "ms": 7,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"renders the currency switcher, custom keypad, category chips and collapsed card picker\" · did not pass: \"completes a check in four taps or fewer plus the amount\" · did not pass: \"category, plan and card remain optional — amount plus submit still produces a draft\" · did not pass: \"offers every category the type defines\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:club-resolver",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "W3"
+      ],
+      "measures": "unit+render",
+      "ms": 7,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"the club population is derived from the shipped catalog, not listed by hand\" · did not pass: \"three answers that uniquely pick a remaining club identify it\" · did not pass: \"unsure, unsure, none ends honestly without a club\" · did not pass: \"a club id that is not in the remaining set is refused rather than invented\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:finish-setup",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "O4"
+      ],
+      "measures": "render",
+      "ms": 7,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"Home does not show Finish setup when nothing was skipped\" · did not pass: \"the checklist carries every skipped step and never language confirmation\" · did not pass: \"the checklist lists only the steps that were actually skipped\" · did not pass: \"dismiss hides the checklist and the hide survives remount\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:fx-activation",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "C4"
+      ],
+      "measures": "render",
+      "ms": 7,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"the shekel omits the FX lane even when a reference is supplied\" · did not pass: \"selecting a foreign currency auto-activates the FX lane and paints the BOI rate and date\" · did not pass: \"a foreign currency without a reference invents no rate line\" · did not pass: \"the painted rate is the supplied reference, not a surface recomputation\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:fx-compare-explainer",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "X4"
+      ],
+      "measures": "render",
+      "ms": 6,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"omits the expander when no ranked quote exists\" · did not pass: \"paints base, markup, fixed fee and total from the winner quote, not a surface recomputation\" · did not pass: \"paints every step of the winner quote reason trace\" · did not pass: \"the painted identity is the engine quote, not amount times rate on the surface\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:fx-compare-honesty",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "X3"
+      ],
+      "measures": "render",
+      "ms": 7,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"paints the engine rateUsed on a neutral reference chip, not a surface invention\" · did not pass: \"keeps the dashed Estimate chip structurally outside the reference lane\" · did not pass: \"paints the network-settlement caveat as persistent copy\" · did not pass: \"does not label the reference rate as the estimated real cost\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:fx-compare-identical",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "R4"
+      ],
+      "measures": "render",
+      "ms": 8,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"Check Verdict and Card DNA entries produce the same rendered tree\" · did not pass: \"the identity holds for an empty mount as well as a populated comparison\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:fx-compare-rows",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "X2"
+      ],
+      "measures": "render",
+      "ms": 8,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"renders ranked rows in the engine order, cheapest first\" · did not pass: \"unknown-leg cards are listed separately and never ranked\" · did not pass: \"paints the engine floor reason as the exemption and never invents a delta\" · did not pass: \"the painted total is the engine effectiveIls, not a surface recomputation\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:fx-compare-single",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "X1"
+      ],
+      "measures": "render",
+      "ms": 7,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"both entry points are the canonical FxCompareSheet function\" · did not pass: \"Check Verdict mounts the Check-Verdict entry when a comparison is supplied\" · did not pass: \"omitting fxComparison does not mount the sheet on Check Verdict\" · did not pass: \"the Card DNA entry paints the same sheet for the same comparison\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:impact-and-freshness",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "D7"
+      ],
+      "measures": "render",
+      "ms": 7,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"paints availableAfterChangesIls from the load engine, not a surface subtraction\" · did not pass: \"the freshness footer carries the informational-only disclaimer\" · did not pass: \"omitting the strip omits the available-limit row rather than inventing one\" · did not pass: \"the claimed available limit is the engine field availableAfterChangesIls\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:income-anchor",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "O5"
+      ],
+      "measures": "artifact",
+      "ms": 6,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"a stored income+payday profile round-trips and becomes engine context\" · did not pass: \"skipped income does not invent a zero for the engine\" · did not pass: \"the verdict engine consumes the vault income as the load-ratio anchor\" · did not pass: \"payday chips map to the next ISO date the engine receives\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:installments-stepper",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "C3"
+      ],
+      "measures": "render",
+      "ms": 7,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"the stepper is absent in one-payment mode\" · did not pass: \"the stepper appears only after installments is selected\" · did not pass: \"the monthly preview is the live amount divided by the installment count\" · did not pass: \"changing the amount updates the preview rather than freezing the first figure\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:last4-stays-local",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "W7"
+      ],
+      "measures": "unit+source",
+      "ms": 7,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"passing a UserCard carrying last4 to track() is refused and sends nothing\" · did not pass: \"a bare last4 prop is refused the same way\" · did not pass: \"declared props without last4 still send — the control\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:legacy-surfaces-absent",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "B2"
+      ],
+      "measures": "source",
+      "ms": 4,
+      "decidedOn": "output",
+      "line": "LEGACY-SURFACES-ABSENT OK",
+      "processStatus": null,
+      "tail": "  legacy symbol absent from navigation code · PurchaseGateScreen\n  legacy symbol absent from navigation code · DecisionScreen\n  check modal   CheckModal → CheckStack from src/navigation/stacks/CheckStack · in src/navigation/AuthenticatedNavigator.tsx\n  param list    CheckModal: NavigatorScreenParams<CheckStackParamList>\n  check route   registered · typed: yes · CheckInput\n  check route   registered · typed: yes · CheckVerdict"
+    },
+    {
+      "step": "gate:limit-consumption",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "L2"
+      ],
+      "measures": "unit+render",
+      "ms": 8,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"the load engine availableAfterChangesIls drops by the logged amount\" · did not pass: \"the next verdict's impact strip reflects the logged purchase\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:loop-provenance",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "R5"
+      ],
+      "measures": "render",
+      "ms": 8,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"every Check Input numeric claim has a ProvenanceChip in its parent group\" · did not pass: \"every Check Verdict numeric claim has a ProvenanceChip in its parent group\" · did not pass: \"every FX Compare numeric claim has a chip in its parent group, including the open explainer\" · did not pass: \"a generated CardTile does not wear collected-asset attribution\" · did not pass: \"an asset resolving above the generated tier carries attribution and a provenance chip\" · did not pass: \"a planted bare number is detected as bare — the sweep is not a vacuous pass\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:match-score-demoted",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "D4"
+      ],
+      "measures": "render",
+      "ms": 7,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"Match Score paints the scoring engine's number, not a surface recomputation\" · did not pass: \"Match Score renders as a small secondary chip, never as the hero\" · did not pass: \"the chip carries a how-scores-work explainer\" · did not pass: \"the recommendation hero is Best for this purchase plus the card name, not the score\" · did not pass: \"omitting the recommendation omits Match Score rather than inventing one\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:media-deterministic",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "M2"
+      ],
+      "measures": "source",
+      "ms": 8,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"the same subject and media set yield the same tier and assetId twice\" · did not pass: \"reordering the media set does not change the resolution\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:media-resolves",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "M1"
+      ],
+      "measures": "artifact",
+      "ms": 6,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"every derived subject resolves on the empty media set\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:no-account-surface",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "O2"
+      ],
+      "measures": "render",
+      "ms": 6,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"the onboarding directory has at least one surface to sweep — a sweep of nothing is not a sweep\" · did not pass: \"language step paints no login, account, OTP or email\" · did not pass: \"income step paints no login, account, OTP or email\" · did not pass: \"add-card step paints no login, account, OTP or email\" · did not pass: \"security step paints no login, account, OTP or email\" · did not pass: \"no onboarding TextInput asks for email, password or OTP\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:no-card-credentials",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "W6"
+      ],
+      "measures": "source+render",
+      "ms": 8,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"the digits field accepts exactly four and no sixteen-digit card-number field exists\" · did not pass: \"the wizard paints no CVV, CVC, PIN or expiry secret field\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:no-magic-numbers",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "B3"
+      ],
+      "measures": "source",
+      "ms": 76,
+      "decidedOn": "output",
+      "line": "NO-MAGIC-NUMBERS OK",
+      "processStatus": null,
+      "tail": "scanned        every runtime src file through P2 rule-4 detection\nallowlisted    48 human-reviewed exception(s) with reasons on file\nengines        0 declared, cited constant(s)\ncitations      0 §-section / WP-id number(s) in strings, not figures"
+    },
+    {
+      "step": "gate:no-rederivation",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "B4"
+      ],
+      "measures": "source",
+      "ms": 54,
+      "decidedOn": "output",
+      "line": "NO-REDERIVATION OK",
+      "processStatus": null,
+      "tail": "  IF-7  not re-derived  The compatibility matrices\n        lives in: adapter (D4, OB-5)\n  IF-8  not re-derived  EXPECTED_DATASET_ID and the trust store\n        lives in: compiled in (OB-4)\n\n  controls        8 of 8 checks watched to fire · recorded 2026-08-25T21:19:14.274Z"
+    },
+    {
+      "step": "gate:onboarding-flow",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "O1"
+      ],
+      "measures": "render",
+      "ms": 9,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"opens on the language confirmation, with English, Hebrew and Arabic rows\" · did not pass: \"preselects the device language before any user action\" · did not pass: \"language Skip accepts the device language and advances to income — it does not leave language unconfirmed\" · did not pass: \"cannot reach income, add-card or security without confirming language\" · did not pass: \"income is the second step and is skippable\" · did not pass: \"add first card is the third step and is skippable\" · did not pass: \"security and finish is the fourth step and is skippable\" · did not pass: \"the four steps appear in spec order and no other onboarding step is inserted\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:onboarding-honesty",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "O3"
+      ],
+      "measures": "render",
+      "ms": 8,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"every step states why the data is asked and where it stays\" · did not pass: \"income paints the spec §6 line verbatim — not a paraphrase\" · did not pass: \"add-card and security paint the scoped §18-A claim verbatim\" · did not pass: \"the retired OD-11 sentence All data lives on this device is absent from every step\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:one-verdict",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "D2"
+      ],
+      "measures": "render",
+      "ms": 7,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"the Stitch sample — 41% load against the 35% threshold renders caution, not Good to go\" · did not pass: \"the pill and every Financial Impact bullet come from the same result object\" · did not pass: \"Good to go never paints when the panel shows load above the safe threshold\" · did not pass: \"caution, dont_buy_now and wait each still agree with the panel of the same result\" · did not pass: \"without a result there is no pill and no panel — a canned pair would be a second computation\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:pill-panel-agree",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "R3"
+      ],
+      "measures": "render",
+      "ms": 7,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"generated inputs never paint a pill that disagrees with the panel\" · did not pass: \"the Stitch sample is inside the generated set and is caution\" · did not pass: \"wait and hard-flag cases still paint the engine verdict next to its own panel\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:purchase-logging",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "L1"
+      ],
+      "measures": "unit+render",
+      "ms": 9,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"writeLoggedPurchase records amount, activityId and loggedAt\" · did not pass: \"refusing a non-positive amount does not invent a log\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:runner-up",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "D5"
+      ],
+      "measures": "render",
+      "ms": 7,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"paints the scoring engine's deltaFromBestIls when the engine supplies it\" · did not pass: \"paints no delta at all when the engine omits it\" · did not pass: \"omits the runner-up row when there is no second ranked card\" · did not pass: \"the claimed delta is the engine field, never a surface subtraction of two costs\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:surfaces-pure",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "B1"
+      ],
+      "measures": "source",
+      "ms": 8,
+      "decidedOn": "output",
+      "line": "SURFACES-PURE OK",
+      "processStatus": null,
+      "tail": "seam           src/check/runPurchaseCheck.ts · one evaluatePurchaseVerdict( call\nsurfaces       44 file(s) under src/screens, src/components — no engine call, no threshold arithmetic\nengines        19 file(s) under src/engines — no artwork/media field"
+    },
+    {
+      "step": "gate:verdict-fx-block",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "D6"
+      ],
+      "measures": "render",
+      "ms": 9,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"omits the FX block when the purchase is not foreign\" · did not pass: \"paints the compareAbroad quote: BOI rate, date, card fee and estimated ILS cost\" · did not pass: \"the estimated cost is the engine quote, not a surface recomputation of amount × rate\" · did not pass: \"the block ends in the compare-sheet link\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:verdict-history",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "L3"
+      ],
+      "measures": "unit",
+      "ms": 8,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"querying the history returns written verdicts in time order\" · did not pass: \"a card filter returns that card rather than the whole write-only log\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:verdict-layout",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "D3"
+      ],
+      "measures": "render",
+      "ms": 7,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"renders pill, context line and Financial Impact in spec order, top to bottom\" · did not pass: \"the context line paints the user-entered amount, not an engine recomputation\" · did not pass: \"later §9 blocks, if present, still follow the spec after Financial Impact\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:verdict-provenance",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "D8"
+      ],
+      "measures": "render",
+      "ms": 7,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"every accessibilityValue numeric claim has a ProvenanceChip in its parent group\" · did not pass: \"the sweep is over a fully populated verdict, not an empty mount\" · did not pass: \"the chips are the shared ProvenanceChip primitive, not local badge markup\" · did not pass: \"a runner-up without a delta is not a numeric claim\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:verdict-states",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "D1"
+      ],
+      "measures": "render",
+      "ms": 6,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"produces all four engine states for this suite, so every pill is a real verdict\" · did not pass: \"renders good_to_go with an icon, a word and the positive colour role\" · did not pass: \"renders caution with an icon, a word and the advisory colour role\" · did not pass: \"renders dont_buy_now with an icon, a word and the danger colour role\" · did not pass: \"renders wait_until_billing_passes with an icon, a word and the slate colour role\" · did not pass: \"colour is never the only carrier — the label always carries the word and the icon\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:wizard-adapter-only",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "W5"
+      ],
+      "measures": "unit+source",
+      "ms": 8,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"a catalog pick persists a UserCard whose product id is the catalog id\" · did not pass: \"the generic path mints a local product id that is not a catalog row\" · did not pass: \"refuses a catalog id that is not a CURRENT product rather than writing a dataset row\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:wizard-provenance",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "W4"
+      ],
+      "measures": "unit+render",
+      "ms": 7,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"catalog prefills are the VERIFIED member of the Data Contract vocabulary\" · did not pass: \"unknowns are the ESTIMATE member of the Data Contract vocabulary\" · did not pass: \"a VERIFIED pack chip is not remapped to ESTIMATE\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    }
+  ]
+}

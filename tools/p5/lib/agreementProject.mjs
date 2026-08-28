@@ -28,6 +28,7 @@ import { createRequire } from 'node:module';
 const JEST_CONFIG = 'jest.config.cjs';
 const AGREEMENT_PROJECT = 'agreement';
 const RENDER_PROJECT = 'render';
+const SIDECAR = 'tools/p5/agreement.jest.cjs';
 
 /**
  * @returns {{ config?: object, error?: string }} a jest config scoped to this one property file,
@@ -42,16 +43,27 @@ export const agreementConfigFor = (root, propertyPath) => {
     return { error: propertyPath + ' does not exist — this gate names a property that is not there' };
   }
 
-  const config = createRequire(import.meta.url)(configPath);
+  const require_ = createRequire(import.meta.url);
+  const config = require_(configPath);
   const projects = Array.isArray(config.projects) ? config.projects : [];
-  /* NOT from `projects`. The agreement project is deliberately outside the default set, because
-     `npx jest` runs every project it is given and these five are deliberately red. It is exported
-     on its own so the gates — and only the gates — can run them. */
-  const agreement = config.agreementProject ?? null;
+  /**
+   * NOT from `projects`, and not from `jest.config.cjs` at all.
+   *
+   * The agreement project is deliberately outside the default set, because `npx jest` runs every
+   * project it is given and these five are deliberately red. It lives in its own file because an
+   * unrecognised key on the exported config makes jest print a Validation Warning on every run in
+   * the repository, and a warning everyone scrolls past is how a real one goes unread.
+   */
+  const sidecarPath = join(root, SIDECAR);
+  if (!existsSync(sidecarPath)) {
+    return { error: SIDECAR + ' does not exist — the group-A properties would then be claimed by nothing and silently absent, which is worse than any of them being red' };
+  }
+  const sidecar = require_(sidecarPath);
+  const agreement = sidecar.agreementProject ?? null;
   const render = projects.find((p) => p && p.displayName === RENDER_PROJECT);
 
   if (!agreement || agreement.displayName !== AGREEMENT_PROJECT) {
-    return { error: JEST_CONFIG + ' exports no "' + AGREEMENT_PROJECT + '" project — the group-A properties would then be claimed by nothing and silently absent, which is worse than any of them being red' };
+    return { error: SIDECAR + ' exports no "' + AGREEMENT_PROJECT + '" project — the group-A properties would then be claimed by nothing and silently absent, which is worse than any of them being red' };
   }
   if (projects.some((p) => p && p.displayName === AGREEMENT_PROJECT)) {
     return { error: JEST_CONFIG + ' lists "' + AGREEMENT_PROJECT + '" in projects — `npx jest` would then run the deliberately-red properties as part of the blanket suite, and P4\'s ladder would go red at a P5 sha for a reason that is not a regression' };
