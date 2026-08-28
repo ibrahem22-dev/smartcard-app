@@ -972,6 +972,8 @@ export const enBySource: Readonly<Record<string, string>> = {
   '+ הוסף כרטיס': '+ Add card',
   'מסגרת פנויה': 'Available limit',
   'המסגרת הפנויה אינה ידועה': 'Available limit is unknown',
+  '{{count}} ימים נותרו לפטור מדמי הכרטיס':
+    '{{count}} days remain on the card-fee waiver',
   יומיומי: 'Daily',
   לנסיעות: 'Travel',
   למנויים: 'Subscriptions',
