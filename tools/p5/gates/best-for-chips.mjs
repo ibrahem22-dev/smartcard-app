@@ -66,9 +66,18 @@ const REQUIRED_CASES = [
   'renders nothing when the engine ranks this card nowhere',
 ];
 
-/** A second derivation, in the forms it would actually take. */
+/*
+ * A SECOND DERIVATION, IN THE FORMS IT ACTUALLY TAKES — AND TWO OF THESE WERE WATCHED NOT FIRING.
+ *
+ * The first version asked whether `bestForChipsFor` APPEARED in the file, which an unused import
+ * satisfies, and matched `.ranked` only on an identifier spelled `result`, while the variable in
+ * the code is `scoring`. Both were watched staying green against a mutation that replaced the
+ * shared derivation with a local walk. The suite caught that mutation; these did not, and these
+ * are the checks meant to be the STRONGER half — A1 can only sample the contexts it generates,
+ * so a divergence on an ungenerated input is exactly what the source rule is for.
+ */
 const SECOND_DERIVATION = [
-  [/\bresult\??\.\s*ranked\b/, 'walks the ranked array itself instead of reusing the shared derivation'],
+  [new RegExp('[A-Za-z0-9_]' + "\\??\\.\\s*ranked\\b"), 'walks a ranked array itself instead of reusing the shared derivation'],
   [/\.sort\s*\(/, 'sorts a ranking the engine already ordered'],
   [/\.trace\s*\.\s*steps\s*\.\s*find/, 'selects its own trace step — §C already decides which step explains a chip'],
 ];
@@ -105,7 +114,7 @@ export const run = async ({ root }) => {
   const problems = [];
 
   /* 1. ONE DERIVATION, REUSED — not two that agree. */
-  if (!/bestForChipsFor/.test(chipsSrc)) {
+  if (!new RegExp('bestForChipsFor' + "\\s*\\(").test(chipsSrc)) {
     problems.push(
       CHIPS + ' does not use bestForChipsFor from ' + SHARED + '. A1 requires Wallet\'s chips and Card DNA §C\'s to be '
         + 'the SAME scoring call, and two derivations that agree today agree until one of them learns a tie-break',
