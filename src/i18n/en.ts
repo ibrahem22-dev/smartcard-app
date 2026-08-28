@@ -119,6 +119,7 @@ export const en = {
   },
   calendar: {
     empty: 'No scheduled charges 📅',
+    day: 'Calendar day {{day}}',
   },
   contact: {
     title: 'Contact the card issuer',
@@ -445,6 +446,7 @@ export const enBySource: Readonly<Record<string, string>> = {
   'כרטיס חלופי': en.decision.alternativeCard,
   'יש לך בעיה?': en.decision.problem,
   'אין חיובים מתוכננים 📅': en.calendar.empty,
+  'יום {{day}}': en.calendar.day,
   'חיוב שגוי': en.contact.wrongCharge,
   'ביטול עסקה': en.contact.cancelTransaction,
   'חזרת חיוב': en.contact.chargeReturn,

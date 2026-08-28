@@ -10,8 +10,14 @@ import { TABULAR_NUMERALS } from '../utils/money';
 import { useTranslation } from '../hooks/useTranslation';
 import type { CashflowCalendarCharge } from '../types/cashflow.types';
 import { BORDER, ROLE_SURFACE_BG, SURFACE, TEXT } from '../theme/tokens';
-import { WeekHeader } from '../components/WeekHeader';
 import { ltrNumerals } from '../utils/calendar';
+
+const { MonthGrid } = require('./calendar/MonthGrid.tsx') as {
+  readonly MonthGrid: React.ComponentType<{
+    readonly year: number;
+    readonly month: number;
+  }>;
+};
 
 function formatDisplayDate(date: string): string {
   const [year, month, day] = date.split('-');
@@ -77,6 +83,7 @@ export function CalendarScreen(): React.ReactElement {
   const { money } = useMoney();
   const { t } = useTranslation();
   const charges = useCashflowCalendar();
+  const today = new Date();
 
   if (charges.length === 0) {
     return (
@@ -93,7 +100,9 @@ export function CalendarScreen(): React.ReactElement {
       className={`flex-1 ${SURFACE.page}`}
       contentContainerStyle={{ flexGrow: 1, paddingHorizontal: 20, paddingTop: 20 }}
       data={charges}
-      ListHeaderComponent={WeekHeader}
+      ListHeaderComponent={
+        <MonthGrid year={today.getFullYear()} month={today.getMonth() + 1} />
+      }
       keyExtractor={(item: CashflowCalendarCharge): string =>
         `${item.date}-${item.cardName}-${item.amount}`
       }
