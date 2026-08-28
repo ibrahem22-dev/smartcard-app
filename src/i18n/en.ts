@@ -1015,4 +1015,10 @@ export const enBySource: Readonly<Record<string, string>> = {
   לתשלומים: 'Installments',
   לחינוך: 'Education',
   להטבות: 'Benefits',
+  // Home — Safe to commit hero.
+  'בטוח להתחייב החודש': 'Safe to commit this cycle',
+  'מהנתונים שלך': 'From your data',
+  'לחצו כדי לראות ממה הסכום מורכב': 'Tap to see what makes up this amount',
+  'הכנסה {{income}} מהפרופיל שלך, פחות התחייבויות {{obligations}} שמנוע העומס אסף למחזור הזה, פחות כרית ביטחון {{buffer}} מהגדרת האפליקציה.':
+    'Income {{income}} from your profile, minus obligations {{obligations}} assembled by the load engine for this cycle, minus buffer {{buffer}} from the app configuration.',
 };
