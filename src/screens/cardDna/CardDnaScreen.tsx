@@ -1,6 +1,7 @@
 import React from 'react';
 import { View } from 'react-native';
 
+import { EMPTY_BENEFITS_DB } from '../../authority/noSource';
 import { AppText } from '../../components/AppText';
 import { CardTile } from '../../components/CardTile';
 import { RtlScreen, RtlScrollView } from '../../components/rtl';
@@ -12,6 +13,7 @@ import {
   type CardDnaSectionId,
 } from './sections';
 import { SectionACosts } from './SectionACosts';
+import { SectionBGives } from './SectionBGives';
 
 export interface CardDnaScreenProps {
   readonly route?: {
@@ -82,6 +84,10 @@ export function CardDnaScreen({
             {section.id === 'a' ? (
               <View testID={`${section.testID}-content`}>
                 <SectionACosts card={card} />
+              </View>
+            ) : section.id === 'b' ? (
+              <View testID={`${section.testID}-content`}>
+                <SectionBGives card={card} db={EMPTY_BENEFITS_DB} />
               </View>
             ) : (
               <View testID={`${section.testID}-content`} />

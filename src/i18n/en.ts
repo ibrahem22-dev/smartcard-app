@@ -942,4 +942,8 @@ export const enBySource: Readonly<Record<string, string>> = {
   'עלויות נוספות': 'Other costs',
   'להוסיף את זה': 'Add this',
   'שמירה': 'Save',
+  'לא נמצאה עדות להטבה עבור הכרטיס הזה': 'No benefit is evidenced for this card',
+  כרטיס: 'Card',
+  'החזר כספי': 'Cashback',
+  הנחה: 'Discount',
 };
