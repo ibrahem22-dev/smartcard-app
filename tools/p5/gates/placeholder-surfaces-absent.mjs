@@ -70,7 +70,7 @@ const REQUIRED_CASES = [
   'renders the four groups in spec §15 order, with nothing in the vault',
   'gives an empty group its own line rather than letting it vanish',
   'paints the commitments the vault actually holds, each with its monthly figure',
-  'paints no monthly total — that figure is J1’s and comes from the load engine',
+  'sums nothing on this surface — the total is J1’s and comes from the load engine',
   'is not a NotYetSurface — the placeholder that named P5 is gone from this route',
 ];
 
