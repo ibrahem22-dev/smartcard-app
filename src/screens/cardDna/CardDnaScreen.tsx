@@ -11,6 +11,7 @@ import {
   CARD_DNA_SECTIONS,
   type CardDnaSectionId,
 } from './sections';
+import { SectionACosts } from './SectionACosts';
 
 export interface CardDnaScreenProps {
   readonly route?: {
@@ -78,7 +79,13 @@ export function CardDnaScreen({
             <AppText className={`text-base font-extrabold ${TEXT.heading}`}>
               {sectionTitle(section.id, t)}
             </AppText>
-            <View testID={`${section.testID}-content`} />
+            {section.id === 'a' ? (
+              <View testID={`${section.testID}-content`}>
+                <SectionACosts card={card} />
+              </View>
+            ) : (
+              <View testID={`${section.testID}-content`} />
+            )}
           </View>
         ))}
       </RtlScrollView>

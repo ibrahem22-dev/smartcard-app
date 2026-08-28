@@ -933,4 +933,11 @@ export const enBySource: Readonly<Record<string, string>> = {
   'מה זה נותן לי': 'What it gives me',
   'מתי הכי טוב להשתמש': "When it's best to use",
   'מה פעיל עכשיו': "What's active right now",
+  'דמי כרטיס שנתיים': 'Annual fee',
+  'דמי כרטיס חודשיים': 'Monthly fee',
+  'עמלת מט"ח': 'FX commission',
+  'עמלת משיכת מזומן בחו"ל': 'Foreign ATM fee',
+  'שיעורי ריבית': 'Interest rates',
+  'עלויות נוספות': 'Other costs',
+  'להוסיף את זה': 'Add this',
 };

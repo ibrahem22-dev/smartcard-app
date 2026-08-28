@@ -111,13 +111,25 @@ describe('Card DNA', () => {
     }
   });
 
+  /*
+   * WHAT THIS CASE MEANS, AND WHAT IT DELIBERATELY DOES NOT.
+   *
+   * It first asserted that every section container was COMPLETELY EMPTY. That was true when the
+   * shell shipped and every section was empty, and it read as harmless — but it made N1 fail the
+   * moment N2 filled section A, which is the plan working. A check that can only be satisfied by
+   * the product not being built is a red with no path back.
+   *
+   * What N1 is about is order. What B2 is about is placeholders. Neither is about a section having
+   * content, so this asserts what its name says: no section container carries the wording that
+   * turns an honest empty container into a shipped promise.
+   */
   it('renders no placeholder text in any section container', () => {
     const tree = render(wrap(<CardDnaScreen />));
+    const PLACEHOLDER = /coming soon|not yet|placeholder|todo|tbd|under construction|בקרוב/i;
 
     for (const section of CARD_DNA_SECTIONS) {
       const content = tree.getByTestId(`${section.testID}-content`);
-      expect(content.props.children).toBeUndefined();
-      expect(within(content).queryAllByText(/.+/)).toHaveLength(0);
+      expect(within(content).queryAllByText(PLACEHOLDER)).toHaveLength(0);
     }
   });
 });

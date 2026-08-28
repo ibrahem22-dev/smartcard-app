@@ -148,6 +148,7 @@ const deriveEntryModules = (root) => {
   /* Which components the stacks render, and where each is imported from. */
   const imports = new Map();
   const rendered = new Set();
+  const routes = new Map();
   for (const file of readdirSync(stackDir).filter((f) => f.endsWith('.tsx'))) {
     const abs = join(stackDir, file);
     const src = readFileSync(abs, 'utf8');
@@ -158,15 +159,53 @@ const deriveEntryModules = (root) => {
       }
     }
     for (const m of src.matchAll(/component=\{([A-Za-z0-9_]+)\}/g)) rendered.add(m[1]);
+    /* name="X" component={Y} in either order, so a route can be resolved to what renders it. */
+    for (const m of src.matchAll(/<Stack\.Screen\b([^>]*)\/>/g)) {
+      const attrs = m[1];
+      const name = (attrs.match(/name="([^"]+)"/) ?? [])[1];
+      const comp = (attrs.match(/component=\{([A-Za-z0-9_]+)\}/) ?? [])[1];
+      if (name && comp) routes.set(name, comp);
+    }
     for (const m of src.matchAll(/<([A-Z][A-Za-z0-9_]*)\s*\/>/g)) rendered.add(m[1]);
   }
 
   /* The tabs and segments P5 owns, read from the declaration rather than listed here. */
   const tabs = [...iaSrc.matchAll(/key:\s*'([A-Za-z]+)'/g)].map((m) => m[1]);
+  /*
+   * CARD DNA IS FOUND BY ITS ROUTE, NOT BY THE NAME OF WHATEVER RENDERS IT.
+   *
+   * Corrected 2026-08-28, the moment N1 shipped. This list used to name 'CardDetailScreen', and
+   * PD-P5-011 replaced that component with CardDnaScreen at the same route — so B1, a SATISFIED
+   * criterion, went red for a change that was the plan working. A gate that names an implementation
+   * where the criterion names a surface will break every time the surface is built, which is the
+   * one thing it can be relied on to do.
+   *
+   * The route comes from src/surfaces/__tests__/derivedPopulation.ts, which already declares
+   * CARD_DNA_ROUTE for the agreement population. Reading it here rather than repeating it means the
+   * contextual surface has ONE declared identity that both the population and this walk resolve
+   * against — and if that file stops declaring it, this fails rather than guessing.
+   *
+   * The four tab-and-segment surfaces are still keyed by component, and correctly: ia.ts declares
+   * them as navigation, and their components are what the stacks render inline inside a segment
+   * callback, with no route name of their own to key on.
+   */
+  const POPULATION = 'src/surfaces/__tests__/derivedPopulation.ts';
+  let cardDnaRoute = null;
+  if (existsSync(join(root, POPULATION))) {
+    cardDnaRoute = (readFileSync(join(root, POPULATION), 'utf8').match(/CARD_DNA_ROUTE\s*=\s*'([^']+)'/) ?? [])[1] ?? null;
+  }
+  if (!cardDnaRoute) {
+    return { error: POPULATION + ' declares no CARD_DNA_ROUTE — Card DNA is contextual and has no tab, so without that declaration there is nothing to resolve it against' };
+  }
+  const routeComponent = routes.get(cardDnaRoute);
+  if (!routeComponent) {
+    return { error: 'no stack registers a component for route "' + cardDnaRoute + '" — Card DNA is declared and unreachable' };
+  }
+
   const wanted = [
     { surface: 'Home', component: 'HomeScreen' },
     { surface: 'Wallet/Cards', component: 'CardsScreen' },
-    { surface: 'Card DNA', component: 'CardDetailScreen' },
+    { surface: 'Card DNA', component: routeComponent },
     { surface: 'Plan/Calendar', component: 'CalendarScreen' },
     { surface: 'Plan/Commitments', component: 'CommitmentsScreen' },
   ];
