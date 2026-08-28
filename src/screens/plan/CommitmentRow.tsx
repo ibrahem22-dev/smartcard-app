@@ -10,6 +10,8 @@ import { TEXT } from '../../theme/tokens';
 import type { EngineCard } from '../../types/card.types';
 import { ltrNumerals } from '../../utils/calendar';
 import { TABULAR_NUMERALS } from '../../utils/money';
+import type { SurfaceContext } from '../../surfaces';
+import { CommitmentDetailSheet } from './CommitmentDetailSheet';
 
 export interface CommitmentPaymentProgress {
   readonly position: number;
@@ -25,6 +27,7 @@ export interface CommitmentRowProps {
     EngineCard,
     'cardId' | 'displayName' | 'issuer' | 'last4'
   >;
+  readonly context?: SurfaceContext;
 }
 
 /** One commitment, displaying only figures and links carried into the row. */
@@ -34,10 +37,11 @@ export function CommitmentRow({
   monthlyIls,
   paymentProgress,
   linkedCard,
+  context,
 }: CommitmentRowProps): React.ReactElement {
   const { money } = useMoney();
   const { t } = useTranslation();
-  const [detailUnbuiltVisible, setDetailUnbuiltVisible] = useState(false);
+  const [detailVisible, setDetailVisible] = useState(false);
 
   return (
     <View className="mt-3" testID={`commitment-row-${id}`}>
@@ -95,20 +99,21 @@ export function CommitmentRow({
           accessibilityLabel={t('פתיחת פרטי התחייבות')}
           accessibilityRole="button"
           className="min-h-[44px] min-w-[44px] items-center justify-center"
-          onPress={(): void => setDetailUnbuiltVisible(true)}
+          onPress={(): void => setDetailVisible(true)}
           testID={`commitment-row-${id}-chevron`}
         >
           <AppText className={`text-xl ${TEXT.secondary}`}>›</AppText>
         </Pressable>
       </RtlRow>
 
-      {detailUnbuiltVisible ? (
-        <AppText
-          className={`mt-2 text-xs ${TEXT.muted}`}
-          testID={`commitment-row-${id}-detail-unbuilt`}
-        >
-          {t('פרטי ההתחייבות עדיין לא נבנו')}
-        </AppText>
+      {detailVisible ? (
+        <View testID={`commitment-row-${id}-detail-unbuilt`}>
+          <CommitmentDetailSheet
+            id={id}
+            {...(context === undefined ? {} : { context })}
+            {...(linkedCard === undefined ? {} : { linkedCardId: linkedCard.cardId })}
+          />
+        </View>
       ) : null}
     </View>
   );

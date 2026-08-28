@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Pressable, View } from 'react-native';
 
 import { AppText } from '../../components/AppText';
@@ -15,6 +15,7 @@ import {
   type SurfaceContext,
   type SurfaceEngineResults,
 } from '../../surfaces';
+import { usePaidEarly } from '../../surfaces/usePaidEarly';
 import { BORDER, SURFACE, TEXT } from '../../theme/tokens';
 import { TABULAR_NUMERALS } from '../../utils/money';
 import { activeNowRowsFor } from './activeNowRows';
@@ -71,11 +72,6 @@ export function SectionDActiveNow({
   const storedLoans = useLoansStore((state) => state.loans);
   const storedPurchases = useActivityStore((state) => state.purchases);
   const storedProfile = useUserStore((state) => state.profile);
-  const initialPaidEarly = context?.paidEarlyCommitmentIds ?? [];
-  const [paidEarlyCommitmentIds, setPaidEarlyCommitmentIds] = useState<readonly string[]>(
-    initialPaidEarly,
-  );
-
   const fallbackContext: SurfaceContext = {
     asOfDate: '1970-01-01',
     throughDate: '1970-01-01',
@@ -86,19 +82,12 @@ export function SectionDActiveNow({
     purchases: storedPurchases,
   };
   const baseContext = context ?? fallbackContext;
-  const activeContext: SurfaceContext = {
-    ...baseContext,
-    ...(paidEarlyCommitmentIds.length === 0
-      ? {}
-      : { paidEarlyCommitmentIds }),
-  };
+  const {
+    context: activeContext,
+    markPaidEarly,
+    paidEarlyCommitmentIds,
+  } = usePaidEarly(baseContext);
   const rows = activeNowRowsFor(cardId, evaluateSurfaceEngines(activeContext));
-
-  const markPaidEarly = (id: string): void => {
-    setPaidEarlyCommitmentIds((current) =>
-      current.includes(id) ? current : [...current, id],
-    );
-  };
 
   return (
     <View className="gap-4 py-4">
