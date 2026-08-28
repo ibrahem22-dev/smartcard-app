@@ -12,12 +12,16 @@ import {
   CARD_DNA_SECTIONS,
   type CardDnaSectionId,
 } from './sections';
+import { CardDnaFooter } from './CardDnaFooter';
 import { SectionACosts } from './SectionACosts';
 import { SectionBGives } from './SectionBGives';
 import { SectionCWhenBest } from './SectionCWhenBest';
 import { SectionDActiveNow } from './SectionDActiveNow';
 
 export interface CardDnaScreenProps {
+  readonly navigation?: {
+    readonly navigate: (route: 'CardDnaFxCompare') => void;
+  };
   readonly route?: {
     readonly params?: {
       readonly cardId?: string;
@@ -42,6 +46,7 @@ function sectionTitle(
 }
 
 export function CardDnaScreen({
+  navigation,
   route,
 }: CardDnaScreenProps = {}): React.ReactElement {
   const { t } = useTranslation();
@@ -51,6 +56,9 @@ export function CardDnaScreen({
     routeCardId === undefined
       ? cards[0]
       : cards.find((candidate) => candidate.cardId === routeCardId);
+  const openFxCompare = React.useCallback((): void => {
+    navigation?.navigate('CardDnaFxCompare');
+  }, [navigation]);
 
   return (
     <RtlScreen className={SURFACE.page} testID="card-dna-screen">
@@ -85,7 +93,7 @@ export function CardDnaScreen({
             </AppText>
             {section.id === 'a' ? (
               <View testID={`${section.testID}-content`}>
-                <SectionACosts card={card} />
+                <SectionACosts card={card} onCompareFx={openFxCompare} />
               </View>
             ) : section.id === 'b' ? (
               <View testID={`${section.testID}-content`}>
@@ -102,6 +110,13 @@ export function CardDnaScreen({
             )}
           </View>
         ))}
+
+        <CardDnaFooter
+          onCompareFx={openFxCompare}
+          {...(card?.cardRates?.lastUpdated === undefined
+            ? {}
+            : { lastUpdated: card.cardRates.lastUpdated })}
+        />
       </RtlScrollView>
     </RtlScreen>
   );

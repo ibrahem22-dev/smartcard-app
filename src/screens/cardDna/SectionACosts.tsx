@@ -23,6 +23,7 @@ import { CARD_COST_ROWS, type CardCostRowId } from './costRows';
 
 export interface SectionACostsProps {
   readonly card: EngineCard | undefined;
+  readonly onCompareFx: () => void;
 }
 
 function labelFor(
@@ -70,7 +71,10 @@ function formattedValue(
   }
 }
 
-export function SectionACosts({ card }: SectionACostsProps): React.ReactElement {
+export function SectionACosts({
+  card,
+  onCompareFx,
+}: SectionACostsProps): React.ReactElement {
   const { t } = useTranslation();
   const { money, percent } = useMoney();
   const [editingRow, setEditingRow] = useState<CardCostRowId | null>(null);
@@ -160,6 +164,18 @@ export function SectionACosts({ card }: SectionACostsProps): React.ReactElement 
                     </AppText>
                   </Pressable>
                 </RtlRow>
+              ) : null}
+              {row.id === 'fx-commission' ? (
+                <Pressable
+                  accessibilityRole="button"
+                  className="min-h-[44px] justify-center"
+                  onPress={onCompareFx}
+                  testID="card-dna-cost-fx-commission-compare"
+                >
+                  <AppText className={`text-sm font-bold ${TEXT.body}`}>
+                    {t('השוואה בין הכרטיסים שלי')}
+                  </AppText>
+                </Pressable>
               ) : null}
             </View>
             <Pressable

@@ -962,4 +962,10 @@ export const enBySource: Readonly<Record<string, string>> = {
   'סף חסימה': 'Blocked threshold',
   'תשלומים פעילים בכרטיס הזה': 'Active installments on this card',
   'שולם מוקדם': 'Paid early',
+  'צפייה בכל ההטבות לכרטיס הזה': 'View all benefits for this card',
+  'שייך ל־V1.x — מרכז ההטבות': 'Belongs to V1.x — Benefits Hub',
+  'השוואת עמלות מטח': 'Compare FX fees',
+  'השוואה בין הכרטיסים שלי': 'Compare across my cards',
+  'תמיד יש לאמת מול המנפיק': 'Always verify with your issuer',
+  'עודכן {{date}}': 'Updated {{date}}',
 };
