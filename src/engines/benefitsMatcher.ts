@@ -1,14 +1,20 @@
-import { clubForCard } from '../data/adapter/benefitLookup';
-import type { CardInput } from '../types/card.types';
+import { CardIssuer, type CardInput } from '../types/card.types';
 import type {
   Benefit,
   BenefitMatch,
+  BenefitsClub,
   BenefitsDB,
   MissedSavingRow,
   MissedSavings,
   Transaction,
 } from '../types/benefits.types';
 import type { PurchaseInput } from '../types/purchase.types';
+
+const ISSUER_DATABASE_KEYS: Readonly<Record<CardIssuer, string>> = {
+  [CardIssuer.Max]: 'Max',
+  [CardIssuer.Isracard]: 'Isracard',
+  [CardIssuer.Cal]: 'CAL',
+};
 
 function roundCurrency(value: number): number {
   return Math.round((value + Number.EPSILON) * 100) / 100;
@@ -25,6 +31,14 @@ function calculateSaving(amount: number, benefit: Benefit): number {
   }
 
   return roundCurrency(amount * (benefit.value / 100));
+}
+
+function getCardClub(
+  card: CardInput,
+  benefitsDB: BenefitsDB,
+): BenefitsClub | undefined {
+  const issuer = benefitsDB.issuers[ISSUER_DATABASE_KEYS[card.issuer]];
+  return issuer?.clubs[card.displayName];
 }
 
 function isBenefitEligible(
@@ -57,7 +71,7 @@ export function findBestCard(
       return;
     }
 
-    const club = clubForCard(card, benefitsDB);
+    const club = getCardClub(card, benefitsDB);
     if (club === undefined) {
       return;
     }
