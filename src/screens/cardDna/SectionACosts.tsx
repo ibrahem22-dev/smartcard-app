@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Pressable, TextInput, View } from 'react-native';
 
 import { AppText } from '../../components/AppText';
+import { ConflictedValue } from '../../components/ConflictedValue';
 import { ProvenanceChip } from '../../components/ProvenanceChip';
 import { RtlRow } from '../../components/rtl';
 import { useMoney, type UseMoneyResult } from '../../hooks/useMoney';
@@ -12,6 +13,7 @@ import {
 import { BORDER, TEXT } from '../../theme/tokens';
 import {
   readCardCost,
+  renderPlanForCardCostConflict,
   type CardCostReading,
 } from '../../store/cardCostResolution';
 import { writeCardCostOverride } from '../../store/cardOverrides';
@@ -45,20 +47,20 @@ function labelFor(
 
 function formattedValue(
   id: CardCostRowId,
-  reading: Extract<CardCostReading, { readonly kind: 'known' }>,
+  value: string,
   format: Pick<UseMoneyResult, 'money' | 'percent'>,
 ): string {
-  const numeric = Number(reading.value);
+  const numeric = Number(value);
   switch (id) {
     case 'annual-fee':
     case 'monthly-fee':
     case 'foreign-atm-fee':
     case 'other-costs':
-      return Number.isFinite(numeric) ? format.money(numeric) : reading.value;
+      return Number.isFinite(numeric) ? format.money(numeric) : value;
     case 'fx-commission':
-      return Number.isFinite(numeric) ? format.percent(numeric) : reading.value;
+      return Number.isFinite(numeric) ? format.percent(numeric) : value;
     case 'interest-rates':
-      return reading.value
+      return value
         .split('|')
         .map((part) => {
           const rate = Number(part);
@@ -108,13 +110,23 @@ export function SectionACosts({ card }: SectionACostsProps): React.ReactElement 
                     style={TABULAR_NUMERALS}
                     testID={`${row.testID}-value`}
                   >
-                    {formattedValue(row.id, reading, { money, percent })}
+                    {formattedValue(row.id, reading.value, { money, percent })}
                   </AppText>
                   <ProvenanceChip
                     testID={`${row.testID}-chip`}
                     view={{ chip: reading.chip, stale: false }}
                   />
                 </RtlRow>
+              ) : reading.kind === 'conflict' ? (
+                <ConflictedValue
+                  conflict={reading.conflict}
+                  format={(value): string =>
+                    formattedValue(row.id, value, { money, percent })
+                  }
+                  label={t('המקורות החדשים ביותר מוצגים תחילה')}
+                  plan={renderPlanForCardCostConflict(reading.conflict)}
+                  testID={`${row.testID}-conflict`}
+                />
               ) : (
                 <Pressable
                   accessibilityRole="button"

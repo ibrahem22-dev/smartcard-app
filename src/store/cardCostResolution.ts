@@ -1,3 +1,7 @@
+import type { ConflictAuthority } from '../authority/authorityValue';
+import {
+  cardCostConflictFrom,
+} from '../authority/cardCostConflict';
 import type { ProvenanceChip } from '../authority/provenanceChip';
 import type { CardCostRowId } from '../screens/cardDna/costRows';
 import type { EngineCard } from '../types/card.types';
@@ -7,6 +11,8 @@ import {
 } from './cardOverrides';
 import { resolveValue } from './storeAdapter';
 
+export { renderPlanForCardCostConflict } from '../authority/cardCostConflict';
+
 export type CardCostReading =
   | {
       readonly kind: 'known';
@@ -14,6 +20,7 @@ export type CardCostReading =
       readonly chip: ProvenanceChip;
       readonly source: 'user' | 'catalog';
     }
+  | { readonly kind: 'conflict'; readonly conflict: ConflictAuthority<string> }
   | { readonly kind: 'unknown' };
 
 /**
@@ -95,6 +102,10 @@ export function readCardCost(
     cardCostOverrideKey(card.cardId, rowId),
   );
   if (resolved !== null) {
+    if (resolved.source === 'pack') {
+      const conflict = cardCostConflictFrom(resolved.value);
+      if (conflict !== null) return { kind: 'conflict', conflict };
+    }
     // Unlike an ambiguous EngineCard catalog zero, USER 0 and an explicit pack zero are known.
     return {
       kind: 'known',

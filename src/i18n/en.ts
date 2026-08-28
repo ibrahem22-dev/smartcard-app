@@ -332,6 +332,7 @@ export const enBySource: Readonly<Record<string, string>> = {
   'מקור לא מזוהה': 'Unattributed source',
   'הנתון הזה שנוי במחלוקת': 'This figure is disputed',
   '{{label}} — הנתון הזה שנוי במחלוקת': '{{label}} — this figure is disputed',
+  'המקורות החדשים ביותר מוצגים תחילה': 'Newest sources are shown first',
   // A2 — the provenance chip. Four states plus the Stale modifier, one definition.
   'הערך שלך': 'Your value',
   'הערכה': 'Estimate',

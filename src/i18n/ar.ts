@@ -25,6 +25,7 @@ export const arBySource: Readonly<Record<string, string>> = {
   'מקור לא מזוהה': 'مصدر غير محدَّد',
   'הנתון הזה שנוי במחלוקת': 'هذه القيمة محل خلاف',
   '{{label}} — הנתון הזה שנוי במחלוקת': '{{label}} — هذه القيمة محل خلاف',
+  'המקורות החדשים ביותר מוצגים תחילה': 'تُعرض المصادر الأحدث أولاً',
   // A2 — the provenance chip. Four states plus the Stale modifier, one definition.
   'הערך שלך': 'قيمتك',
   'הערכה': 'تقدير',
