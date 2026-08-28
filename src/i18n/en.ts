@@ -1022,4 +1022,22 @@ export const enBySource: Readonly<Record<string, string>> = {
   'לחצו כדי לראות ממה הסכום מורכב': 'Tap to see what makes up this amount',
   'הכנסה {{income}} מהפרופיל שלך, פחות התחייבויות {{obligations}} שמנוע העומס אסף למחזור הזה, פחות כרית ביטחון {{buffer}} מהגדרת האפליקציה.':
     'Income {{income}} from your profile, minus obligations {{obligations}} assembled by the load engine for this cycle, minus buffer {{buffer}} from the app configuration.',
+  // Home — seven-day risk strip.
+  'תחזית סיכון לשבעה ימים': 'Seven-day risk outlook',
+  'רמת הסיכון ליום {{date}}': 'Risk level for {{date}}',
+  'הסבר על יום {{date}}': 'Explain {{date}}',
+  'אין מועדי חיוב, ולכן אי אפשר להעריך את יציאות הכרטיס ביום הזה.':
+    'Billing dates are missing, so card outflows cannot be evaluated for this day.',
+  'נתוני העומס אינם זמינים, ולכן אי אפשר להעריך את היום הזה.':
+    'Load data is unavailable, so this day cannot be evaluated.',
+  'מנוע הסיכון לא החזיר תחזית ליום הזה.':
+    'The risk engine did not return a projection for this day.',
+  'משכורת של {{amount}} נכנסת ביום הזה.': 'A salary of {{amount}} arrives on this day.',
+  'חיוב כרטיס של {{amount}} יורד ביום הזה.': 'A card billing of {{amount}} leaves on this day.',
+  'התחייבויות של {{amount}} יורדות ביום הזה.': 'Commitments of {{amount}} leave on this day.',
+  'אין אירוע כספי מתוזמן ביום הזה.': 'No financial event is scheduled for this day.',
+  'אחרי הפעילות של היום, היתרה החזויה היא {{amount}}.':
+    'After this day’s activity, the projected balance is {{amount}}.',
+  'לא הוזנה יתרה נוכחית, ולכן אין תחזית יתרה ליום הזה.':
+    'No current balance was entered, so there is no balance projection for this day.',
 };

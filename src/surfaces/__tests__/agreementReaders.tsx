@@ -38,6 +38,7 @@ import { CheckVerdictScreen } from '../../screens/check/CheckVerdictScreen';
 import { SectionCWhenBest } from '../../screens/cardDna/SectionCWhenBest';
 import { SectionDActiveNow } from '../../screens/cardDna/SectionDActiveNow';
 import { HomeLoadBar } from '../../screens/home/HomeLoadBar';
+import { HomeRiskStrip } from '../../screens/home/HomeRiskStrip';
 import { WalletBestForChips } from '../../screens/wallet/WalletBestForChips';
 import { WalletLimitBar } from '../../screens/wallet/WalletLimitBar';
 import { verdictPropsFromDraft } from '../../check/checkLoop';
@@ -177,7 +178,17 @@ export function readCardDnaUtilizationRatio(ctx: SurfaceContext): PaintedNumber 
  * Built in PHASE-7 (H4) and PHASE-6 (K2).
  */
 export type PaintedLevel = string | typeof NOT_BUILT;
-export function readHomeRiskStripDay(_ctx: SurfaceContext, _date: string): PaintedLevel { return NOT_BUILT; }
+export function readHomeRiskStripDay(ctx: SurfaceContext, date: string): PaintedLevel {
+  const tree = render(wrap(<HomeRiskStrip context={ctx} />));
+  try {
+    const node = tree.queryByTestId(`home-risk-strip-day-${date}`);
+    const text = (node?.props as { accessibilityValue?: { text?: string } } | undefined)
+      ?.accessibilityValue?.text;
+    return typeof text === 'string' ? text : NOT_BUILT;
+  } finally {
+    tree.unmount();
+  }
+}
 export function readCalendarRiskDotDay(ctx: SurfaceContext, date: string): PaintedLevel {
   const tree = render(wrap(<DayMarkers context={ctx} iso={date} />));
   try {
