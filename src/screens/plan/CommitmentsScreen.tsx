@@ -10,9 +10,9 @@
  * ─────────────────────────────────────────────────────────────────────────────────────────────
  * WHAT THIS SCREEN DELIBERATELY DOES NOT DO YET, AND WHY THAT IS NOT A PLACEHOLDER
  *
- * It lists the commitments the vault actually holds, in the group order spec §15 fixes. It shows
- * **no total, no load bar, no cap and no Paid early** — those are criteria `J1` and `J4`, and they
- * are PHASE-5's.
+ * It lists the commitments the vault actually holds, in the group order spec §15 fixes. Its sticky
+ * summary now shows J1's engine-reported total, load ratio and editable absolute cap together.
+ * **Paid early** remains criterion `J4` and is not part of this package.
  *
  * The difference between this and a placeholder is not tone, it is what the screen is ABOUT. A
  * `NotYetSurface` says *"this surface has not been built"*. This one answers the question the
@@ -47,6 +47,7 @@ import { useCardsStore } from '../../store/useCardsStore';
 import { useLoansStore } from '../../store/useLoansStore';
 import { BORDER, SURFACE, TEXT } from '../../theme/tokens';
 import { TABULAR_NUMERALS } from '../../utils/money';
+import { CommitmentsSummary } from './CommitmentsSummary';
 
 /** One line in a group: what it is, and what it costs a month. */
 interface CommitmentRow {
@@ -118,7 +119,8 @@ export function CommitmentsScreen(): React.ReactElement {
 
   return (
     <RtlScreen className={SURFACE.page} testID="plan-commitments">
-      <RtlScrollView contentContainerStyle={{ padding: 20 }}>
+      <RtlScrollView contentContainerStyle={{ padding: 20 }} stickyHeaderIndices={[0]}>
+        <CommitmentsSummary />
         {groups.map((group) => (
           <View
             className={`mb-4 rounded-lg border p-4 ${SURFACE.card} ${BORDER.hairline}`}
@@ -155,7 +157,7 @@ export function CommitmentsScreen(): React.ReactElement {
           </View>
         ))}
         <AppText className={`mt-2 text-xs ${TEXT.muted}`} testID="commitments-not-yet-summary">
-          {t('הסיכום החודשי, מד העומס והתקרה מגיעים בהמשך')}
+          {t('הסכום המוחלט והאחוז מוצגים יחד כדי להמחיש את העומס')}
         </AppText>
       </RtlScrollView>
     </RtlScreen>

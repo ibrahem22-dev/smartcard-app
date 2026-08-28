@@ -69,6 +69,9 @@ interface UserState {
   /** Update current balance in-place, stamping updatedAt. */
   updateBalance(amount: number): void;
 
+  /** Set the user's absolute monthly commitment cap, stamping updatedAt. */
+  setCommitmentCapIls(amount: number): void;
+
   /**
    * Zero in-memory state and delete the MMKV record.
    * Called on vault wipe / logout. Tolerates an already-locked or
@@ -174,6 +177,29 @@ export const useUserStore = create<UserState>()((set) => ({
       const updated: UserProfile = {
         ...state.profile,
         currentBalance: amount,
+        updatedAt: Date.now(),
+      };
+      const storage = keyVault.getEncryptedStorage();
+      const activeProfileId = storage.getString(MMKV_KEYS.activeProfileId);
+      if (activeProfileId === undefined) {
+        throw new Error('ACTIVE_PROFILE_REQUIRED');
+      }
+      storage.set(
+        MMKV_KEYS.profileUser(activeProfileId),
+        JSON.stringify(updated),
+      );
+      return { profile: updated };
+    });
+  },
+
+  setCommitmentCapIls(amount: number) {
+    set((state) => {
+      if (state.profile === null) {
+        return {};
+      }
+      const updated: UserProfile = {
+        ...state.profile,
+        commitmentCapIls: amount,
         updatedAt: Date.now(),
       };
       const storage = keyVault.getEncryptedStorage();
