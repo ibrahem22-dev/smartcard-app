@@ -20,6 +20,7 @@ import {
   WALLET_TILE_ELEMENTS,
 } from './tileElements';
 import type { WalletTileElementId } from './tileElements';
+import { WalletLimitBar } from './WalletLimitBar';
 
 type WalletNavigation = NativeStackNavigationProp<
   WalletStackParamList,
@@ -151,6 +152,11 @@ export function WalletTile({ card }: WalletTileProps): React.ReactElement {
           </View>
         );
       case 'limit-bar':
+        return (
+          <View key={id} testID={testID}>
+            <WalletLimitBar cardId={card.cardId} />
+          </View>
+        );
       case 'waiver-badge':
       case 'best-for-chips':
         return <View key={id} testID={testID} />;

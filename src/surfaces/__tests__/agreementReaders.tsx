@@ -36,6 +36,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { CheckVerdictScreen } from '../../screens/check/CheckVerdictScreen';
 import { SectionCWhenBest } from '../../screens/cardDna/SectionCWhenBest';
 import { SectionDActiveNow } from '../../screens/cardDna/SectionDActiveNow';
+import { WalletLimitBar } from '../../screens/wallet/WalletLimitBar';
 import { verdictPropsFromDraft } from '../../check/checkLoop';
 import { Currency } from '../../types/purchase.types';
 import type { SurfaceContext } from '../surfaceContext';
@@ -87,9 +88,16 @@ export function readVerdictImpactStrip(ctx: SurfaceContext): PaintedNumber {
   }
 }
 
-/** Wallet's available-limit bar. Built in PHASE-4 (W2). */
-export function readWalletLimitBar(_ctx: SurfaceContext): PaintedNumber {
-  return NOT_BUILT;
+/** Wallet's available-limit bar. */
+export function readWalletLimitBar(ctx: SurfaceContext): PaintedNumber {
+  const cardId = ctx.cards[0]?.cardId;
+  if (cardId === undefined) return NOT_BUILT;
+  const tree = render(wrap(<WalletLimitBar cardId={cardId} context={ctx} />));
+  try {
+    return paintedValue(tree, 'wallet-limit-bar-available');
+  } finally {
+    tree.unmount();
+  }
 }
 
 /** Card DNA §D's credit-limit utilization. Built in PHASE-3 (N7). */

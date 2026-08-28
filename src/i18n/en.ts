@@ -970,6 +970,8 @@ export const enBySource: Readonly<Record<string, string>> = {
   'עודכן {{date}}': 'Updated {{date}}',
   // Wallet — spec section 10.
   '+ הוסף כרטיס': '+ Add card',
+  'מסגרת פנויה': 'Available limit',
+  'המסגרת הפנויה אינה ידועה': 'Available limit is unknown',
   יומיומי: 'Daily',
   לנסיעות: 'Travel',
   למנויים: 'Subscriptions',
