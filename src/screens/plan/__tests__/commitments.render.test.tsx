@@ -115,7 +115,17 @@ describe('Plan Commitments', () => {
     expect(tree.queryByTestId('commitments-empty-installments')).not.toBeNull();
   });
 
-  it('paints no monthly total — that figure is J1’s and comes from the load engine', () => {
+  /*
+   * RENAMED once J1 landed. The assertions below are unchanged and still exactly right; the old
+   * name, 'paints no monthly total', became false about the screen the moment the sticky summary
+   * arrived. What this case actually proves — and what B2 meant by it — is that THIS SURFACE DOES
+   * NOT SUM: the row figures are 400 and 600 and 1000 appears nowhere among them.
+   *
+   * The distinction matters more than tidiness. J1's total is a real monthly total, painted from
+   * load.current.monthlyObligationsIls under commitments-summary-total. A reader taking the old
+   * name at face value could have deleted it to make the suite honest.
+   */
+  it('sums nothing on this surface — the total is J1’s and comes from the load engine', () => {
     act(() => useCardsStore.setState({ obligations: [installment('inst:1', 'KSP', 400), installment('inst:2', 'Ikea', 600)] }));
     const tree = render(wrap(<CommitmentsScreen />));
     /* 1000 is what a sum on this surface would produce. Nothing on the tree may carry it, in any
