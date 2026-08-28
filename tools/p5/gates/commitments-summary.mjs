@@ -116,8 +116,21 @@ export const run = async ({ root }) => {
   const problems = [];
 
   /* 1. ALL THREE PARTS. */
+  /*
+   * THE testID MUST MATCH EXACTLY, TERMINATOR AND ALL.
+   *
+   * This was a plain summarySrc.includes(id), and it was watched staying green while the cap testID
+   * was renamed to commitments-summary-cap-REMOVED — which CONTAINS the string it was looking for.
+   * The suite caught that mutation; this check did not.
+   *
+   * And a substring test can never work here, because commitments-summary-cap-input and
+   * commitments-summary-cap-suggested legitimately carry the same prefix: the rule had no way to
+   * tell a present part from an absent one whose name merely starts the same. It now requires the
+   * id between quotes, so the terminator is part of the match.
+   */
+  const rendersExactly = (src, id) => new RegExp("['\"`]" + id + "['\"`]").test(src);
   for (const [id, what] of THREE_PARTS) {
-    if (!summarySrc.includes(id)) {
+    if (!rendersExactly(summarySrc, id)) {
       problems.push(SUMMARY + ' has no ' + id + ' — ' + what + '. §25: absolute and percent together are more tangible than either alone, so two of three is not a partial pass');
     }
   }
