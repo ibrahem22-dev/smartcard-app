@@ -66,6 +66,24 @@ export const REQUIRED_PARTICIPANTS: Readonly<Record<AgreementProperty, readonly 
   ],
   'one-risk': [
     { id: 'home-risk-strip', surface: 'home', renders: "Home's 7-day risk strip", builtIn: 'PHASE-7' },
+    /*
+     * PHASE-6, READ THIS BEFORE YOU BUILD THE DOTS.
+     *
+     * B1's module walk surfaced it: Plan Calendar today reads its charges through
+     * `src/hooks/useCashflowCalendar.ts`, an M3-era hook that calls `src/engines/cashflowRadar.ts`
+     * and `src/engines/loanEngine.ts` DIRECTLY. That is a legitimate shape under B1 — a hook
+     * calling an engine is what "every number came from an engine call" asks for — and the screen
+     * renders no figure at all today, so nothing disagrees with anything yet.
+     *
+     * It stops being harmless the moment these dots exist. `one-risk` compares them against
+     * Home's 7-day risk strip, and the strip reads the P5 seam. If the dots are fed from
+     * cashflowRadar instead, the property is comparing TWO ENGINE STACKS, and group A's whole
+     * premise — spec §20, "any two surfaces showing different numbers for the same inputs is a P0
+     * bug" — turns into a coin flip that contract §2 rule 10 was written to forbid.
+     *
+     * So: the dots read `evaluateSurfaceEngines`. If PHASE-6 finds a reason they cannot, that is a
+     * deviation to raise, not a decision to make quietly at the keyboard.
+     */
     { id: 'calendar-risk-dots', surface: 'plan-calendar', renders: "Plan Calendar's risk dots", builtIn: 'PHASE-6' },
   ],
   'one-limit': [
