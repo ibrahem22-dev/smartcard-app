@@ -928,4 +928,9 @@ export const enBySource: Readonly<Record<string, string>> = {
   'אין משכנתא': 'No mortgage',
   'הוראות קבע עדיין לא נשמרות באפליקציה': 'Fixed orders are not stored in the app yet',
   'הסיכום החודשי, מד העומס והתקרה מגיעים בהמשך': 'The monthly summary, load bar and cap come later',
+  // Card DNA — spec section 11 shell.
+  'מה זה עולה לי': 'What it costs me',
+  'מה זה נותן לי': 'What it gives me',
+  'מתי הכי טוב להשתמש': "When it's best to use",
+  'מה פעיל עכשיו': "What's active right now",
 };

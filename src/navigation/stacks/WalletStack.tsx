@@ -1,9 +1,13 @@
 import React from 'react';
-import { createNativeStackNavigator } from '@react-navigation/native-stack';
+import {
+  createNativeStackNavigator,
+  type NativeStackScreenProps,
+} from '@react-navigation/native-stack';
 
 import { AddCardScreen } from '../../screens/AddCardScreen';
 import { CardDetailScreen } from '../../screens/CardDetailScreen';
 import { CardsScreen } from '../../screens/CardsScreen';
+import { CardDnaScreen } from '../../screens/cardDna/CardDnaScreen';
 import { InterestCalculatorScreen } from '../../screens/InterestCalculatorScreen';
 import { FxCompareFromCardDna } from '../../screens/fx/FxCompareFromCardDna';
 import { NotYetSurface } from '../../components/NotYetSurface';
@@ -11,7 +15,28 @@ import { SegmentedTab } from '../SegmentedTab';
 import { BOTTOM_NAVIGATION } from '../ia';
 import type { WalletStackParamList } from '../types';
 
-const Stack = createNativeStackNavigator<WalletStackParamList>();
+type WalletStackRoutes = WalletStackParamList & {
+  CardEdit: { cardId: string };
+};
+
+type CardEditRouteProps = NativeStackScreenProps<WalletStackRoutes, 'CardEdit'>;
+type LegacyCardDetailProps = React.ComponentProps<typeof CardDetailScreen>;
+
+const Stack = createNativeStackNavigator<WalletStackRoutes>();
+
+function CardEditRoute({
+  navigation,
+  route,
+}: CardEditRouteProps): React.ReactElement {
+  return (
+    <CardDetailScreen
+      navigation={navigation as unknown as LegacyCardDetailProps['navigation']}
+      route={
+        { ...route, name: 'CardDetail' } as unknown as LegacyCardDetailProps['route']
+      }
+    />
+  );
+}
 
 /**
  * WALLET — Spec §4: *"**Wallet** contains an internal segmented control: **Cards | Benefits**."*
@@ -61,7 +86,8 @@ export function WalletStack(): React.ReactElement {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen component={WalletRoot} name="WalletRoot" options={{ title: 'Wallet' }} />
       <Stack.Screen component={AddCardScreen} name="AddCard" options={{ title: 'Add Card' }} />
-      <Stack.Screen component={CardDetailScreen} name="CardDetail" options={{ title: 'Card' }} />
+      <Stack.Screen component={CardDnaScreen} name="CardDetail" options={{ title: 'Card' }} />
+      <Stack.Screen component={CardEditRoute} name="CardEdit" options={{ title: 'Edit Card' }} />
       <Stack.Screen
         component={InterestCalculatorScreen}
         name="InterestCalculator"
