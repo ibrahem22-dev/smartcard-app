@@ -120,6 +120,9 @@ export const en = {
   calendar: {
     empty: 'No scheduled charges 📅',
     day: 'Calendar day {{day}}',
+    risk: 'Risk',
+    salary: 'Salary',
+    cardBilling: 'Card billing',
   },
   contact: {
     title: 'Contact the card issuer',
@@ -447,6 +450,9 @@ export const enBySource: Readonly<Record<string, string>> = {
   'יש לך בעיה?': en.decision.problem,
   'אין חיובים מתוכננים 📅': en.calendar.empty,
   'יום {{day}}': en.calendar.day,
+  'סיכון': en.calendar.risk,
+  'משכורת': en.calendar.salary,
+  'חיוב כרטיס': en.calendar.cardBilling,
   'חיוב שגוי': en.contact.wrongCharge,
   'ביטול עסקה': en.contact.cancelTransaction,
   'חזרת חיוב': en.contact.chargeReturn,

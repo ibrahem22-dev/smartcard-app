@@ -43,6 +43,13 @@ import { verdictPropsFromDraft } from '../../check/checkLoop';
 import { Currency } from '../../types/purchase.types';
 import type { SurfaceContext } from '../surfaceContext';
 
+const { DayMarkers } = require('../../screens/calendar/DayMarkers.tsx') as {
+  readonly DayMarkers: React.ComponentType<{
+    readonly context: SurfaceContext;
+    readonly iso: string;
+  }>;
+};
+
 /** A participant with no reader yet. Not a zero, not a skip. */
 export const NOT_BUILT = Symbol('this surface does not render this figure yet');
 export type PaintedNumber = number | typeof NOT_BUILT;
@@ -163,7 +170,17 @@ export function readCardDnaUtilizationRatio(ctx: SurfaceContext): PaintedNumber 
  */
 export type PaintedLevel = string | typeof NOT_BUILT;
 export function readHomeRiskStripDay(_ctx: SurfaceContext, _date: string): PaintedLevel { return NOT_BUILT; }
-export function readCalendarRiskDotDay(_ctx: SurfaceContext, _date: string): PaintedLevel { return NOT_BUILT; }
+export function readCalendarRiskDotDay(ctx: SurfaceContext, date: string): PaintedLevel {
+  const tree = render(wrap(<DayMarkers context={ctx} iso={date} />));
+  try {
+    const node = tree.queryByTestId(`calendar-day-${date}-marker-risk`);
+    const text = (node?.props as { accessibilityValue?: { text?: string } } | undefined)
+      ?.accessibilityValue?.text;
+    return typeof text === 'string' ? text : NOT_BUILT;
+  } finally {
+    tree.unmount();
+  }
+}
 
 /** A ranked card list, as a surface paints it. Built in PHASE-4 (W4), PHASE-3 (N6). */
 export type PaintedRanking = readonly string[] | typeof NOT_BUILT;
