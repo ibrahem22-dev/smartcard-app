@@ -943,6 +943,8 @@ export const enBySource: Readonly<Record<string, string>> = {
   'להוסיף את זה': 'Add this',
   'שמירה': 'Save',
   'לא נמצאה עדות להטבה עבור הכרטיס הזה': 'No benefit is evidenced for this card',
+  'אין כרגע דירוג לכרטיס': 'There is currently no ranking for this card',
+  'העלות הנמוכה ביותר': 'Lowest cost',
   כרטיס: 'Card',
   'החזר כספי': 'Cashback',
   הנחה: 'Discount',

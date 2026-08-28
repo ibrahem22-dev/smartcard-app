@@ -34,6 +34,7 @@ import { render } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { CheckVerdictScreen } from '../../screens/check/CheckVerdictScreen';
+import { SectionCWhenBest } from '../../screens/cardDna/SectionCWhenBest';
 import { verdictPropsFromDraft } from '../../check/checkLoop';
 import { Currency } from '../../types/purchase.types';
 import type { SurfaceContext } from '../surfaceContext';
@@ -147,7 +148,18 @@ export function readCalendarRiskDotDay(_ctx: SurfaceContext, _date: string): Pai
 /** A ranked card list, as a surface paints it. Built in PHASE-4 (W4), PHASE-3 (N6). */
 export type PaintedRanking = readonly string[] | typeof NOT_BUILT;
 export function readWalletBestForChips(_ctx: SurfaceContext): PaintedRanking { return NOT_BUILT; }
-export function readCardDnaWhenBestChips(_ctx: SurfaceContext): PaintedRanking { return NOT_BUILT; }
+export function readCardDnaWhenBestChips(ctx: SurfaceContext): PaintedRanking {
+  const tree = render(wrap(<SectionCWhenBest context={ctx} />));
+  try {
+    return tree.queryAllByTestId(/^card-dna-best-for-/)
+      .map((node) => (node.props as { testID?: string }).testID)
+      .filter((testID): testID is string =>
+        testID !== undefined && !testID.endsWith('-explanation'))
+      .map((testID) => testID.slice('card-dna-best-for-'.length));
+  } finally {
+    tree.unmount();
+  }
+}
 export function readCheckRecommendation(_ctx: SurfaceContext): PaintedRanking { return NOT_BUILT; }
 
 /**
