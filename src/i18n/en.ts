@@ -968,4 +968,12 @@ export const enBySource: Readonly<Record<string, string>> = {
   'השוואה בין הכרטיסים שלי': 'Compare across my cards',
   'תמיד יש לאמת מול המנפיק': 'Always verify with your issuer',
   'עודכן {{date}}': 'Updated {{date}}',
+  // Wallet — spec section 10.
+  '+ הוסף כרטיס': '+ Add card',
+  יומיומי: 'Daily',
+  לנסיעות: 'Travel',
+  למנויים: 'Subscriptions',
+  לתשלומים: 'Installments',
+  לחינוך: 'Education',
+  להטבות: 'Benefits',
 };
