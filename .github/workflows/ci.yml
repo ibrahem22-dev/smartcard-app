@@ -536,6 +536,56 @@ jobs:
             echo '| P4 V2 | `P4-ALL OK — every step green` (this runner, per OQ-004) |'
           } >> "$GITHUB_STEP_SUMMARY"
 
+      # ============================================================================================
+      # THE P5 LADDER (P5 V2). Added 2026-08-29 for criterion V2, which is FRESH-flagged and accepts
+      # only `github-actions` as a source: "the whole P5 ladder is green in CI on the machine the
+      # Owner's OQ-004 ruling designates, at the pushed shas."
+      #
+      # THIS RUNNER IS THE DESIGNATED ONE, and it is designated by demonstration rather than by
+      # name. P5-ENVIRONMENT: a qualified environment is one that "has first proven it can execute
+      # the real app ladder successfully" — which the P4 step immediately above does, on this
+      # runner, in this job, before this step runs. If P4's ladder is red here, this step never
+      # reports and V2 is not claimed.
+      #
+      # Same discipline as every ladder step above it: one command, the verdict read from PRINTED
+      # OUTPUT, and the exact contracted sentinel asserted with grep -F. An absent sentinel is a
+      # failure and never a pass — `|| true` on the pipeline is deliberate so that the grep below is
+      # what decides, not the exit code of a program that could exit 0 having printed nothing.
+      # ============================================================================================
+      - name: the whole P5 ladder (P5 V2)
+        working-directory: smartcard-app
+        env:
+          P5_LADDER_LOG: ${{ runner.temp }}/p5-ladder.log
+        run: |
+          set -o pipefail
+          npm run p5:all 2>&1 | tee "$P5_LADDER_LOG" || true
+
+          echo "----- verdict, read from printed output -----"
+
+          if ! grep -qF 'P5-ALL OK — every step green' "$P5_LADDER_LOG"; then
+            echo "::error::P5 V2 NOT SATISFIED — the P5 ladder did not print its sentinel."
+            grep -E '^\s+FAIL |^\s+MISS ' "$P5_LADDER_LOG" | head -8 | while IFS= read -r line; do
+              echo "::error::ladder red: $(echo "$line" | sed 's/^[[:space:]]*//')"
+            done
+            grep -E 'P5-ALL (FAILED|INCOMPLETE|DEVICE-BLOCKED)' "$P5_LADDER_LOG" | head -2 \
+              | while IFS= read -r line; do echo "::error::verdict: $line"; done
+            echo "An absent sentinel is a failure, not a pass. What the ladder did print:"
+            grep -E 'P5-ALL|FAILED|INCOMPLETE|DEVICE-BLOCKED' "$P5_LADDER_LOG" || tail -40 "$P5_LADDER_LOG"
+            exit 1
+          fi
+
+          echo "::notice title=P5 V2 sentinel::$(grep -F 'P5-ALL OK — every step green' "$P5_LADDER_LOG" | head -1)"
+          echo "::notice title=P5 ladder counts::$(grep -E '^\s+steps ' "$P5_LADDER_LOG" | tail -1 | sed 's/^[[:space:]]*//')"
+          echo "::notice title=P5 agreement gates::$(grep -E 'agreement gates ' "$P5_LADDER_LOG" | tail -1 | sed 's/^[[:space:]]*//')"
+          echo "::notice title=measured at::app $(git -C "$GITHUB_WORKSPACE/smartcard-app" rev-parse HEAD) · pipeline $(git -C "$GITHUB_WORKSPACE/smartcard-data-pipeline" rev-parse HEAD)"
+
+          {
+            echo ""
+            echo '| criterion | sentinel |'
+            echo '|---|---|'
+            echo '| P5 V2 | `P5-ALL OK — every step green` (this runner, per OQ-004) |'
+          } >> "$GITHUB_STEP_SUMMARY"
+
       # The boundary rules are also proven CAPABLE OF FAILING, here. A rule that has never been
       # watched to fire is not a rule, and a control recorded only on a laptop is a claim about a
       # laptop.
