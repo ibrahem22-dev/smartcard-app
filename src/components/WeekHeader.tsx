@@ -1,4 +1,5 @@
 import React from 'react';
+import { RtlRow } from './rtl';
 import { View } from 'react-native';
 
 import { AppText } from './AppText';
@@ -18,15 +19,28 @@ import { DAY_LETTERS, DAY_NAMES, WEEK_ORDER } from '../utils/calendar';
  *
  * Every other row here mirrors with the language. This one must not.
  *
- * `WEEK_ORDER` is Sunday-first as an ARRAY. In Hebrew and Arabic the writing direction already lays
- * a plain row out right-to-left, so Sunday lands in the rightmost cell — which is where a Hebrew
- * calendar puts it. Wrapping this in a direction-aware row would reverse the array TOO, and two
- * reversals cancel: Sunday would come back to the left, under a grid of dates that had mirrored
- * once. The header and the dates would disagree by one reflection, and every date would sit under
- * the wrong letter.
+ * `WEEK_ORDER` is Sunday-first as an ARRAY, and this row is direction-aware so that Sunday lands in
+ * the RIGHTMOST cell in Hebrew and Arabic — which is where those calendars put it.
  *
- * The next person to see an unmirrored row in this codebase will assume it is an oversight. It is
- * not, and this paragraph is why the `rtl-ok` marker below is not a silencer.
+ * ─────────────────────────────────────────────────────────────────────────────────────────────
+ * WHAT THIS COMMENT USED TO SAY, AND WHY IT WAS WRONG
+ *
+ * It used to argue that a plain `flex-row` was correct here: *"In Hebrew and Arabic the writing
+ * direction already lays a plain row out right-to-left, so Sunday lands in the rightmost cell …
+ * Wrapping this in a direction-aware row would reverse the array TOO, and two reversals cancel."*
+ * It even warned the next reader not to mistake the unmirrored row for an oversight.
+ *
+ * **There is no first reversal.** `RtlRow` is this app's single RTL mechanism and it works by
+ * explicit `row-reverse`; its own comment forbids setting `direction: 'rtl'` anywhere, because
+ * combining the two double-flips a row (ISSUE-RTL-01). So nothing was mirroring this row, and the
+ * argument for leaving it alone rested on a runtime behaviour the app deliberately does not use.
+ *
+ * Running the app on the emulator showed it plainly: in Hebrew the columns read Sunday-leftmost to
+ * Saturday-rightmost, **identical to English**, while the tab bar and the segmented control mirrored
+ * correctly in the same screenshot. Two reflections cannot cancel when only one was ever applied.
+ *
+ * The header and the dates still agree, because `MonthGrid`'s week rows are direction-aware too:
+ * they reverse together, so a date never sits under the wrong letter.
  *
  * A single letter read aloud is not a day, so each cell carries the full name as its accessibility
  * label — A9's word-beside-the-cue discipline, applied to a header nobody can otherwise hear.
@@ -41,13 +55,9 @@ export function WeekHeader({ testID }: WeekHeaderProps): React.ReactElement {
   const names = DAY_NAMES[language];
 
   return (
-    <View
+    <RtlRow
       accessibilityRole="header"
-      // See the header: the writing direction already mirrors this row, and mirroring it a second
-      // time would put Sunday under Saturday's column of dates. The marker goes on the line
-      // directly above the class, because that is the only place the scan reads it.
-      // rtl-ok
-      className={`flex-row border-b ${SURFACE.sunken} ${BORDER.hairline}`}
+      className={`border-b ${SURFACE.sunken} ${BORDER.hairline}`}
       testID={testID ?? 'week-header'}
     >
       {WEEK_ORDER.map((dayIndex) => (
@@ -62,6 +72,6 @@ export function WeekHeader({ testID }: WeekHeaderProps): React.ReactElement {
           </AppText>
         </View>
       ))}
-    </View>
+    </RtlRow>
   );
 }

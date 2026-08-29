@@ -1,4 +1,5 @@
 import React from 'react';
+import { useAppDirection } from '../../hooks/useAppDirection';
 import { View } from 'react-native';
 
 import { AppText } from '../../components/AppText';
@@ -49,12 +50,29 @@ function absenceText(
 }
 
 /** Converts an engine ratio into the percentage coordinate React Native requires for placement. */
-function tickPosition(ratio: number): `${number}%` {
-  return `${ratio * 100}%`;
+/**
+ * WHERE A THRESHOLD TICK SITS, MEASURED FROM THE LEADING EDGE.
+ *
+ * This returned a percentage for React Native's `start`, which is direction-aware **only when
+ * `I18nManager.isRTL` is set**. This app never sets it: `RtlRow` is the single RTL mechanism and it
+ * works by explicit `row-reverse`, precisely so that Yoga's locale flip and a manual flip cannot
+ * cancel (ISSUE-RTL-01). So `start` resolved to `left` in every language.
+ *
+ * The device showed it: on a bar spanning x 96→984, both ticks sat at the SAME absolute x in Hebrew
+ * as in English, while the two labels above them swapped sides correctly. 35% from the left is 65%
+ * from the right, so in Hebrew the warning threshold was drawn where neither threshold is.
+ *
+ * Taking `isRTL` from the app's own direction hook keeps one source of truth for the answer. It is
+ * the same false premise the calendar grid was built on, in a second place — see `WeekHeader.tsx`.
+ */
+function tickOffset(ratio: number, isRTL: boolean): { left?: `${number}%`; right?: `${number}%` } {
+  const pct = `${ratio * 100}%` as `${number}%`;
+  return isRTL ? { right: pct } : { left: pct };
 }
 
 export function HomeLoadBar({ context }: HomeLoadBarProps): React.ReactElement {
   const { t } = useTranslation();
+  const dir = useAppDirection();
   const { money, percent } = useMoney();
   const storedCards = useCardsStore((state) => state.cards);
   const storedInstallments = useCardsStore((state) => state.obligations);
@@ -163,7 +181,7 @@ export function HomeLoadBar({ context }: HomeLoadBarProps): React.ReactElement {
             accessibilityLabel={t('סף אזהרה חזקה')}
             accessibilityValue={{ text: String(strongWarningRatio) }}
             className={`absolute text-xs ${TEXT.muted}`}
-            style={[TABULAR_NUMERALS, { start: tickPosition(strongWarningRatio) }]}
+            style={[TABULAR_NUMERALS, tickOffset(strongWarningRatio, dir.isRTL)]}
             testID="home-load-bar-tick-strong"
           >
             {percent(strongWarningRatio)}
@@ -172,7 +190,7 @@ export function HomeLoadBar({ context }: HomeLoadBarProps): React.ReactElement {
             accessibilityLabel={t('סף חסימה')}
             accessibilityValue={{ text: String(blockedRatio) }}
             className={`absolute text-xs ${TEXT.muted}`}
-            style={[TABULAR_NUMERALS, { start: tickPosition(blockedRatio) }]}
+            style={[TABULAR_NUMERALS, tickOffset(blockedRatio, dir.isRTL)]}
             testID="home-load-bar-tick-blocked"
           >
             {percent(blockedRatio)}

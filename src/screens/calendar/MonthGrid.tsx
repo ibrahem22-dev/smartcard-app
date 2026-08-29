@@ -3,6 +3,7 @@ import { Pressable, View } from 'react-native';
 
 import { AppText } from '../../components/AppText';
 import { WeekHeader } from '../../components/WeekHeader';
+import { RtlRow } from '../../components/rtl';
 import { useTranslation } from '../../hooks/useTranslation';
 import { useActivityStore } from '../../store/useActivityStore';
 import { useCardsStore } from '../../store/useCardsStore';
@@ -68,11 +69,11 @@ export function MonthGrid({
         <WeekHeader />
         <DayMarkersLegend />
         {weeks.map((week, weekIndex) => (
-          <View
-            // The weekday header uses the same deliberate exception: RTL writing direction already
-            // places WEEK_ORDER right-to-left, so a direction-aware row would reverse it twice.
-            // rtl-ok
-            className="flex-row"
+          <RtlRow
+            /* Direction-aware, exactly like WeekHeader above it — see the note there. A device run
+               showed both rows laying out identically in Hebrew and English, because the writing
+               direction this used to rely on is one the app deliberately never sets. They reverse
+               together, so a date never sits under the wrong letter. */
             key={week[0]?.iso ?? String(weekIndex)}
             testID={`calendar-week-${String(weekIndex)}`}
           >
@@ -100,7 +101,7 @@ export function MonthGrid({
                 <DayMarkers iso={day.iso} results={results} />
               </Pressable>
             ))}
-          </View>
+          </RtlRow>
         ))}
       </View>
       {selectedDay === null ? null : (
