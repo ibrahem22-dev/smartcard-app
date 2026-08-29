@@ -33,6 +33,22 @@ import {
   type PaintedLevel,
 } from './agreementReaders';
 import type { SurfaceContext } from '../surfaceContext';
+import i18n from '../../i18n';
+import { riskPresentation } from '../../theme/riskPresentation';
+
+/*
+ * WHAT THE ENGINE'S LEVEL LOOKS LIKE ONCE A SURFACE HAS PAINTED IT.
+ *
+ * The surfaces announce the level as a WORD in the reader's language, because announcing the raw
+ * enum was a defect a device run found: a reader in Arabic heard "critical". So this property
+ * compares like with like -- the engine's level, put through the one module that owns the
+ * vocabulary, against what each surface actually painted.
+ *
+ * Not a weakening. Both surfaces still have to agree with the engine and with each other; the
+ * comparison simply happens on the far side of the presentation layer, which is where the strings a
+ * user actually meets are.
+ */
+const asPainted = (level: string): string => i18n.t(riskPresentation(level).labelKey);
 
 const assertAllEqual = (
   expected: string,
@@ -127,7 +143,7 @@ describe('A3 — one risk', () => {
 
         if (!homeWindow.has(day.date)) {
           /* Outside Home's seven days. Home makes no claim here, and silence is not disagreement. */
-          problems.push(...assertAllEqual(day.riskLevel, [
+          problems.push(...assertAllEqual(asPainted(day.riskLevel), [
             { who: "Plan Calendar's risk dot", painted: calendar },
           ], `${label} ${day.date}`));
           continue;
@@ -135,7 +151,7 @@ describe('A3 — one risk', () => {
 
         overlapped += 1;
         const home = readHomeRiskStripDay(context, day.date);
-        problems.push(...assertAllEqual(day.riskLevel, [
+        problems.push(...assertAllEqual(asPainted(day.riskLevel), [
           { who: "Home's 7-day strip", painted: home },
           { who: "Plan Calendar's risk dot", painted: calendar },
         ], `${label} ${day.date}`));
