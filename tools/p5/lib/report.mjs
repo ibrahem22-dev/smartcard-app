@@ -54,12 +54,24 @@ export const MEASUREMENT_KINDS = Object.freeze(['source', 'render', 'artifact', 
  * A step is ok only when the sentinel matched, no failure pattern matched, and the process was not
  * killed by a signal — because a killed process produces neither a sentinel nor an error.
  */
+/**
+ * Terminal colour codes, removed before anything reads the output. ONE definition, because two
+ * readers in this file need it and a second copy is a second thing to forget — see D-042.
+ */
+const ANSI = new RegExp(String.fromCharCode(27) + String.fromCharCode(92) + '[[0-9;]*m', 'g');
+const stripAnsi = (t) => t.replace(ANSI, '');
+
 export const runStep = async (name, cmd, args, { sentinel, failure, cwd, skip } = {}) => {
   if (skip) return { step: name, ok: false, skipped: true, ms: 0, decidedOn: 'not run', line: 'SKIPPED — ' + skip, processStatus: null, tail: '' };
   const started = process.hrtime.bigint();
   const r = spawnSync(cmd, args, { cwd, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024, shell: false });
   const ms = Number((process.hrtime.bigint() - started) / 1000000n);
-  const out = String(r.stdout ?? '') + String(r.stderr ?? '');
+  /* THE SAME ANSI PROBLEM, IN THE LADDER'S OWN READER — D-042. The suite step's sentinel is
+     /Tests:\s+\d+ passed, \d+ total/, and a colourising jest writes
+     `Tests: ESC[1mESC[32m1226 passed`, so the digits are not where the pattern looks: the step
+     reported "no sentinel printed" over 1226 passing tests. Stripped for the same reason and with
+     the same guarantee — a sentinel still has to be in the output to be found. */
+  const out = stripAnsi(String(r.stdout ?? '') + String(r.stderr ?? ''));
   const killed = Boolean(r.signal || r.error);
   const hit = sentinel ? (out.match(sentinel) ?? [null])[0] : null;
   const bad = failure ? (out.match(failure) ?? [null])[0] : null;
@@ -100,7 +112,26 @@ export const requireJestCases = (root, suite, cases, extraArgs = []) => {
   const r = spawnSync(process.execPath, [jest, suite, '--verbose', '--ci', ...extraArgs], {
     cwd: root, encoding: 'utf8', maxBuffer: 64 * 1024 * 1024,
   });
-  const out = String(r.stdout ?? '') + String(r.stderr ?? '');
+  /**
+   * ─────────────────────────────────────────────────────────────────────────────────────────
+   * STRIP ANSI BEFORE MATCHING.  REPAIRED 2026-08-29, D-042.
+   *
+   * The matchers below look for `√` followed by whitespace and then the case name. Jest writes
+   * `√ name` plainly when it decides the output is not a terminal — and writes
+   * `ESC[32m√ESC[39m ESC[2mnameESC[22m` when it decides it is. `\s*` does not match an escape
+   * sequence, so in any environment where jest colourises (a TTY, or `FORCE_COLOR` set in the
+   * shell) EVERY required case reads as "did not pass" while the suite is green.
+   *
+   * That is what happened: a shell carrying `FORCE_COLOR=3` turned 35 of 46 P5 gates red at once,
+   * with each one reporting its cases missing and its own summary line printing `11 passed`
+   * three words later. **The gate contradicted itself in a single line and still said FAILED.**
+   *
+   * It fails toward RED, which is the safer direction — but a ladder whose result depends on
+   * whether the shell wanted colour is not reproducible, and V3 exists to claim that it is.
+   * Stripping the escapes makes the read environment-independent; it cannot make a failing case
+   * look passed, because the name and the tick still both have to be there.
+   */
+  const out = stripAnsi(String(r.stdout ?? '') + String(r.stderr ?? ''));
   const escapeForRegExp = (t) => t.replace(/[.*+?${}()|[\]\\]/g, String.fromCharCode(92) + '$&');
   const problems = [];
   for (const name of cases) {

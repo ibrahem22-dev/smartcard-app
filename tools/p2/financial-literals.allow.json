@@ -271,14 +271,6 @@
       "why": "A WORK-PACKAGE LABEL inside a section title string (BOI lane (WP-7.2)), not a number about money.",
       "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
       "reviewedAt": "2026-08-26"
-    },
-    {
-      "file": "src/screens/cardDna/bestForChips.ts",
-      "literal": "20.1",
-      "identifier": null,
-      "why": "A SPEC CITATION, NOT A RATE. The literal is the '20.1' inside the string 'product spec §20.1 effective cost', which names the rule the chip's explanation is selected by. Rule 4 scans for numbers that look like rates and a section number in a citation looks exactly like one; moving it to config/** would put a spec reference in the file that holds the app's opinions about prudence. The value is never read as a number.",
-      "reviewedBy": "P5 supervisor — V2, 2026-08-29",
-      "reviewedAt": "2026-08-29"
     }
   ],
   "$knownMirror": [
