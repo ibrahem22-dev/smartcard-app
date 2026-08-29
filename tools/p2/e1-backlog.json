@@ -234,6 +234,46 @@
       "file": "^src/engines/verdict\\.ts$",
       "message": "financial constant 0\\.(35|5) bound to 'VERDICT_(SAFE|HARD)_LOAD_DEFAULT_RATIO'",
       "why": "ENGINE-OWNED DEFAULTS THE CALLER OVERRIDES. The verdict load ratios are inputs with these values as documented fallbacks (evaluatePurchaseVerdict accepts safeLoadRatio/hardLoadRatio); the defaults live beside the threshold math they parameterise, per the P3 contract."
+    },
+    {
+      "id": "ALLOW-FEE-WAIVER-FULL-DISCOUNT",
+      "disposition": "ALLOWED",
+      "rule": "R4",
+      "file": "^src/screens/cardDna/activeNowRows\\.ts$",
+      "message": "financial constant 100 bound to 'feeWaiver'",
+      "why": "A COMPARISON TO WHOLENESS, NOT A THRESHOLD. `discountPercent === 100` asks whether the fee is fully waived; 100 is the definition of a whole percentage, not a rate or a cut-off this app chose. Moving it to config/** would put the number 100 in the file that holds the app's opinions about prudence, where a reader would reasonably look for a policy and find an arithmetic identity. Same reasoning as ALLOW-FXPERCENT-BY-100."
+    },
+    {
+      "id": "ALLOW-BENEFIT-VOCABULARY-IMPORT",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/screens/cardDna/benefitRows\\.ts$",
+      "message": "pack module '\\.\\./\\.\\./data/adapter/benefitLookup' imported outside",
+      "why": "IT IS A SHARED VOCABULARY, NOT A PACK READ. `benefitLookup` reads no pack: it holds ISSUER_DATABASE_KEYS and the club lookup keyed by displayName, and its own docblock states why it lives in data — 'engines may import from src/data while B1 forbids a surface from value-importing src/engines, making data the only place both callers can read from.' Routing this through src/authority/ would give the engine and Card DNA two doors onto one vocabulary, which is the desynchronisation the module was created to prevent. Same shape as ALLOW-VOCABULARY-TYPE-IMPORTS."
+    },
+    {
+      "id": "ALLOW-LOADBAR-TICK-PERCENT-COORDINATE",
+      "disposition": "ALLOWED",
+      "rule": "R4",
+      "file": "^src/screens/home/HomeLoadBar\\.tsx$",
+      "message": "financial constant 100 bound to 'ratio'",
+      "why": "A LAYOUT COORDINATE, NOT A RATE. `${ratio * 100}%` turns an engine ratio into the CSS percentage React Native needs to POSITION a threshold tick along the bar; the number it produces is an x-offset and is never shown, compared or carried into any calculation. The ratio itself comes from load.thresholds and is not restated here. It was written for the RTL repair (D-032), which is why it appears now: the tick used to be placed with `start`, which is direction-blind in this app."
+    },
+    {
+      "id": "ALLOW-FX-COMMISSION-DISPLAY-PERCENT",
+      "disposition": "ALLOWED",
+      "rule": "R2",
+      "file": "^src/store/cardCostResolution\\.ts$",
+      "message": "financial arithmetic on 'foreignTransactionFee' performed here, outside src/engines/",
+      "why": "A UNIT CONVERSION FOR A DISPLAY STRING, and it feeds nothing. `String(fee * 100)` renders a stored fraction as the percentage Card DNA section A's fx-commission row shows; the result is a string, is never read back as a number, and no engine consumes it. NOTED AND NOT HIDDEN: this is a SECOND place the app converts between fraction and percent by hand, and the first is the subject of Owner question OQ-P5-003 — `formatPercent` appends a percent sign WITHOUT multiplying, so ratios render a hundred times too small. Whoever settles OQ-P5-003 should read this entry: one convention would delete both."
+    },
+    {
+      "id": "ALLOW-AGREEMENT-POPULATION-CATALOG-READ",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/surfaces/__tests__/",
+      "message": "pack module .*catalogSearch. imported outside",
+      "why": "TEST SUPPORT, AND THE CRITERION REQUIRES THE READ. These two modules build the group-A agreement population, and criterion A6 demands it be DERIVED: 'the population the agreement properties run over is derived from the navigation declaration and the shipped packs, never hand-listed, and a check over zero surfaces fails.' The card set comes from currentCatalogProducts(), which is the door P4's wizard already uses onto the shipped catalog and is itself allowed at ALLOW-WIZARD-CATALOG-PACK-READ. Satisfying R3 by hand-listing cards here would break A6 and reintroduce the maintained 'everything' list that P1 shipped four of. Neither file is in the app bundle. Same shape as ALLOW-RENDER-FIXTURE, one directory over."
     }
   ],
   "$closedNote": [
