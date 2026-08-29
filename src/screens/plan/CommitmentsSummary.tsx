@@ -22,6 +22,7 @@ import {
   SURFACE,
   TEXT,
 } from '../../theme/tokens';
+import { loadBandLabelKey } from '../../theme/riskPresentation';
 import { TABULAR_NUMERALS } from '../../utils/money';
 
 export interface CommitmentsSummaryProps {
@@ -159,11 +160,11 @@ export function CommitmentsSummary({
                 {percent(load.current.ratioOfIncome.value)}
               </AppText>
               <AppText
-                accessibilityValue={{ text: load.current.band }}
+                accessibilityValue={{ text: t(loadBandLabelKey(load.current.band)) }}
                 className={`text-sm ${TEXT.secondary}`}
                 testID="commitments-summary-load-band"
               >
-                {t('רצועת עומס')}: {load.current.band}
+                {t('רצועת עומס')}: {t(loadBandLabelKey(load.current.band))}
               </AppText>
             </RtlRow>
             <RtlRow

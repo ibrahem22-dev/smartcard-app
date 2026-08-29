@@ -35,7 +35,7 @@ function Marker({ iso, marker }: { readonly iso: string; readonly marker: DayMar
       <View
         accessibilityLabel={`${t('סיכון')}: ${t(presentation.labelKey)}`}
         accessibilityRole="image"
-        accessibilityValue={{ text: level }}
+        accessibilityValue={{ text: t(presentation.labelKey) }}
         className={`h-4 w-4 items-center justify-center rounded-full border ${presentation.className}`}
         testID={testID}
       >

@@ -157,6 +157,7 @@ export const arBySource: Readonly<Record<string, string>> = {
   // R4 — the risk level a marker and the Home strip speak.
   'בטוח': 'آمن',
   'סיכון גבוה': 'مخاطر عالية',
+  'אזהרה חזקה': 'تحذير قوي',
   // K3 — Plan Calendar day sheet. Calls use these Hebrew source keys literally.
   'משכורת נכנסת': 'راتب داخل',
   'חיובי כרטיסים': 'استحقاقات البطاقات',

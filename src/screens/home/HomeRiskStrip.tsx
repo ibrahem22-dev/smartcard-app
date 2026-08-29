@@ -125,7 +125,7 @@ export function HomeRiskStrip({ context }: HomeRiskStripProps): React.ReactEleme
           return (
             <View
               accessibilityLabel={`${t('רמת הסיכון ליום {{date}}', { date: iso })}: ${t(presentation.labelKey)}`}
-              accessibilityValue={{ text: level }}
+              accessibilityValue={{ text: t(presentation.labelKey) }}
               className="min-w-[42px] flex-1 items-center gap-1"
               key={iso}
               testID={testID}
@@ -148,7 +148,7 @@ export function HomeRiskStrip({ context }: HomeRiskStripProps): React.ReactEleme
                 {iso.slice(5)}
               </AppText>
               <AppText className={`text-[12px] font-extrabold ${presentation.className}`}>
-                {level}
+                {t(presentation.labelKey)}
               </AppText>
               {explanationVisible ? (
                 <AppText

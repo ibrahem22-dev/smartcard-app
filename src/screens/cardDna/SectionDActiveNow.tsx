@@ -17,6 +17,7 @@ import {
 } from '../../surfaces';
 import { usePaidEarly } from '../../surfaces/usePaidEarly';
 import { BORDER, SURFACE, TEXT } from '../../theme/tokens';
+import { loadBandLabelKey } from '../../theme/riskPresentation';
 import { TABULAR_NUMERALS } from '../../utils/money';
 import { activeNowRowsFor } from './activeNowRows';
 
@@ -136,11 +137,11 @@ export function SectionDActiveNow({
           </AppText>
           {rows.loadBand === null ? null : (
             <AppText
-              accessibilityValue={{ text: rows.loadBand }}
+              accessibilityValue={{ text: t(loadBandLabelKey(rows.loadBand)) }}
               className={`text-sm ${TEXT.body}`}
               testID="card-dna-load-band"
             >
-              {t('רצועת עומס')}: {rows.loadBand}
+              {t('רצועת עומס')}: {t(loadBandLabelKey(rows.loadBand))}
             </AppText>
           )}
           {rows.currentLoadRatio === null ? null : (

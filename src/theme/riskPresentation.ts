@@ -62,3 +62,29 @@ export const riskPresentation = (level: string): RiskPresentation => {
       };
   }
 };
+
+/**
+ * THE LOAD BAND, AS A WORD SOMEBODY CAN HEAR.
+ *
+ * Card DNA §D and Plan Commitments both rendered `{t('רצועת עומס')}: {band}` — a translated label
+ * followed by a raw enum — and announced that same enum through `accessibilityValue`. A reader in
+ * Arabic heard "نطاق الحمل: strong_warning".
+ *
+ * It lives beside `riskPresentation` because it is the same kind of thing: a domain enum that must
+ * become a user-facing word exactly once. Putting it in either screen would have made two homes for
+ * one vocabulary, which is the defect that put `riskPresentation` here in the first place.
+ */
+export const loadBandLabelKey = (band: string): string => {
+  switch (band) {
+    case 'safe':
+      return 'בטוח';
+    case 'warning':
+      return 'אזהרה';
+    case 'strong_warning':
+      return 'אזהרה חזקה';
+    case 'blocked':
+      return 'חסום';
+    default:
+      return 'לא ידוע';
+  }
+};

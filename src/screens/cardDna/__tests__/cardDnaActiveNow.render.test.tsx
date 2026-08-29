@@ -15,6 +15,8 @@ import {
 import type { ImportedInstallment } from '../../../types/installment.types';
 import { Currency } from '../../../types/purchase.types';
 import { SectionDActiveNow } from '../SectionDActiveNow';
+import i18n from '../../../i18n';
+import { loadBandLabelKey } from '../../../theme/riskPresentation';
 
 const fakeDb = {
   execSync: (): void => { /* this render driver needs no catalog rows */ },
@@ -156,7 +158,10 @@ describe("Card DNA what's active right now", () => {
     expect(paintedNumber(tree, 'card-dna-threshold-warning')).toBe(load.thresholds.warningRatio.value);
     expect(paintedNumber(tree, 'card-dna-threshold-strong-warning')).toBe(load.thresholds.strongWarningRatio.value);
     expect(paintedNumber(tree, 'card-dna-threshold-blocked')).toBe(load.thresholds.blockedRatio.value);
-    expect(tree.getByTestId('card-dna-load-band').props.accessibilityValue?.text).toBe(load.current.band);
+    expect(tree.getByTestId('card-dna-load-band').props.accessibilityValue?.text)
+      .toBe(i18n.t(loadBandLabelKey(load.current.band)));
+    expect(tree.getByTestId('card-dna-load-band').props.accessibilityValue?.text)
+      .not.toBe(load.current.band);
   });
 
   it('renders active installments on this card and no others', () => {

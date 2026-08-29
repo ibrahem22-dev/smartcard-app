@@ -121,6 +121,7 @@ export const en = {
     empty: 'No scheduled charges 📅',
     riskSafe: 'Safe',
     riskHigh: 'High risk',
+    bandStrongWarning: 'Strong warning',
     day: 'Calendar day {{day}}',
     risk: 'Risk',
     salary: 'Salary',
@@ -459,6 +460,7 @@ export const enBySource: Readonly<Record<string, string>> = {
   // "Risk: critical" to an English reader and "مخاطر: critical" to an Arabic one.
   'בטוח': en.calendar.riskSafe,
   'סיכון גבוה': en.calendar.riskHigh,
+  'אזהרה חזקה': en.calendar.bandStrongWarning,
   // K3 — Plan Calendar day sheet. Calls use these Hebrew source keys literally.
   'משכורת נכנסת': 'Salary in',
   'חיובי כרטיסים': 'Card billings',

@@ -121,10 +121,27 @@ const walk = (abs, acc = []) => {
   return acc;
 };
 
-/** Read `accessibilityLabel={ ... }` with balanced braces, so a template literal survives intact. */
-const labelExpressions = (src) => {
+/*
+ * BOTH SCREEN-READER CHANNELS, NOT JUST THE LABEL.
+ *
+ * This read `accessibilityLabel=` only. A device run then found Home's risk strip announcing
+ * `accessibilityValue={{ text: level }}` — the raw enum, straight to the screen reader — and
+ * rendering that same enum as VISIBLE TEXT, in a Hebrew UI. R4 says tiles, chips, dots and markers
+ * carry screen-reader labels in all three languages; a value announced beside the label is part of
+ * what the reader hears, so it is part of the claim.
+ *
+ * Neither leak was visible to any gate: the label clause was satisfied, the interpolation clause
+ * only reads label expressions, and no static check looks at rendered text at all. It took looking
+ * at the screen.
+ */
+const LABEL_ATTRS = ['accessibilityLabel={', 'accessibilityValue={'];
+
+/** Read an accessibility attribute with balanced braces, so a template literal survives intact. */
+const labelExpressions = (src) =>
+  LABEL_ATTRS.flatMap((needle) => readAttr(src, needle));
+
+const readAttr = (src, NEEDLE) => {
   const out = [];
-  const NEEDLE = 'accessibilityLabel={';
   let i = src.indexOf(NEEDLE);
   while (i >= 0) {
     let depth = 1;
@@ -177,6 +194,7 @@ const HEBREW = /[\u0590-\u05FF]/;
 const INDIRECT_KEY_SOURCES = [
   { property: 'labelKey', from: 'src/theme/riskPresentation.ts' },
   { property: 'altTextKey', from: 'src/media/resolveMedia.ts' },
+  { property: 'loadBandLabelKey', from: 'src/theme/riskPresentation.ts' },
 ];
 
 const KEY_PROPERTY_VALUES = (root, problems) => {
@@ -210,8 +228,17 @@ const keysIn = (expr, keyProps) => {
     const arg = m[1].trim();
     const literal = arg.match(/^'((?:\\'|[^'])*)'$/);
     if (literal) { out.push({ key: literal[1].replace(/\\'/g, "'"), via: null }); continue; }
+    /*
+     * A KEY CAN BE NAMED BY A PROPERTY OR RETURNED BY A FUNCTION.
+     *
+     * `t(presentation.labelKey)` names it; `t(loadBandLabelKey(rows.loadBand))` returns it. Reading
+     * only the property form made the second unresolvable, and an unresolvable key FAILS here — so
+     * fixing the load-band defect turned this gate red for the fix rather than for the defect.
+     * Both forms resolve to the same thing: the literals in the module that owns the vocabulary.
+     */
     const prop = arg.match(/\.([A-Za-z_$][\w$]*)$/);
-    const values = prop ? keyProps.get(prop[1]) : null;
+    const fn = arg.match(/^([A-Za-z_$][\w$]*)\s*\(/);
+    const values = (prop ? keyProps.get(prop[1]) : null) ?? (fn ? keyProps.get(fn[1]) : null);
     if (values && values.size) {
       for (const key of values) out.push({ key, via: arg });
     } else {
@@ -306,6 +333,52 @@ export const run = async ({ root }) => {
         if (!ar.has(key)) gaps.push('ar');
         if (!en.has(key)) gaps.push('en');
         if (gaps.length) missing.push({ rel, line, key, gaps, via });
+      }
+
+      /*
+       * A VALUE THAT IS NOT A TEMPLATE HOLE IS STILL A WORD SOMEBODY HEARS.
+       *
+       * The first version of this clause read only `${...}` holes, so
+       * `accessibilityValue={{ text: level }}` — an object literal with a bare enum in it — passed
+       * every check while announcing "critical" to a reader in Arabic. Reintroducing that exact
+       * line after the fix left this gate GREEN, which is how the hole was found.
+       *
+       * So an expression naming NO t() call at all is examined for bare identifiers, and any that
+       * is not known-translated fails.
+       */
+      /*
+       * THE SPOKEN FIELD, AND ONLY THAT.
+       *
+       * `accessibilityValue` carries `min`, `max` and `now` — numbers, by the platform's contract —
+       * and `text`, which is what a screen reader SAYS. Home's load bar announces
+       * `{ min: 0, max: 1, now: ratio, text: String(ratio) }`, and flagging `ratio` there was wrong
+       * twice over: it is a number, and a numeral is not a word in any language.
+       *
+       * What was right to flag is `{ text: level }` on the risk strip and the calendar markers —
+       * an enum, spoken. So this reads the `text:` field alone, and lets a numeral through.
+       */
+      for (const m of expr.matchAll(/\btext\s*:\s*([^,}]+)/g)) {
+        const value = m[1].trim();
+        if (/\bt\(/.test(value)) continue;
+        if (/^(?:String|Number)\s*\(/.test(value)) continue;
+        if (/^['"`]/.test(value)) continue;
+        /*
+         * A NUMERAL IS NOT A WORD IN ANY LANGUAGE.
+         *
+         * Home's upcoming-billing row announces `nearest.date` and renders the same value through
+         * `ltrNumerals`. Flagging it was wrong: a date is a sequence of digits, R1 requires digits
+         * to stay LTR inside RTL text, and there is nothing about it to translate. The enums this
+         * rule exists for — `level`, `loadBand`, `band` — are words, and they are what it keeps.
+         */
+        if (/(?:^|\.)(date|iso|day|month|year|ratio|count|amount|total|percent|ils|sha|id|last4)$/i.test(value)) continue;
+        const id = value.replace(/\?\?.*$/, '').trim().split('.')[0];
+        if (!/^[A-Za-z_$][\w$]*$/.test(id)) continue;
+        if (translated.has(id) || NAMES_WITHOUT_TRANSLATION.test(id)) continue;
+        problems.push(
+          rel + ':' + line + ' announces `' + value + '` to a screen reader without translating it. '
+            + 'It is not a template hole, so the interpolation rule never saw it — and an enum '
+            + 'announced beside a translated label is still a word heard in the wrong language',
+        );
       }
 
       /* An interpolation that is not itself translated is a word heard in the wrong language. */

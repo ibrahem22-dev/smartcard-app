@@ -21,6 +21,8 @@ import {
 } from '../../../types/card.types';
 import { Currency } from '../../../types/purchase.types';
 import type { MonthGridDay } from '../monthGrid';
+import i18n from '../../../i18n';
+import { riskPresentation } from '../../../theme/riskPresentation';
 
 const { DayMarkers, DayMarkersLegend } = require('../DayMarkers.tsx') as {
   readonly DayMarkers: React.ComponentType<{
@@ -127,7 +129,12 @@ describe('Day markers — K2', () => {
     const marker = tree.getByTestId('calendar-day-2026-09-10-marker-risk');
 
     expect(mockedEvaluateSurfaceEngines).toHaveBeenCalledWith(activeContext);
-    expect(marker.props.accessibilityValue?.text).toBe(expected);
+    /* The engine's level, arriving as a word rather than as its enum — see the note in
+       homeRiskStrip.render.test.tsx: asserting the enum could not catch the defect, because
+       the enum WAS the defect. */
+    expect(marker.props.accessibilityValue?.text)
+      .toBe(i18n.t(riskPresentation(expected ?? 'unknown').labelKey));
+    expect(marker.props.accessibilityValue?.text).not.toBe(expected);
     fireEvent.press(tree.getByTestId('calendar-day-2026-09-10'));
     expect(onDayPress).toHaveBeenCalledWith({
       iso: '2026-09-10',

@@ -11,6 +11,8 @@ import { evaluateSurfaceEngines, type SurfaceContext } from '../../../surfaces';
 import { CardIssuer, CardNetwork, type EngineCard } from '../../../types/card.types';
 import { Currency } from '../../../types/purchase.types';
 import { HomeRiskStrip } from '../HomeRiskStrip';
+import i18n from '../../../i18n';
+import { riskPresentation } from '../../../theme/riskPresentation';
 
 const fakeDb = {
   execSync: (): void => { /* this render driver needs no catalog rows */ },
@@ -105,7 +107,22 @@ describe('Home seven-day risk strip — H4', () => {
     for (const testID of dayIds(tree)) {
       const iso = testID.slice('home-risk-strip-day-'.length);
       const expected = risk.days.find((day) => day.date === iso)?.riskLevel;
-      expect(tree.getByTestId(testID).props.accessibilityValue?.text).toBe(expected);
+    /*
+     * THESE ASSERTIONS USED TO ENCODE A DEFECT.
+     *
+     * They compared the announced accessibility value with the ENGINE'S RAW ENUM — 'safe', 'unknown',
+     * 'strong_warning' — and passed, because that is exactly what the screen announced. A device run in
+     * Hebrew showed what that means: the strip rendered the literal word "unknown" under every day, and
+     * a reader in Arabic heard "مخاطر: critical".
+     *
+     * The property these tests exist for is that each surface announces THE ENGINE'S level for that
+     * day. That is kept: the expected value is still derived from the engine. What is added is that it
+     * must arrive as a word in the reader's language, resolved through the one home that owns the
+     * vocabulary. Asserting the raw enum could never have caught the defect, because the raw enum WAS
+     * the defect.
+     */
+    expect(tree.getByTestId(testID).props.accessibilityValue?.text)
+      .toBe(i18n.t(riskPresentation(expected ?? 'unknown').labelKey));
     }
   });
 
@@ -144,9 +161,11 @@ describe('Home seven-day risk strip — H4', () => {
     expect(dayIds(tree)).toHaveLength(7);
     for (const testID of dayIds(tree)) {
       const day = tree.getByTestId(testID);
-      expect(day.props.accessibilityValue?.text).toBe('unknown');
+      expect(day.props.accessibilityValue?.text).toBe(i18n.t(riskPresentation('unknown').labelKey));
       expect(String(within(day).getByTestId(`${testID}-cue`).props.children)).toBe('?');
-      expect(String(day.props.accessibilityValue?.text)).not.toBe('safe');
+      expect(String(day.props.accessibilityValue?.text)).not.toBe(i18n.t(riskPresentation('safe').labelKey));
+      /* and never the raw enum, which is what the device showed being rendered. */
+      expect(String(day.props.accessibilityValue?.text)).not.toBe('unknown');
     }
   });
 
@@ -158,6 +177,6 @@ describe('Home seven-day risk strip — H4', () => {
     const tree = render(wrap(<HomeRiskStrip context={shortProjection} />));
 
     expect(tree.getByTestId('home-risk-strip-day-2026-09-11').props.accessibilityValue?.text)
-      .toBe('unknown');
+      .toBe(i18n.t(riskPresentation('unknown').labelKey));
   });
 });
