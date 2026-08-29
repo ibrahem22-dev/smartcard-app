@@ -57,6 +57,7 @@ import { scoreCards, type ScoringCard, type ScoringResult } from '../engines/sco
 import { provenanced } from '../engines/provenance';
 import { loadCardsFromVault } from '../check/activityMapper';
 import { commitmentsFromVault } from '../check/commitmentInput';
+import { scoringCardsFromVault } from '../check/scoringInput';
 import { nextPaydayIso } from '../check/incomeAnchor';
 import { absence, type SurfaceContext, type SurfaceEngineAbsence } from './surfaceContext';
 
@@ -164,17 +165,14 @@ const planningCommitmentsFrom = (ctx: SurfaceContext): readonly PlanningCommitme
   return rows;
 };
 
+/**
+ * THE BODY MOVED, THE RANKING DID NOT — Owner ruling OQ-P5-002, 2026-08-29. It now lives in
+ * `src/check/scoringInput.ts` so the Check Verdict's recommendation comes from the SAME derivation
+ * these surfaces rank from. Calling `scoreCards` separately in the Check lane would have been the
+ * second ranking path A1's own negative control is written to catch.
+ */
 const scoringCardsFrom = (ctx: SurfaceContext): readonly ScoringCard[] =>
-  ctx.cards.map((c): ScoringCard => {
-    const cost = ctx.scoringCosts?.[c.cardId];
-    return {
-      cardId: c.cardId,
-      available: c.isActive,
-      /* Absent when the context prices nothing yet. The engine then reports the card in
-         unknownCostCards instead of ranking it, which is the honest lane and not a zero. */
-      ...(typeof cost === "number" && Number.isFinite(cost) ? { costIls: provenanced(cost, "ESTIMATE") } : {}),
-    };
-  });
+  scoringCardsFromVault({ cards: ctx.cards, ...(ctx.scoringCosts ? { scoringCosts: ctx.scoringCosts } : {}) });
 
 /**
  * THE ONE CALL SITE. Three engines, at most once each, from one context.

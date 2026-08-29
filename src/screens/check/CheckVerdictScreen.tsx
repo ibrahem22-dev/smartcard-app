@@ -15,6 +15,8 @@ import { FxCompareFromCheckVerdict } from '../fx/FxCompareFromCheckVerdict';
 import type { ConvertedAmount } from '../../engines/currency';
 import type { FxComparison } from '../../engines/fx';
 import type { ProvenancedNumber } from '../../engines/provenance';
+import type { ReasonTrace } from '../../engines/reasonTrace';
+import type { RecommendationEmphasis } from '../../check/recommendation';
 import type { ImpactBullet, PurchaseVerdict, PurchaseVerdictResult } from '../../engines/verdict';
 import type { SemanticRole } from '../../theme/tokens';
 import { ACCENT, BORDER, ROLE_SURFACE, ROLE_TEXT, SURFACE, TEXT } from '../../theme/tokens';
@@ -66,10 +68,18 @@ export interface CheckVerdictScreenProps {
   /**
    * Spec §9 recommendation block. Engine output, not a surface ranking.
    * Absent: the block is omitted rather than invented (no cards / not scored yet).
+   *
+   * `emphasis` IS DECIDED AT THE COMPOSITION BOUNDARY, NOT HERE — Owner ruling OQ-P5-002. For a
+   * DON'T-BUY verdict the recommendation must not visually override the purchase decision, and
+   * WHICH verdicts subordinate it is recommendation logic, which B1 keeps off this surface. This
+   * screen renders what it is told. Absent means `primary`, which is what every pre-ruling caller
+   * meant and what the four render suites that predate the ruling still pass.
    */
   readonly recommendation?: {
     readonly displayName: string;
     readonly matchScore: ProvenancedNumber;
+    readonly emphasis?: RecommendationEmphasis;
+    readonly reasons?: ReasonTrace;
   };
   /**
    * Spec §9 runner-up. `deltaFromBestIls` is painted only when the scoring
@@ -305,13 +315,32 @@ export function CheckVerdictScreen({
           ))}
         </View>
         {recommendation ? (
-          <View className="mt-4 gap-2" testID="check-verdict-recommendation">
-            <AppText
-              className={`text-lg font-extrabold ${TEXT.heading}`}
-              testID="check-verdict-recommendation-hero"
-            >
-              {t('הטובה לרכישה הזו')}
-            </AppText>
+          <View
+            className={
+              recommendation.emphasis === 'subordinate'
+                ? `mt-4 gap-2 rounded-lg border p-3 ${SURFACE.sunken} ${BORDER.subtle}`
+                : 'mt-4 gap-2'
+            }
+            testID="check-verdict-recommendation"
+          >
+            {/* A DON'T-BUY IS NOT OVERRULED BY A CARD CHIP — Owner ruling OQ-P5-002. The hero
+                heading claims the card is good FOR THIS PURCHASE; after a don't-buy that sentence
+                contradicts the pill above it. The subordinate line says what is actually true. */}
+            {recommendation.emphasis === 'subordinate' ? (
+              <AppText
+                className={`text-xs ${TEXT.muted}`}
+                testID="check-verdict-recommendation-subordinate"
+              >
+                {t('אם בכל זאת תמשיכי, זהו הכרטיס בעל העלות הנמוכה ביותר מבין הזמינים')}
+              </AppText>
+            ) : (
+              <AppText
+                className={`text-lg font-extrabold ${TEXT.heading}`}
+                testID="check-verdict-recommendation-hero"
+              >
+                {t('הטובה לרכישה הזו')}
+              </AppText>
+            )}
             <CardTile
               nickname={recommendation.displayName}
               nicknameTestID="check-verdict-recommendation-tile"
@@ -346,6 +375,21 @@ export function CheckVerdictScreen({
             >
               {t('הציון יחסי בין הכרטיסים שלך: 100 לעלות הנמוכה ביותר, 0 לגבוהה ביותר. זה לא ציון מוחלט.')}
             </AppText>
+            {/* THE ENGINE'S OWN REASONS, not a sentence this screen wrote. Owner ruling OQ-P5-002
+                requires the reason trace to reach the Verdict from the same scoring derivation. */}
+            {recommendation.reasons === undefined ? null : (
+              <View className="gap-1" testID="check-verdict-recommendation-reasons">
+                {recommendation.reasons.steps.map((reasonStep) => (
+                  <AppText
+                    className={`text-xs ${TEXT.muted}`}
+                    key={reasonStep.rule}
+                    testID={`check-verdict-recommendation-reason-${reasonStep.rule}`}
+                  >
+                    {reasonStep.detail}
+                  </AppText>
+                ))}
+              </View>
+            )}
           </View>
         ) : null}
         {runnerUp ? (

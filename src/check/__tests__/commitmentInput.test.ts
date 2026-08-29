@@ -53,6 +53,7 @@ import {
   type CommitmentReadiness,
 } from '../commitmentInput';
 import { purchaseContextFromProfile } from '../incomeAnchor';
+import { vaultCard } from './cardFixture';
 
 const TODAY = '2026-08-27';
 const CARD_ID = 'card-max';
@@ -76,7 +77,7 @@ const profile: UserProfile = {
   updatedAt: 1,
 };
 
-const cards = [{ cardId: CARD_ID, creditLimit: LIMIT }] as const;
+const cards = [vaultCard({ cardId: CARD_ID, displayName: 'Max', framework: { creditLimit: LIMIT, currentBalance: 3_000 } })];
 
 /** The ₪7,000-a-month, 6-months-remaining installment the Owner question measured. */
 const installment: ImportedInstallment = {
@@ -222,7 +223,7 @@ describe('B — known non-zero commitments', () => {
       asOfDate: TODAY,
       throughDate: '2026-09-27',
       profile,
-      cards: [engineCard()],
+      cards: [...cards],
       installments: [installment],
       loans: [loan],
       purchases: [],
@@ -353,24 +354,3 @@ describe('Paid early reaches the Verdict, and the two engines read it differentl
   });
 });
 
-/** A minimal vault card, so the surface seam and the check loop can be run over one vault. */
-function engineCard(): EngineCard {
-  return {
-    cardId: CARD_ID,
-    displayName: 'Max',
-    last4: '4321',
-    issuer: CardIssuer.Max,
-    network: CardNetwork.Visa,
-    currency: Currency.ILS,
-    framework: { creditLimit: LIMIT, currentBalance: 3_000 },
-    billingCycle: { statementClosingDay: 25, billingDayOfMonth: 10 },
-    roleTags: [] as readonly CardRole[],
-    primaryRole: null,
-    rewardCategories: [] as readonly PurchaseCategory[],
-    cashbackRate: 0,
-    foreignTransactionFee: 0,
-    supportsInstallments: true,
-    annualFee: 0,
-    isActive: true,
-  };
-}

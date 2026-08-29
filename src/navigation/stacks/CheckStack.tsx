@@ -35,7 +35,10 @@ function CheckInputRoute({ navigation }: InputProps): React.ReactElement {
 function CheckVerdictRoute({ route }: VerdictProps): React.ReactElement {
   const draft = route.params?.draft;
   const profile = useUserStore((s) => s.profile);
-  const entries = useCardsStore((s) => s.entries);
+  /* THE COMPOSED ENGINE VIEW, not the stored entries — Owner ruling OQ-P5-002. The scoring engine
+     needs `isActive` and `displayName`, which the {cardId, creditLimit} projection dropped. This is
+     the same `cards` array every P5 surface reads. */
+  const cards = useCardsStore((s) => s.cards);
   const purchases = useActivityStore((s) => s.purchases);
   /* THE VAULT'S EXISTING COMMITMENTS — Owner ruling OQ-P5-001, 2026-08-29.
      This route read profile, cards and purchases and stopped there, so the Check loop could not
@@ -53,10 +56,7 @@ function CheckVerdictRoute({ route }: VerdictProps): React.ReactElement {
   const todayIso = new Date().toISOString().slice(0, 10);
   const props = verdictPropsFromDraft(draft, {
     profile,
-    cards: entries.map((entry) => ({
-      cardId: entry.user.cardId,
-      creditLimit: entry.user.framework.creditLimit,
-    })),
+    cards,
     purchases,
     todayIso,
     installments,

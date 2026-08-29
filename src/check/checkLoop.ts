@@ -10,11 +10,14 @@ import type { UserProfile } from '../types/user.types';
 import type { LoggedPurchase } from '../types/activity.types';
 import type { ImportedInstallment } from '../types/installment.types';
 import type { Loan } from '../types/loan.types';
+import type { EngineCard } from '../types/card.types';
 import { Currency, PurchaseCategory } from '../types/purchase.types';
 import type { CheckInputDraft } from '../screens/check/CheckInputScreen';
 import type { CheckVerdictScreenProps } from '../screens/check/CheckVerdictScreen';
 import { loadCardsFromVault } from './activityMapper';
 import { commitmentState, type CommitmentReadiness } from './commitmentInput';
+import { composeRecommendation } from './recommendation';
+import { scoreFromVault } from './scoringInput';
 import { purchaseContextFromProfile } from './incomeAnchor';
 import { runPurchaseCheck } from './runPurchaseCheck';
 
@@ -50,7 +53,16 @@ const CURRENCY_SYMBOL: Readonly<Record<Currency, string>> = {
  */
 export interface CheckLoopInput {
   readonly profile: UserProfile | null;
-  readonly cards: readonly { readonly cardId: string; readonly creditLimit: number }[];
+  /**
+   * The composed engine view of the user's cards.
+   *
+   * WIDENED FROM `{cardId, creditLimit}` UNDER OWNER RULING OQ-P5-002, 2026-08-29. The scoring
+   * engine needs `isActive` to know which cards are available and `displayName` to name the one it
+   * recommends, and neither was reachable through the narrower shape — so the Check loop could not
+   * have produced a recommendation however it was written. `useCardsStore().cards` is exactly this
+   * view and every P5 surface already reads it.
+   */
+  readonly cards: readonly EngineCard[];
   readonly purchases: readonly LoggedPurchase[];
   readonly todayIso: string;
   /** Imported תשלומים from the vault. Each is one monthly obligation and, when linked, one hold. */
@@ -73,6 +85,13 @@ export interface CheckLoopInput {
    * be told, so the strip could not move with Wallet and Card DNA however correct the engine was.
    */
   readonly paidEarlyCommitmentIds?: readonly string[];
+  /**
+   * Per-card cost in shekels from the FX/cost lane, keyed by cardId — the input the scoring engine
+   * ranks on. Omitted, or missing for a card, means the cost is UNKNOWN and the engine reports that
+   * card rather than ranking it. **Nothing supplies this in production yet**, which is why the
+   * shipped app's Best-For chips are empty on every surface including this one.
+   */
+  readonly scoringCosts?: Readonly<Record<string, number>>;
 }
 
 export function verdictPropsFromDraft(
@@ -106,7 +125,22 @@ export function verdictPropsFromDraft(
   const context = resolved.context;
 
   const result = runPurchaseCheck(draft, context);
-  const loadCards = loadCardsFromVault(input.cards, input.purchases);
+
+  /* THE RECOMMENDATION, FROM THE ONE SCORING CALL — Owner ruling OQ-P5-002.
+     `scoreFromVault` is the same derivation Wallet's Best-For chips and Card DNA §C rank from, and
+     `composeRecommendation` reads its `ranked` array without re-ordering it. The user's chosen card
+     is deliberately not passed: a ranking that moved with the user's pick would be the second
+     ranking path A1's negative control exists to catch. */
+  const scoring = scoreFromVault({
+    cards: input.cards,
+    ...(input.scoringCosts ? { scoringCosts: input.scoringCosts } : {}),
+  });
+  const advice = composeRecommendation(scoring, input.cards, result.verdict);
+
+  const loadCards = loadCardsFromVault(
+    input.cards.map((c) => ({ cardId: c.cardId, creditLimit: c.framework.creditLimit })),
+    input.purchases,
+  );
   const linkedCardId = draft.cardId ?? input.cards[0]?.cardId;
   const load = loadCards.length === 0
     ? null
@@ -140,6 +174,8 @@ export function verdictPropsFromDraft(
   return {
     result,
     contextLine,
+    ...(advice.recommendation ? { recommendation: advice.recommendation } : {}),
+    ...(advice.runnerUp ? { runnerUp: advice.runnerUp } : {}),
     ...(position
       ? { impactStrip: { availableAfterPurchaseIls: position.availableAfterChangesIls } }
       : {}),

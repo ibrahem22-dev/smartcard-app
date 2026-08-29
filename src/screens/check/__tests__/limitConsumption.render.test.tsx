@@ -18,6 +18,7 @@ import { evaluateFinancialLoad } from '../../../engines/load';
 import type { CheckInputDraft } from '../CheckInputScreen';
 import { Currency } from '../../../types/purchase.types';
 import type { UserProfile } from '../../../types/user.types';
+import { vaultCard } from '../../../check/__tests__/cardFixture';
 
 /**
  * A vault with no תשלומים and no loans, KNOWN to be empty — the state these cases have always
@@ -57,7 +58,7 @@ const logged = writeLoggedPurchase({
   cardId: 'card-a',
 });
 
-const cards = [{ cardId: 'card-a', creditLimit: 10_000 }] as const;
+const cards = [vaultCard({ cardId: 'card-a', framework: { creditLimit: 10_000, currentBalance: 0 } })];
 
 const beforeProps = verdictPropsFromDraft(draft, {
   profile,
@@ -91,7 +92,7 @@ const mount = (strip: NonNullable<CheckVerdictScreenProps['impactStrip']>) =>
 
 describe('Check Verdict — L2: next impact strip reflects logged purchase', () => {
   it('paints the post-log load-engine availableAfterChangesIls, not a surface subtraction', () => {
-    const loadCards = loadCardsFromVault(cards, [logged]);
+    const loadCards = loadCardsFromVault(cards.map((c) => ({ cardId: c.cardId, creditLimit: c.framework.creditLimit })), [logged]);
     const load = evaluateFinancialLoad({
       monthlyIncomeIls: { value: 10_000, provenance: 'USER' },
       commitments: [],

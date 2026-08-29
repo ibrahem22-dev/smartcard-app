@@ -57,7 +57,9 @@ export const run = async ({ root }) => {
     AGREEMENT_PROPERTY + ' compares, in ONE run per context:',
     '  · the scoring engine’s ranked ORDER of card ids, not the chip labels — two surfaces',
     '    can print the same words from different orderings',
-    '  · and unknownCostCards never appearing as a winner on any surface',
+    '  · every surface naming the SAME winner, each painted sequence a prefix of that order',
+    '  · Check naming ranked[1] as its runner-up, so the ORDER is exercised and not just first place',
+    '  · and unknownCostCards or unavailableCards never painted by any surface',
     'over the derived population, with no expected number anywhere in the file.',
     REQUIRED_CASES.length + ' case(s) required BY NAME · ' + claim + ' · ' + summary,
   ].join('\n'));

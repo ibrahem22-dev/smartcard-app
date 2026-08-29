@@ -101,9 +101,13 @@ const wrap = (node: React.ReactElement): React.ReactElement => (
  */
 const vaultInput = (ctx: SurfaceContext) => ({
   profile: ctx.profile,
-  cards: ctx.cards.map((c) => ({ cardId: c.cardId, creditLimit: c.framework.creditLimit })),
+  /* The engine cards, unprojected — the Check loop now scores from them, and a projection would
+     have dropped `isActive` and `displayName` and made the Verdict's recommendation impossible. */
+  cards: ctx.cards,
   purchases: ctx.purchases,
   todayIso: ctx.asOfDate,
+  /* The same prices the surfaces rank from, so A1 compares one ranking and not two. */
+  ...(ctx.scoringCosts ? { scoringCosts: ctx.scoringCosts } : {}),
   installments: ctx.installments,
   loans: ctx.loans,
   commitmentReadiness: { installments: 'KNOWN_POPULATED', loans: 'KNOWN_POPULATED' } as const,
@@ -284,7 +288,7 @@ export function readCalendarRiskDotDay(ctx: SurfaceContext, date: string): Paint
 }
 
 /** A ranked card list, as a surface paints it. Built in PHASE-4 (W4), PHASE-3 (N6). */
-export type PaintedRanking = readonly string[] | typeof NOT_BUILT;
+export type PaintedRanking = readonly string[] | typeof NOT_BUILT | typeof NO_POPULATION;
 export function readWalletBestForChips(ctx: SurfaceContext): PaintedRanking {
   const tree = render(wrap(<NavigationContainer><>{ctx.cards.map((card) => (
     <WalletBestForChips cardId={card.cardId} context={ctx} key={card.cardId} />
@@ -308,7 +312,49 @@ export function readCardDnaWhenBestChips(ctx: SurfaceContext): PaintedRanking {
     tree.unmount();
   }
 }
-export function readCheckRecommendation(_ctx: SurfaceContext): PaintedRanking { return NOT_BUILT; }
+/**
+ * The cards the Check Verdict NAMES, best first — its recommendation then its runner-up.
+ *
+ * A STUB UNTIL 2026-08-29, because until Owner ruling OQ-P5-002 the shipped Verdict never rendered
+ * a recommendation and there was nothing to read. It is read off the rendered tree by testID, like
+ * every other reader here, and through P4's own `verdictPropsFromDraft` — so if the composition
+ * boundary stops supplying one, this goes silent and A1 fails naming it.
+ *
+ * `let-app-choose` is the case the criterion is about: `cardId: null` is what the "המליצי בשבילי"
+ * button sets, and the recommendation must appear for it. The reader uses it deliberately.
+ */
+export function readCheckRecommendation(ctx: SurfaceContext): PaintedRanking {
+  const props = verdictPropsFromDraft(
+    { amount: 1_200, currency: Currency.ILS, category: null, installments: 1, cardId: null },
+    vaultInput(ctx),
+  );
+  /* NO VERDICT AT ALL IS NOT A SILENT RECOMMENDATION. A context with no income produces no pill,
+     no impact panel and no recommendation — the screen renders its not-yet surface — so there is
+     nothing here for A1 to compare and saying so is different from saying the surface went quiet.
+     Same distinction NO_POPULATION draws for A2 and A4. */
+  if (props.result === undefined) return NO_POPULATION;
+
+  const tree = render(wrap(<CheckVerdictScreen {...props} />));
+  try {
+    /* READ WHAT THE SCREEN PAINTED, then map the painted NAME back to a card id through the
+       context's own cards. Reading `props.recommendation.cardId` would prove the loop computed a
+       recommendation, not that the Verdict showed one — and this file's own rule is "rendered
+       values, not recomputed ones". A name the vault does not hold maps to nothing and the
+       property fails, which is the honest outcome for a surface painting an invented card. */
+    const painted = (testID: string): string | null => {
+      const node = tree.queryByTestId(testID);
+      if (node === null) return null;
+      const text = JSON.stringify((node.props as { children?: unknown }).children ?? '');
+      const hit = ctx.cards.find((c) => text.includes(c.displayName));
+      return hit?.cardId ?? null;
+    };
+    const named = [painted('check-verdict-recommendation-tile'), painted('check-verdict-runner-up')]
+      .filter((id): id is string => id !== null);
+    return named.length === 0 ? NOT_BUILT : named;
+  } finally {
+    tree.unmount();
+  }
+}
 
 const CACHE_BEST_FOR = 'cache-best-for';
 const CACHE_LOAD_RATIO = 'cache-load-ratio';
@@ -366,7 +412,7 @@ export function readDerivedCaches(ctx: SurfaceContext): readonly CachedValue[] |
   const out: CachedValue[] = [];
 
   const ranking = readCacheBestFor(ctx);
-  if (ranking !== NOT_BUILT && ranking.length > 0) {
+  if (Array.isArray(ranking) && ranking.length > 0) {
     out.push({ cache: 'best-for', key: ranking[0] as string, value: 0 });
   }
 

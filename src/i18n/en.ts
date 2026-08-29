@@ -994,6 +994,7 @@ export const enBySource: Readonly<Record<string, string>> = {
   'פטור מדמי כרטיס': 'Card-fee waiver',
   'הפטור בתוקף עד': 'Waiver valid through',
   'מצב מסגרת מול האזור הבטוח': 'Limit position against the safe zone',
+  'אם בכל זאת תמשיכי, זהו הכרטיס בעל העלות הנמוכה ביותר מבין הזמינים': 'If you proceed anyway, this is the lowest-cost card among those available',
   'רצועת עומס': 'Load band',
   'יחס העומס הנוכחי להכנסה': 'Current load-to-income ratio',
   'מסגרת תפוסה בתשלומים': 'Active installment holds',

@@ -11,6 +11,7 @@ import {
 } from '../../../check/activityMapper';
 import { verdictPropsFromDraft } from '../../../check/checkLoop';
 import type { CheckInputDraft } from '../CheckInputScreen';
+import { vaultCard } from '../../../check/__tests__/cardFixture';
 
 /**
  * A vault with no תשלומים and no loans, KNOWN to be empty — the state these cases have always
@@ -40,7 +41,7 @@ const draft: CheckInputDraft = {
   cardId: 'card-a',
 };
 
-const vaultCards = [{ cardId: 'card-a', creditLimit: 10_000 }] as const;
+const vaultCards = [vaultCard({ cardId: 'card-a', framework: { creditLimit: 10_000, currentBalance: 0 } })];
 
 describe('L2 — logged purchase consumes available limit', () => {
   it('the load engine availableAfterChangesIls drops by the logged amount', () => {
@@ -50,8 +51,8 @@ describe('L2 — logged purchase consumes available limit', () => {
       at: '2026-08-27T10:00:00.000Z',
       cardId: 'card-a',
     });
-    const beforeCards = loadCardsFromVault(vaultCards, []);
-    const afterCards = loadCardsFromVault(vaultCards, [logged]);
+    const beforeCards = loadCardsFromVault(vaultCards.map((c) => ({ cardId: c.cardId, creditLimit: c.framework.creditLimit })), []);
+    const afterCards = loadCardsFromVault(vaultCards.map((c) => ({ cardId: c.cardId, creditLimit: c.framework.creditLimit })), [logged]);
     const income = { value: 10_000, provenance: 'USER' as const };
     const prospective = {
       commitmentId: 'this-purchase',
