@@ -119,7 +119,7 @@ describe('Wallet available-limit bar', () => {
 
   it('renders the available limit the engine reported', () => {
     const ctx = context();
-    const engineReported = positionFor(ctx).availableBeforeChangesIls.value;
+    const engineReported = positionFor(ctx).availableAfterEarlyPayoffIls.value;
     const tree = render(wrap(<WalletLimitBar cardId={CARD.cardId} context={ctx} />));
 
     expect(
@@ -129,7 +129,7 @@ describe('Wallet available-limit bar', () => {
 
   it('renders no figure the engine did not publish', () => {
     const ctx = context();
-    const engineReported = positionFor(ctx).availableBeforeChangesIls.value;
+    const engineReported = positionFor(ctx).availableAfterEarlyPayoffIls.value;
     const tree = render(wrap(<WalletLimitBar cardId={CARD.cardId} context={ctx} />));
 
     expect(numericAccessibilityValues(tree.toJSON())).toEqual([engineReported]);

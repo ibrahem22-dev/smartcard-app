@@ -56,6 +56,7 @@ import { evaluateRiskPlanning, type PlanningBilling, type PlanningCommitment, ty
 import { scoreCards, type ScoringCard, type ScoringResult } from '../engines/scoring';
 import { provenanced } from '../engines/provenance';
 import { loadCardsFromVault } from '../check/activityMapper';
+import { commitmentsFromVault } from '../check/commitmentInput';
 import { nextPaydayIso } from '../check/incomeAnchor';
 import { absence, type SurfaceContext, type SurfaceEngineAbsence } from './surfaceContext';
 
@@ -80,33 +81,17 @@ export interface SurfaceEngineResults {
   readonly context: SurfaceContext;
 }
 
-/** A monthly obligation and, when it reserves credit, the card it is held against. */
-const commitmentsFrom = (ctx: SurfaceContext): readonly LoadCommitment[] => {
-  const fromInstallments = ctx.installments.map((i): LoadCommitment => ({
-    commitmentId: i.installmentId,
-    monthlyAmountIls: provenanced(i.monthlyPayment, 'USER'),
-    /* A hold only exists where the installment names a card the vault actually holds. Naming a
-       card that is not there would make the load engine refuse the whole input, and an unlinked
-       installment is a real state — LOCK-007 in the P3-era mapper made the same distinction. */
-    ...(ctx.cards.some((c) => c.cardId === i.billingCardId)
-      ? {
-        linkedCardId: i.billingCardId,
-        remainingHoldIls: provenanced(i.monthlyPayment * i.monthsRemaining, 'ESTIMATE'),
-      }
-      : {}),
-  }));
-  const fromLoans = ctx.loans.map((l): LoadCommitment => ({
-    commitmentId: l.id,
-    monthlyAmountIls: provenanced(l.monthlyPayment, 'USER'),
-    ...(l.linkedCardId !== undefined && ctx.cards.some((c) => c.cardId === l.linkedCardId)
-      ? {
-        linkedCardId: l.linkedCardId,
-        remainingHoldIls: provenanced(l.remainingBalance, 'ESTIMATE'),
-      }
-      : {}),
-  }));
-  return [...fromInstallments, ...fromLoans];
-};
+/**
+ * A monthly obligation and, when it reserves credit, the card it is held against.
+ *
+ * THE BODY MOVED, THE BEHAVIOUR DID NOT — Owner ruling OQ-P5-001, 2026-08-29. It now lives in
+ * `src/check/commitmentInput.ts` so that the Check Verdict reads the SAME commitments these five
+ * surfaces do. It was private here, and the Verdict's `commitments: []` is what a second home for
+ * this fact cost: one vault, two answers. Copying it into the check lane would have made two homes
+ * on purpose; importing it makes one.
+ */
+const commitmentsFrom = (ctx: SurfaceContext): readonly LoadCommitment[] =>
+  commitmentsFromVault({ cards: ctx.cards, installments: ctx.installments, loans: ctx.loans });
 
 /** Day-of-month → the next occurrence on or after `asOfDate`, within the window. Calendar, not policy. */
 const billingDatesInWindow = (dayOfMonth: number, asOfDate: string, throughDate: string): readonly string[] => {

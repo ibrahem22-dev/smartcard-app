@@ -62,8 +62,15 @@ export function WalletLimitBar({
     );
   }
 
+  /* `availableAfterEarlyPayoffIls`, not `availableBeforeChangesIls` — Owner ruling OQ-P5-001,
+     2026-08-29. W2's sentence is "limit minus ACTIVE holds minus logged-this-cycle purchases", and a
+     hold the user has paid early is not active. Reading the before-changes field made this bar the
+     one surface that could not show a freed limit, which contract §J4 requires in as many words:
+     the effect "must be visible in the same run to Wallet's limit bar and the Verdict's impact
+     strip". It is still not `availableAfterChangesIls`: that one also subtracts a prospective Check
+     purchase, which belongs to the Verdict's strip and not to Wallet. */
   const fillFraction = limitFillFraction(
-    position.availableBeforeChangesIls.value,
+    position.availableAfterEarlyPayoffIls.value,
     position.creditLimitIls.value,
   );
 
@@ -76,13 +83,13 @@ export function WalletLimitBar({
         <View className="gap-1">
           <AppText
             accessibilityValue={{
-              text: String(position.availableBeforeChangesIls.value),
+              text: String(position.availableAfterEarlyPayoffIls.value),
             }}
             className={`text-sm font-extrabold ${TEXT.heading}`}
             style={TABULAR_NUMERALS}
             testID="wallet-limit-bar-available"
           >
-            {money(position.availableBeforeChangesIls.value)}
+            {money(position.availableAfterEarlyPayoffIls.value)}
           </AppText>
           <ProvenanceChip
             testID="wallet-limit-bar-chip"

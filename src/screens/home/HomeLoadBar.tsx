@@ -22,7 +22,21 @@ export interface HomeLoadBarProps {
   readonly context?: SurfaceContext;
 }
 
-const LOAD_BAND_FILL = {
+/**
+ * The fill colour each load band paints.
+ *
+ * EXPORTED FOR CRITERION A2's BAND CLAUSE, 2026-08-29. Home is one of A2's four participants and it
+ * renders the band as this colour and nothing else — there is no band text and no band testID here.
+ * So the property reads the fill's class off the rendered tree and compares it with this map, which
+ * makes the comparison "Home painted the colour the ENGINE's band maps to" rather than a second
+ * copy of the mapping living in a test.
+ *
+ * NOTE WHAT IT CANNOT SEE: `warning` and `strong_warning` share `advisory`, so Home's colour cannot
+ * distinguish 35% from 50%. The ticks do — they are painted at both ratios — but the clause's
+ * resolution on THIS surface is three-valued, and that is written down rather than implied.
+ * Commitments and Card DNA paint the band as a translated label and are checked at full resolution.
+ */
+export const LOAD_BAND_FILL = {
   safe: ROLE_SURFACE_BG.neutral,
   warning: ROLE_SURFACE_BG.advisory,
   strong_warning: ROLE_SURFACE_BG.advisory,

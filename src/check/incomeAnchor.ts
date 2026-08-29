@@ -7,6 +7,7 @@
  */
 import { provenanced } from '../engines/provenance';
 import type { PaydayCapture, UserProfile } from '../types/user.types';
+import type { CommitmentState } from './commitmentInput';
 import type { PurchaseCheckContext } from './runPurchaseCheck';
 
 const PAYDAY_DAYS = [1, 10, 15, 28] as const;
@@ -62,24 +63,71 @@ export function nextPaydayIso(payday: PaydayCapture, todayIso: string): string {
   return iso(year, month, Math.min(payday.day, lastNext));
 }
 
+/**
+ * Why the Check loop has no context to evaluate against.
+ *
+ * ADDED UNDER OWNER RULING OQ-P5-001, 2026-08-29. This function used to return `null` for "no
+ * income", and `null` was adequate while that was the only way to fail. It no longer is: a purchase
+ * cannot be judged against commitments nobody has loaded either, and a caller handed a bare `null`
+ * cannot tell the two apart or say which to a user. The shape mirrors `SurfaceEngineAbsence` in
+ * `src/surfaces/surfaceContext.ts` on purpose — *"an absence is a render, not a zero"* is the same
+ * rule on both sides of the seam, and the two lanes should not word one state two ways.
+ */
+export type PurchaseContextAbsence =
+  | 'NO_PROFILE'
+  | 'NO_INCOME'
+  | 'COMMITMENTS_PENDING'
+  | 'COMMITMENTS_UNAVAILABLE';
+
+export type PurchaseContextResult =
+  | { readonly kind: 'READY'; readonly context: PurchaseCheckContext }
+  | { readonly kind: 'ABSENT'; readonly because: PurchaseContextAbsence; readonly detail: string };
+
+const ABSENT = (
+  because: PurchaseContextAbsence,
+  detail: string,
+): PurchaseContextResult => ({ kind: 'ABSENT', because, detail });
+
+/**
+ * THE CHECK LOOP'S AUTHORITY BOUNDARY — income, payday and existing commitments, or the reason
+ * there is no answer.
+ *
+ * `commitments` IS A PARAMETER AND NOT A DEFAULT, WHICH IS THE WHOLE REPAIR. Line 82 of this file
+ * used to read `commitments: []`, unconditionally, and every purchase the shipped app has ever
+ * judged was judged as if the user owed nothing. That is Owner question OQ-P5-001 and this is its
+ * ruling: the commitments come from `commitmentState`, the same canonical mapper the five P5
+ * surfaces read, and there is no longer a literal here for a future edit to leave behind.
+ *
+ * An UNKNOWN commitment state does not fall back to an empty list. It refuses, with its reason.
+ * `[]` was never a safe default: it is the single most optimistic input the verdict engine can
+ * receive, so guessing it turns "we could not load your obligations" into "good to go".
+ */
 export function purchaseContextFromProfile(
   profile: UserProfile | null,
   todayIso: string,
-): PurchaseCheckContext | null {
-  if (
-    profile === null ||
-    profile.monthlyIncome === undefined ||
-    !Number.isFinite(profile.monthlyIncome)
-  ) {
-    return null;
+  commitments: CommitmentState,
+  paidEarlyCommitmentIds?: readonly string[],
+): PurchaseContextResult {
+  if (profile === null) {
+    return ABSENT('NO_PROFILE', 'no vault profile is loaded, so there is no income to measure against');
+  }
+  if (profile.monthlyIncome === undefined || !Number.isFinite(profile.monthlyIncome)) {
+    return ABSENT('NO_INCOME', 'no monthly income has been captured; a load ratio has no denominator');
+  }
+  if (!commitments.known) {
+    return ABSENT(commitments.because, commitments.detail);
   }
   const nextPayday =
     profile.payday === undefined
       ? undefined
       : nextPaydayIso(profile.payday, todayIso);
   return {
-    monthlyIncomeIls: provenanced(profile.monthlyIncome, 'USER'),
-    commitments: [],
-    ...(nextPayday !== undefined ? { nextPayday } : {}),
+    kind: 'READY',
+    context: {
+      monthlyIncomeIls: provenanced(profile.monthlyIncome, 'USER'),
+      commitments: commitments.commitments,
+      ...(paidEarlyCommitmentIds !== undefined ? { paidEarlyCommitmentIds } : {}),
+      ...(nextPayday !== undefined ? { nextPayday } : {}),
+    },
   };
 }

@@ -68,6 +68,26 @@ export interface CardLimitPosition {
   readonly loggedThisCyclePurchasesIls: ProvenancedNumber;
   readonly availableBeforeChangesIls: ProvenancedNumber;
   readonly releasedByEarlyPayoffIls: ProvenancedNumber;
+  /**
+   * Limit − active holds − logged-this-cycle purchases, WITH settled holds no longer counted as
+   * active, and without any prospective purchase.
+   *
+   * PUBLISHED 2026-08-29 under Owner ruling OQ-P5-001. The engine had always computed this — it is
+   * the intermediate between `availableBeforeChangesIls` and `availableAfterChangesIls` — and threw
+   * it away, which left a criterion unimplementable rather than merely unimplemented:
+   *
+   *   **J4:** *"Paid early frees the card's held limit immediately … its effect must be visible in
+   *   the same run to Wallet's limit bar and the Verdict's impact strip."*
+   *   **W2:** *"The available-limit bar shows limit minus active holds minus logged-this-cycle
+   *   purchases."*
+   *
+   * Wallet cannot satisfy both from `availableBeforeChangesIls`, which counts a settled hold as
+   * active and so never moves when the user pays early; and it cannot satisfy W2 from
+   * `availableAfterChangesIls`, which subtracts a Check purchase Wallet has no business knowing
+   * about. A paid-early hold is not an active hold, so this field IS W2's sentence — and it is the
+   * one A4 compares Wallet on.
+   */
+  readonly availableAfterEarlyPayoffIls: ProvenancedNumber;
   readonly prospectiveHoldIls: ProvenancedNumber;
   readonly availableAfterChangesIls: ProvenancedNumber;
   /** A prospective hold may not fit even when the account was already over its nominal limit. */
@@ -248,6 +268,7 @@ export function evaluateFinancialLoad(input: FinancialLoadInput): FinancialLoadR
       loggedThisCyclePurchasesIls: card.loggedThisCyclePurchasesIls,
       availableBeforeChangesIls: provenanced(availableBefore, 'ESTIMATE'),
       releasedByEarlyPayoffIls: provenanced(released, 'ESTIMATE'),
+      availableAfterEarlyPayoffIls: provenanced(availableAfterPayoff, 'ESTIMATE'),
       prospectiveHoldIls: provenanced(prospectiveHold, 'ESTIMATE'),
       availableAfterChangesIls: provenanced(availableAfter, 'ESTIMATE'),
       prospectiveHoldFits: prospectiveHold <= Math.max(0, availableAfterPayoff),

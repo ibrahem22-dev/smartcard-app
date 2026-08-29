@@ -19,6 +19,17 @@ import type { CheckInputDraft } from '../CheckInputScreen';
 import { Currency } from '../../../types/purchase.types';
 import type { UserProfile } from '../../../types/user.types';
 
+/**
+ * A vault with no תשלומים and no loans, KNOWN to be empty — the state these cases have always
+ * assumed. Before the OQ-P5-001 repair `verdictPropsFromDraft` assumed it for them; now they say it.
+ */
+const NO_COMMITMENTS = {
+  installments: [] as const,
+  loans: [] as const,
+  commitmentReadiness: { installments: 'KNOWN_EMPTY', loans: 'KNOWN_EMPTY' },
+} as const;
+
+
 const profile: UserProfile = {
   id: 'user-1',
   monthlyIncome: 10_000,
@@ -53,12 +64,14 @@ const beforeProps = verdictPropsFromDraft(draft, {
   cards,
   purchases: [],
   todayIso: '2026-08-27',
+  ...NO_COMMITMENTS,
 });
 const afterProps = verdictPropsFromDraft(draft, {
   profile,
   cards,
   purchases: [logged],
   todayIso: '2026-08-27',
+  ...NO_COMMITMENTS,
 });
 
 const mount = (strip: NonNullable<CheckVerdictScreenProps['impactStrip']>) =>

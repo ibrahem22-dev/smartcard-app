@@ -4,8 +4,10 @@ import { createNativeStackNavigator, type NativeStackScreenProps } from '@react-
 import { CheckInputScreen } from '../../screens/check/CheckInputScreen';
 import { CheckVerdictScreen } from '../../screens/check/CheckVerdictScreen';
 import { verdictPropsFromDraft } from '../../check/checkLoop';
+import { classifyCollection } from '../../store/hydration';
 import { useActivityStore } from '../../store/useActivityStore';
 import { useCardsStore } from '../../store/useCardsStore';
+import { useLoansStore } from '../../store/useLoansStore';
 import { useUserStore } from '../../store/useUserStore';
 import type { CheckStackParamList } from '../types';
 
@@ -35,6 +37,14 @@ function CheckVerdictRoute({ route }: VerdictProps): React.ReactElement {
   const profile = useUserStore((s) => s.profile);
   const entries = useCardsStore((s) => s.entries);
   const purchases = useActivityStore((s) => s.purchases);
+  /* THE VAULT'S EXISTING COMMITMENTS — Owner ruling OQ-P5-001, 2026-08-29.
+     This route read profile, cards and purchases and stopped there, so the Check loop could not
+     have seen the user's תשלומים or loans however it was written. Both stores were already
+     populated and already read by every P5 surface; this route simply never asked. */
+  const installments = useCardsStore((s) => s.obligations);
+  const cardsHydration = useCardsStore((s) => s.hydration);
+  const loans = useLoansStore((s) => s.loans);
+  const loansHydration = useLoansStore((s) => s.hydration);
 
   if (draft === undefined) {
     return <CheckVerdictScreen />;
@@ -49,6 +59,15 @@ function CheckVerdictRoute({ route }: VerdictProps): React.ReactElement {
     })),
     purchases,
     todayIso,
+    installments,
+    loans,
+    /* `classifyCollection` and not `length === 0`. hydration.ts: "Reading items.length === 0
+       directly is the bug." An empty list from a store that has not loaded is a loading artifact,
+       and it is the single most optimistic input the verdict engine accepts. */
+    commitmentReadiness: {
+      installments: classifyCollection(cardsHydration, installments.length),
+      loans: classifyCollection(loansHydration, loans.length),
+    },
   });
   return <CheckVerdictScreen {...props} />;
 }

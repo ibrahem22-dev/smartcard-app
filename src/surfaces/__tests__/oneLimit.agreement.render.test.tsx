@@ -39,9 +39,21 @@
  * They are not the same number, and saying they were would be the defect wearing agreement's
  * clothes. They are three renders of ONE `CardLimitPosition`:
  *
- *   Wallet's bar        `availableBeforeChangesIls`  — spec §10: limit − holds − logged this cycle
- *   Card DNA §D         `availableBeforeChangesIls`  — the same figure, on the card's own screen
- *   Verdict impact      `availableAfterChangesIls`   — spec §9: available AFTER this purchase
+ *   Wallet's bar        `availableAfterEarlyPayoffIls`  — spec §10: limit − ACTIVE holds − logged
+ *   Card DNA §D         `availableAfterChangesIls`      — the "available" row, `-utilization-available`
+ *   Verdict impact      `availableAfterChangesIls`      — spec §9: available AFTER this purchase
+ *
+ * THOSE THREE FIELDS WERE WRONG IN THIS FILE UNTIL 2026-08-29. It claimed Wallet and Card DNA both
+ * read `availableBeforeChangesIls`, and the `wallet-limit-bar` gate's own docblock said the opposite
+ * about Card DNA in the same repository — *"alongside Card DNA §D's `availableAfterChangesIls` and
+ * the Verdict's impact strip"*. Nothing compared the two claims because this property had never got
+ * far enough to compare anything: it failed on a missing reader first, every run, for four phases.
+ *
+ * And with Wallet on `availableBeforeChangesIls` the third clause below was UNSATISFIABLE. That
+ * field counts a paid-early hold as active, so the bar moved by 0 where the engine had released
+ * 42,000 — while contract §J4 requires the effect to be *"visible in the same run to Wallet's limit
+ * bar"*. The engine now publishes `availableAfterEarlyPayoffIls`, which it had always computed and
+ * never returned, and W2's sentence — limit minus **active** holds — is satisfied by it exactly.
  *
  * The agreement claim is that all three come from that one position, and that **Paid early moves
  * all three by the engine's own `releasedByEarlyPayoffIls`** — which is the part a per-surface test
@@ -52,6 +64,7 @@ import { evaluateSurfaceEngines } from '../surfaceEngines';
 import { REQUIRED_PARTICIPANTS, notBuiltYet } from './agreementParticipants';
 import {
   NOT_BUILT,
+  NO_POPULATION,
   readCardDnaUtilizationLimit,
   readVerdictImpactStrip,
   readWalletLimitBar,
@@ -74,9 +87,13 @@ const assertAllEqual = (
 ): readonly string[] => {
   const problems: string[] = [];
   for (const a of actuals) {
+    /* NO_POPULATION is not a skip and not a failure: it means this context gives this surface
+       nothing to render. Every context reaching here has a card (the loop guards on it), so it is
+       carried for completeness rather than exercised — see agreementReaders.NO_POPULATION. */
+    if (a.painted === NO_POPULATION) continue;
     if (a.painted === NOT_BUILT) { problems.push(`${where}: ${a.who} painted nothing`); continue; }
     if (a.painted !== expected) {
-      problems.push(`${where}: ${a.who} painted ${a.painted}, the load engine says ${expected}`);
+      problems.push(`${where}: ${a.who} painted ${String(a.painted)}, the load engine says ${expected}`);
     }
   }
   return problems;
@@ -129,11 +146,13 @@ describe('A4 — one available limit', () => {
       const verdict = readVerdictImpactStrip(ctx);
 
       problems.push(
-        ...assertAllEqual(position.availableBeforeChangesIls.value, [
+        ...assertAllEqual(position.availableAfterEarlyPayoffIls.value, [
           { who: "Wallet's limit bar", painted: wallet },
-          { who: "Card DNA §D's utilization", painted: cardDna },
         ], label),
+        /* Card DNA's "available" row and the Verdict's strip are the same field: both answer
+           "what is left after everything this context knows about", and the context is one. */
         ...assertAllEqual(position.availableAfterChangesIls.value, [
+          { who: "Card DNA §D's utilization", painted: cardDna },
           { who: "the Verdict's impact strip", painted: verdict },
         ], label),
       );
@@ -161,9 +180,21 @@ describe('A4 — one available limit', () => {
       if (engineBefore.load === null || engineAfter.load === null) continue;
 
       const positionAfter = engineAfter.load.cardLimits.find((p) => p.cardId === cardId);
-      if (positionAfter === undefined) continue;
-      const released = positionAfter.releasedByEarlyPayoffIls.value;
-      if (released === 0) continue; /* nothing was held against this card; not a case for this claim */
+      const positionBefore = engineBefore.load.cardLimits.find((p) => p.cardId === cardId);
+      if (positionAfter === undefined || positionBefore === undefined) continue;
+      /**
+       * THE MOVEMENT IS A DELTA, NOT AN ABSOLUTE — corrected 2026-08-29.
+       *
+       * This read `positionAfter.releasedByEarlyPayoffIls` and called it the expected movement,
+       * which is right only when nothing was released BEFORE. One context in the derived population
+       * is *"a settled hold the user marked Paid early"* and carries `paidEarlyCommitmentIds`
+       * already, so its `before` was not a before: all three surfaces correctly moved by 0 while
+       * the property demanded 42,000 and blamed the surfaces. A property whose expectation is wrong
+       * for one member of its own population is a property that cannot be satisfied by correct code.
+       */
+      const released = positionAfter.releasedByEarlyPayoffIls.value
+        - positionBefore.releasedByEarlyPayoffIls.value;
+      if (released === 0) continue; /* nothing new was released; not a case for this claim */
 
       const walletBefore = readWalletLimitBar(before);
       const walletAfter = readWalletLimitBar(after);
@@ -173,7 +204,10 @@ describe('A4 — one available limit', () => {
       const verdictAfter = readVerdictImpactStrip(after);
 
       const moved = (who: string, b: PaintedNumber, a: PaintedNumber): void => {
-        if (b === NOT_BUILT || a === NOT_BUILT) { problems.push(`${label}: ${who} painted nothing`); return; }
+        if (typeof b !== 'number' || typeof a !== 'number') {
+          problems.push(`${label}: ${who} painted nothing`);
+          return;
+        }
         if (a - b !== released) {
           problems.push(`${label}: ${who} moved by ${a - b}, the load engine released ${released}`);
         }

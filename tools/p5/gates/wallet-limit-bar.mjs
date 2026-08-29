@@ -1,6 +1,22 @@
 /**
  * GATE: wallet-limit-bar — criterion W2.  →  `WALLET-LIMIT-BAR OK`
  *
+ * ─────────────────────────────────────────────────────────────────────────────────────────────
+ * WHICH FIELD, CORRECTED 2026-08-29 UNDER OWNER RULING OQ-P5-001
+ *
+ * This gate required the bar to read `availableBeforeChangesIls`, and that field counts a hold the
+ * user has PAID EARLY as still active. Contract §J4 says the opposite in as many words: Paid early
+ * *"frees the card's held limit immediately … its effect must be visible in the same run to
+ * Wallet's limit bar and the Verdict's impact strip, which is why A4 and this criterion are tested
+ * together."* So W2 as checked and J4 as written could not both hold, and A4 is what found it: the
+ * bar moved by 0 where the engine had released 42,000.
+ *
+ * The resolution is not to soften either criterion. W2's sentence says **ACTIVE** holds, and a
+ * settled hold is not one. The engine already computed that number and did not publish it; it now
+ * publishes `availableAfterEarlyPayoffIls` and the bar reads that. Still an engine field, still no
+ * arithmetic on this surface, and NOT `availableAfterChangesIls` — that one also subtracts a
+ * prospective Check purchase, which is the Verdict's strip and not Wallet's bar.
+ *
  *   > **W2.** *"The available-limit bar shows limit minus active holds minus logged-this-cycle
  *   > purchases in shekels, read from the load engine, and carries an Estimate chip that can never
  *   > read Verified."*
@@ -73,7 +89,8 @@ const REQUIRED_CASES = [
 
 /** The figures the load engine publishes for a card. Arithmetic on any of them is a second opinion. */
 const FIGURES = '(creditLimitIls|activeInstallmentHoldsIls|loggedThisCyclePurchasesIls'
-  + '|availableBeforeChangesIls|availableAfterChangesIls|releasedByEarlyPayoffIls|prospectiveHoldIls)';
+  + '|availableBeforeChangesIls|availableAfterChangesIls|availableAfterEarlyPayoffIls'
+  + '|releasedByEarlyPayoffIls|prospectiveHoldIls)';
 
 const DERIVES = [
   [new RegExp(FIGURES + '(\\.value)?\\s*[-+*/]\\s*(?![/*])'), 'does arithmetic on an engine figure'],
@@ -105,10 +122,26 @@ export const run = async ({ root }) => {
   const problems = [];
 
   /* 1. THE FIELD, NOT THE SUBTRACTION. */
-  if (!/availableBeforeChangesIls/.test(barSrc)) {
+  if (!/availableAfterEarlyPayoffIls/.test(barSrc)) {
     problems.push(
-      BAR + ' never reads availableBeforeChangesIls. W2\'s wording DESCRIBES that field — ' + LOAD
-        + ' already computes limit minus holds minus logged purchases — so the sentence is not an instruction to subtract',
+      BAR + ' never reads availableAfterEarlyPayoffIls. W2 describes that field — ' + LOAD
+        + ' computes limit minus ACTIVE holds minus logged purchases, and a paid-early hold is not'
+        + ' active — so the sentence is not an instruction to subtract',
+    );
+  }
+  /* AND NOT THE FIELD THAT CANNOT MOVE. `availableBeforeChangesIls` counts a settled hold as
+     still active, so a bar reading it can never show what Paid early freed — which is J4's stated
+     consequence and A4's third clause. Named so the repair cannot silently revert. */
+  if (/availableBeforeChangesIls/.test(barSrc)) {
+    problems.push(
+      BAR + ' reads availableBeforeChangesIls, which counts a paid-early hold as still active.'
+        + ' Contract J4: the effect must be visible in the same run to the Wallet limit bar',
+    );
+  }
+  if (/availableAfterChangesIls/.test(barSrc)) {
+    problems.push(
+      BAR + ' reads availableAfterChangesIls, which also subtracts a prospective Check purchase.'
+        + ' That figure belongs to the Verdict impact strip; this bar is the limit as it stands',
     );
   }
   for (const [re, why] of DERIVES) {
@@ -171,8 +204,8 @@ export const run = async ({ root }) => {
   }
 
   /* 7. THE SUITE READS THE FIGURE FROM THE ENGINE. */
-  if (!/availableBeforeChangesIls/.test(suiteSrc)) {
-    problems.push(SUITE + ' never reads availableBeforeChangesIls from the engine result — a hardcoded expectation passes equally well against a surface that subtracted its own');
+  if (!/availableAfterEarlyPayoffIls/.test(suiteSrc)) {
+    problems.push(SUITE + ' never reads availableAfterEarlyPayoffIls from the engine result — a hardcoded expectation passes equally well against a surface that subtracted its own');
   }
 
   if (problems.length) return fail(problems.join(' · '));
@@ -189,8 +222,9 @@ export const run = async ({ root }) => {
 
   return ok(SENTINEL, [
     'CRITERION W2 — the Wallet available-limit bar.',
-    'W2\'s wording describes a subtraction the engine has already done: availableBeforeChangesIls IS',
-    '  limit minus holds minus logged-this-cycle purchases. The bar renders that FIELD, and the gate',
+    'W2\'s wording describes a subtraction the engine has already done: availableAfterEarlyPayoffIls IS',
+    '  limit minus ACTIVE holds minus logged-this-cycle purchases, with a paid-early hold no longer',
+    '  active. The bar renders that FIELD, and the gate',
     '  refuses the arithmetic in the shape it would take — through .value, because every engine',
     '  figure is a ProvenancedNumber.',
     'The Estimate chip cannot read Verified STRUCTURALLY, not by habit: this figure rests on a limit',

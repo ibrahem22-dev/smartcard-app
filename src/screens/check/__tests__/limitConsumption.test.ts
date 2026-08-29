@@ -12,6 +12,17 @@ import {
 import { verdictPropsFromDraft } from '../../../check/checkLoop';
 import type { CheckInputDraft } from '../CheckInputScreen';
 
+/**
+ * A vault with no תשלומים and no loans, KNOWN to be empty — the state these cases have always
+ * assumed. Before the OQ-P5-001 repair `verdictPropsFromDraft` assumed it for them; now they say it.
+ */
+const NO_COMMITMENTS = {
+  installments: [] as const,
+  loans: [] as const,
+  commitmentReadiness: { installments: 'KNOWN_EMPTY', loans: 'KNOWN_EMPTY' },
+} as const;
+
+
 const TODAY = '2026-08-27';
 
 const profile: UserProfile = {
@@ -81,12 +92,14 @@ describe('L2 — logged purchase consumes available limit', () => {
       cards: vaultCards,
       purchases: [],
       todayIso: TODAY,
+      ...NO_COMMITMENTS,
     });
     const after = verdictPropsFromDraft(draft, {
       profile,
       cards: vaultCards,
       purchases: [logged],
       todayIso: TODAY,
+      ...NO_COMMITMENTS,
     });
     const beforeStrip = before.impactStrip?.availableAfterPurchaseIls.value;
     const afterStrip = after.impactStrip?.availableAfterPurchaseIls.value;

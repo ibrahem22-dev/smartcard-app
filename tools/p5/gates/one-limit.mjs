@@ -64,8 +64,8 @@ export const run = async ({ root }) => {
   return ok(SENTINEL, [
     AGREEMENT_PROPERTY + ' compares, in ONE run per context:',
     '  · the load engine’s cardLimits position for the card',
-    '  · Wallet’s bar and Card DNA §D against availableBeforeChangesIls',
-    '  · the Verdict’s impact strip against availableAfterChangesIls',
+    '  · Wallet’s bar against availableAfterEarlyPayoffIls — limit minus ACTIVE holds minus logged',
+    '  · Card DNA §D and the Verdict’s impact strip against availableAfterChangesIls',
     '  · and all three moving by releasedByEarlyPayoffIls when a commitment is Paid early',
     'over the derived population, with no expected number anywhere in the file.',
     REQUIRED_CASES.length + ' case(s) required BY NAME · ' + claim + ' · ' + summary,

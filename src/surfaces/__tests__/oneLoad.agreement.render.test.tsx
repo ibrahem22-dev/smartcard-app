@@ -28,6 +28,8 @@ import { evaluateSurfaceEngines } from '../surfaceEngines';
 import { REQUIRED_PARTICIPANTS, notBuiltYet } from './agreementParticipants';
 import {
   NOT_BUILT,
+  NO_POPULATION,
+  bandAsPainted,
   readCardDnaBand,
   readCardDnaUtilizationRatio,
   readCommitmentsBand,
@@ -41,6 +43,20 @@ import {
 import type { SurfaceContext } from '../surfaceContext';
 import { provenanced } from '../../engines/provenance';
 
+/**
+ * Every comparison a participant took part in, so a participant that never took part can fail.
+ *
+ * A NO_POPULATION participant contributes nothing to `problems` and nothing to this tally. That is
+ * the point of both: skipping it silently would let a reader go quiet across the whole run and the
+ * property would go green comparing the surfaces that remain, which is the failure group A exists
+ * to prevent one level up.
+ */
+const exercised = new Map<string, number>();
+const record = (who: string, painted: PaintedNumber | PaintedBand): void => {
+  if (painted === NO_POPULATION) return;
+  exercised.set(who, (exercised.get(who) ?? 0) + 1);
+};
+
 const assertAllEqual = (
   expected: number,
   actuals: readonly { readonly who: string; readonly painted: PaintedNumber }[],
@@ -48,22 +64,41 @@ const assertAllEqual = (
 ): readonly string[] => {
   const problems: string[] = [];
   for (const a of actuals) {
+    record(a.who, a.painted);
+    if (a.painted === NO_POPULATION) continue;
     if (a.painted === NOT_BUILT) { problems.push(`${where}: ${a.who} painted nothing`); continue; }
     if (a.painted !== expected) problems.push(`${where}: ${a.who} painted ${a.painted}, the load engine says ${expected}`);
   }
   return problems;
 };
 
-/** The band comparison, same shape: every surface against the engine's band and each other. */
+/**
+ * The band comparison, same shape: every surface against the engine's band and each other.
+ *
+ * Each participant carries HOW it paints a band, because they do not paint it the same way — two
+ * paint a translated label and Home paints a fill colour. `bandAsPainted` turns the engine's band
+ * into that surface's vocabulary so the comparison is between one band and one band, not between a
+ * band and a rendering of it. Comparing `'warning'` against the string a screen actually shows is
+ * the mistake A3 made and was repaired for.
+ */
 const assertBandsEqual = (
-  expected: string,
-  actuals: readonly { readonly who: string; readonly painted: PaintedBand }[],
+  engineBand: string,
+  actuals: readonly {
+    readonly who: string;
+    readonly painted: PaintedBand;
+    readonly as: 'home' | 'label';
+  }[],
   where: string,
 ): readonly string[] => {
   const problems: string[] = [];
   for (const a of actuals) {
+    record(a.who + ' band', a.painted);
+    if (a.painted === NO_POPULATION) continue;
     if (a.painted === NOT_BUILT) { problems.push(`${where}: ${a.who} paints no band yet`); continue; }
-    if (a.painted !== expected) problems.push(`${where}: ${a.who} painted band "${a.painted}", the load engine says "${expected}"`);
+    const expected = bandAsPainted(a.as, engineBand);
+    if (a.painted !== expected) {
+      problems.push(`${where}: ${a.who} painted band "${a.painted}", the load engine says "${engineBand}" which this surface paints as "${expected}"`);
+    }
   }
   return problems;
 };
@@ -121,6 +156,10 @@ describe('A2 — one load', () => {
 
     expect(checked).toBeGreaterThan(0);
     expect(problems).toEqual([]);
+    /* Every participant was compared somewhere. A reader that returned NO_POPULATION for every
+       context would otherwise have left this property green without ever reading its surface. */
+    expect([...exercised.entries()].filter(([, n]) => n === 0)).toEqual([]);
+    expect(exercised.size).toBe(4);
   });
 
   it('the BAND agrees too, which is where a >= and a > disagree and the ratio does not', () => {
@@ -139,9 +178,9 @@ describe('A2 — one load', () => {
       const cardDna = readCardDnaBand(context);
 
       problems.push(...assertBandsEqual(engine.load.current.band, [
-        { who: "Home's load bar", painted: home },
-        { who: "Plan Commitments' summary", painted: commitments },
-        { who: "Card DNA §D's utilization", painted: cardDna },
+        { who: "Home's load bar", painted: home, as: 'home' },
+        { who: "Plan Commitments' summary", painted: commitments, as: 'label' },
+        { who: "Card DNA §D's utilization", painted: cardDna, as: 'label' },
       ], label));
       checked += 1;
     }

@@ -18,6 +18,8 @@
  * card, no FX").
  */
 import type { CheckInputDraft } from '../screens/check/CheckInputScreen';
+import type { LoadCommitment } from '../engines/load';
+import { stillOwed } from './commitmentInput';
 import { provenanced } from '../engines/provenance';
 import {
   evaluatePurchaseVerdict,
@@ -28,7 +30,28 @@ import { Currency } from '../types/purchase.types';
 
 export interface PurchaseCheckContext {
   readonly monthlyIncomeIls: PurchaseVerdictInput['monthlyIncomeIls'];
-  readonly commitments: PurchaseVerdictInput['commitments'];
+  /**
+   * The user's existing monthly obligations, as `LoadCommitment` and NOT as `VerdictCommitment`.
+   *
+   * A `VerdictCommitment` is a monthly amount; a `LoadCommitment` is that amount PLUS the card it
+   * holds limit against and how much is still held. `checkLoop` hands this same array to both
+   * `evaluatePurchaseVerdict` (which reads the monthly amount) and `evaluateFinancialLoad` (which
+   * reads the holds to produce the impact strip's `cardLimits`). Typing it as the narrower of the
+   * two would have type-checked — the extra fields are optional on `LoadCommitment` — while
+   * silently describing the impact strip's inputs as absent. Criterion A4 is the property that
+   * cares: the strip is *limit − active holds − logged-this-cycle purchases*, and there are no
+   * holds in a `VerdictCommitment`.
+   */
+  readonly commitments: readonly LoadCommitment[];
+  /**
+   * Commitment ids the user has marked **Paid early** (spec §15).
+   *
+   * The verdict engine has no paid-early parameter — it sums the list it is given — so a settled
+   * commitment has to be removed before it arrives. `evaluateFinancialLoad` is the opposite: it
+   * takes the full list AND these ids, because it needs both to release the held limit. The one
+   * rule that reconciles them is `stillOwed`, in `commitmentInput.ts`.
+   */
+  readonly paidEarlyCommitmentIds?: readonly string[];
   readonly nextPayday?: PurchaseVerdictInput['nextPayday'];
   readonly riskFlags?: PurchaseVerdictInput['riskFlags'];
   readonly imminentBilling?: PurchaseVerdictInput['imminentBilling'];
@@ -48,7 +71,7 @@ export function runPurchaseCheck(
     purchaseAmountIls: provenanced(draft.amount, 'USER'),
     installmentCount: draft.installments ?? 1,
     monthlyIncomeIls: context.monthlyIncomeIls,
-    commitments: context.commitments,
+    commitments: stillOwed(context.commitments, context.paidEarlyCommitmentIds),
     ...(context.nextPayday !== undefined ? { nextPayday: context.nextPayday } : {}),
     ...(context.riskFlags !== undefined ? { riskFlags: context.riskFlags } : {}),
     ...(context.imminentBilling !== undefined ? { imminentBilling: context.imminentBilling } : {}),
