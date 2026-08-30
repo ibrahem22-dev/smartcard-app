@@ -52,6 +52,32 @@ import { provenanced } from '../../engines/provenance';
  * to prevent one level up.
  */
 const exercised = new Map<string, number>();
+
+/**
+ * THE FOUR SURFACES THIS PROPERTY COMPARES, NAMED ONCE.
+ *
+ * Each of these strings used to appear twice — once in the ratio comparison and once in the band
+ * comparison — and the count of them appeared a third time, as the literal `4` in
+ * `expect(exercised.size).toBe(4)`. Three homes for one fact: **add a fifth surface and the
+ * completeness assertion keeps passing while no longer meaning anything**, which is the exact
+ * failure `exercised` was added to prevent, one level up.
+ *
+ * The COUNT does not live here either. It comes from `REQUIRED_PARTICIPANTS['one-load']`, the
+ * canonical population A2 names, so this map holds only the human-facing names and adding a
+ * participant to the criterion moves both together.
+ *
+ * The agreement auditor is what found it, and it was right for a reason worth keeping even though
+ * this particular literal was a participant count rather than an expected value: in an agreement
+ * property every number in an assertion should come from something that would change if the
+ * product changed.
+ */
+const PARTICIPANTS = Object.freeze({
+  home: "Home's load bar",
+  commitments: "Plan Commitments' summary",
+  cardDna: "Card DNA §D's utilization",
+  verdict: "the Verdict's Financial Impact panel",
+});
+
 const record = (who: string, painted: PaintedNumber | PaintedBand): void => {
   if (painted === NO_POPULATION) return;
   exercised.set(who, (exercised.get(who) ?? 0) + 1);
@@ -144,12 +170,12 @@ describe('A2 — one load', () => {
       const verdict = readVerdictLoadRatio(ctx);
 
       problems.push(...assertAllEqual(engine.load.current.ratioOfIncome.value, [
-        { who: "Home's load bar", painted: home },
-        { who: "Plan Commitments' summary", painted: commitments },
-        { who: "Card DNA §D's utilization", painted: cardDna },
+        { who: PARTICIPANTS.home, painted: home },
+        { who: PARTICIPANTS.commitments, painted: commitments },
+        { who: PARTICIPANTS.cardDna, painted: cardDna },
       ], label));
       problems.push(...assertAllEqual(engine.load.projected.ratioOfIncome.value, [
-        { who: "the Verdict's Financial Impact panel", painted: verdict },
+        { who: PARTICIPANTS.verdict, painted: verdict },
       ], label));
       checked += 1;
     }
@@ -159,7 +185,7 @@ describe('A2 — one load', () => {
     /* Every participant was compared somewhere. A reader that returned NO_POPULATION for every
        context would otherwise have left this property green without ever reading its surface. */
     expect([...exercised.entries()].filter(([, n]) => n === 0)).toEqual([]);
-    expect(exercised.size).toBe(4);
+    expect(exercised.size).toBe(REQUIRED_PARTICIPANTS['one-load'].length);
   });
 
   it('the BAND agrees too, which is where a >= and a > disagree and the ratio does not', () => {
@@ -178,9 +204,9 @@ describe('A2 — one load', () => {
       const cardDna = readCardDnaBand(context);
 
       problems.push(...assertBandsEqual(engine.load.current.band, [
-        { who: "Home's load bar", painted: home, as: 'home' },
-        { who: "Plan Commitments' summary", painted: commitments, as: 'label' },
-        { who: "Card DNA §D's utilization", painted: cardDna, as: 'label' },
+        { who: PARTICIPANTS.home, painted: home, as: 'home' },
+        { who: PARTICIPANTS.commitments, painted: commitments, as: 'label' },
+        { who: PARTICIPANTS.cardDna, painted: cardDna, as: 'label' },
       ], label));
       checked += 1;
     }
