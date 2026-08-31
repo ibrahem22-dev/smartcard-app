@@ -70,6 +70,9 @@ module.exports = {
          Without this they would be claimed by both, run twice, and fail the blanket suite. */
       testPathIgnorePatterns: [AGREEMENT_PROPERTY_PATTERN],
       modulePathIgnorePatterns: ['<rootDir>/.expo/'],
+      /* File-linked packages resolve to their external real path on Windows. Babel-transformed
+         code there must still resolve helpers from this app installed dependency tree. */
+      modulePaths: ['<rootDir>/node_modules'],
       setupFilesAfterEnv: ['<rootDir>/tools/p2/jest/render-setup.ts'],
       /**
        * WHICH node_modules PACKAGES GO THROUGH BABEL — and this list is DERIVED, not guessed.
