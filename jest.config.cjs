@@ -70,6 +70,33 @@ module.exports = {
          Without this they would be claimed by both, run twice, and fail the blanket suite. */
       testPathIgnorePatterns: [AGREEMENT_PROPERTY_PATTERN],
       modulePathIgnorePatterns: ['<rootDir>/.expo/'],
+      /**
+       * A FALLBACK RESOLUTION ROOT, AND WHY IT IS NOT A WIDENING.
+       *
+       * `@smartcard/data-authority-adapter` is file-linked: `node_modules/@smartcard/...` is a
+       * SYMLINK to `../smartcard-data-pipeline/dist/adapter-package`. Jest resolves from a file's
+       * REAL path, so babel-injected `@babel/runtime` helpers are looked for beside the pipeline's
+       * dist directory, which has no `node_modules`, and the mount dies with
+       * "Cannot find module @babel/runtime/helpers/interopRequireDefault".
+       *
+       * `modulePaths` entries are APPENDED LAST — `jest-resolve/build/nodeModulesPaths.js` line 115
+       * is `dirs.push(...options.paths)` — so this can only rescue a resolution that already FAILED.
+       * It cannot move one that already succeeded, which is why it was decidable by measurement:
+       * PD-MDC-014 ran the closed P2 and P5 ladders with this line alone and both were unmoved
+       * (suite 1235 of 1235, render-harness 41 of 41, 5 of 5 agreement gates green).
+       *
+       * IT IS LOAD-BEARING FOR E2, NOT ONLY FOR THE GATE THAT FOUND IT. `screens.render.test.tsx`
+       * derives its population from `src/screens/**` and mounts every file it finds, so the first
+       * screen to import the adapter needs this whether or not it brings its own test.
+       *
+       * DELIBERATELY NOT MIRRORED INTO THE `agreement` PROJECT, which `tools/p5/agreement.jest.cjs`
+       * calls an identical environment. That file belongs to a closed campaign, and the asymmetry
+       * cannot bite: the group-A properties import a NAMED set of components and derive their
+       * population from `BOTTOM_NAVIGATION` and the shipped catalog, never from `src/screens/**`,
+       * so no adapter-importing screen can enter their graph — and if one ever did, a missing
+       * resolution root is a hard resolver error, which is a red rather than a silence.
+       */
+      modulePaths: ['<rootDir>/node_modules'],
       setupFilesAfterEnv: ['<rootDir>/tools/p2/jest/render-setup.ts'],
       /**
        * WHICH node_modules PACKAGES GO THROUGH BABEL — and this list is DERIVED, not guessed.

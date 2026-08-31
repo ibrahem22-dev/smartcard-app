@@ -91,6 +91,7 @@ export type PlanStackParamList = {
 /** MORE tab stack — Spec §4's fifth item. Was "Settings"; the spec names it More. */
 export type MoreStackParamList = {
   MoreRoot: undefined;
+  Learn: undefined;
   Contact: undefined;
   Glossary: undefined;
   InstallmentImport: undefined;

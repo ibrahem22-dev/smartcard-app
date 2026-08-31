@@ -28,6 +28,7 @@ import { readdirSync, readFileSync, statSync, existsSync } from 'node:fs';
 import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { okOverPopulation, fail, requireJestCases } from '../lib/report.mjs';
+import { stripCommentsAndStrings } from '../lib/source.mjs';
 
 export const SENTINEL = 'DEBT-RETIREMENT OK';
 export const FAILURE_SENTINEL = 'DEBT-RETIREMENT FAILED';
@@ -74,43 +75,6 @@ const INVENTORY = [
   { file: 'src/screens/cardDna/SectionBGives.tsx', arg: 'ratioFromPercent(row.valuePercent)', unit: 'ALREADY_PERCENT' },
   { file: 'src/screens/DecisionScreen.tsx', arg: 'ratioFromPercent(rowItem.commission)', unit: 'ALREADY_PERCENT' },
 ];
-
-/**
- * COMMENTS AND STRING LITERALS ARE NOT CODE.
- *
- * The first version of the scanner below read raw source and reported six call sites that do not
- * exist: a sentence in this gate's own doc comment, a translation string in en.ts reading
- * "percent(0-100)", and the prose "18.5 means 18.5%" in a comment beside a real call. P2 recorded
- * the same shape when its line-based import scanner was replaced with a whole-source one. A
- * scanner that cannot tell code from prose does not measure the code.
- *
- * Replaces every comment and every string/template body with spaces of the same length, so byte
- * offsets and line numbers still line up with the original.
- */
-const stripCommentsAndStrings = (src) => {
-  const out = src.split('');
-  let i = 0;
-  const blank = (from, to) => { for (let k = from; k < to && k < out.length; k++) if (out[k] !== nlChar) out[k] = ' '; };
-  const nlChar = String.fromCharCode(10);
-  while (i < src.length) {
-    const two = src.slice(i, i + 2);
-    if (two === '//') { let j = src.indexOf(nlChar, i); if (j < 0) j = src.length; blank(i, j); i = j; continue; }
-    if (two === '/*') { let j = src.indexOf('*/', i + 2); j = j < 0 ? src.length : j + 2; blank(i, j); i = j; continue; }
-    const c = src[i];
-    if (c === "'" || c === '"' || c === '`') {
-      let j = i + 1;
-      while (j < src.length) {
-        if (src[j] === String.fromCharCode(92)) { j += 2; continue; }
-        if (src[j] === c) { j++; break; }
-        j++;
-      }
-      blank(i + 1, j - 1);
-      i = j; continue;
-    }
-    i++;
-  }
-  return out.join('');
-};
 
 const walk = (d, out = []) => {
   for (const e of readdirSync(d)) {
