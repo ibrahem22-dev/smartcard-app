@@ -11,7 +11,7 @@ import { RtlRow, RtlScreen, RtlScrollView } from '../components/rtl';
 import { useTheme } from '../hooks/useTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import { useMoney } from '../hooks/useMoney';
-import { TABULAR_NUMERALS } from '../utils/money';
+import { ratioFromPercent, TABULAR_NUMERALS } from '../utils/money';
 import type { PurchaseGateStackParamList } from '../navigation/types';
 import type { DecisionVerdict } from '../types/decision.types';
 import { BORDER, ROLE_BORDER, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
@@ -178,7 +178,7 @@ export function DecisionScreen({
                       }`}
                       style={TABULAR_NUMERALS}
                     >
-                      {percent(rowItem.commission)}
+                      {percent(ratioFromPercent(rowItem.commission))}
                     </AppText>
                   ) : (
                     <AppText className={`text-sm ${TEXT.muted}`}>

@@ -95,12 +95,52 @@ export function formatMoney(
  *
  * Two decimals maximum and no trailing zeros: unlike money, 2.5% and 2.50% read identically and the
  * shorter form is what every issuer publishes. A rate is quoted, not reconciled.
+ *
+ * IT TAKES A RATIO. `formatPercent(0.41)` renders `41%`.
+ *
+ * This function used to append a percent sign without multiplying, and every load percentage the
+ * app rendered was a hundred times too small — Home's threshold ticks read `0.35%` and `0.5%` where
+ * the config defines fractions of 0.35 and 0.5, on every run, for every user, regardless of data.
+ * Forty-six gates, 1,190 tests and three cross-surface agreement properties were green throughout:
+ * the surfaces all agreed because they were all handed the same right number and all formatted it
+ * the same wrong way. Raised as OQ-P5-003, carried through P5's closure, and ruled by the Owner as
+ * OQ-MDC-004 option 1 — ONE FORMATTER, ONE UNIT.
+ *
+ * ONE UNIT is the whole point, and the reason the obvious alternative was refused. Adding a second
+ * function beside this one leaves two formatters serving two units with nothing to say which is
+ * right at a new call site, so the defect returns the first time somebody guesses. The four call
+ * sites that genuinely held percentages — the two interest-rate readings in Card DNA section A,
+ * section B's `valuePercent`, and the Decision screen's commission — were converted AT SOURCE to
+ * pass ratios instead, so there is now exactly one unit in the codebase.
+ *
+ * The engines are untouched and must stay so: `load.ts` guards that its thresholds are between 0
+ * and 1, `risk.ts` throws `safeLoadRatio: expected a ratio from 0 through 1` on the same object,
+ * and `commitmentCap.ts` multiplies income BY the threshold to produce a shekel cap. A ratio that
+ * became a percentage upstream would not render wrong — it would quietly suggest a commitment cap
+ * a hundred times too large.
  */
-export function formatPercent(value: number, language: AppLanguage): string {
+export function formatPercent(ratio: number, language: AppLanguage): string {
   const digits = new Intl.NumberFormat(NUMBER_LOCALE[language], {
     maximumFractionDigits: PERCENT_MAX_FRACTION_DIGITS,
-  }).format(value);
+  }).format(ratio * 100);
   return `${digits}%`;
+}
+
+/**
+ * A percentage-valued figure, converted to the ratio `formatPercent` takes.
+ *
+ * This is a UNIT CONVERSION, not a second formatter — that distinction is the OQ-MDC-004 ruling.
+ * Four figures in the app arrive already expressed in percent, because that is how the pack states
+ * them: Card DNA section A's FX commission and its pipe-delimited interest rates, section B's
+ * `valuePercent`, and the Decision screen's commission. They are converted here, at the call site,
+ * so that every caller of `formatPercent` passes the same unit.
+ *
+ * It exists as a named function rather than a bare `/ 100` so the conversion is greppable and so
+ * nobody tidies it away as a stray magic number. Finding every one of these took a traced,
+ * independently verified pass over all twelve call sites; the next reader should not have to.
+ */
+export function ratioFromPercent(percentValue: number): number {
+  return percentValue / 100;
 }
 
 /**

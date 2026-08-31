@@ -39,8 +39,15 @@ export function useMoney(): UseMoneyResult {
     [language],
   );
 
+  /**
+   * IT TAKES A RATIO. The parameter is named for its unit because the unit is the whole
+   * defect: `formatPercent` once appended a percent sign without multiplying, and every
+   * load figure the app rendered was a hundred times too small (OQ-P5-003, ruled as
+   * OQ-MDC-004 option 1). A figure that is already a percentage converts with
+   * `ratioFromPercent` at the call site; there is no second formatter.
+   */
   const percent = useCallback(
-    (value: number): string => formatPercent(value, language),
+    (ratio: number): string => formatPercent(ratio, language),
     [language],
   );
 

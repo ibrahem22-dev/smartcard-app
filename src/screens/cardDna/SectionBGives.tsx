@@ -12,7 +12,7 @@ import { resolveMedia } from '../../media/resolveMedia';
 import { BORDER, SURFACE, TEXT } from '../../theme/tokens';
 import type { BenefitsDB } from '../../types/benefits.types';
 import type { EngineCard } from '../../types/card.types';
-import { TABULAR_NUMERALS } from '../../utils/money';
+import { ratioFromPercent, TABULAR_NUMERALS } from '../../utils/money';
 import {
   benefitRowsFor,
   type BenefitRow,
@@ -126,7 +126,7 @@ export function SectionBGives({
                 style={TABULAR_NUMERALS}
                 testID={`${testID}-value`}
               >
-                {percent(row.valuePercent)}
+                {percent(ratioFromPercent(row.valuePercent))}
               </AppText>
             </RtlRow>
             <AppText

@@ -18,7 +18,7 @@ import {
 } from '../../store/cardCostResolution';
 import { writeCardCostOverride } from '../../store/cardOverrides';
 import type { EngineCard } from '../../types/card.types';
-import { TABULAR_NUMERALS } from '../../utils/money';
+import { ratioFromPercent, TABULAR_NUMERALS } from '../../utils/money';
 import { CARD_COST_ROWS, type CardCostRowId } from './costRows';
 
 export interface SectionACostsProps {
@@ -59,13 +59,18 @@ function formattedValue(
     case 'other-costs':
       return Number.isFinite(numeric) ? format.money(numeric) : value;
     case 'fx-commission':
-      return Number.isFinite(numeric) ? format.percent(numeric) : value;
+      // Pack-stated in percent (18.5 means 18.5%), so converted to the ratio percent() takes.
+      return Number.isFinite(numeric)
+        ? format.percent(ratioFromPercent(numeric))
+        : value;
     case 'interest-rates':
       return value
         .split('|')
         .map((part) => {
           const rate = Number(part);
-          return Number.isFinite(rate) ? format.percent(rate) : part;
+          return Number.isFinite(rate)
+            ? format.percent(ratioFromPercent(rate))
+            : part;
         })
         .join(' · ');
   }
