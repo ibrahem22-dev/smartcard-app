@@ -81,6 +81,52 @@ const ACCOUNT_SURFACE = [
 const stripComments = (src) =>
   src.replace(/\/\*[\s\S]*?\*\//g, '').replace(/(^|[^:])\/\/.*$/gm, '$1');
 
+/**
+ * THE ONE EXEMPTION, AND WHY IT IS NOT A HOLE — OQ-MDC-006, ruled by the Owner 2026-08-31.
+ *
+ * U5 forbids four things and the fourth is `email`, "the one on this list that looks harmless".
+ * The reason it is on the list is ACCOUNT CREEP: a profile needs a name, a name wants an email, an
+ * email wants verification, verification wants an OTP, and an OTP wants an account, and Spec §18-A
+ * puts all of that at V2+. Every word of that still stands.
+ *
+ * What C6 renders is the opposite of it. `contacts` in the shipped content pack carries each
+ * issuer's OWN PUBLISHED complaints address as a SourcedValue, beside its customer-service phone
+ * and its lost-or-stolen line. It is read at runtime through the adapter and displayed. There is
+ * no input, no store, no verification, no identity, and nothing the user can type. Withholding it
+ * would mean the app knowingly hiding a published complaints channel from someone trying to
+ * complain — and §2.7's rule is that an absence must never read as "we did not look".
+ *
+ * So the exemption is for an ISSUER-PUBLISHED CONTACT VALUE, and it is deliberately narrow:
+ *
+ *   · it applies ONLY to the translation files, and ONLY to the line carrying the label named
+ *     below. Any other `email` anywhere in them still fails, and so does any `email` in any other
+ *     swept module — a signup field one folder away is untouched by this;
+ *   · it is VERIFIED LIVE, not asserted. The adapter must still publish the field, and the Learn
+ *     screen must still render it. If either stops being true the exemption is STALE and this gate
+ *     FAILS rather than quietly permitting a string nothing justifies any more. That is the rule
+ *     the E1 register already applies to its own dispositions: an entry that covers nothing is a
+ *     hard failure, because it would silently cover the next thing of the same shape.
+ */
+const ISSUER_CONTACT_EXEMPTION = {
+  files: /^src\/i18n\/(en|ar|he)\.ts$/,
+  /** The label, as it is keyed in the translation maps. */
+  labelKey: 'דוא״ל לתלונות',
+  /** The adapter field that is the whole justification. No field, no exemption. */
+  adapterField: 'complaintsEmail',
+  /** Where it is rendered, and the list it is rendered from. */
+  renderedBy: 'src/screens/LearnScreen.tsx',
+  adapterTypes: 'node_modules/@smartcard/data-authority-adapter/adapter/read-secondary.d.ts',
+};
+
+/** Is this occurrence the exempted issuer-contact label, on its own line? */
+const isExemptOccurrence = (rel, src, index) => {
+  if (!ISSUER_CONTACT_EXEMPTION.files.test(rel)) return false;
+  const from = src.lastIndexOf('\n', index) + 1;
+  const to = src.indexOf('\n', index);
+  const line = src.slice(from, to === -1 ? src.length : to);
+  return line.includes(ISSUER_CONTACT_EXEMPTION.labelKey);
+};
+
 const resolveSpecifier = (fromFile, spec) => {
   const base = resolve(dirname(fromFile), spec);
   for (const c of [base, base + '.ts', base + '.tsx', join(base, 'index.ts'), join(base, 'index.tsx')]) {
@@ -141,13 +187,47 @@ export const run = async ({ root }) => {
 
   const ours = [...seen].filter((p) => !NOT_OURS.some((n) => p.startsWith(n)));
   const problems = [];
+
+  /**
+   * THE EXEMPTION MUST STILL BE JUSTIFIED, CHECKED BEFORE IT IS APPLIED.
+   *
+   * Both halves are required: the pipeline must still publish the field, and the app must still
+   * render it. Either one going away makes the exemption a hole nobody is watching, so it is a
+   * hard failure rather than a silent permission.
+   */
+  const ex = ISSUER_CONTACT_EXEMPTION;
+  const typesPath = join(root, ex.adapterTypes);
+  const rendererPath = join(root, ex.renderedBy);
+  const adapterPublishes = existsSync(typesPath)
+    && new RegExp('\\b' + ex.adapterField + '\\b').test(readFileSync(typesPath, 'utf8'));
+  const appRenders = existsSync(rendererPath)
+    && new RegExp('\\b' + ex.adapterField + '\\b').test(readFileSync(rendererPath, 'utf8'));
+  if (!adapterPublishes || !appRenders) {
+    problems.push(
+      'the U5 issuer-contact exemption (OQ-MDC-006) is STALE: '
+        + (!adapterPublishes
+          ? 'the published adapter no longer declares ' + ex.adapterField + ' in ' + ex.adapterTypes
+          : ex.renderedBy + ' no longer renders ' + ex.adapterField)
+        + '. An exemption that outlives its reason would silently cover the next email field of the '
+        + 'same shape — remove it, or restore what justified it',
+    );
+  }
+
+  let exempted = 0;
   for (const rel of ours) {
     const src = stripComments(readFileSync(join(root, rel), 'utf8'));
     for (const [re, why] of ACCOUNT_SURFACE) {
-      const hit = src.match(re);
-      if (hit) {
+      const all = [...src.matchAll(new RegExp(re.source, re.flags.includes('g') ? re.flags : re.flags + 'g'))];
+      if (all.length === 0) continue;
+      /* Only the exempted label is dropped, and only when the exemption is still justified. Every
+         other occurrence in the same file is still a hit, which is what keeps this narrow. */
+      const live = adapterPublishes && appRenders
+        ? all.filter((h) => !isExemptOccurrence(rel, src, h.index))
+        : all;
+      exempted += all.length - live.length;
+      if (live.length > 0) {
         problems.push(
-          rel + ' carries ' + why + ' ("' + hit[0] + '"). Nobody decides to add authentication — a profile needs a '
+          rel + ' carries ' + why + ' ("' + live[0][0] + '"). Nobody decides to add authentication — a profile needs a '
             + 'name, a name wants an email, an email wants verification, verification wants an OTP, and an OTP wants '
             + 'an account. Spec §18-A puts all of it at V2+',
         );
@@ -173,6 +253,14 @@ export const run = async ({ root }) => {
     '  added by a P3-era commit that FENCED deferred scope. A dead route type appears on no surface.',
     'And phoneNumber on UserProfile, collected at onboarding, which',
     '  is P4\'s and outside the walk by construction. U5 is about P5 SURFACES, not about the type.',
+    'ONE NARROW EXEMPTION IS IN FORCE, ruled in OQ-MDC-006 and re-justified on this run: '
+      + exempted + ' occurrence(s) of the label "' + ISSUER_CONTACT_EXEMPTION.labelKey + '" in the',
+    '  translation maps, which render the issuer\'s OWN PUBLISHED complaints address from the content',
+    '  pack — read through the adapter, never collected, never stored. It is verified live rather than',
+    '  asserted: the adapter still declares ' + ISSUER_CONTACT_EXEMPTION.adapterField + ' and '
+      + ISSUER_CONTACT_EXEMPTION.renderedBy + ' still renders it,',
+    '  and this gate FAILS if either stops being true. Every other email anywhere in the swept graph,',
+    '  including anywhere else in those same files, is still a hit.',
     (seen.size - ours.length) + ' module(s) belonging to earlier phases were reached and skipped.',
   ].join('\n'));
 };

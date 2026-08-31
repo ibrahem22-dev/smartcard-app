@@ -68,6 +68,54 @@ function codeOnly(line: string): string {
   return quotes % 2 === 1 ? line : before;
 }
 
+/**
+ * AN IDENTIFIER IS NOT A CLASS NAME EITHER — OQ-MDC-008, ruled 2026-08-31.
+ *
+ * The paragraph above blanked comments and stopped there, so prose could no longer trip the scan.
+ * String literals still could, and one did: C6's Learn screen builds a testID as
+ * `learn-right-row-${topicId}`, and `/\bright-/` matched inside it — a rule about CSS direction
+ * classes, firing on a template literal that names a test hook. Same defect class as the comment
+ * one, one layer in. `tools/mdc/gates/debt-retirement.mjs` records it a third time: its first
+ * scanner read raw source and reported six call sites that do not exist.
+ *
+ * WHY THIS DOES NOT SIMPLY BLANK EVERY LITERAL, WHICH WOULD HAVE BEEN THE OBVIOUS READING.
+ * The forbidden tokens ARE string contents — `className="flex-row items-start"` is the whole
+ * subject of this test. Blanking literals wholesale would delete the rule while leaving it looking
+ * like it still ran, which is the exact shape of false green this file exists to prevent. It would
+ * also miss `const rowClass = 'flex-row'` on a line with no `className` on it.
+ *
+ * So a literal is blanked ONLY when it cannot be a class string: when every forbidden match inside
+ * it is a SUBSTRING of a longer hyphenated identifier rather than a standalone token. Tailwind
+ * classes are whitespace-separated, so a real class always begins at the start of the literal, at
+ * whitespace, or straight after an interpolation. `learn-right-row-` has `right-` preceded by `-`
+ * and is blanked; `"... right-0 ..."`, `'flex-row'` and `` `${base} text-left` `` all keep their
+ * token and are still reported. The rule is unchanged; only matches that were never class tokens
+ * stop being reported.
+ *
+ * Length-preserving, like stripBlockComments, so the reported line text and numbers stay true.
+ */
+function isClassShaped(body: string): boolean {
+  return FORBIDDEN_PATTERNS.some((pattern) => {
+    const scan = new RegExp(pattern.source, 'g');
+    let hit = scan.exec(body);
+    while (hit !== null) {
+      const before = hit.index === 0 ? '' : body.charAt(hit.index - 1);
+      // Start of the literal, whitespace, or the close of a `${...}` interpolation.
+      if (before === '' || /\s/.test(before) || before === '}') return true;
+      hit = scan.exec(body);
+    }
+    return false;
+  });
+}
+
+function blankNonClassLiterals(line: string): string {
+  // Single-line spans only: ' … ', " … " and ` … `, escapes honoured. A literal that opens and
+  // does not close on this line is left alone rather than guessed at.
+  return line.replace(/(['"`])((?:\\.|(?!\1)[^\\])*)\1/g, (whole, quote: string, body: string) =>
+    isClassShaped(body) ? whole : quote + body.replace(/[^\n]/g, ' ') + quote,
+  );
+}
+
 function isScannableFile(filePath: string): boolean {
   if (!filePath.endsWith('.tsx') && !filePath.endsWith('.ts')) {
     return false;
@@ -128,7 +176,7 @@ describe('rtlNoHardcodedDirectionClasses', () => {
             return;
           }
 
-          const code = codeOnly(line);
+          const code = blankNonClassLiterals(codeOnly(line));
           for (const pattern of FORBIDDEN_PATTERNS) {
             if (pattern.test(code)) {
               violations.push(`${relativePath}:${index + 1}: ${line.trim()}`);

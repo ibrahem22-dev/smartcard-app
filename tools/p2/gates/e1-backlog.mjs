@@ -122,6 +122,10 @@ export const run = async ({ root }) => {
   // about a command and this gate's whole subject is deriving the number from the command itself.
   let baselineCount = null;
   let baselineNote = '';
+  /* Set by the amended growth check below, and printed with the counts so that growth is always
+     VISIBLE even when it is permitted. A number that rises silently is how a backlog becomes a
+     rubber stamp, which is the failure this register's own header warns about. */
+  let growthNote = 'none — the backlog did not grow';
   const adopting = String(reg.lint?.adoptedBy ?? '').split(' ')[0];
   const wt = join(tmpdir(), 'e1-baseline');
   if (/^[0-9a-f]{7,40}$/.test(adopting)) {
@@ -164,9 +168,30 @@ export const run = async ({ root }) => {
   if (baselineCount === null) {
     problems.push('the baseline could not be derived — ' + baselineNote
       + '. D7 requires the count to come from the lint run, and "closed" is a difference between two runs');
-  } else if (baselineCount < live.length) {
-    problems.push('the backlog GREW: ' + baselineCount + ' at the baseline, ' + live.length + ' now');
   }
+  /**
+   * GROWTH IS DECIDED BELOW, AFTER THE DISPOSITIONS HAVE BEEN APPLIED — OQ-MDC-007, ruled
+   * 2026-08-31.
+   *
+   * This was `else if (baselineCount < live.length)` right here, and it counted every new finding
+   * as growth INCLUDING the ones the register had correctly accounted for. Dispositions cover
+   * findings; they do not remove them from the lint's output. So the check could not be satisfied
+   * by doing the right thing: C6 added a content-pack read INSIDE src/data/adapter/**, exactly
+   * where D2 permits it and exactly as catalogSearch.ts and clubResolver.ts already do under
+   * ALLOW dispositions, wrote its dispositions — and the gate still failed, because 89 > 86.
+   *
+   * That made the gate unsatisfiable for the whole remaining development path rather than strict:
+   * no STAGE-1 criterion could add a module under the seam at all, and the same wall was waiting
+   * at C7, C1 and C2.
+   *
+   * D7's own words are "the backlog is closed, or every remaining item is a dated deferral
+   * carrying an OD id" — a statement about ACCOUNTING, not about a number that may never rise.
+   * The count still comes from the lint run and is still printed. What changed is only which
+   * growth is a problem: growth that no disposition covers. Everything that made this gate strict
+   * is untouched — an UNACCOUNTED finding is still a hard failure, one per finding, and a
+   * disposition covering nothing is still a hard failure, so the register cannot be padded with
+   * entries that match nothing and cannot absorb a violation without someone writing down why.
+   */
 
   lines.push('lint            ' + reg.lint.command);
   lines.push('baseline        ' + (baselineCount === null ? 'NOT DERIVED — ' + baselineNote : baselineCount + ' findings, ' + baselineNote));
@@ -199,6 +224,24 @@ export const run = async ({ root }) => {
     problems.push('UNACCOUNTED ' + f.rule + ' ' + f.file + ':' + f.line + ' — ' + f.message.slice(0, 90));
   }
 
+  /**
+   * THE AMENDED GROWTH CHECK — the second half of what was deferred above.
+   *
+   * Growth is measured over findings NO DISPOSITION COVERS. `orphans` is that set, and every one
+   * of them has already been pushed as its own hard failure immediately above, so this cannot be
+   * the only thing standing between an unaccounted violation and a green line. What it adds is the
+   * statement in aggregate, so a reader of the report sees "the backlog grew and none of it is
+   * accounted for" rather than having to count the UNACCOUNTED rows themselves.
+   */
+  if (baselineCount !== null && baselineCount < live.length) {
+    const grewBy = live.length - baselineCount;
+    if (orphans.length > 0) {
+      problems.push('the backlog GREW by ' + grewBy + ': ' + baselineCount + ' at the baseline, '
+        + live.length + ' now, and ' + orphans.length + ' finding(s) are UNACCOUNTED');
+    }
+    growthNote = grewBy + ' since the baseline, every one of them covered by a disposition below';
+  }
+
   const deferred = dispositions.filter((d) => d.disposition === 'DEFERRED').reduce((a, d) => a + covered.get(d.id), 0);
   const allowed = dispositions.filter((d) => d.disposition === 'ALLOWED').reduce((a, d) => a + covered.get(d.id), 0);
   const closed = baselineCount === null ? null : baselineCount - live.length;
@@ -208,6 +251,7 @@ export const run = async ({ root }) => {
   lines.push('  deferred        ' + deferred + '   each with a date and an OD id');
   lines.push('  allowed         ' + allowed + '   each with a reason a reviewer can disagree with');
   lines.push('  unaccounted     ' + orphans.length);
+  lines.push('  growth          ' + growthNote);
 
   if (problems.length) {
     return fail(problems.length + ' problem(s): ' + problems.slice(0, 4).join(' · '), lines.join('\n'));

@@ -274,6 +274,26 @@
       "file": "^src/surfaces/__tests__/",
       "message": "pack module .*catalogSearch. imported outside",
       "why": "TEST SUPPORT, AND THE CRITERION REQUIRES THE READ. These two modules build the group-A agreement population, and criterion A6 demands it be DERIVED: 'the population the agreement properties run over is derived from the navigation declaration and the shipped packs, never hand-listed, and a check over zero surfaces fails.' The card set comes from currentCatalogProducts(), which is the door P4's wizard already uses onto the shipped catalog and is itself allowed at ALLOW-WIZARD-CATALOG-PACK-READ. Satisfying R3 by hand-listing cards here would break A6 and reintroduce the maintained 'everything' list that P1 shipped four of. Neither file is in the app bundle. Same shape as ALLOW-RENDER-FIXTURE, one directory over."
+    },
+    {
+      "id": "ALLOW-LEARN-CONTENT-PACK-READ",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/data/adapter/(learn\\.ts|__tests__/learnSurface\\.render\\.test\\.tsx)$",
+      "message": "raw dataset '[^']*packs/content/pack\\.json' imported outside",
+      "why": "THE SAME PREDECESSOR-LINT ARTEFACT ALLOW-CROSSSET-RESOLVER ALREADY RECORDS, one pack later. R3 names src/authority/** because that was the boundary directory when this lint was adopted and src/data/adapter/** did not exist yet. The rule that is actually in force is D2: nothing OUTSIDE data/adapter/** may import a pack file, a raw JSON dataset or the DB driver. src/data/adapter/learn.ts is INSIDE it, and it is the only module in the app that names the content pack - the Learn screen receives adapter views and slice sizes and never sees a raw row. This is the identical arrangement ALLOW-WIZARD-CATALOG-PACK-READ already permits for catalogSearch.ts and clubResolver.ts reading the CATALOG pack, and ALLOW-DEV-PROBE-PACK-READS for devProbeInputs.ts. Scoped to the two Learn files BY NAME rather than to the directory, so a third module deciding to open the content pack is still UNACCOUNTED here. The test file is included because it opens the same pack to derive its expectations from the shipped rows rather than restating them, which is what makes C6 falsifiable at all.",
+      "reviewedBy": "MDC C6 / OQ-MDC-007",
+      "reviewedAt": "2026-08-31"
+    },
+    {
+      "id": "ALLOW-LEARN-SEAM-IMPORT",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/screens/LearnScreen\\.tsx$",
+      "message": "pack module '[^']*data/adapter/learn' imported outside",
+      "why": "ALLOW-CROSSSET-RESOLVER states the principle and it applies unchanged: the predecessor lint calls every module under the seam a pack module, but a seam nothing may import is not a seam - reaching the boundary THROUGH its modules is the arrangement D2 exists to make possible rather than a violation of it. LearnScreen imports src/data/adapter/learn, which is the seam module: it returns adapter row views and slice sizes and holds no pack bytes. The screen imports no pack.json and no adapter package - the C6 gate checks exactly that across the screen import closure, and fails if any file in it reaches the raw pack directly. Scoped to LearnScreen.tsx BY NAME, exactly as ALLOW-BENEFIT-VOCABULARY-IMPORT is scoped to benefitRows.ts, so another screen importing the Learn seam would still be UNACCOUNTED and would have to be argued on its own.",
+      "reviewedBy": "MDC C6 / OQ-MDC-007",
+      "reviewedAt": "2026-08-31"
     }
   ],
   "$closedNote": [

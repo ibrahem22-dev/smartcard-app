@@ -15,6 +15,31 @@
  */
 import { spawnSync } from 'node:child_process';
 
+/**
+ * TERMINAL COLOUR CODES, REMOVED BEFORE ANYTHING READS THE OUTPUT — D-042, applied here by
+ * OQ-MDC-008, ruled 2026-08-31.
+ *
+ * P5 hit this and hardened its own reader; tools/p5/lib/report.mjs says it in as many words:
+ *
+ *   THE SAME ANSI PROBLEM, IN THE LADDER'S OWN READER — D-042. The suite step's sentinel is
+ *   /Tests:\s+\d+ passed, \d+ total/, and a colourising jest writes `Tests: ESC[1mESC[32m1226
+ *   passed`, so the digits are not where the pattern looks: the step reported "no sentinel
+ *   printed" over 1226 passing tests.
+ *
+ * tools/mdc/lib/report.mjs strips it too. THIS reader never received the fix, and it cost exactly
+ * what P5 paid: with FORCE_COLOR set in the environment, p2:all reported 17 FAILED steps over a
+ * suite that had just passed 1235 of 1235 — the suite step, and then every gate whose per-case
+ * check reads the same coloured output. It fails in the safe direction, false red rather than
+ * false green, but p2:all is enumerated in regression/regression.json and X1 re-runs it at every
+ * stage close, so the false reds arrive exactly where a stage is being decided.
+ *
+ * The guarantee is unchanged: a sentinel still has to be IN the output to be found. Stripping
+ * colour cannot make an absent sentinel present — it only puts the digits back where the pattern
+ * already looks.
+ */
+const ANSI = new RegExp(String.fromCharCode(27) + String.fromCharCode(92) + '[[0-9;]*m', 'g');
+const stripAnsi = (t) => t.replace(ANSI, '');
+
 /** A step that ran and was decided on what it printed. */
 export const runStep = (name, cmd, args, { sentinel, failure, cwd, skip }) => {
   if (skip) {
@@ -22,7 +47,7 @@ export const runStep = (name, cmd, args, { sentinel, failure, cwd, skip }) => {
   }
   const started = process.hrtime.bigint();
   const r = spawnSync(cmd, args, { cwd, encoding: 'utf8', shell: process.platform === 'win32', maxBuffer: 64 * 1024 * 1024 });
-  const text = String(r.stdout ?? '') + String(r.stderr ?? '');
+  const text = stripAnsi(String(r.stdout ?? '') + String(r.stderr ?? ''));
   const ms = Number((process.hrtime.bigint() - started) / 1000000n);
   const failed = failure ? failure.test(text) : false;
   const passed = Boolean(sentinel && sentinel.test(text)) && !failed;
