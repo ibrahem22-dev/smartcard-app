@@ -1,11 +1,9 @@
 import React from 'react';
 import {
   createNativeStackNavigator,
-  type NativeStackScreenProps,
 } from '@react-navigation/native-stack';
 
 import { AddCardScreen } from '../../screens/AddCardScreen';
-import { CardDetailScreen } from '../../screens/CardDetailScreen';
 import { CardsScreen } from '../../screens/CardsScreen';
 import { CardDnaScreen } from '../../screens/cardDna/CardDnaScreen';
 import { InterestCalculatorScreen } from '../../screens/InterestCalculatorScreen';
@@ -15,28 +13,22 @@ import { SegmentedTab } from '../SegmentedTab';
 import { BOTTOM_NAVIGATION } from '../ia';
 import type { WalletStackParamList } from '../types';
 
-type WalletStackRoutes = WalletStackParamList & {
-  CardEdit: { cardId: string };
-};
-
-type CardEditRouteProps = NativeStackScreenProps<WalletStackRoutes, 'CardEdit'>;
-type LegacyCardDetailProps = React.ComponentProps<typeof CardDetailScreen>;
-
-const Stack = createNativeStackNavigator<WalletStackRoutes>();
-
-function CardEditRoute({
-  navigation,
-  route,
-}: CardEditRouteProps): React.ReactElement {
-  return (
-    <CardDetailScreen
-      navigation={navigation as unknown as LegacyCardDetailProps['navigation']}
-      route={
-        { ...route, name: 'CardDetail' } as unknown as LegacyCardDetailProps['route']
-      }
-    />
-  );
-}
+/**
+ * C11 — THE CardEdit ROUTE IS GONE, AND WITH IT THE LAST MOUNT OF THE LEGACY SCREEN.
+ *
+ * It registered `CardEdit` and rendered the legacy `CardDetailScreen` while relabelling the route
+ * as `CardDetail`, so the route tree said one thing and the screen it mounted believed another.
+ * Nothing ever navigated to it: at the P5 intake sha there was no navigate('CardEdit') anywhere in
+ * the application. It was reachable only by a deep link nobody published, and it kept a second,
+ * older card surface mounted — carrying percent arithmetic of its own, which is precisely the
+ * second home the OQ-MDC-004 ruling exists to end.
+ *
+ * PD-P5-011 kept it deliberately, until N3's pencil shipped. It has: SectionACosts renders the
+ * pencil, wired to openEditor with saveDraft behind it, and P5's own card-dna-layout gate now
+ * asserts that reachable EDITING BEHAVIOUR instead of this route name — repaired under Owner
+ * ruling OQ-MDC-005 option 2. Retired here under contract §3.1, criterion C11.
+ */
+const Stack = createNativeStackNavigator<WalletStackParamList>();
 
 /**
  * WALLET — Spec §4: *"**Wallet** contains an internal segmented control: **Cards | Benefits**."*
@@ -87,7 +79,6 @@ export function WalletStack(): React.ReactElement {
       <Stack.Screen component={WalletRoot} name="WalletRoot" options={{ title: 'Wallet' }} />
       <Stack.Screen component={AddCardScreen} name="AddCard" options={{ title: 'Add Card' }} />
       <Stack.Screen component={CardDnaScreen} name="CardDetail" options={{ title: 'Card' }} />
-      <Stack.Screen component={CardEditRoute} name="CardEdit" options={{ title: 'Edit Card' }} />
       <Stack.Screen
         component={InterestCalculatorScreen}
         name="InterestCalculator"

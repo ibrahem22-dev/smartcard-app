@@ -52,6 +52,11 @@ const DECL = 'src/screens/cardDna/sections.ts';
 const SCREEN = 'src/screens/cardDna/CardDnaScreen.tsx';
 const SUITE = 'src/screens/cardDna/__tests__/cardDnaLayout.render.test.tsx';
 const STACK = 'src/navigation/stacks/WalletStack.tsx';
+/**
+ * OQ-MDC-005 (Owner, option 2): the surface that now holds the M4 editing behaviour. Clause 4
+ * used to name the CardEdit ROUTE; it names the EDITOR now, and this is where the editor lives.
+ */
+const EDITOR = 'src/screens/cardDna/SectionACosts.tsx';
 const JEST_CONFIG = 'jest.config.cjs';
 const RENDER_PROJECT = 'render';
 
@@ -100,6 +105,7 @@ export const run = async ({ root }) => {
   const declSrc = stripComments(readFileSync(join(root, DECL), 'utf8'));
   const screenSrc = stripComments(readFileSync(join(root, SCREEN), 'utf8'));
   const stackSrc = stripComments(readFileSync(join(root, STACK), 'utf8'));
+  const editorSrc = stripComments(readFileSync(join(root, EDITOR), 'utf8'));
   const problems = [];
 
   /* 1. THE DECLARATION — exactly the four sections N1 names, in N1's order. */
@@ -160,13 +166,35 @@ export const run = async ({ root }) => {
     problems.push(SCREEN + ' contains placeholder wording — an EMPTY section container is the correct render for a section a later package fills, but a "coming soon" is a placeholder on a live P5 route (B2)');
   }
 
-  /* 4. THE ROUTE. PD-P5-011: Card DNA takes CardDetail, and the M4 form stays reachable at CardEdit
-        until N3's pencil exists, so no card fee becomes uneditable for the length of two packages. */
+  /* 4. THE EDITOR IS REACHABLE. What M4 protects is that a card fee can still be edited.
+
+        PD-P5-011 kept the legacy form at CardEdit for a stated reason — "until N3's pencil
+        exists, so no card fee becomes uneditable for the length of two packages" — and this
+        clause used to enforce the ROUTE NAME rather than the behaviour. N3's pencil has since
+        shipped, so the precondition is discharged and the route name became a thing that was
+        true rather than a thing that mattered: enforcing it forced the MDC's C11 either to
+        leave a dead legacy screen mounted or to break this gate.
+
+        Repaired under Owner ruling OQ-MDC-005 option 2, as a named exception to the P5
+        boundary: "assert that the fee editor remains reachable through a valid route, without
+        weakening M4's protected editing behavior". So it asserts the chain a user actually
+        walks — Wallet routes CardDetail to Card DNA, Card DNA renders section A, and section A
+        carries an editor that opens and saves. That is strictly stronger than the old check:
+        a route named CardEdit could exist while leading nowhere, and did. */
   if (!/CardDnaScreen/.test(stackSrc)) {
     problems.push(STACK + ' does not render CardDnaScreen — the shell exists but nothing reaches it');
   }
-  if (!/['"]CardEdit['"]/.test(stackSrc) || !/CardDetailScreen/.test(stackSrc)) {
-    problems.push(STACK + ' no longer keeps the M4 editing form reachable. PD-P5-011: Card DNA takes CardDetail, but N3 has not shipped the pencil yet, so removing the form leaves no way to edit a card fee at all');
+  if (!/['"]CardDetail['"]/.test(stackSrc)) {
+    problems.push(STACK + ' no longer routes CardDetail — Card DNA is the M4 destination and nothing reaches it');
+  }
+  const editorOpens = /onPress=\{[^}]*openEditor\(/.test(editorSrc);
+  const editorSaves = /saveDraft\s*\(/.test(editorSrc);
+  if (!editorOpens || !editorSaves) {
+    problems.push(
+      EDITOR + ' no longer carries a reachable fee editor (' +
+      [editorOpens ? null : 'nothing opens it', editorSaves ? null : 'nothing saves it'].filter(Boolean).join(', ') +
+      '). M4 protects the EDITING BEHAVIOUR, not a route name: if the pencil stops opening or stops saving, a card fee becomes uneditable exactly as PD-P5-011 feared (OQ-MDC-005)',
+    );
   }
 
   if (problems.length) return fail(problems.join(' · '));
@@ -189,7 +217,9 @@ export const run = async ({ root }) => {
     '  without reaching the declaration first — the order has one home, not two.',
     'The header renders before section A, and no section container carries placeholder wording:',
     '  an empty section is the correct render for one a later package fills.',
-    STACK + ' routes CardDetail to Card DNA and keeps the M4 form at CardEdit (PD-P5-011).',
+    STACK + ' routes CardDetail to Card DNA, and ' + EDITOR + ' carries a fee editor that',
+    '  opens and saves — M4 is measured as reachable EDITING BEHAVIOUR, not as a route name',
+    '  (PD-P5-011 discharged; repaired under Owner ruling OQ-MDC-005 option 2).',
     REQUIRED_CASES.length + ' case(s) required BY NAME · ' + summary,
   ].join('\n'));
 };
