@@ -1,4 +1,48 @@
-import { STALE_AFTER_CALENDAR_DAYS, isBusinessDay, stalenessOf, type Staleness } from '@smartcard/data-authority-adapter';
+import type { Staleness } from '@smartcard/data-authority-adapter/fx/rate-table';
+
+// The adapter is a Node-targeted local junction and cannot enter a React Native render bundle.
+// Pin the runtime-safe seam to its literal-typed contract so an authority change from 7 fails
+// compilation here instead of silently diverging.
+export const STALE_AFTER_CALENDAR_DAYS:
+  typeof import('@smartcard/data-authority-adapter/fx/rate-table').STALE_AFTER_CALENDAR_DAYS = 7;
+const DAY_MS = 86_400_000;
+const BOI_NON_PUBLICATION_DAYS = [0, 6] as const;
+
+function asUtc(iso: string): number {
+  if (!/^\d{4}-\d{2}-\d{2}$/.test(iso)) throw new Error(`${iso} is not an ISO date`);
+  const parsed = Date.parse(`${iso}T00:00:00Z`);
+  if (!Number.isFinite(parsed)) throw new Error(`${iso} is not an ISO date`);
+  return parsed;
+}
+
+function isBusinessDay(iso: string, holidays: readonly string[] = []): boolean {
+  if (holidays.includes(iso)) return false;
+  return !BOI_NON_PUBLICATION_DAYS.includes(
+    new Date(asUtc(iso)).getUTCDay() as (typeof BOI_NON_PUBLICATION_DAYS)[number],
+  );
+}
+
+function stalenessOf(
+  rateDate: string,
+  asOf: string,
+  holidays: readonly string[] = [],
+): Staleness {
+  const from = asUtc(rateDate);
+  const to = asUtc(asOf);
+  if (to < from) throw new Error(`rate ${rateDate} is in the future as of ${asOf}`);
+  const calendarDaysOld = Math.round((to - from) / DAY_MS);
+  let businessDaysOld = 0;
+  for (let day = 1; day < calendarDaysOld; day += 1) {
+    const iso = new Date(from + day * DAY_MS).toISOString().slice(0, 10);
+    if (isBusinessDay(iso, holidays)) businessDaysOld += 1;
+  }
+  return {
+    stale: calendarDaysOld > STALE_AFTER_CALENDAR_DAYS,
+    calendarDaysOld,
+    businessDaysOld,
+    carriedForwardOnly: calendarDaysOld > 0 && businessDaysOld === 0,
+  };
+}
 
 /**
  * MARKET-HOLIDAY AWARENESS, AND ITS ABSENCE — criterion C9.
@@ -156,5 +200,4 @@ export function publishesOn(iso: string): boolean | undefined {
   return MARKET_HOLIDAY_CALENDAR.days.length > 0 ? true : undefined;
 }
 
-/** Re-exported so a surface reads the threshold from the adapter rather than repeating 7. */
-export { STALE_AFTER_CALENDAR_DAYS };
+/** Export above is literal-typed against the adapter contract. */

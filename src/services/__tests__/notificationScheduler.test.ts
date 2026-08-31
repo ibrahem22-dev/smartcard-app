@@ -11,15 +11,18 @@ const mockStorage = new Map<string, string>();
 const mockRequestPermissions = jest.fn();
 const mockSchedule = jest.fn();
 const mockCancel = jest.fn();
+const mockCancelAll = jest.fn();
 
 jest.mock('expo-notifications', () => ({
   requestPermissionsAsync: mockRequestPermissions,
   scheduleNotificationAsync: mockSchedule,
   cancelScheduledNotificationAsync: mockCancel,
+  cancelAllScheduledNotificationsAsync: mockCancelAll,
   setNotificationHandler: jest.fn(),
   SchedulableTriggerInputTypes: {
     DATE: 'date',
     YEARLY: 'yearly',
+    MONTHLY: 'monthly',
   },
 }));
 
@@ -40,6 +43,7 @@ jest.mock('../../security/keyVault', () => ({
 import {
   cancelDiscountReminders,
   scheduleAnnualGlobalReminder,
+  scheduleBillingReminder,
   scheduleDiscountReminders,
 } from '../notificationScheduler';
 
@@ -77,6 +81,7 @@ describe('notificationScheduler', () => {
     jest.clearAllMocks();
     mockStorage.clear();
     mockStorage.set(MMKV_KEYS.activeProfileId, 'profile-1');
+    mockStorage.set(MMKV_KEYS.notificationsEnabled, 'true');
     mockRequestPermissions.mockResolvedValue({ granted: true });
     mockCancel.mockResolvedValue(undefined);
     jest.spyOn(Date, 'now').mockReturnValue(
@@ -106,9 +111,9 @@ describe('notificationScheduler', () => {
     expect(mockCancel).toHaveBeenCalledWith('old-2');
     expect(mockSchedule).toHaveBeenNthCalledWith(1, {
       content: {
-        title: 'ההנחה על דמי כרטיס עומדת לפוג',
-        body: 'כרטיס 1234 — ההנחה פגה ב-2031-06-30. בדוק מול חברת הכרטיסים.',
-        data: { cardId: 'card-1', reminderType: 'discount_expiry' },
+        title: 'תזכורת תפעולית',
+        body: 'הטבת דמי כרטיס מתקרבת לסיומה. פתח את האפליקציה לפרטים.',
+        data: { reminderType: 'discount_expiry' },
       },
       trigger: {
         type: 'date',
@@ -150,9 +155,9 @@ describe('notificationScheduler', () => {
 
     expect(mockSchedule).toHaveBeenCalledWith({
       content: {
-        title: 'תזכורת שנתית — דמי כרטיס',
-        body: 'כרטיס 1234 — האם קיבלת הנחה על דמי הכרטיס השנה?',
-        data: { cardId: 'card-1', reminderType: 'annual_card_fee' },
+        title: 'תזכורת תפעולית',
+        body: 'מומלץ לבדוק את תנאי דמי הכרטיס. פתח את האפליקציה לפרטים.',
+        data: { reminderType: 'annual_card_fee' },
       },
       trigger: {
         type: 'yearly',
@@ -171,9 +176,9 @@ describe('notificationScheduler', () => {
 
     expect(mockSchedule).toHaveBeenCalledWith({
       content: {
-        title: 'תזכורת שנתית — דמי כרטיס',
-        body: 'בדוק את ההנחות על דמי הכרטיסים שלך',
-        data: { reminderType: 'global_card_fee' },
+        title: 'תזכורת תפעולית',
+        body: 'מומלץ לבדוק את תנאי דמי הכרטיס. פתח את האפליקציה לפרטים.',
+        data: { reminderType: 'annual_card_fee' },
       },
       trigger: {
         type: 'yearly',
@@ -205,6 +210,40 @@ describe('notificationScheduler', () => {
 
     expect(mockCancel).not.toHaveBeenCalled();
     expect(mockSchedule).not.toHaveBeenCalled();
+  });
+
+  test('does not request permission until the user enables reminders', async () => {
+    mockStorage.set(MMKV_KEYS.notificationsEnabled, 'false');
+
+    await scheduleDiscountReminders(makeCard());
+
+    expect(mockRequestPermissions).not.toHaveBeenCalled();
+    expect(mockSchedule).not.toHaveBeenCalled();
+  });
+
+  test('uses generic monthly billing content with no vault-sensitive values', async () => {
+    mockSchedule.mockResolvedValue('billing-id');
+
+    await scheduleBillingReminder(makeCard());
+
+    expect(mockSchedule).toHaveBeenCalledWith({
+      content: {
+        title: 'תזכורת תפעולית',
+        body: 'מועד חיוב מתקרב. פתח את האפליקציה לפרטים.',
+        data: { reminderType: 'billing' },
+      },
+      trigger: {
+        type: 'monthly',
+        day: 10,
+        hour: 9,
+        minute: 0,
+      },
+    });
+    const serialized = JSON.stringify(mockSchedule.mock.calls[0]);
+    expect(serialized).not.toContain('1234');
+    expect(serialized).not.toContain('20000');
+    expect(serialized).not.toContain('card-1');
+    expect(serialized.toLowerCase()).not.toContain('verdict');
   });
 
   test('cancels and removes stored card reminders when a card is deleted', async () => {

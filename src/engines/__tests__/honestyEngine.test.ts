@@ -41,6 +41,8 @@ const DECLARED_BARE: Readonly<Record<string, string>> = {
   // Rate facts carried AS PUBLISHED (nothing divides them here); rateDate sits beside them.
   rateIlsPerQuoteUnit: 'published BOI fact carried undivided - dated by rateDate in the same object',
   quoteUnit: 'published quotation unit carried undivided - the unit trap stays visible',
+  calendarDaysOld: 'age metadata for the dated rate - deterministically controls the Stale modifier',
+  businessDaysOld: 'explanatory age floor - explicitly non-authoritative without OD-31 calendar',
 };
 
 function isProvenanced(node: unknown): node is ProvenancedNumber {

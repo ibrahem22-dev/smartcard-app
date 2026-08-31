@@ -58,7 +58,7 @@ export function CommitmentsSummary({
   context,
 }: CommitmentsSummaryProps): React.ReactElement {
   const { t } = useTranslation();
-  const { money, percent } = useMoney();
+  const { money, ratioPercent } = useMoney();
   const storedCards = useCardsStore((state) => state.cards);
   const storedInstallments = useCardsStore((state) => state.obligations);
   const storedLoans = useLoansStore((state) => state.loans);
@@ -157,7 +157,7 @@ export function CommitmentsSummary({
                 style={TABULAR_NUMERALS}
                 testID="commitments-summary-load-ratio"
               >
-                {percent(load.current.ratioOfIncome.value)}
+                {ratioPercent(load.current.ratioOfIncome.value)}
               </AppText>
               <AppText
                 accessibilityValue={{ text: t(loadBandLabelKey(load.current.band)) }}
@@ -192,7 +192,7 @@ export function CommitmentsSummary({
                 style={TABULAR_NUMERALS}
                 testID="commitments-summary-threshold-warning"
               >
-                {t('סף אזהרה')} {percent(load.thresholds.warningRatio.value)}
+                {t('סף אזהרה')} {ratioPercent(load.thresholds.warningRatio.value)}
               </AppText>
               <AppText
                 accessibilityValue={{ text: String(load.thresholds.strongWarningRatio.value) }}
@@ -200,7 +200,7 @@ export function CommitmentsSummary({
                 style={TABULAR_NUMERALS}
                 testID="commitments-summary-threshold-strong-warning"
               >
-                {t('סף אזהרה חזקה')} {percent(load.thresholds.strongWarningRatio.value)}
+                {t('סף אזהרה חזקה')} {ratioPercent(load.thresholds.strongWarningRatio.value)}
               </AppText>
               <AppText
                 accessibilityValue={{ text: String(load.thresholds.blockedRatio.value) }}
@@ -208,7 +208,7 @@ export function CommitmentsSummary({
                 style={TABULAR_NUMERALS}
                 testID="commitments-summary-threshold-blocked"
               >
-                {t('סף חסימה')} {percent(load.thresholds.blockedRatio.value)}
+                {t('סף חסימה')} {ratioPercent(load.thresholds.blockedRatio.value)}
               </AppText>
             </RtlRow>
           </>

@@ -33,6 +33,7 @@ import {
   resolveAuth07ForegroundGrace,
 } from './authLifecycle';
 import { recordAuthRuntimeSnapshot } from './authRuntimeDiagnostics';
+import { cancelAllLocalNotifications } from '../services/notificationScheduler';
 
 export type LocalVaultResetResult =
   | { readonly ok: true }
@@ -140,6 +141,9 @@ export function AuthProvider({
   const resetLocalVault = useCallback(async (): Promise<LocalVaultResetResult> => {
     clearInMemoryStores();
     try {
+      // OS schedules live outside the encrypted vault. Cancel them first so a
+      // successful reset cannot leave reminders derived from deleted data.
+      await cancelAllLocalNotifications();
       await keyVault.wipeVault();
       if (
         (await keyVault.isInitialized()) ||

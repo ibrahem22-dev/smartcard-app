@@ -87,7 +87,7 @@ function tickOffset(ratio: number, isRTL: boolean): { left?: `${number}%`; right
 export function HomeLoadBar({ context }: HomeLoadBarProps): React.ReactElement {
   const { t } = useTranslation();
   const dir = useAppDirection();
-  const { money, percent } = useMoney();
+  const { money, ratioPercent } = useMoney();
   const storedCards = useCardsStore((state) => state.cards);
   const storedInstallments = useCardsStore((state) => state.obligations);
   const storedLoans = useLoansStore((state) => state.loans);
@@ -152,7 +152,7 @@ export function HomeLoadBar({ context }: HomeLoadBarProps): React.ReactElement {
             style={TABULAR_NUMERALS}
             testID="home-load-bar-ratio"
           >
-            {percent(ratio)}
+            {ratioPercent(ratio)}
           </AppText>
         </View>
         <View className="gap-1">
@@ -198,7 +198,7 @@ export function HomeLoadBar({ context }: HomeLoadBarProps): React.ReactElement {
             style={[TABULAR_NUMERALS, tickOffset(strongWarningRatio, dir.isRTL)]}
             testID="home-load-bar-tick-strong"
           >
-            {percent(strongWarningRatio)}
+            {ratioPercent(strongWarningRatio)}
           </AppText>
           <AppText
             accessibilityLabel={t('סף חסימה')}
@@ -207,7 +207,7 @@ export function HomeLoadBar({ context }: HomeLoadBarProps): React.ReactElement {
             style={[TABULAR_NUMERALS, tickOffset(blockedRatio, dir.isRTL)]}
             testID="home-load-bar-tick-blocked"
           >
-            {percent(blockedRatio)}
+            {ratioPercent(blockedRatio)}
           </AppText>
         </View>
       </View>

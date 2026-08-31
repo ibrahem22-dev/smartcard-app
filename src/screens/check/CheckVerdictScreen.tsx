@@ -415,7 +415,7 @@ export function CheckVerdictScreen({
               claim={`${fxBlock.quote.rateUsed.rateIlsPerQuoteUnit}|${fxBlock.quote.rateUsed.rateDate}`}
               className={`text-sm ${TEXT.body}`}
               testID="check-verdict-fx-rate"
-              view={{ chip: fxBlock.quote.provenance, stale: false }}
+              view={{ chip: fxBlock.quote.provenance, stale: fxBlock.quote.stale === true }}
             >
               {`${t('שער בנק ישראל')} ${fxBlock.quote.rateUsed.rateIlsPerQuoteUnit} · ${fxBlock.quote.rateUsed.rateDate}`}
             </NumberClaim>
@@ -423,7 +423,7 @@ export function CheckVerdictScreen({
               claim={String(fxBlock.quote.fxPercentApplied)}
               className={`text-sm ${TEXT.body}`}
               testID="check-verdict-fx-fee"
-              view={{ chip: fxBlock.quote.provenance, stale: false }}
+              view={{ chip: fxBlock.quote.provenance, stale: fxBlock.quote.stale === true }}
             >
               {`${t('עמלת כרטיס במטח')} ${fxBlock.quote.fxPercentApplied}`}
             </NumberClaim>
@@ -431,7 +431,7 @@ export function CheckVerdictScreen({
               claim={String(fxBlock.quote.effectiveIls)}
               className={`text-sm ${TEXT.body}`}
               testID="check-verdict-fx-estimate"
-              view={{ chip: fxBlock.quote.provenance, stale: false }}
+              view={{ chip: fxBlock.quote.provenance, stale: fxBlock.quote.stale === true }}
             >
               {`${t('עלות משוערת')} ₪${fxBlock.quote.effectiveIls}`}
             </NumberClaim>

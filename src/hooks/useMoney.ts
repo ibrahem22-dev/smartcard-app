@@ -1,7 +1,12 @@
 import { useCallback, useMemo } from 'react';
 
 import { useLanguage } from './useLanguage';
-import { formatAmount, formatMoney, formatPercent } from '../utils/money';
+import {
+  formatAmount,
+  formatMoney,
+  formatPercent,
+  formatRatioAsPercent,
+} from '../utils/money';
 
 /**
  * THE MONEY FORMATTER, BOUND TO THE READER'S LANGUAGE — criterion A7.
@@ -22,6 +27,8 @@ export interface UseMoneyResult {
   readonly amount: (value: number, fractionDigits?: number) => string;
   /** A percentage, two decimals maximum, no trailing zeros. */
   readonly percent: (value: number) => string;
+  /** A unit ratio such as 0.35 rendered as 35%. */
+  readonly ratioPercent: (value: number) => string;
 }
 
 export function useMoney(): UseMoneyResult {
@@ -44,5 +51,13 @@ export function useMoney(): UseMoneyResult {
     [language],
   );
 
-  return useMemo(() => ({ money, amount, percent }), [money, amount, percent]);
+  const ratioPercent = useCallback(
+    (value: number): string => formatRatioAsPercent(value, language),
+    [language],
+  );
+
+  return useMemo(
+    () => ({ money, amount, percent, ratioPercent }),
+    [money, amount, percent, ratioPercent],
+  );
 }

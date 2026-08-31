@@ -42,6 +42,20 @@ function notificationKey(profileId: string, cardId: string): string {
   );
 }
 
+export function notificationsEnabled(): boolean {
+  return (
+    keyVault
+      .getEncryptedStorage()
+      .getString(MMKV_KEYS.notificationsEnabled) === 'true'
+  );
+}
+
+export function setNotificationsEnabled(enabled: boolean): void {
+  keyVault
+    .getEncryptedStorage()
+    .set(MMKV_KEYS.notificationsEnabled, String(enabled));
+}
+
 function parseStoredIds(raw: string | undefined): string[] {
   if (raw === undefined) {
     return [];
@@ -86,14 +100,31 @@ async function hasPermission(): Promise<boolean> {
   return permission.granted;
 }
 
-function expiryContent(
-  card: CardInput,
-  expiryDate: string,
+/** Permission is requested only from an explicit user action on the Data & Privacy surface. */
+export async function requestLocalNotificationPermission(): Promise<boolean> {
+  return hasPermission();
+}
+
+export function buildGenericReminderContent(
+  reminderType: 'billing' | 'discount_expiry' | 'annual_card_fee',
 ): Notifications.NotificationContentInput {
+  const copy = {
+    billing: {
+      title: 'תזכורת תפעולית',
+      body: 'מועד חיוב מתקרב. פתח את האפליקציה לפרטים.',
+    },
+    discount_expiry: {
+      title: 'תזכורת תפעולית',
+      body: 'הטבת דמי כרטיס מתקרבת לסיומה. פתח את האפליקציה לפרטים.',
+    },
+    annual_card_fee: {
+      title: 'תזכורת תפעולית',
+      body: 'מומלץ לבדוק את תנאי דמי הכרטיס. פתח את האפליקציה לפרטים.',
+    },
+  } as const;
   return {
-    title: 'ההנחה על דמי כרטיס עומדת לפוג',
-    body: `כרטיס ${card.last4} — ההנחה פגה ב-${expiryDate}. בדוק מול חברת הכרטיסים.`,
-    data: { cardId: card.cardId, reminderType: 'discount_expiry' },
+    ...copy[reminderType],
+    data: { reminderType },
   };
 }
 
@@ -104,6 +135,9 @@ export async function scheduleDiscountReminders(
   const storage = keyVault.getEncryptedStorage();
   const key = notificationKey(profileId, card.cardId);
   const existingIds = parseStoredIds(storage.getString(key));
+  if (!notificationsEnabled()) {
+    return;
+  }
   if (!(await hasPermission())) {
     return;
   }
@@ -134,7 +168,7 @@ export async function scheduleDiscountReminders(
 
       for (const triggerDate of dates) {
         const id = await Notifications.scheduleNotificationAsync({
-          content: expiryContent(card, discountEndDate),
+          content: buildGenericReminderContent('discount_expiry'),
           trigger: {
             type: Notifications.SchedulableTriggerInputTypes.DATE,
             date: triggerDate,
@@ -150,14 +184,7 @@ export async function scheduleDiscountReminders(
       const annualDate = new Date(issuanceDate);
       annualDate.setMonth(annualDate.getMonth() + 11);
       const id = await Notifications.scheduleNotificationAsync({
-        content: {
-          title: 'תזכורת שנתית — דמי כרטיס',
-          body: `כרטיס ${card.last4} — האם קיבלת הנחה על דמי הכרטיס השנה?`,
-          data: {
-            cardId: card.cardId,
-            reminderType: 'annual_card_fee',
-          },
-        },
+        content: buildGenericReminderContent('annual_card_fee'),
         trigger: {
           type: Notifications.SchedulableTriggerInputTypes.YEARLY,
           day: annualDate.getDate(),
@@ -189,6 +216,9 @@ export async function cancelDiscountReminders(cardId: string): Promise<void> {
 
 export async function scheduleAnnualGlobalReminder(): Promise<void> {
   const storage = keyVault.getEncryptedStorage();
+  if (!notificationsEnabled()) {
+    return;
+  }
   const existingId = storage.getString(MMKV_KEYS.globalDiscountReminderId);
   if (existingId !== undefined) {
     return;
@@ -197,11 +227,7 @@ export async function scheduleAnnualGlobalReminder(): Promise<void> {
     return;
   }
   const id = await Notifications.scheduleNotificationAsync({
-    content: {
-      title: 'תזכורת שנתית — דמי כרטיס',
-      body: 'בדוק את ההנחות על דמי הכרטיסים שלך',
-      data: { reminderType: 'global_card_fee' },
-    },
+    content: buildGenericReminderContent('annual_card_fee'),
     trigger: {
       type: Notifications.SchedulableTriggerInputTypes.YEARLY,
       day: 1,
@@ -211,4 +237,23 @@ export async function scheduleAnnualGlobalReminder(): Promise<void> {
     },
   });
   storage.set(MMKV_KEYS.globalDiscountReminderId, id);
+}
+
+export async function scheduleBillingReminder(card: CardInput): Promise<void> {
+  if (!notificationsEnabled() || !(await hasPermission())) {
+    return;
+  }
+  await Notifications.scheduleNotificationAsync({
+    content: buildGenericReminderContent('billing'),
+    trigger: {
+      type: Notifications.SchedulableTriggerInputTypes.MONTHLY,
+      day: card.billingCycle.billingDayOfMonth,
+      hour: REMINDER_HOUR,
+      minute: 0,
+    },
+  });
+}
+
+export async function cancelAllLocalNotifications(): Promise<void> {
+  await Notifications.cancelAllScheduledNotificationsAsync();
 }

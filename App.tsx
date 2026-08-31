@@ -13,6 +13,8 @@ import { useAppDirection } from './src/hooks/useAppDirection';
 import { RootNavigator } from './src/navigation/RootNavigator';
 import { useLanguageStore } from './src/store/useLanguageStore';
 import { getRootDirectionStyle } from './src/utils/direction';
+import { expoPackSetStore } from './src/data/adapter/import/expoPackSetStore';
+import { recoverAtStartup } from './src/data/adapter/import/packSetImport';
 
 const navigationTheme: Theme = {
   ...DarkTheme,
@@ -49,6 +51,12 @@ export default function App(): React.ReactElement {
   useEffect(() => {
     void hydrateLanguage();
   }, [hydrateLanguage]);
+
+  useEffect(() => {
+    void recoverAtStartup(expoPackSetStore()).catch((): void => {
+      // A failed recovery leaves the signed bundled last-known-good packs in use.
+    });
+  }, []);
 
   const showMainUi = isHydrated;
 

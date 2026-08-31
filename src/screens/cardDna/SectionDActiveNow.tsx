@@ -57,7 +57,7 @@ function FigureRow({
   testID,
 }: FigureRowProps): React.ReactElement {
   /* The hook, not an import: this app's formatter takes the reader's language. */
-  const { money, percent } = useMoney();
+  const { money, ratioPercent } = useMoney();
   return (
     <RtlRow className={`items-center justify-between gap-3 border-b py-2 ${BORDER.subtle}`}>
       <AppText className={`flex-1 text-sm ${TEXT.body}`}>{label}</AppText>
@@ -68,7 +68,7 @@ function FigureRow({
           style={TABULAR_NUMERALS}
           testID={testID}
         >
-          {format === 'money' ? money(number.value) : percent(number.value)}
+          {format === 'money' ? money(number.value) : ratioPercent(number.value)}
         </AppText>
         <ProvenanceChip
           testID={`${testID}-provenance`}
@@ -84,7 +84,7 @@ export function SectionDActiveNow({
   context,
 }: SectionDActiveNowProps): React.ReactElement {
   const { t } = useTranslation();
-  const { money, percent } = useMoney();
+  const { money } = useMoney();
   const storedCards = useCardsStore((state) => state.cards);
   const storedInstallments = useCardsStore((state) => state.obligations);
   const storedLoans = useLoansStore((state) => state.loans);

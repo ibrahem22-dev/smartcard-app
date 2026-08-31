@@ -93,6 +93,8 @@ export type MoreStackParamList = {
   MoreRoot: undefined;
   Contact: undefined;
   Glossary: undefined;
+  Learn: undefined;
+  DataPrivacy: undefined;
   InstallmentImport: undefined;
   InterestCalculator: { cardId?: string } | undefined;
   /** DEV-ONLY diagnostics (PHASE-7 device evidence). Registered under __DEV__ exclusively. */

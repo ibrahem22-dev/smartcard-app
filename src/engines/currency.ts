@@ -63,6 +63,8 @@ export type ConvertedAmount = {
   /** ALWAYS 'ESTIMATE'. A type, so inheriting the input's grade does not compile. Tied to the
    *  Data Contract vocabulary via src/authority/provenanceChip.ts - never a local literal. */
   readonly provenance: Extract<ProvenanceChip, 'ESTIMATE'>;
+  /** The representative input is older than the authoritative calendar-day threshold. */
+  readonly stale?: true;
   /** T1: the account of this computation, travelling with it as an engine output. */
   readonly trace: ReasonTrace;
 };

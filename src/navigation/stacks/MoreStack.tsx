@@ -16,6 +16,8 @@ import { ContactScreen } from '../../screens/ContactScreen';
 import { GlossaryScreen } from '../../screens/GlossaryScreen';
 import { InstallmentImportScreen } from '../../screens/InstallmentImportScreen';
 import { InterestCalculatorScreen } from '../../screens/InterestCalculatorScreen';
+import { LearnScreen } from '../../screens/LearnScreen';
+import { DataPrivacyScreen } from '../../screens/DataPrivacyScreen';
 import { SettingsScreen } from '../../screens/SettingsScreen';
 import { useAppDirection, useStackBackGlyph } from '../../hooks/useAppDirection';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -79,6 +81,16 @@ export function MoreStack(): React.ReactElement {
           headerTitleAlign: isRTL ? 'center' : 'left',
           title: t('מילון פיננסי'),
         }}
+      />
+      <Stack.Screen
+        name="Learn"
+        component={LearnScreen}
+        options={{ title: t('מילון פיננסי') }}
+      />
+      <Stack.Screen
+        name="DataPrivacy"
+        component={DataPrivacyScreen}
+        options={{ title: 'Data & Privacy' }}
       />
       <Stack.Screen
         name="InstallmentImport"

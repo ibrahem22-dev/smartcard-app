@@ -25,6 +25,7 @@
 import type { FxRate } from '../data/adapter/vocabulary';
 import { convertToIls, type ConvertedAmount } from './currency';
 import { step, trace, type ReasonTrace } from './reasonTrace';
+import { stalenessReading, type StalenessReading } from '../data/adapter/fxStaleness';
 
 /** Cited constant — roadmap §5.3 (Task D1 interim behaviour): "suggest 150 ILS equivalent". */
 export const SMALL_AMOUNT_ADVISORY_THRESHOLD_ILS = 150;
@@ -92,6 +93,8 @@ export interface FxComparisonInput {
   readonly rate: FxRate;
   /** Overrides the cited default; a configured product choice, never a magic inline number. */
   readonly smallAmountThresholdIls?: number;
+  /** Pinned evaluation date. Callers rendering a current result must pass today's local ISO date. */
+  readonly asOfDate?: string;
 }
 
 export interface FxComparison {
@@ -107,6 +110,7 @@ export interface FxComparison {
   readonly smallAmountThresholdIls: number;
   /** True when "saves X" claims must be suppressed (advisory active). */
   readonly deltasSuppressed: boolean;
+  readonly rateFreshness: StalenessReading & { readonly asOfDate: string };
   readonly trace: ReasonTrace;
 }
 
@@ -118,6 +122,8 @@ export function compareAbroad(input: FxComparisonInput): FxComparison {
     );
   }
 
+  const asOfDate = input.asOfDate ?? input.rate.fetchDate;
+  const freshness = stalenessReading(input.rate.rateDate, asOfDate);
   const ranked: FxEntry[] = [];
   const unknownCards: string[] = [];
   for (const card of input.cards) {
@@ -158,6 +164,7 @@ export function compareAbroad(input: FxComparisonInput): FxComparison {
       cardId: card.cardId,
       quote: {
         ...quote,
+        ...(freshness.stale ? { stale: true as const } : {}),
         trace: trace('currency', [...quote.trace.steps, ...steps]),
       },
       ...(isAtm && minorCurrency
@@ -183,6 +190,7 @@ export function compareAbroad(input: FxComparisonInput): FxComparison {
     smallAmountAdvisory,
     smallAmountThresholdIls: threshold,
     deltasSuppressed: smallAmountAdvisory,
+    rateFreshness: { ...freshness, asOfDate },
     trace: trace('fx', [
       step(
         'engine fx compare',

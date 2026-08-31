@@ -169,30 +169,32 @@ export function SettingsScreen({
             onRequestDelete={confirmDeleteProfile}
           />
 
-          <AppText
-            className={`mb-2 mt-6 text-base font-extrabold ${TEXT.body}`}
-            style={{
-              borderBottomColor: bankDividerColor,
-              borderBottomWidth: 1,
-            }}
-          >
-            {t('חשבון ומנוי')}
-          </AppText>
-
-          <Pressable
-            accessibilityRole="button"
-            className={`mb-5 min-h-[50px] justify-center rounded-lg border px-4 shadow-sm ${PROMO.border} ${PROMO.surface}`}
-            onPress={openPromoModal}
-          >
-            <RtlRow className="items-center justify-between">
-              <AppText className={`text-base font-extrabold ${PROMO.text}`}>
-                {t('קוד קידום מכירות 🎟️')}
+          {__DEV__ ? (
+            <>
+              <AppText
+                className={`mb-2 mt-6 text-base font-extrabold ${TEXT.body}`}
+                style={{
+                  borderBottomColor: bankDividerColor,
+                  borderBottomWidth: 1,
+                }}
+              >
+                {t('חשבון ומנוי')}
               </AppText>
-              <AppText className={`text-xl ${PROMO.textSubtle}`}>
-                ›
-              </AppText>
-            </RtlRow>
-          </Pressable>
+              <Pressable
+                accessibilityRole="button"
+                className={`mb-5 min-h-[50px] justify-center rounded-lg border px-4 shadow-sm ${PROMO.border} ${PROMO.surface}`}
+                onPress={openPromoModal}
+                testID="dev-promo-entry"
+              >
+                <RtlRow className="items-center justify-between">
+                  <AppText className={`text-base font-extrabold ${PROMO.text}`}>
+                    {t('קוד קידום מכירות 🎟️')}
+                  </AppText>
+                  <AppText className={`text-xl ${PROMO.textSubtle}`}>›</AppText>
+                </RtlRow>
+              </Pressable>
+            </>
+          ) : null}
 
           <AppText
             className={`mb-2 mt-6 text-base font-extrabold ${TEXT.body}`}
@@ -248,10 +250,21 @@ export function SettingsScreen({
           <Pressable
             accessibilityRole="button"
             className={`mb-3 min-h-[50px] items-center justify-center rounded-lg border px-4 ${ACCENT.borderSubtle} ${ACCENT.surface}`}
-            onPress={(): void => navigation.navigate('Glossary')}
+            onPress={(): void => navigation.navigate('Learn')}
           >
             <AppText className={`text-center text-base font-extrabold ${ACCENT.text}`}>
               {t('מילון פיננסי')}
+            </AppText>
+          </Pressable>
+
+          <Pressable
+            accessibilityRole="button"
+            className={`mb-3 min-h-[50px] items-center justify-center rounded-lg border px-4 ${ACCENT.borderSubtle} ${ACCENT.surface}`}
+            onPress={(): void => navigation.navigate('DataPrivacy')}
+            testID="data-privacy-entry"
+          >
+            <AppText className={`text-center text-base font-extrabold ${ACCENT.text}`}>
+              Data & Privacy
             </AppText>
           </Pressable>
 

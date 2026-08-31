@@ -79,7 +79,7 @@ export function FxCompareSheet({
           >
             <ProvenanceChip
               testID="fx-compare-estimate-chip"
-              view={{ chip: 'ESTIMATE', stale: false }}
+              view={{ chip: 'ESTIMATE', stale: comparison.rateFreshness.stale }}
             />
           </View>
         </View>
@@ -119,7 +119,7 @@ export function FxCompareSheet({
                 </AppText>
                 <ProvenanceChip
                   testID={`fx-compare-total-${entry.cardId}-chip`}
-                  view={{ chip: entry.quote.provenance, stale: false }}
+                  view={{ chip: entry.quote.provenance, stale: entry.quote.stale === true }}
                 />
               </View>
             );
@@ -184,7 +184,7 @@ export function FxCompareSheet({
                 </AppText>
                 <ProvenanceChip
                   testID="fx-compare-explainer-chip"
-                  view={{ chip: winnerQuote.provenance, stale: false }}
+                  view={{ chip: winnerQuote.provenance, stale: winnerQuote.stale === true }}
                 />
                 </View>
                 {winnerQuote.trace.steps.map((item, index) => (

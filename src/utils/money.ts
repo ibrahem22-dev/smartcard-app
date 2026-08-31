@@ -103,6 +103,14 @@ export function formatPercent(value: number, language: AppLanguage): string {
   return `${digits}%`;
 }
 
+/** Format a unit ratio (0.35) as a percentage (35%). */
+export function formatRatioAsPercent(
+  ratio: number,
+  language: AppLanguage,
+): string {
+  return formatPercent(ratio * 100, language);
+}
+
 /**
  * TABULAR NUMERALS — A7's third clause.
  *
