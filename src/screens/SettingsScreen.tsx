@@ -269,6 +269,17 @@ export function SettingsScreen({
           <Pressable
             accessibilityRole="button"
             className={`mb-3 min-h-[50px] items-center justify-center rounded-lg border px-4 ${ACCENT.borderSubtle} ${ACCENT.surface}`}
+            onPress={(): void => navigation.navigate('DataPrivacy')}
+            testID="data-privacy-entry"
+          >
+            <AppText className={`text-center text-base font-extrabold ${ACCENT.text}`}>
+              {t('מידע ופרטיות: גרסאות, רעננות ואחסון מקומי')}
+            </AppText>
+          </Pressable>
+
+          <Pressable
+            accessibilityRole="button"
+            className={`mb-3 min-h-[50px] items-center justify-center rounded-lg border px-4 ${ACCENT.borderSubtle} ${ACCENT.surface}`}
             onPress={(): void => navigation.navigate('InstallmentImport')}
           >
             <AppText className={`text-center text-base font-extrabold ${ACCENT.text}`}>

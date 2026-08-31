@@ -92,6 +92,7 @@ export type PlanStackParamList = {
 export type MoreStackParamList = {
   MoreRoot: undefined;
   Learn: undefined;
+  DataPrivacy: undefined;
   Contact: undefined;
   Glossary: undefined;
   InstallmentImport: undefined;

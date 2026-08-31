@@ -1099,4 +1099,41 @@ export const enBySource: Readonly<Record<string, string>> = {
   'אתר רשמי': 'Official website',
   'הצהרת נגישות': 'Accessibility statement',
   'אתר בערבית': 'Arabic website',
+  // Data & Privacy — runtime manifest and local-store readings.
+  'מידע ופרטיות': 'Data & privacy',
+  'מידע ופרטיות: גרסאות, רעננות ואחסון מקומי': 'Data & privacy: versions, freshness and local storage',
+  'כל הגרסאות, התאריכים והספירות נקראים עכשיו מהמניפסטים ומהאחסון המקומי.':
+    'Every version, date and count is read now from manifests and local storage.',
+  'גרסאות ורעננות מוצהרת': 'Versions and declared freshness',
+  'חבילת נתונים': 'Data pack',
+  'תמונת מצב של שערי מטבע': 'FX snapshot',
+  '{{set}} — {{kind}}': '{{set}} — {{kind}}',
+  'גרסה: {{version}}': 'Version: {{version}}',
+  'גרסת מערך נתונים: {{version}}': 'Dataset version: {{version}}',
+  'גרסת מבנה: {{version}}': 'Format version: {{version}}',
+  'נוצרה: {{date}}': 'Generated: {{date}}',
+  'גודל במניפסט: {{count}} בתים': 'Manifest size: {{count}} bytes',
+  'רשומות מקומיות בחבילה: {{count}}': 'Local rows in artifact: {{count}}',
+  'גרסת אפליקציה מזערית: {{version}}': 'Minimum app version: {{version}}',
+  'המניפסט מצהיר על רעננות של {{count}} ימים; זה אינו פסק דין על התיישנות.':
+    'The manifest declares {{count}} freshness days; this is not a staleness verdict.',
+  'תאריך תמונת המצב: {{date}}': 'Snapshot date: {{date}}',
+  'תאריך שער מוקדם ביותר: {{date}}': 'Earliest rate date: {{date}}',
+  'תאריך שער אחרון: {{date}}': 'Latest rate date: {{date}}',
+  'המקור נגיש לאחרונה: {{date}}': 'Source accessed: {{date}}',
+  'תמהיל מקור הנתונים': 'Provenance mix',
+  'הספירה היא של שדות חבילה באוצר המילים VERIFIED, ESTIMATE, UNKNOWN, CONFLICT. USER שייך לנתוני הכספת ואינו נכלל בספירת החבילות.':
+    'This counts pack fields in the VERIFIED, ESTIMATE, UNKNOWN, CONFLICT vocabulary. USER belongs to vault data and is excluded from pack counts.',
+  סתירה: 'Conflict',
+  'מה מוחזק מקומית': 'What is held locally',
+  'האפליקציה משתמשת בכספת MMKV מוצפנת, במופע MMKV נפרד ולא מוצפן להעדפות, וב-SQLite לחבילות מיובאות.':
+    'The app uses an encrypted MMKV vault, a separate unencrypted MMKV preferences instance, and SQLite for imported packs.',
+  'רשומות JSON המוחזקות בחבילת האפליקציה: {{count}}': 'JSON rows held in the app bundle: {{count}}',
+  'מפתחות בכספת המוצפנת': 'Keys in the encrypted vault',
+  'מפתחות בהעדפות הלא מוצפנות': 'Keys in unencrypted preferences',
+  'רשומות חבילה שיובאו ל-SQLite': 'Pack rows imported into SQLite',
+  '{{label}}: הספירה אינה זמינה — {{reason}}': '{{label}}: count unavailable — {{reason}}',
+  '{{label}}: {{count}}': '{{label}}: {{count}}',
+  'SQLite ריק כי עדיין אין מסלול ייצור שמייבא אליו; נתוני החבילות המקומיים נקראים מקובצי JSON המובנים שמנויים למעלה.':
+    'SQLite is empty because no production path imports into it yet; local pack data is read from the bundled JSON counted above.',
 };
