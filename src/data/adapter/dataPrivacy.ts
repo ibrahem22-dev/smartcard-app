@@ -22,6 +22,7 @@ import taxonomyPackJson from './packs/taxonomy/pack.json';
 import taxonomyManifestJson from './packs/taxonomy/manifest.json';
 import taxonomyEnvelopeJson from './packs/taxonomy/manifest.sig.json';
 
+import { PROVENANCE_CHIPS, type ProvenanceChip } from '../../authority/provenanceChip';
 import { STORAGE_NAMESPACE } from '../../config/identity';
 import { keyVault } from '../../security/keyVault';
 import { openPackStore } from '../../store/packStore';
@@ -93,7 +94,32 @@ const bundledReader: PackReader = {
   },
 };
 
-export type PackProvenanceState = 'VERIFIED' | 'ESTIMATE' | 'UNKNOWN' | 'CONFLICT';
+/**
+ * THE CHIP VOCABULARY IS NOT RESTATED HERE — criterion B5, and P2's provenance-single-enum gate.
+ *
+ * This module first declared its own `'VERIFIED' | 'ESTIMATE' | 'UNKNOWN' | 'CONFLICT'`, because
+ * the shipped catalog pack really does carry a chip the app's enum does not have. The gate refused
+ * it, and its reason is the right one: *"Two enums for one concept is the divergence class the Data
+ * Contract exists to prevent — not that either is wrong, but that nothing forces them to agree."*
+ *
+ * So the vocabulary is IMPORTED from the one place that owns it, and the pack-side set is DERIVED
+ * from it: every chip except `USER`, which the Data Contract §2.2 puts in the vault and which no
+ * pack row can carry. If a member is ever added or retired there, this follows without being
+ * edited.
+ *
+ * WHAT THE PACKS ACTUALLY CARRY, AND WHY IT IS REPORTED RATHER THAN ABSORBED. Counted from disk:
+ * 4,306 chips across benefits, catalog and taxonomy are members of the vocabulary — and exactly
+ * ONE, in the catalog pack, reads `CONFLICT`, on a value with two candidate rates and
+ * `consumability.axes.conflictStatus: "INLINE"`. It is a real fact in shipped data and it is not a
+ * member of the contract's four. Widening a local enum to swallow it would have made the surface
+ * agree with the pack by disagreeing with the contract, silently. Instead it is counted separately
+ * and rendered AS an outsider, by name — see OQ-MDC-009, which asks whether the pack or the
+ * contract should move. C7's job is to state what is there, not to decide that.
+ */
+export type PackProvenanceState = Exclude<ProvenanceChip, 'USER'>;
+
+/** Derived from the one vocabulary; never typed out. */
+const PACK_SIDE_CHIPS: readonly ProvenanceChip[] = PROVENANCE_CHIPS.filter((chip) => chip !== 'USER');
 
 type DataPrivacyArtifactBase = {
   readonly set: string;
@@ -126,6 +152,11 @@ export type DataPrivacyReading = {
   readonly artifacts: readonly DataPrivacyArtifact[];
   readonly provenanceMix: readonly {
     readonly state: PackProvenanceState;
+    readonly count: number;
+  }[];
+  /** Chips the contract's vocabulary does not contain, counted and named rather than folded in. */
+  readonly provenanceOutsideVocabulary: readonly {
+    readonly state: string;
     readonly count: number;
   }[];
   readonly local: {
@@ -180,19 +211,15 @@ const versionFromBothHomes = (
   return assertArtifactVersionsAgree(set, manifestVersion, bodyVersion);
 };
 
-const isPackProvenanceState = (value: unknown): value is PackProvenanceState => {
-  switch (value) {
-    case 'VERIFIED':
-    case 'ESTIMATE':
-    case 'UNKNOWN':
-    case 'CONFLICT':
-      return true;
-  }
-  return false;
-};
+const isPackProvenanceState = (value: unknown): value is PackProvenanceState =>
+  typeof value === 'string' && (PACK_SIDE_CHIPS as readonly string[]).includes(value);
 
-const provenanceMix = (bodies: readonly JsonObject[]): DataPrivacyReading['provenanceMix'] => {
+const provenanceMix = (bodies: readonly JsonObject[]): {
+  readonly mix: DataPrivacyReading['provenanceMix'];
+  readonly outside: DataPrivacyReading['provenanceOutsideVocabulary'];
+} => {
   const counts = new Map<PackProvenanceState, number>();
+  const outside = new Map<string, number>();
   const visit = (value: unknown): void => {
     if (Array.isArray(value)) {
       value.forEach(visit);
@@ -201,19 +228,28 @@ const provenanceMix = (bodies: readonly JsonObject[]): DataPrivacyReading['prove
     if (typeof value !== 'object' || value === null) return;
     for (const [field, child] of Object.entries(value)) {
       if (field === 'chip' || field === 'provenanceChip') {
-        if (!isPackProvenanceState(child)) {
-          throw new Error(`pack-side provenance field carries out-of-domain state ${String(child)}`);
+        /* A chip the contract's vocabulary does not contain is COUNTED AND NAMED, never folded
+           into a neighbouring member and never silently dropped. Throwing here would have been
+           the other tempting answer, and it would have taken the whole screen down over one row
+           in one pack — reporting it is what lets somebody act on it. */
+        if (isPackProvenanceState(child)) {
+          counts.set(child, (counts.get(child) ?? 0) + 1);
+        } else {
+          const name = String(child);
+          outside.set(name, (outside.get(name) ?? 0) + 1);
         }
-        counts.set(child, (counts.get(child) ?? 0) + 1);
       }
       visit(child);
     }
   };
   bodies.forEach(visit);
-  if (counts.size === 0) {
+  if (counts.size === 0 && outside.size === 0) {
     throw new Error('no pack-side provenance chips were found; absence cannot be reported as a mix');
   }
-  return [...counts].map(([state, count]) => ({ state, count }));
+  return {
+    mix: [...counts].map(([state, count]) => ({ state, count })),
+    outside: [...outside].map(([state, count]) => ({ state, count })),
+  };
 };
 
 const countOrUnavailable = (read: () => number): CountReading => {
@@ -305,9 +341,11 @@ export function readDataPrivacy(): DataPrivacyReading {
   });
 
   const bundledRows = artifacts.reduce((total, artifact) => total + artifact.rowCount, 0);
+  const chips = provenanceMix(Object.values(BUNDLED_FILES).map(files => files.body));
   return {
     artifacts,
-    provenanceMix: provenanceMix(Object.values(BUNDLED_FILES).map(files => files.body)),
+    provenanceMix: chips.mix,
+    provenanceOutsideVocabulary: chips.outside,
     local: readLocalHoldings(bundledRows),
   };
 }

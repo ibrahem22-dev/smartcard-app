@@ -104,6 +104,17 @@ describe('MDC C7 — Data & Privacy reads manifests and stores at runtime', () =
       expect(api.getByTestId(`data-privacy-provenance-${item.state}`)).toHaveTextContent(containing(item.count));
     }
     expect(api.getByTestId('data-privacy-provenance')).toHaveTextContent(containing('USER belongs to vault data'));
+
+    // The catalog pack really does carry one chip the contract's vocabulary does not contain.
+    // It must be NAMED on the surface, not folded into a neighbouring member and not dropped.
+    expect(expected.provenanceOutsideVocabulary.length).toBeGreaterThan(0);
+    for (const item of expected.provenanceOutsideVocabulary) {
+      expect(expected.provenanceMix.some(member => member.state === item.state)).toBe(false);
+      expect(api.getByTestId(`data-privacy-provenance-outside-${item.state}`))
+        .toHaveTextContent(containing(item.count));
+      expect(api.getByTestId(`data-privacy-provenance-outside-${item.state}`))
+        .toHaveTextContent(containing(item.state));
+    }
   });
 
   it('reports bundled JSON separately from the empty SQLite import store', () => {

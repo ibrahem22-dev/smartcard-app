@@ -273,10 +273,20 @@ export const run = async () => {
     }
     countProvenance(body, provenance);
   }
-  const packVocabulary = new Set(['VERIFIED', 'ESTIMATE', 'UNKNOWN', 'CONFLICT']);
+  /* THE VOCABULARY IS READ FROM THE ONE PLACE THAT OWNS IT, not restated here. A gate that types
+     out the enum it is policing would be the second vocabulary criterion B5 forbids, one directory
+     over. USER is excluded because the Data Contract puts it in the vault, never in a pack row. */
+  const chipSource = readFileSync(join(ROOT, 'src', 'authority', 'provenanceChip.ts'), 'utf8');
+  const declared = (chipSource.match(/PROVENANCE_CHIPS\s*=\s*\[([^\]]*)\]/) ?? [])[1];
+  if (declared === undefined) return fail('src/authority/provenanceChip.ts declares no PROVENANCE_CHIPS');
+  const packVocabulary = new Set(
+    [...declared.matchAll(/'([A-Z_]+)'/g)].map(m => m[1]).filter(chip => chip !== 'USER'),
+  );
+  if (packVocabulary.size === 0) return fail('the derived pack-side chip vocabulary is empty');
+  const outsideVocabulary = [];
   if (provenance.size === 0) problems.push('derived pack-side provenance population is empty');
   for (const state of provenance.keys()) {
-    if (!packVocabulary.has(state)) problems.push(`pack-side provenance contains out-of-domain state ${state}`);
+    if (!packVocabulary.has(state)) outsideVocabulary.push(state);
   }
   clauses.push(`${artifacts.length} artifact(s), ${bundledRows} bundled row(s), and ${[...provenance.values()].reduce((sum, count) => sum + count, 0)} provenance field(s) derived from disk`);
 
@@ -293,6 +303,20 @@ export const run = async () => {
     .some(specifier => resolveSourceImport(SCREEN, specifier) === SEAM);
   if (!screenImportsSeam) problems.push('DataPrivacyScreen does not import its figures from the dataPrivacy seam');
   if (!/readDataPrivacy\s*\(\s*\)/.test(screenStripped)) problems.push('screen does not call readDataPrivacy() at runtime');
+
+  /* AN OUT-OF-DOMAIN CHIP IS A REAL FACT IN SHIPPED DATA, and C7's job is to STATE it — see
+     OQ-MDC-009. The catalog pack carries one `CONFLICT`. Folding it into a neighbouring member
+     would make the surface agree with the pack by disagreeing with the contract, silently; dropping
+     it would be an absence reading as "we did not look". So the gate requires it to be rendered as
+     an outsider, by name, whenever the packs contain one. */
+  for (const state of outsideVocabulary) {
+    /* Looked for in CODE, not in a string: the testID lives inside a template literal and
+       screenStripped has string bodies blanked, so searching for the id itself would never match
+       however correct the screen was. The map over the seam's outsider list is code and survives. */
+    if (!/provenanceOutsideVocabulary\s*\.\s*map/.test(screenStripped)) {
+      problems.push(`pack-side provenance carries ${state}, which the contract vocabulary does not contain, and the screen does not render it as an outsider`);
+    }
+  }
   for (const pattern of [
     /reading\.artifacts\.map\s*\(/,
     /reading\.provenanceMix\.map\s*\(/,

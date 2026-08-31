@@ -31,8 +31,6 @@ function provenanceLabel(state: PackProvenanceState, t: Translate): string {
       return t('הערכה');
     case 'UNKNOWN':
       return t('לא ידוע');
-    case 'CONFLICT':
-      return t('סתירה');
   }
 }
 
@@ -151,6 +149,15 @@ export function DataPrivacyScreen(): React.ReactElement {
                 testID={`data-privacy-provenance-${item.state}`}
               >
                 {t('{{label}}: {{count}}', { label: provenanceLabel(item.state, t), count: item.count })}
+              </AppText>
+            ))}
+            {reading.provenanceOutsideVocabulary.map(item => (
+              <AppText
+                className={`text-sm leading-6 ${TEXT.body}`}
+                key={item.state}
+                testID={`data-privacy-provenance-outside-${item.state}`}
+              >
+                {t('מחוץ לאוצר המילים של החוזה — {{state}}: {{count}}', { state: item.state, count: item.count })}
               </AppText>
             ))}
           </View>

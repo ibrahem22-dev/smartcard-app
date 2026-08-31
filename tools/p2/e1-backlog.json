@@ -294,6 +294,36 @@
       "why": "ALLOW-CROSSSET-RESOLVER states the principle and it applies unchanged: the predecessor lint calls every module under the seam a pack module, but a seam nothing may import is not a seam - reaching the boundary THROUGH its modules is the arrangement D2 exists to make possible rather than a violation of it. LearnScreen imports src/data/adapter/learn, which is the seam module: it returns adapter row views and slice sizes and holds no pack bytes. The screen imports no pack.json and no adapter package - the C6 gate checks exactly that across the screen import closure, and fails if any file in it reaches the raw pack directly. Scoped to LearnScreen.tsx BY NAME, exactly as ALLOW-BENEFIT-VOCABULARY-IMPORT is scoped to benefitRows.ts, so another screen importing the Learn seam would still be UNACCOUNTED and would have to be argued on its own.",
       "reviewedBy": "MDC C6 / OQ-MDC-007",
       "reviewedAt": "2026-08-31"
+    },
+    {
+      "id": "ALLOW-DATA-PRIVACY-ARTIFACT-READS",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/data/adapter/dataPrivacy\\.ts$",
+      "message": "raw dataset '[^']*packs/[^']*' imported outside",
+      "why": "THE SAME PREDECESSOR-LINT ARTEFACT ALLOW-CROSSSET-RESOLVER AND ALLOW-LEARN-CONTENT-PACK-READ ALREADY RECORD. R3 names src/authority/** because that was the boundary directory when this lint was adopted; the rule in force is D2, which forbids pack imports OUTSIDE data/adapter/**, and this file is INSIDE it. What is different here, and why it is fifteen imports rather than one: C7 must state the version, freshness and provenance of EVERY shipped artifact, so the seam holds all five sets and, for each, the body, the manifest, and the detached signature envelope. It does not read them raw - they are handed to openAllPackSets and openFxSnapshot through a bundled PackReader, and the seam REFUSES if any set fails verification, so the figures on the screen are only ever from artifacts that passed their signature check. The alternative in-tree reader, fsPackReader, imports node:fs and is barred from the runtime graph by the node-apis-absent gate; devProbeInputs.ts already establishes this bundled-reader pattern under ALLOW-DEV-PROBE-PACK-READS. Scoped to dataPrivacy.ts BY NAME, so a second module opening the artifacts is still UNACCOUNTED.",
+      "reviewedBy": "MDC C7 / OQ-MDC-007",
+      "reviewedAt": "2026-09-01"
+    },
+    {
+      "id": "ALLOW-DATA-PRIVACY-PREFERENCES-COUNT",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/data/adapter/dataPrivacy\\.ts$",
+      "message": "local storage driver 'react-native-mmkv' imported outside",
+      "why": "C7 must state WHAT IS HELD LOCALLY, and the app holds it in three places: the encrypted vault, a separate UNENCRYPTED preferences instance, and SQLite. The encrypted half is read through its sanctioned owner - keyVault.getEncryptedStorage() in src/security/** - and needs no exception. The preferences instance has no owner module that exports it; src/i18n/locale.ts constructs its own and is itself covered by DEFER-MMKV-OUTSIDE-VAULT, so this seam constructs a second HANDLE to the same store id rather than a second store. It only ENUMERATES KEYS to count them: it never reads a value, never writes, and never deletes. Telling the user their preferences are unencrypted while being unable to say how much is in there would be a disclosure screen withholding the thing it exists to disclose. Scoped to dataPrivacy.ts BY NAME and to the mmkv driver specifically.",
+      "reviewedBy": "MDC C7 / OQ-MDC-007",
+      "reviewedAt": "2026-09-01"
+    },
+    {
+      "id": "ALLOW-DATA-PRIVACY-SEAM-IMPORT",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/screens/(DataPrivacyScreen\\.tsx|__tests__/dataPrivacy\\.render\\.test\\.tsx)$",
+      "message": "pack module '[^']*data/adapter/dataPrivacy' imported outside",
+      "why": "ALLOW-CROSSSET-RESOLVER states the principle and ALLOW-LEARN-SEAM-IMPORT applies it one criterion earlier: a seam nothing may import is not a seam, and reaching the boundary THROUGH its modules is the arrangement D2 exists to make possible. The screen imports the seam and nothing else - the C7 gate derives the screen import closure and fails if ANY file in it names a manifest, a pack, MMKV or SQLite directly. The render suite is included because it asserts every rendered figure against the value the seam derives at runtime; asserting against typed constants instead is precisely the defect C7 forbids, so the test has to hold the same door the screen does. Scoped to those two files BY NAME.",
+      "reviewedBy": "MDC C7 / OQ-MDC-007",
+      "reviewedAt": "2026-09-01"
     }
   ],
   "$closedNote": [

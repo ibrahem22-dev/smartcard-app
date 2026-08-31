@@ -344,6 +344,7 @@ export const enBySource: Readonly<Record<string, string>> = {
   'הערך שלך': 'Your value',
   'הערכה': 'Estimate',
   'לא ידוע': 'Unknown',
+  'מחוץ לאוצר המילים של החוזה — {{state}}: {{count}}': 'Outside the contract vocabulary — {{state}}: {{count}}',
   'לא עדכני': 'Stale',
   הגדרות: en.settings.title,
   שפה: en.settings.languageTitle,
