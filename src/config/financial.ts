@@ -145,6 +145,16 @@ export const MONEY_FRACTION_DIGITS = 2;
  * How many decimals a PERCENTAGE shows, at most. Trailing zeros are dropped: unlike money,
  * 2.5% and 2.50% read identically and the shorter form is what every issuer publishes.
  */
+/**
+ * PERCENT PER UNIT — the factor between a ratio and the percentage a reader sees.
+ *
+ * Here rather than in the formatter because R4 says so, and R4 is right about this one: the
+ * hundred IS the unit relationship, and the unit relationship is exactly what OQ-P5-003 got
+ * wrong for the length of a campaign. A financial constant with a name is harder to apply twice
+ * or not at all than a literal 100 sitting in a format string.
+ */
+export const PERCENT_PER_UNIT = 100;
+
 export const PERCENT_MAX_FRACTION_DIGITS = 2;
 
 /** Days in the longest month — a billing day outside this is not a date. */

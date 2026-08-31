@@ -4,6 +4,7 @@ import type { AppLanguage } from '../i18n/locale';
 import {
   MONEY_FRACTION_DIGITS,
   PERCENT_MAX_FRACTION_DIGITS,
+  PERCENT_PER_UNIT,
 } from '../config/financial';
 
 /**
@@ -122,7 +123,7 @@ export function formatMoney(
 export function formatPercent(ratio: number, language: AppLanguage): string {
   const digits = new Intl.NumberFormat(NUMBER_LOCALE[language], {
     maximumFractionDigits: PERCENT_MAX_FRACTION_DIGITS,
-  }).format(ratio * 100);
+  }).format(ratio * PERCENT_PER_UNIT);
   return `${digits}%`;
 }
 
@@ -140,7 +141,7 @@ export function formatPercent(ratio: number, language: AppLanguage): string {
  * independently verified pass over all twelve call sites; the next reader should not have to.
  */
 export function ratioFromPercent(percentValue: number): number {
-  return percentValue / 100;
+  return percentValue / PERCENT_PER_UNIT;
 }
 
 /**
