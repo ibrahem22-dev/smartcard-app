@@ -41,3 +41,7 @@ reports/p4/*-dirty.json
 # it is an intermediate, not a record, and committing it would leave the tree permanently dirty.
 # The durable record is the sha-named ladder report beside it, which E5 requires to be committed.
 reports/p2/render-harness.json
+
+# A dirty MDC ladder report is a record of a state no sha names, exactly as for p2 and p4.
+# The clean run at the committed sha is the record.
+reports/mdc/*-dirty.json

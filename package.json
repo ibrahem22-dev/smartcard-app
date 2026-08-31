@@ -27,7 +27,9 @@
     "p4:gate": "node tools/p4/gate.mjs",
     "p4:all": "node tools/p4/all.mjs",
     "p5:gate": "node tools/p5/gate.mjs",
-    "p5:all": "node tools/p5/all.mjs"
+    "p5:all": "node tools/p5/all.mjs",
+    "mdc:gate": "node tools/mdc/gate.mjs",
+    "mdc:all": "node tools/mdc/all.mjs"
   },
   "dependencies": {
     "@expo/metro-runtime": "~57.0.7",

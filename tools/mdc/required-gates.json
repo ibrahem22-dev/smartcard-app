@@ -1,0 +1,300 @@
+{
+  "$comment": [
+    "GENERATED from the ```criteria fence in MDC_COMPLETION_CONTRACT.md by",
+    "campaign-master/bin/mdc-required-gates.mjs. Do not hand-edit; regenerate.",
+    "The ladder reads this to know what MUST exist, not just what happens to be here.",
+    "activeStages is the campaign position at generation time: a gate whose stage is not",
+    "active is listed but not yet required, and mdc:all refuses this file if activeStages",
+    "disagrees with the campaign state it can see."
+  ],
+  "schemaVersion": "smartcard.mdc.requiredgates.v1",
+  "contractFenceHash": "69b822ac3b0252ca5351292141d85398ad0d3d588c52dd6257b9d8756d65c25b",
+  "generatedBy": "mdc-required-gates.mjs",
+  "activeStages": [
+    "STAGE-0",
+    "STAGE-1"
+  ],
+  "gateCount": 21,
+  "gates": [
+    {
+      "gate": "accent-discipline",
+      "sentinel": "ACCENT-DISCIPLINE OK",
+      "criteria": [
+        "T3"
+      ],
+      "stage": "STAGE-2",
+      "class": "COMMAND",
+      "negativeControls": []
+    },
+    {
+      "gate": "component-pass",
+      "sentinel": "COMPONENT-PASS OK",
+      "criteria": [
+        "T4"
+      ],
+      "stage": "STAGE-2",
+      "class": "COMMAND",
+      "negativeControls": []
+    },
+    {
+      "gate": "conflict-audit",
+      "sentinel": "CONFLICT-AUDIT OK",
+      "criteria": [
+        "C3"
+      ],
+      "stage": "STAGE-1",
+      "class": "COMMAND",
+      "negativeControls": [
+        {
+          "criterion": "C3",
+          "control": "hide-candidate",
+          "mutation": "suppress one candidate's source on one surface",
+          "expect": "the audit names the surface and the conflict"
+        }
+      ]
+    },
+    {
+      "gate": "data-privacy-screen",
+      "sentinel": "DATA-PRIVACY OK",
+      "criteria": [
+        "C7"
+      ],
+      "stage": "STAGE-1",
+      "class": "COMMAND",
+      "negativeControls": []
+    },
+    {
+      "gate": "debt-retirement",
+      "sentinel": "DEBT-RETIREMENT OK",
+      "criteria": [
+        "C11"
+      ],
+      "stage": "STAGE-1",
+      "class": "COMMAND",
+      "negativeControls": []
+    },
+    {
+      "gate": "export-import",
+      "sentinel": "EXPORT-IMPORT OK",
+      "criteria": [
+        "C5"
+      ],
+      "stage": "STAGE-1",
+      "class": "COMMAND",
+      "negativeControls": [
+        {
+          "criterion": "C5",
+          "control": "wrong-key-accepted",
+          "mutation": "let import proceed on MAC failure",
+          "expect": "the gate fails on the accepted forgery"
+        }
+      ]
+    },
+    {
+      "gate": "identity-rename",
+      "sentinel": "IDENTITY-RENAME OK",
+      "criteria": [
+        "T6"
+      ],
+      "stage": "STAGE-2",
+      "class": "COMMAND",
+      "negativeControls": [
+        {
+          "criterion": "T6",
+          "control": "scattered-literal",
+          "mutation": "add the product name as a literal in one source file",
+          "expect": "the identity gate names it"
+        }
+      ]
+    },
+    {
+      "gate": "learn",
+      "sentinel": "LEARN OK",
+      "criteria": [
+        "C6"
+      ],
+      "stage": "STAGE-1",
+      "class": "COMMAND",
+      "negativeControls": []
+    },
+    {
+      "gate": "localization-polish",
+      "sentinel": "LOCALIZATION-POLISH OK",
+      "criteria": [
+        "T7"
+      ],
+      "stage": "STAGE-2",
+      "class": "COMMAND",
+      "negativeControls": [
+        {
+          "criterion": "T7",
+          "control": "deleted-ar-key",
+          "mutation": "delete one Arabic key",
+          "expect": "the three-language clause fails on the missing key, not silently"
+        }
+      ]
+    },
+    {
+      "gate": "money-format",
+      "sentinel": "MONEY-FORMAT OK",
+      "criteria": [
+        "T2"
+      ],
+      "stage": "STAGE-2",
+      "class": "COMMAND",
+      "negativeControls": [
+        {
+          "criterion": "T2",
+          "control": "ratio-to-percent-formatter",
+          "mutation": "pass one ratio to the already-percent formatter",
+          "expect": "the pinned-text check fails on the hundredfold error"
+        }
+      ]
+    },
+    {
+      "gate": "no-dev-chrome",
+      "sentinel": "NO-DEV-CHROME OK",
+      "criteria": [
+        "T5"
+      ],
+      "stage": "STAGE-2",
+      "class": "DEVICE",
+      "negativeControls": []
+    },
+    {
+      "gate": "notifications",
+      "sentinel": "NOTIFICATIONS OK",
+      "criteria": [
+        "C4"
+      ],
+      "stage": "STAGE-1",
+      "class": "DEVICE",
+      "negativeControls": []
+    },
+    {
+      "gate": "offline",
+      "sentinel": "OFFLINE-PASS OK",
+      "criteria": [
+        "C9"
+      ],
+      "stage": "STAGE-1",
+      "class": "DEVICE",
+      "negativeControls": []
+    },
+    {
+      "gate": "one-purchase",
+      "sentinel": "ONE-PURCHASE OK",
+      "criteria": [
+        "C1"
+      ],
+      "stage": "STAGE-1",
+      "class": "COMMAND",
+      "negativeControls": [
+        {
+          "criterion": "C1",
+          "control": "sever-purchase-write",
+          "mutation": "route one surface to a second purchase source",
+          "expect": "the property fails on the diverging surface"
+        }
+      ]
+    },
+    {
+      "gate": "pack-update",
+      "sentinel": "PACK-UPDATE-E2E OK",
+      "criteria": [
+        "C8"
+      ],
+      "stage": "STAGE-1",
+      "class": "DEVICE",
+      "negativeControls": [
+        {
+          "criterion": "C8",
+          "control": "tampered-signature",
+          "mutation": "flip one byte in the manifest signature fixture",
+          "expect": "the update path refuses and the gate proves it"
+        }
+      ]
+    },
+    {
+      "gate": "performance",
+      "sentinel": "PERFORMANCE OK",
+      "criteria": [
+        "V3"
+      ],
+      "stage": "STAGE-3",
+      "class": "DEVICE",
+      "negativeControls": []
+    },
+    {
+      "gate": "purchase-lifecycle",
+      "sentinel": "PURCHASE-LIFECYCLE OK",
+      "criteria": [
+        "C2"
+      ],
+      "stage": "STAGE-1",
+      "class": "COMMAND",
+      "negativeControls": [
+        {
+          "criterion": "C2",
+          "control": "bypass-cascade",
+          "mutation": "skip the cascade on delete",
+          "expect": "the lifecycle gate fails on the orphaned commitment"
+        }
+      ]
+    },
+    {
+      "gate": "release-build",
+      "sentinel": "RELEASE-BUILD OK",
+      "criteria": [
+        "R1"
+      ],
+      "stage": "STAGE-4",
+      "class": "COMMAND",
+      "negativeControls": []
+    },
+    {
+      "gate": "skinned-remeasure",
+      "sentinel": "SKINNED-REMEASURE OK",
+      "criteria": [
+        "T8"
+      ],
+      "stage": "STAGE-2",
+      "class": "DEVICE",
+      "negativeControls": []
+    },
+    {
+      "gate": "stale-data",
+      "sentinel": "STALE-DATA OK",
+      "criteria": [
+        "C10"
+      ],
+      "stage": "STAGE-1",
+      "class": "COMMAND",
+      "negativeControls": [
+        {
+          "criterion": "C10",
+          "control": "clock-bypass",
+          "mutation": "pin the staleness clock to now",
+          "expect": "the gate fails on the never-stale render"
+        }
+      ]
+    },
+    {
+      "gate": "tokens-swap",
+      "sentinel": "TOKENS-SWAP OK",
+      "criteria": [
+        "T1"
+      ],
+      "stage": "STAGE-2",
+      "class": "COMMAND",
+      "negativeControls": [
+        {
+          "criterion": "T1",
+          "control": "hardcoded-hex",
+          "mutation": "add one literal hex color to a screen",
+          "expect": "the token gate names the file and line"
+        }
+      ]
+    }
+  ]
+}
