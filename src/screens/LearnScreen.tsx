@@ -187,7 +187,7 @@ function RightsRows({ language, t }: { readonly language: string; readonly t: Tr
     <View className="gap-3" testID="learn-rights-list">
       {LEARN_CONTENT.rights.map(right => {
         const text = localizedRight(right, language);
-        const rowId = `learn-right-row-${right.topicId}`;
+        const rowId = `learn-rights-row-${right.topicId}`;
         return (
           <View className={`rounded-xl border p-4 ${BORDER.subtle} ${SURFACE.card}`} key={right.topicId} testID={rowId}>
             <AppText className={`text-lg font-extrabold ${TEXT.heading}`}>{text.title}</AppText>

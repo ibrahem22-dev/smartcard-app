@@ -168,13 +168,13 @@ describe('MDC C6 — Learn reads and renders the shipped content pack', () => {
     expect(api.getAllByTestId(/-caveat$/)).toHaveLength(caveats.length);
     expect(api.getAllByTestId(/-verification$/)).toHaveLength(statuses.length);
     for (const row of caveats) {
-      expect(api.getByTestId(`learn-right-row-${row.topicId}-caveat`)).toHaveTextContent(row.caveat ?? '');
+      expect(api.getByTestId(`learn-rights-row-${row.topicId}-caveat`)).toHaveTextContent(row.caveat ?? '');
     }
     expectSpecificDistinctLabels(
       api,
       statuses.map(row => ({
         rawStatus: row.verificationStatus ?? '',
-        testID: `learn-right-row-${row.topicId}-verification`,
+        testID: `learn-rights-row-${row.topicId}-verification`,
       })),
       EXPECTED_VERIFICATION_LABELS,
       label => `Verification: ${label}`,
