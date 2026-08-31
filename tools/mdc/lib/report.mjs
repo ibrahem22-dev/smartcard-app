@@ -93,9 +93,23 @@ export const requireJestCases = (root, suite, cases, extraArgs = []) => {
     else if (!new RegExp('[√✓]\\s*' + escaped).test(out)) problems.push('did not pass: "' + name + '"');
   }
   const m = out.match(/Tests:\s+.*/);
-  // A suite that ran zero tests is not a passing suite, however few cases were required.
-  const totals = out.match(/Tests:\s+(\d+)\s+passed/);
+  /**
+   * A suite that ran zero tests is not a passing suite, however few cases were required.
+   *
+   * THE PASSED FIGURE IS READ FROM ANYWHERE IN THE SUMMARY LINE, NOT FROM DIRECTLY AFTER `Tests:`.
+   * It was `/Tests:\s+(\d+)\s+passed/`, which only matches when the FIRST figure jest prints is the
+   * passing one. Jest leads with the failures — `Tests: 2 failed, 4 passed, 6 total` — so on every
+   * failing run the count fell through to zero and the gate added "the suite reported zero passing
+   * tests — a runtime measurement that ran nothing measured nothing" over a suite that had just run
+   * six tests and passed four. Observed live while firing C6's honesty control (PD-MDC-015).
+   *
+   * It could never turn a red green, but a campaign that decides on printed output may not print a
+   * false sentence about its own measurement. The two cases are now distinguished: no summary line
+   * at all means nothing ran; a summary line with no passing figure means everything failed.
+   */
+  const totals = m ? m[0].match(/(\d+)\s+passed/) : null;
   const ran = totals ? Number(totals[1]) : 0;
-  if (ran === 0) problems.push('the suite reported zero passing tests — a runtime measurement that ran nothing measured nothing');
+  if (!m) problems.push('the suite printed no "Tests:" summary at all — it did not run, or it died before reporting');
+  else if (ran === 0) problems.push('the suite reported zero passing tests — a runtime measurement that ran nothing measured nothing');
   return { problems, summary: m ? m[0].trim() : '(no summary)', output: out, ran };
 };
