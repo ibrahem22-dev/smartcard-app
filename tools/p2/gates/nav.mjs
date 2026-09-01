@@ -37,6 +37,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ok, fail } from '../lib/report.mjs';
+import { stripComments } from '../../mdc/lib/source.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -104,10 +105,25 @@ export const run = async ({ root }) => {
   for (const rel of [IA_MODULE, TYPES_MODULE, AUTH_NAVIGATOR, TAB_NAVIGATOR]) {
     if (!existsSync(join(root, rel))) return fail(rel + ' does not exist');
   }
-  const iaSrc = readFileSync(join(root, IA_MODULE), 'utf8');
-  const typesSrc = readFileSync(join(root, TYPES_MODULE), 'utf8');
-  const authSrc = readFileSync(join(root, AUTH_NAVIGATOR), 'utf8');
-  const tabSrc = readFileSync(join(root, TAB_NAVIGATOR), 'utf8');
+  /**
+   * COMMENTS OUT, STRINGS IN — OQ-MDC-010.
+   *
+   * A1's whole subject lives inside string literals: `key: 'Home'`, `specName: 'HOME'`,
+   * `RAISED_ACTION_ROUTE = 'CheckModal'`, `name="CheckModal"`,
+   * `options={{ presentation: "fullScreenModal" }}`. So `stripCommentsAndStrings` is the WRONG
+   * tool here - blanking string bodies would turn every specName into spaces and fail this gate on
+   * correct code, which is deleting the rule rather than repairing the reader.
+   *
+   * What did need removing is prose. These four modules are heavily commented, and the readers
+   * below parse by brace depth and by regex: a commented-out route, or a sentence naming
+   * `Check` as a tab while explaining why it is NOT one, was read as a declaration. `stripComments`
+   * is length-preserving and still traverses strings, so `https://` inside a literal is not
+   * mistaken for a comment, and every offset and line number below is unchanged.
+   */
+  const iaSrc = stripComments(readFileSync(join(root, IA_MODULE), 'utf8'));
+  const typesSrc = stripComments(readFileSync(join(root, TYPES_MODULE), 'utf8'));
+  const authSrc = stripComments(readFileSync(join(root, AUTH_NAVIGATOR), 'utf8'));
+  const tabSrc = stripComments(readFileSync(join(root, TAB_NAVIGATOR), 'utf8'));
 
   const ia = readIa(iaSrc);
   if (!ia || ia.length === 0) return fail('could not read BOTTOM_NAVIGATION out of ' + IA_MODULE);

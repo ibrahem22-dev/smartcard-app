@@ -91,7 +91,23 @@ export const run = async ({ root }) => {
 
   const generators = readdirSync(binDir)
     .filter((f) => /^p2-.*\.mjs$/.test(f))
-    .filter((f) => readFileSync(join(binDir, f), 'utf8').includes('--check'))
+    /**
+     * A COMPLETE QUOTED ARGV TOKEN, NOT A BARE SUBSTRING — OQ-MDC-010.
+     *
+     * This was `.includes('--check')`, which is true of any file that merely mentions the flag: a
+     * header comment explaining the convention, or a script that accepts `--checkpoint` and never
+     * `--check` at all. A generator admitted to the population on the strength of its own prose is
+     * then spawned with a flag it does not implement, and whatever it prints is read as a parity
+     * result.
+     *
+     * STRIPPING IS THE WRONG TOOL HERE, and it would delete the rule: every genuine occurrence is
+     * an argv token INSIDE a string literal — `process.argv.includes('--check')` — so blanking
+     * string bodies takes the population to zero and the gate fails claiming no script accepts the
+     * flag. Requiring the quotes to be part of the match is narrower and does the whole job: it
+     * excludes the comment, and it excludes `'--checkpoint'` because the closing quote must follow
+     * immediately.
+     */
+    .filter((f) => /(['"])--check\1/.test(readFileSync(join(binDir, f), 'utf8')))
     .filter((f) => f.replace(/\.mjs$/, '') !== BUILD_OUTPUT_MIRROR)
     .sort();
 

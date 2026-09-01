@@ -68,3 +68,70 @@ export const stripCommentsAndStrings = (src) => {
 
   return out.join('');
 };
+
+/**
+ * COMMENTS ONLY — the sibling for readers whose SUBJECT lives inside string literals.
+ *
+ * `stripCommentsAndStrings` blanks string bodies, and for most scanners that is exactly right.
+ * For some it would DELETE THE RULE. A module specifier IS a string body; so is a navigation
+ * route name, an argv flag, a Tailwind class. Blank those and the reader stops seeing the only
+ * thing it was built to see, while still printing a sentinel — the worst outcome available.
+ *
+ * So this strips comments and leaves strings intact. It still TRAVERSES strings rather than
+ * skipping over them blindly, because a `//` inside `'https://…'` is not a comment and a naive
+ * comment-stripper eats the rest of that line. Same length-preserving contract as its sibling:
+ * newlines survive and every other removed character becomes a space, so byte offsets and line
+ * numbers still line up with the original.
+ *
+ * Added under OQ-MDC-010, whose ruling is a sweep of P2-era readers that mistake prose for code.
+ * Two tools, because the readers being swept are not all the same shape.
+ */
+export const stripComments = (src) => {
+  const out = src.split('');
+  let i = 0;
+  const nlChar = String.fromCharCode(10);
+  const blank = (from, to) => {
+    for (let k = from; k < to && k < out.length; k++) {
+      if (out[k] !== nlChar) out[k] = ' ';
+    }
+  };
+
+  while (i < src.length) {
+    const two = src.slice(i, i + 2);
+    if (two === '//') {
+      let j = src.indexOf(nlChar, i);
+      if (j < 0) j = src.length;
+      blank(i, j);
+      i = j;
+      continue;
+    }
+    if (two === '/*') {
+      let j = src.indexOf('*/', i + 2);
+      j = j < 0 ? src.length : j + 2;
+      blank(i, j);
+      i = j;
+      continue;
+    }
+    const c = src[i];
+    if (c === "'" || c === '"' || c === '`') {
+      /* Traversed, NOT blanked: the string's contents are what these readers are looking for. */
+      let j = i + 1;
+      while (j < src.length) {
+        if (src[j] === String.fromCharCode(92)) {
+          j += 2;
+          continue;
+        }
+        if (src[j] === c) {
+          j++;
+          break;
+        }
+        j++;
+      }
+      i = j;
+      continue;
+    }
+    i++;
+  }
+
+  return out.join('');
+};

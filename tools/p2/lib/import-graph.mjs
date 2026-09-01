@@ -20,6 +20,7 @@
  * so a module reached only that way shows up as an unknown rather than as an absence.
  */
 import { readFileSync, existsSync, statSync } from 'node:fs';
+import { stripCommentsAndStrings } from '../../mdc/lib/source.mjs';
 import { join, dirname, resolve, relative } from 'node:path';
 
 const EXTENSIONS = ['.ts', '.tsx', '.js', '.jsx', '.json'];
@@ -42,25 +43,56 @@ const resolveLocal = (fromFile, spec) => {
  * Every static specifier in a source file: `import … from 'x'`, `export … from 'x'`,
  * `require('x')`, and `import('x')` with a literal.
  */
+const PATTERNS = [
+  /\bimport\s+[^'"]*?\bfrom\s*['"]([^'"]+)['"]/dg,
+  /\bimport\s*['"]([^'"]+)['"]/dg,
+  /\bexport\s+[^'"]*?\bfrom\s*['"]([^'"]+)['"]/dg,
+  /\brequire\s*\(\s*['"]([^'"]+)['"]\s*\)/dg,
+  /\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/dg,
+];
+
+/**
+ * MATCH THE MASK, READ THE RAW — OQ-MDC-010, the same repair as undeclared-imports.mjs.
+ *
+ * These patterns ran against RAW source, so a commented-out import added an edge to the graph and
+ * the English word "import" ending a sentence inside a string literal added another — the closing
+ * quote of the sentence served as the opening quote of a phantom specifier. An edge that does not
+ * exist becomes an unresolved import, and `fenced-surfaces` turns every unresolved import into a
+ * failure. Reachability is supposed to be a property of the graph; it was partly a property of the
+ * prose.
+ *
+ * BLANKING THE STRINGS WOULD DELETE THIS RULE OUTRIGHT — more completely than anywhere else in
+ * this sweep. A module specifier IS a string body: blank it and `import './global.css'` becomes
+ * `import '           '`, every edge in the project is lost, the graph collapses to the entry
+ * files, and `node-apis-absent` would report an empty runtime graph while `fenced-surfaces`
+ * printed a vacuous "0 reachable" over a graph it never walked. Green, and meaningless.
+ *
+ * So the stripped copy is a MASK. It is length-preserving, so offsets align byte for byte: match
+ * on the mask, where a prose keyword or a commented-out import has become spaces and can anchor
+ * nothing, then read the specifier back out of the RAW text at the same offsets.
+ */
 const specifiersOf = (source) => {
+  const mask = stripCommentsAndStrings(source);
   const out = [];
-  const patterns = [
-    /\bimport\s+[^'"]*?\bfrom\s*['"]([^'"]+)['"]/g,
-    /\bimport\s*['"]([^'"]+)['"]/g,
-    /\bexport\s+[^'"]*?\bfrom\s*['"]([^'"]+)['"]/g,
-    /\brequire\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
-    /\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
-  ];
-  for (const re of patterns) {
-    for (const m of source.matchAll(re)) out.push(m[1]);
+  for (const re of PATTERNS) {
+    for (const m of mask.matchAll(re)) {
+      const [from, to] = m.indices[1];
+      out.push(source.slice(from, to));
+    }
   }
   return [...new Set(out)];
 };
 
 /** Dynamic imports whose specifier is not a literal — reported, never assumed away. */
 const dynamicUnresolved = (source) => {
+  /* Masked for the same reason: a documented `import(someVar)` in a comment is not a dynamic
+     import, and reporting it as one sends somebody looking for a call that is not there. */
+  const mask = stripCommentsAndStrings(source);
   const out = [];
-  for (const m of source.matchAll(/\bimport\s*\(\s*([^'")][^)]*)\)/g)) out.push(m[1].trim().slice(0, 60));
+  for (const m of mask.matchAll(/\bimport\s*\(\s*([^'")][^)]*)\)/dg)) {
+    const [from, to] = m.indices[1];
+    out.push(source.slice(from, to).trim().slice(0, 60));
+  }
   return out;
 };
 

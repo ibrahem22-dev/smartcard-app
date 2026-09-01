@@ -34,6 +34,7 @@ import { readFileSync, existsSync } from 'node:fs';
 import { join, dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { ok, fail } from '../lib/report.mjs';
+import { stripCommentsAndStrings } from '../../mdc/lib/source.mjs';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 
@@ -72,7 +73,11 @@ export const run = async ({ root }) => {
 
   // ── 2. the flag is restored ──────────────────────────────────────────────────────
   if (!existsSync(join(root, CONFIG))) return fail(CONFIG + ' does not exist');
-  const config = readFileSync(join(root, CONFIG), 'utf8');
+  /* OQ-MDC-010: matched against RAW source, so a commented-out or documented
+     `newArchEnabled: true` satisfied F2 while the real declaration was absent or false — the flag
+     read as set because somebody had written about it. Stripping is safe here and does NOT delete
+     the rule: what is searched for is a real object property, never string content. */
+  const config = stripCommentsAndStrings(readFileSync(join(root, CONFIG), 'utf8'));
   const configEnabled = /newArchEnabled\s*:\s*true/.test(config);
   if (!configEnabled) {
     problems.push(CONFIG + ' does not set newArchEnabled: true. OD-14 ruled RESTORE, and a ruling '
@@ -89,7 +94,12 @@ export const run = async ({ root }) => {
 
   if (existsSync(join(root, GRADLE))) {
     const gradle = readFileSync(join(root, GRADLE), 'utf8');
-    const m = gradle.match(/newArchEnabled\s*=\s*(\w+)/);
+    /* NOT JavaScript, so the JS stripper is the wrong tool — a .properties file comments with `#`
+       and `!`, which stripCommentsAndStrings knows nothing about, and running it here would blank
+       quoted values while leaving every `#` comment intact. The narrower fix is to anchor the match
+       to a DECLARATION LINE, which excludes comment lines by construction and also stops the old
+       first-match-anywhere behaviour from reading a commented example as the setting. */
+    const m = gradle.match(/^[ \t]*newArchEnabled[ \t]*=[ \t]*(\w+)/m);
     declarations.push({ where: GRADLE, enabled: m ? m[1] === 'true' : null });
   } else {
     lines.push('android         not generated in this checkout (gitignored) — nothing to compare');

@@ -25,13 +25,18 @@
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { join, relative } from 'node:path';
 import { builtinModules } from 'node:module';
+import { stripCommentsAndStrings } from '../../mdc/lib/source.mjs';
 
+/**
+ * THE `d` FLAG IS LOAD-BEARING — OQ-MDC-010. See the scanning loop for why.
+ * The patterns themselves are unchanged, character for character.
+ */
 const PATTERNS = [
-  /\bimport\s+[^'"]*?\bfrom\s*['"]([^'"]+)['"]/g,
-  /\bimport\s*['"]([^'"]+)['"]/g,
-  /\bexport\s+[^'"]*?\bfrom\s*['"]([^'"]+)['"]/g,
-  /\brequire\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
-  /\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/g,
+  /\bimport\s+[^'"]*?\bfrom\s*['"]([^'"]+)['"]/dg,
+  /\bimport\s*['"]([^'"]+)['"]/dg,
+  /\bexport\s+[^'"]*?\bfrom\s*['"]([^'"]+)['"]/dg,
+  /\brequire\s*\(\s*['"]([^'"]+)['"]\s*\)/dg,
+  /\bimport\s*\(\s*['"]([^'"]+)['"]\s*\)/dg,
 ];
 
 const walk = (dir, acc = []) => {
@@ -60,16 +65,41 @@ export const scanUndeclaredImports = (root) => {
 
   for (const abs of files) {
     const rel = relative(root, abs).replace(/\\/g, '/');
-    const code = readFileSync(abs, 'utf8')
-      .replace(/\/\*[\s\S]*?\*\//g, ' ')
-      .replace(/(^|[^:])\/\/[^\n]*/g, '$1 ');
+    /**
+     * MATCH THE MASK, READ THE RAW — OQ-MDC-010.
+     *
+     * This read the file with only COMMENTS removed and matched against that. String bodies
+     * survived, so the English word "import" at the end of a sentence inside a string literal was
+     * followed by that string's CLOSING quote, the bare-import pattern matched it, and the capture
+     * ran on to the next quote anywhere in the file. C5's translation entry
+     * 'Vault export and import', produced a finding whose package name was a comma and a newline,
+     * and the gate reported it as an undeclared dependency. Twice in one file, plus once in a
+     * describe() title.
+     *
+     * BLANKING THE STRINGS WOULD HAVE DELETED THE RULE, and that is the trap worth naming: the
+     * specifier in `from 'expo-camera'` IS the string body. Blank it and every real import becomes
+     * `from '           '`, which still matches, because spaces are not quotes — so the reader
+     * would report a whitespace package for every import in the repository and catch nothing real.
+     *
+     * So the stripped copy is a MASK, not the input. `stripCommentsAndStrings` is length-preserving
+     * by contract, so offsets line up byte for byte: the pattern is matched against the mask, where
+     * a prose keyword has become spaces and can anchor nothing, and the specifier is then read back
+     * out of the RAW text at the very same offsets.
+     *
+     * The line number is computed over the raw text now too. It used to be computed over the old
+     * comment-stripped copy, which collapsed each block comment to a single space and lost its
+     * newlines, so every file with a header comment reported a line short by that header's height.
+     */
+    const raw = readFileSync(abs, 'utf8');
+    const code = stripCommentsAndStrings(raw);
     for (const re of PATTERNS) {
       for (const m of code.matchAll(re)) {
-        const spec = m[1];
+        const [from, to] = m.indices[1];
+        const spec = raw.slice(from, to);
         if (spec.startsWith('.') || spec.startsWith('/')) continue;
         const name = packageOf(spec);
         if (declared.has(name) || builtin.has(name) || spec.startsWith('node:')) continue;
-        findings.push({ file: rel, package: name, spec, line: code.slice(0, m.index).split('\n').length });
+        findings.push({ file: rel, package: name, spec, line: raw.slice(0, m.index).split('\n').length });
       }
     }
   }
