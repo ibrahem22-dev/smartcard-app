@@ -49,7 +49,9 @@ export interface ImportedInstallment {
   readonly monthlyPayment: number;
   readonly billingCardId: string;
   readonly notes?: string;
-  readonly source: 'imported';
+  readonly source: 'imported' | 'purchase';
+  /** Back-reference to LoggedPurchase.activityId for purchase-created plans only. */
+  readonly loggedPurchaseActivityId?: string;
 }
 
 /** A proposed new תשלומים plan evaluated by installmentGate before commitment. */

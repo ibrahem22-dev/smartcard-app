@@ -63,7 +63,7 @@ export interface CardEntry {
 
 // ---------------------------------------------------------------------------
 
-interface CardsState {
+export interface CardsState {
   /** Whether `cards`/`entries`/`obligations` reflect storage yet. */
   hydration: HydrationState;
   /** Composed engine view — never persisted as this shape. */
@@ -119,6 +119,7 @@ interface CardsState {
     obligation: ImportedInstallment,
   ): void;
   deleteObligation(installmentId: string): void;
+  replaceObligations(obligations: readonly ImportedInstallment[]): void;
 
   /**
    * Zero in-memory state and delete the MMKV record.
@@ -192,19 +193,43 @@ function parseObligations(raw: string | undefined): ImportedInstallment[] {
   if (raw === undefined) {
     return [];
   }
-  return JSON.parse(raw) as ImportedInstallment[];
+  const parsed: unknown = JSON.parse(raw);
+  if (!Array.isArray(parsed)) {
+    throw new Error('INVALID_CARD_OBLIGATIONS');
+  }
+  return parsed.map((row: unknown) => {
+    assertValidObligation(row);
+    return row;
+  });
 }
 
-function assertValidObligation(obligation: ImportedInstallment): void {
+function assertValidObligation(
+  obligation: unknown,
+): asserts obligation is ImportedInstallment {
+  if (obligation === null || typeof obligation !== 'object') {
+    throw new Error('INVALID_IMPORTED_INSTALLMENT');
+  }
+  const candidate = obligation as Partial<ImportedInstallment>;
+  const validSourceLink = candidate.source === 'purchase'
+    ? typeof candidate.loggedPurchaseActivityId === 'string'
+      && candidate.loggedPurchaseActivityId.trim() !== ''
+    : candidate.source === 'imported'
+      && candidate.loggedPurchaseActivityId === undefined;
   if (
-    obligation.merchantName.trim() === '' ||
-    !isValidMonetaryAmount(obligation.totalAmount) ||
-    !isValidMonetaryAmount(obligation.monthlyPayment) ||
-    !Number.isInteger(obligation.monthsRemaining) ||
-    obligation.monthsRemaining < 1 ||
-    obligation.monthsRemaining > 360 ||
-    obligation.billingCardId.trim() === '' ||
-    obligation.source !== 'imported'
+    typeof candidate.installmentId !== 'string'
+    || candidate.installmentId.trim() === ''
+    || typeof candidate.merchantName !== 'string'
+    || candidate.merchantName.trim() === ''
+    || typeof candidate.totalAmount !== 'number'
+    || !isValidMonetaryAmount(candidate.totalAmount)
+    || typeof candidate.monthlyPayment !== 'number'
+    || !isValidMonetaryAmount(candidate.monthlyPayment)
+    || !Number.isInteger(candidate.monthsRemaining)
+    || (candidate.monthsRemaining ?? 0) < 1
+    || (candidate.monthsRemaining ?? 0) > 360
+    || typeof candidate.billingCardId !== 'string'
+    || candidate.billingCardId.trim() === ''
+    || !validSourceLink
   ) {
     throw new Error('INVALID_IMPORTED_INSTALLMENT');
   }
@@ -392,6 +417,22 @@ export const useCardsStore = create<CardsState>()((set) => ({
       persistObligations(obligations, getActiveProfileId());
       return { obligations };
     });
+  },
+
+  replaceObligations(obligations) {
+    const nextObligations = [...obligations];
+    nextObligations.forEach(assertValidObligation);
+    const profileId = getActiveProfileId();
+    persistObligations(nextObligations, profileId);
+    const restored = parseObligations(
+      keyVault.getEncryptedStorage().getString(
+        MMKV_KEYS.profileCardObligations(profileId),
+      ),
+    );
+    if (JSON.stringify(restored) !== JSON.stringify(nextObligations)) {
+      throw new Error('OBLIGATION_RESTORE_VERIFICATION_FAILED');
+    }
+    set({ obligations: nextObligations });
   },
 
   clearCards() {

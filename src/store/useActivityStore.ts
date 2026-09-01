@@ -19,7 +19,7 @@ import {
 } from './hydration';
 import { MMKV_KEYS } from './keys';
 
-interface ActivityState {
+export interface ActivityState {
   hydration: HydrationState;
   purchases: LoggedPurchase[];
   verdicts: VerdictHistoryRecord[];
@@ -27,6 +27,12 @@ interface ActivityState {
   hydrateProfile(profileId: string): void;
   persistProfile(profileId: string): void;
   logPurchase(purchase: LoggedPurchase): void;
+  updatePurchase(activityId: string, purchase: LoggedPurchase): void;
+  deletePurchase(activityId: string): void;
+  replaceActivity(
+    purchases: readonly LoggedPurchase[],
+    verdicts: readonly VerdictHistoryRecord[],
+  ): void;
   recordVerdict(record: VerdictHistoryRecord): void;
   queryVerdicts(filter?: { readonly cardId?: string }): readonly VerdictHistoryRecord[];
   clearActivity(): void;
@@ -104,10 +110,59 @@ export const useActivityStore = create<ActivityState>()((set, get) => ({
 
   logPurchase(purchase: LoggedPurchase) {
     set((state) => {
+      if (state.purchases.some((existing) => existing.activityId === purchase.activityId)) {
+        throw new Error('LOGGED_PURCHASE_ALREADY_EXISTS');
+      }
       const purchases = [...state.purchases, purchase];
       persist(purchases, state.verdicts, getActiveProfileId());
       return { purchases };
     });
+  },
+
+  updatePurchase(activityId: string, purchase: LoggedPurchase) {
+    if (activityId !== purchase.activityId) {
+      throw new Error('LOGGED_PURCHASE_ID_MISMATCH');
+    }
+    set((state) => {
+      if (!state.purchases.some((existing) => existing.activityId === activityId)) {
+        throw new Error('LOGGED_PURCHASE_NOT_FOUND');
+      }
+      const purchases = state.purchases.map((existing) => (
+        existing.activityId === activityId ? purchase : existing
+      ));
+      persist(purchases, state.verdicts, getActiveProfileId());
+      return { purchases };
+    });
+  },
+
+  deletePurchase(activityId: string) {
+    set((state) => {
+      const purchases = state.purchases.filter(
+        (purchase) => purchase.activityId !== activityId,
+      );
+      const verdicts = state.verdicts.filter(
+        (verdict) => verdict.activityId !== activityId,
+      );
+      persist(purchases, verdicts, getActiveProfileId());
+      return { purchases, verdicts };
+    });
+  },
+
+  replaceActivity(purchases, verdicts) {
+    const nextPurchases = [...purchases];
+    const nextVerdicts = [...verdicts];
+    const profileId = getActiveProfileId();
+    persist(nextPurchases, nextVerdicts, profileId);
+    const restored = parseStoredActivity(
+      keyVault.getEncryptedStorage().getString(MMKV_KEYS.profileActivity(profileId)),
+    );
+    if (
+      JSON.stringify(restored.purchases) !== JSON.stringify(nextPurchases)
+      || JSON.stringify(restored.verdicts) !== JSON.stringify(nextVerdicts)
+    ) {
+      throw new Error('ACTIVITY_RESTORE_VERIFICATION_FAILED');
+    }
+    set({ purchases: nextPurchases, verdicts: nextVerdicts });
   },
 
   recordVerdict(record: VerdictHistoryRecord) {

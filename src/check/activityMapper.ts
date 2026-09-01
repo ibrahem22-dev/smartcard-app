@@ -5,6 +5,7 @@
  * is input assembly, the same class as defaulting a missing installment count
  * to 1. Limit consumption stays inside `evaluateFinancialLoad`.
  */
+import { INSTALLMENT_PLAN_MIN_PAYMENT_COUNT } from '../config/financial';
 import { provenanced, type ProvenancedNumber } from '../engines/provenance';
 import type { LoadCard } from '../engines/load';
 import type { PurchaseVerdict } from '../engines/verdict';
@@ -15,6 +16,9 @@ export function writeLoggedPurchase(input: {
   readonly amountIls: number;
   readonly at: string;
   readonly cardId?: string | null;
+  readonly linkedInstallmentId?: string;
+  readonly installmentPlanTotalIls?: number;
+  readonly installmentCount?: number;
 }): LoggedPurchase {
   if (!(input.amountIls > 0) || !Number.isFinite(input.amountIls)) {
     throw new Error('writeLoggedPurchase: amount must be greater than zero');
@@ -22,11 +26,42 @@ export function writeLoggedPurchase(input: {
   if (input.activityId.length === 0) {
     throw new Error('writeLoggedPurchase: activityId is required');
   }
+  const installmentFields = [
+    input.linkedInstallmentId,
+    input.installmentPlanTotalIls,
+    input.installmentCount,
+  ];
+  if (installmentFields.some((field) => field !== undefined)) {
+    if (
+      input.linkedInstallmentId === undefined
+      || input.linkedInstallmentId.length === 0
+      || input.installmentPlanTotalIls === undefined
+      || !(input.installmentPlanTotalIls > 0)
+      || !Number.isFinite(input.installmentPlanTotalIls)
+      || input.installmentCount === undefined
+      || !Number.isInteger(input.installmentCount)
+      || input.installmentCount < INSTALLMENT_PLAN_MIN_PAYMENT_COUNT
+      || input.cardId === undefined
+      || input.cardId === null
+      || input.cardId.length === 0
+    ) {
+      throw new Error('writeLoggedPurchase: installment linkage is incomplete');
+    }
+  }
   return {
     activityId: input.activityId,
     amountIls: input.amountIls,
     loggedAt: input.at,
     ...(input.cardId ? { cardId: input.cardId } : {}),
+    ...(input.linkedInstallmentId === undefined
+      ? {}
+      : { linkedInstallmentId: input.linkedInstallmentId }),
+    ...(input.installmentPlanTotalIls === undefined
+      ? {}
+      : { installmentPlanTotalIls: input.installmentPlanTotalIls }),
+    ...(input.installmentCount === undefined
+      ? {}
+      : { installmentCount: input.installmentCount }),
   };
 }
 

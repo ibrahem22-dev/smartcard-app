@@ -92,6 +92,8 @@ export interface CheckLoopInput {
    * shipped app's Best-For chips are empty on every surface including this one.
    */
   readonly scoringCosts?: Readonly<Record<string, number>>;
+  /** False after this route's purchase has committed; the vault pair then replaces the prospect. */
+  readonly includeProspectivePurchase?: boolean;
 }
 
 export function verdictPropsFromDraft(
@@ -155,7 +157,7 @@ export function verdictPropsFromDraft(
         ? { paidEarlyCommitmentIds: context.paidEarlyCommitmentIds }
         : {}),
       cards: loadCards,
-      ...(linkedCardId === undefined
+      ...(linkedCardId === undefined || input.includeProspectivePurchase === false
         ? {}
         : {
           prospectiveCommitment: {

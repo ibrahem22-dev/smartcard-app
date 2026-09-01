@@ -42,10 +42,12 @@ import { View } from 'react-native';
 import { AppText } from '../../components/AppText';
 import { RtlScreen, RtlScrollView } from '../../components/rtl';
 import { useTranslation } from '../../hooks/useTranslation';
+import { commitmentsFromVault } from '../../check/commitmentInput';
 import { useCardsStore } from '../../store/useCardsStore';
 import { useLoansStore } from '../../store/useLoansStore';
 import { BORDER, SURFACE, TEXT } from '../../theme/tokens';
 import type { EngineCard } from '../../types/card.types';
+import type { ProvenancedNumber } from '../../engines/provenance';
 import { CommitmentRow } from './CommitmentRow';
 import { CommitmentsSummary } from './CommitmentsSummary';
 
@@ -54,6 +56,7 @@ interface CommitmentListRow {
   readonly id: string;
   readonly name: string;
   readonly monthlyIls: number;
+  readonly monthlyProvenance?: ProvenancedNumber;
   readonly paymentProgress?: {
     readonly position: number;
     readonly total: number;
@@ -87,6 +90,15 @@ export function CommitmentsScreen(): React.ReactElement {
   const cards = useCardsStore((s) => s.cards);
   const obligations = useCardsStore((s) => s.obligations);
   const loans = useLoansStore((s) => s.loans);
+  const engineCommitments = commitmentsFromVault({ cards, installments: obligations, loans });
+  const monthlyProvenanceFor = (
+    id: string,
+  ): Pick<CommitmentListRow, 'monthlyProvenance'> | Record<string, never> => {
+    const monthlyProvenance = engineCommitments.find(
+      (commitment) => commitment.commitmentId === id,
+    )?.monthlyAmountIls;
+    return monthlyProvenance === undefined ? {} : { monthlyProvenance };
+  };
   const linkedCardFor = (
     cardId: string | undefined,
   ): Pick<CommitmentListRow, 'linkedCard'> | Record<string, never> => {
@@ -104,6 +116,7 @@ export function CommitmentsScreen(): React.ReactElement {
         id: o.installmentId,
         name: o.merchantName,
         monthlyIls: o.monthlyPayment,
+        ...monthlyProvenanceFor(o.installmentId),
         ...linkedCardFor(o.billingCardId),
       })),
     },
@@ -117,6 +130,7 @@ export function CommitmentsScreen(): React.ReactElement {
           id: l.id,
           name: l.lenderName,
           monthlyIls: l.monthlyPayment,
+          ...monthlyProvenanceFor(l.id),
           paymentProgress: { position: l.monthsPaid, total: l.totalMonths },
           ...linkedCardFor(l.linkedCardId),
         })),
@@ -131,6 +145,7 @@ export function CommitmentsScreen(): React.ReactElement {
           id: l.id,
           name: l.lenderName,
           monthlyIls: l.monthlyPayment,
+          ...monthlyProvenanceFor(l.id),
           paymentProgress: { position: l.monthsPaid, total: l.totalMonths },
           ...linkedCardFor(l.linkedCardId),
         })),

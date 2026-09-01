@@ -33,6 +33,7 @@ function CheckInputRoute({ navigation }: InputProps): React.ReactElement {
 }
 
 function CheckVerdictRoute({ route }: VerdictProps): React.ReactElement {
+  const [committedActivityId, setCommittedActivityId] = React.useState<string | null>(null);
   const draft = route.params?.draft;
   const profile = useUserStore((s) => s.profile);
   /* THE COMPOSED ENGINE VIEW, not the stored entries — Owner ruling OQ-P5-002. The scoring engine
@@ -68,8 +69,17 @@ function CheckVerdictRoute({ route }: VerdictProps): React.ReactElement {
       installments: classifyCollection(cardsHydration, installments.length),
       loans: classifyCollection(loansHydration, loans.length),
     },
+    /* C1's closed plain-purchase rendering keeps its prospective strip semantics. An installment
+       pair replaces the prospect after commit so the persisted M + M(N-1) is not shown beside a
+       second T hold. */
+    includeProspectivePurchase: draft.installments === null || committedActivityId === null,
   });
-  return <CheckVerdictScreen {...props} />;
+  return (
+    <CheckVerdictScreen
+      {...props}
+      onPurchaseLifecycleChange={setCommittedActivityId}
+    />
+  );
 }
 
 /**

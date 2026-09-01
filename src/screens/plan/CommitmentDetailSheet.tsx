@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, View } from 'react-native';
+import { Pressable, TextInput, View } from 'react-native';
 
 import { AppText } from '../../components/AppText';
 import { ProvenanceChip } from '../../components/ProvenanceChip';
@@ -10,6 +10,11 @@ import { useActivityStore } from '../../store/useActivityStore';
 import { useCardsStore } from '../../store/useCardsStore';
 import { useLoansStore } from '../../store/useLoansStore';
 import { useUserStore } from '../../store/useUserStore';
+import {
+  deletePurchaseLifecycle,
+  editPurchaseLifecycle,
+  type PurchaseLifecycleMutationActions,
+} from '../../services/purchaseLifecycle';
 import { evaluateSurfaceEngines, type SurfaceContext } from '../../surfaces';
 import { usePaidEarly } from '../../surfaces/usePaidEarly';
 import { BORDER, SURFACE, TEXT } from '../../theme/tokens';
@@ -33,6 +38,12 @@ export function CommitmentDetailSheet({
   const storedInstallments = useCardsStore((state) => state.obligations);
   const storedLoans = useLoansStore((state) => state.loans);
   const storedPurchases = useActivityStore((state) => state.purchases);
+  const updatePurchase = useActivityStore((state) => state.updatePurchase);
+  const deletePurchase = useActivityStore((state) => state.deletePurchase);
+  const replaceActivity = useActivityStore((state) => state.replaceActivity);
+  const updateObligation = useCardsStore((state) => state.updateObligation);
+  const deleteObligation = useCardsStore((state) => state.deleteObligation);
+  const replaceObligations = useCardsStore((state) => state.replaceObligations);
   const storedProfile = useUserStore((state) => state.profile);
   const fallbackContext: SurfaceContext = {
     asOfDate: '1970-01-01',
@@ -54,6 +65,27 @@ export function CommitmentDetailSheet({
     : load?.cardLimits.find((position) => position.cardId === linkedCardId)
       ?.releasedByEarlyPayoffIls;
   const isPaidEarly = paidEarlyCommitmentIds.includes(id);
+  const purchaseObligation = storedInstallments.find(
+    (row) => row.installmentId === id && row.source === 'purchase',
+  );
+  const [draftTotal, setDraftTotal] = React.useState(
+    purchaseObligation === undefined ? '' : String(purchaseObligation.totalAmount),
+  );
+  const [draftRemaining, setDraftRemaining] = React.useState(
+    purchaseObligation === undefined ? '' : String(purchaseObligation.monthsRemaining),
+  );
+  const [lifecycleFailure, setLifecycleFailure] = React.useState<string | null>(null);
+  const actions: PurchaseLifecycleMutationActions = {
+    getPurchases: () => useActivityStore.getState().purchases,
+    getVerdicts: () => useActivityStore.getState().verdicts,
+    getObligations: () => useCardsStore.getState().obligations,
+    updatePurchase,
+    deletePurchase,
+    replaceActivity,
+    updateObligation,
+    deleteObligation,
+    replaceObligations,
+  };
 
   return (
     <View
@@ -93,6 +125,60 @@ export function CommitmentDetailSheet({
             />
           </View>
         </RtlRow>
+      )}
+      {purchaseObligation === undefined ? null : (
+        <View className="gap-2" testID={`commitment-detail-${id}-purchase-lifecycle`}>
+          <AppText className={`text-sm font-bold ${TEXT.body}`}>{t('עריכת תוכנית תשלומים')}</AppText>
+          <TextInput
+            accessibilityLabel={t('סכום כולל')}
+            keyboardType="decimal-pad"
+            onChangeText={setDraftTotal}
+            testID={`commitment-detail-${id}-total-input`}
+            value={draftTotal}
+          />
+          <TextInput
+            accessibilityLabel={t('מספר תשלומים שנותרו')}
+            keyboardType="number-pad"
+            onChangeText={setDraftRemaining}
+            testID={`commitment-detail-${id}-remaining-input`}
+            value={draftRemaining}
+          />
+          <Pressable
+            accessibilityRole="button"
+            onPress={(): void => {
+              const edited = editPurchaseLifecycle({
+                activityId: purchaseObligation.loggedPurchaseActivityId as string,
+                totalAmountIls: Number(draftTotal),
+                monthsRemaining: Number(draftRemaining),
+                actions,
+              });
+              setLifecycleFailure(edited.ok ? null : `${edited.reason}: ${edited.detail}`);
+            }}
+            testID={`commitment-detail-${id}-save`}
+          >
+            <AppText className={`text-sm font-bold ${TEXT.body}`}>{t('שמירת שינויים')}</AppText>
+          </Pressable>
+          <Pressable
+            accessibilityRole="button"
+            onPress={(): void => {
+              const deleted = deletePurchaseLifecycle(
+                purchaseObligation.loggedPurchaseActivityId as string,
+                actions,
+              );
+              setLifecycleFailure(deleted.ok ? null : `${deleted.reason}: ${deleted.detail}`);
+            }}
+            testID={`commitment-detail-${id}-delete`}
+          >
+            <AppText className={`text-sm font-bold ${TEXT.body}`}>
+              {t('מחיקת הרכישה וההתחייבות')}
+            </AppText>
+          </Pressable>
+          {lifecycleFailure === null ? null : (
+            <AppText className={`text-xs ${TEXT.muted}`} testID={`commitment-detail-${id}-failure`}>
+              {lifecycleFailure}
+            </AppText>
+          )}
+        </View>
       )}
     </View>
   );

@@ -3,6 +3,7 @@ import { Pressable, View } from 'react-native';
 
 import { AppText } from '../../components/AppText';
 import { CardTile } from '../../components/CardTile';
+import { ProvenanceChip } from '../../components/ProvenanceChip';
 import { RtlRow } from '../../components/rtl';
 import { useMoney } from '../../hooks/useMoney';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -11,6 +12,7 @@ import type { EngineCard } from '../../types/card.types';
 import { ltrNumerals } from '../../utils/calendar';
 import { TABULAR_NUMERALS } from '../../utils/money';
 import type { SurfaceContext } from '../../surfaces';
+import type { ProvenancedNumber } from '../../engines/provenance';
 import { CommitmentDetailSheet } from './CommitmentDetailSheet';
 
 export interface CommitmentPaymentProgress {
@@ -22,6 +24,7 @@ export interface CommitmentRowProps {
   readonly id: string;
   readonly name: string;
   readonly monthlyIls: number;
+  readonly monthlyProvenance?: ProvenancedNumber;
   readonly paymentProgress?: CommitmentPaymentProgress;
   readonly linkedCard?: Pick<
     EngineCard,
@@ -35,6 +38,7 @@ export function CommitmentRow({
   id,
   name,
   monthlyIls,
+  monthlyProvenance,
   paymentProgress,
   linkedCard,
   context,
@@ -83,6 +87,18 @@ export function CommitmentRow({
             >
               {money(monthlyIls)}
             </AppText>
+            {monthlyProvenance === undefined ? null : (
+              <ProvenanceChip
+                {...(monthlyProvenance.stale === true
+                  ? { asOfDate: monthlyProvenance.asOfDate }
+                  : {})}
+                testID={`commitment-row-${id}-provenance`}
+                view={{
+                  chip: monthlyProvenance.provenance,
+                  stale: monthlyProvenance.stale === true,
+                }}
+              />
+            )}
           </View>
           {paymentProgress === undefined ? null : (
             <AppText

@@ -16,6 +16,12 @@ export interface LoggedPurchase {
   readonly loggedAt: string;
   /** Omitted when the check did not name a card. */
   readonly cardId?: string;
+  /** Forward link to the one purchase-created installment commitment. */
+  readonly linkedInstallmentId?: string;
+  /** Original plan total; present together with linkedInstallmentId. */
+  readonly installmentPlanTotalIls?: number;
+  /** Original payment count; present together with linkedInstallmentId. */
+  readonly installmentCount?: number;
 }
 
 export interface VerdictHistoryRecord {

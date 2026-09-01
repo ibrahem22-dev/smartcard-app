@@ -1,6 +1,10 @@
 /**
  * Parse the encrypted activity vault. Malformed JSON is an empty vault, not a throw.
  */
+import {
+  DERIVED_MONETARY_SUM_TOLERANCE_ILS,
+  INSTALLMENT_PLAN_MIN_PAYMENT_COUNT,
+} from '../config/financial';
 import type {
   ActivityVault,
   LoggedPurchase,
@@ -31,6 +35,27 @@ export function isLoggedPurchase(value: unknown): value is LoggedPurchase {
   }
   if (typeof value.loggedAt !== 'string' || value.loggedAt.length === 0) return false;
   if (value.cardId !== undefined && typeof value.cardId !== 'string') return false;
+  const hasInstallmentLink = value.linkedInstallmentId !== undefined;
+  const hasPlanTotal = value.installmentPlanTotalIls !== undefined;
+  const hasInstallmentCount = value.installmentCount !== undefined;
+  if (hasInstallmentLink || hasPlanTotal || hasInstallmentCount) {
+    if (
+      typeof value.linkedInstallmentId !== 'string'
+      || value.linkedInstallmentId.length === 0
+      || typeof value.installmentPlanTotalIls !== 'number'
+      || !(value.installmentPlanTotalIls > 0)
+      || !Number.isFinite(value.installmentPlanTotalIls)
+      || typeof value.installmentCount !== 'number'
+      || !Number.isInteger(value.installmentCount)
+      || value.installmentCount < INSTALLMENT_PLAN_MIN_PAYMENT_COUNT
+      || typeof value.cardId !== 'string'
+      || value.cardId.length === 0
+      || Math.abs(value.amountIls * value.installmentCount - value.installmentPlanTotalIls)
+        > DERIVED_MONETARY_SUM_TOLERANCE_ILS
+    ) {
+      return false;
+    }
+  }
   return true;
 }
 

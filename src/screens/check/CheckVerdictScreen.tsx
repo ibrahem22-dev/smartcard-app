@@ -8,8 +8,14 @@ import { ProvenanceChip } from '../../components/ProvenanceChip';
 import type { ChipView } from '../../components/provenanceChipState';
 import { RtlButton, RtlRow, RtlScreen } from '../../components/rtl';
 import { useActivityStore } from '../../store/useActivityStore';
+import { useCardsStore } from '../../store/useCardsStore';
 import type { LoggedPurchase } from '../../types/activity.types';
-import { writeLoggedPurchase, writeVerdictHistory } from '../../check/activityMapper';
+import {
+  commitPurchaseLifecycle,
+  deletePurchaseLifecycle,
+  nextPurchaseActivityId,
+  type PurchaseLifecycleActions,
+} from '../../services/purchaseLifecycle';
 import { useTranslation } from '../../hooks/useTranslation';
 import { FxCompareFromCheckVerdict } from '../fx/FxCompareFromCheckVerdict';
 import type { ConvertedAmount } from '../../engines/currency';
@@ -116,6 +122,8 @@ export interface CheckVerdictScreenProps {
   readonly logCardId?: string;
   /** Optional observer for tests. The screen still writes the activity store. */
   readonly onLogPurchase?: (purchase: LoggedPurchase) => void;
+  /** Route-owned flag that removes the prospect once the persisted lifecycle replaces it. */
+  readonly onPurchaseLifecycleChange?: (activityId: string | null) => void;
 }
 
 type PillCopy = {
@@ -231,10 +239,36 @@ export function CheckVerdictScreen({
   impactStrip,
   logCardId,
   onLogPurchase,
+  onPurchaseLifecycleChange,
 }: CheckVerdictScreenProps): React.ReactElement {
   const { t } = useTranslation();
   const logPurchase = useActivityStore((s) => s.logPurchase);
   const recordVerdict = useActivityStore((s) => s.recordVerdict);
+  const updatePurchase = useActivityStore((s) => s.updatePurchase);
+  const deletePurchase = useActivityStore((s) => s.deletePurchase);
+  const replaceActivity = useActivityStore((s) => s.replaceActivity);
+  const addObligation = useCardsStore((s) => s.addObligation);
+  const updateObligation = useCardsStore((s) => s.updateObligation);
+  const deleteObligation = useCardsStore((s) => s.deleteObligation);
+  const replaceObligations = useCardsStore((s) => s.replaceObligations);
+  const [committedActivityId, setCommittedActivityId] = React.useState<string | null>(null);
+  const [lifecycleFailure, setLifecycleFailure] = React.useState<string | null>(null);
+  const activityIdRef = React.useRef<string | null>(null);
+  const activityAtRef = React.useRef<string | null>(null);
+  const actions: PurchaseLifecycleActions = {
+    getPurchases: () => useActivityStore.getState().purchases,
+    getVerdicts: () => useActivityStore.getState().verdicts,
+    getObligations: () => useCardsStore.getState().obligations,
+    logPurchase,
+    updatePurchase,
+    deletePurchase,
+    replaceActivity,
+    recordVerdict,
+    addObligation,
+    updateObligation,
+    deleteObligation,
+    replaceObligations,
+  };
 
   if (result === undefined) {
     return (
@@ -471,27 +505,60 @@ export function CheckVerdictScreen({
             labelClassName={`text-base font-extrabold ${TEXT.onAccent}`}
             onPress={(): void => {
               const at = new Date().toISOString();
-              const written = writeLoggedPurchase({
-                activityId: `activity:${at}`,
-                amountIls: contextLine.amount,
-                at,
-                ...(logCardId !== undefined ? { cardId: logCardId } : {}),
+              activityIdRef.current ??= nextPurchaseActivityId(at);
+              activityAtRef.current ??= at;
+              const committed = commitPurchaseLifecycle({
+                activityId: activityIdRef.current,
+                at: activityAtRef.current,
+                totalAmountIls: contextLine.amount,
+                installmentCount: contextLine.installmentCount,
+                merchantName: contextLine.categoryLabel ?? t('רכישה בתשלומים'),
+                ...(logCardId === undefined ? {} : { cardId: logCardId }),
+                verdict: result.verdict,
+                actions,
               });
-              logPurchase(written);
-              recordVerdict(
-                writeVerdictHistory({
-                  activityId: written.activityId,
-                  at: written.loggedAt,
-                  verdict: result.verdict,
-                  purchaseAmountIls: contextLine.amount,
-                  ...(logCardId !== undefined ? { cardId: logCardId } : {}),
-                }),
+              if (!committed.ok) {
+                setLifecycleFailure(`${committed.reason}: ${committed.detail}`);
+                return;
+              }
+              setLifecycleFailure(null);
+              setCommittedActivityId(committed.purchase?.activityId ?? activityIdRef.current);
+              onPurchaseLifecycleChange?.(
+                committed.purchase?.activityId ?? activityIdRef.current,
               );
-              onLogPurchase?.(written);
+              if (committed.status === 'CREATED' && committed.purchase !== undefined) {
+                onLogPurchase?.(committed.purchase);
+              }
             }}
             testID="check-verdict-log-purchase"
           />
         ) : null}
+        {committedActivityId === null ? null : (
+          <RtlButton
+            accessibilityRole="button"
+            className={`mt-3 items-center rounded-lg border p-3 ${BORDER.subtle}`}
+            label={t('ביטול הרכישה')}
+            labelClassName={`text-sm font-bold ${TEXT.body}`}
+            onPress={(): void => {
+              const undone = deletePurchaseLifecycle(committedActivityId, actions);
+              if (!undone.ok) {
+                setLifecycleFailure(`${undone.reason}: ${undone.detail}`);
+                return;
+              }
+              setLifecycleFailure(null);
+              setCommittedActivityId(null);
+              activityIdRef.current = null;
+              activityAtRef.current = null;
+              onPurchaseLifecycleChange?.(null);
+            }}
+            testID="check-verdict-undo-purchase"
+          />
+        )}
+        {lifecycleFailure === null ? null : (
+          <AppText className={`mt-2 text-xs ${TEXT.muted}`} testID="check-verdict-lifecycle-failure">
+            {lifecycleFailure}
+          </AppText>
+        )}
       </View>
     </RtlScreen>
   );

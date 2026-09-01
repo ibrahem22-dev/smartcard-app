@@ -48,6 +48,12 @@ export const CONSUMER_CREDIT_ANNUAL_RATE_MIN_PCT = 0;
 export const MONETARY_MIN_ILS = 0.01;
 export const MONETARY_MAX_ILS = 999_999;
 
+/** The minimum payment count that makes a purchase an installment plan. */
+export const INSTALLMENT_PLAN_MIN_PAYMENT_COUNT = 2;
+
+/** Tolerance for derived monetary sums because `total / count * count` is not exactly `total` in binary floating point. */
+export const DERIVED_MONETARY_SUM_TOLERANCE_ILS = 0.000001;
+
 /**
  * Installment-commitment thresholds, as a fraction of monthly income.
  *
