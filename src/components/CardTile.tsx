@@ -3,7 +3,6 @@ import { View } from 'react-native';
 
 import { AppText } from './AppText';
 import { ProvenanceChip } from './ProvenanceChip';
-import { chipStateFor } from './provenanceChipState';
 import { RtlRow } from './rtl';
 import { SURFACE, TEXT } from '../theme/tokens';
 import { useTranslation } from '../hooks/useTranslation';
@@ -66,7 +65,7 @@ export function CardTile({
           ) : null}
           <ProvenanceChip
             testID="card-tile-attribution-chip"
-            view={chipStateFor('UNVERIFIED_INPUT', resolution.provenanceChip)}
+            view={{ chip: resolution.provenanceChip, stale: false }}
           />
         </RtlRow>
       ) : null}
