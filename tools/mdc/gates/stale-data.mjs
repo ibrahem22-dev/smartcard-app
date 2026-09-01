@@ -76,11 +76,59 @@ const importClosure = entry => {
   return [...seen].sort();
 };
 
-/** Affected surfaces are production TSX modules in the suite closure that render the shared chip. */
+/**
+ * A CHIP IS NOT ALWAYS A FIGURE — and C10 governs figures.
+ *
+ * The criterion is "the documented aging policy renders Stale on every affected FIGURE once
+ * thresholds pass". A figure is a value the packs date and the aging policy can age. Not every
+ * ProvenanceChip in the app sits beside one: `src/components/CardTile.tsx` chips the provenance of
+ * a CARD IMAGE, resolved by `resolveMedia`, and `src/media/types.ts` gives that record `attribution`
+ * and `provenanceChip` and NEITHER `stale` NOR `asOfDate`. Bundled artwork has no threshold to pass,
+ * so `stale: false` there is not a hardcoded verdict — it is the true one.
+ *
+ * This matters because the first version of this gate counted every chip-rendering module, which
+ * made CardTile look like an unfixed surface. It is pinned by an earlier campaign's boundary record
+ * (P5's wallet-tile gate, D-021), so the gate was demanding an edit the campaign is not permitted
+ * to make, for a figure that does not exist.
+ *
+ * THE EXCLUSION IS DERIVED AND IT EXPIRES BY ITSELF. A surface drops out only when every chip it
+ * renders is chipped from a media resolution, and only while media records genuinely carry no
+ * staleness. If `src/media/types.ts` ever gains `stale` or `asOfDate`, media values become
+ * aging-governed, the justification is gone, and this gate FAILS rather than going on excluding
+ * them — the same rule the U5 exemption is held to.
+ */
+const MEDIA_TYPES = join(ROOT, 'src', 'media', 'types.ts');
+
+const mediaRecordsCarryStaleness = () => {
+  if (!existsSync(MEDIA_TYPES)) return null;
+  const stripped = stripCommentsAndStrings(readFileSync(MEDIA_TYPES, 'utf8'));
+  return /\bstale\b/.test(stripped) || /\basOfDate\b/.test(stripped);
+};
+
+/**
+ * THE SPECIFIER IS READ FROM RAW, THE STRUCTURE FROM STRIPPED — and the first version of this
+ * function got that backwards, which is worth leaving written down.
+ *
+ * A module specifier IS a string body, so `stripCommentsAndStrings` blanks it: searching the
+ * stripped copy for '../media/resolveMedia' can never match however correct the file is. That is
+ * the same mistake OQ-MDC-010's sweep was ruled about, made here by the supervisor while repairing
+ * a gate. The import is therefore matched against the RAW text; the chip structure, where a comment
+ * could otherwise masquerade as a call, is matched against the stripped copy.
+ */
+const isMediaOnlyChipSurface = (raw, stripped) => {
+  if (!/from\s*['"][^'"]*media\/resolveMedia['"]/.test(raw)) return false;
+  const chipViews = [...stripped.matchAll(/<ProvenanceChip\b[\s\S]{0,240}?\/>/g)].map(m => m[0]);
+  if (chipViews.length === 0) return false;
+  /* Every chip in the file must read from the media resolution. One figure chip and it stays in. */
+  return chipViews.every(view => /resolution\s*[.?]/.test(view));
+};
+
 const affectedSurfacePopulation = closure => closure.filter(path => {
   if (!path.endsWith('.tsx') || rel(path).includes('/__tests__/')) return false;
-  const stripped = stripCommentsAndStrings(readFileSync(path, 'utf8'));
-  return /<ProvenanceChip\b/.test(stripped);
+  const raw = readFileSync(path, 'utf8');
+  const stripped = stripCommentsAndStrings(raw);
+  if (!/<ProvenanceChip\b/.test(stripped)) return false;
+  return !isMediaOnlyChipSurface(raw, stripped);
 });
 
 export const run = async () => {
@@ -95,6 +143,16 @@ export const run = async () => {
   let chipCalls = 0;
 
   if (surfaces.length === 0) problems.push('the suite import closure contains no affected surface');
+
+  /* The media exclusion must still be justified, or it is a hole nobody is watching. */
+  const mediaStale = mediaRecordsCarryStaleness();
+  if (mediaStale === null) {
+    problems.push('src/media/types.ts is missing — the media-chip exclusion cannot be justified and must not be applied blind');
+  } else if (mediaStale) {
+    problems.push('src/media/types.ts now declares stale or asOfDate, so media values ARE aging-governed: '
+      + 'the exclusion that keeps media-only chip surfaces out of this population has expired and every '
+      + 'such surface must be measured as a figure');
+  }
   for (const path of surfaces) {
     const stripped = stripCommentsAndStrings(readFileSync(path, 'utf8'));
     chipCalls += [...stripped.matchAll(/<ProvenanceChip\b/g)].length;
