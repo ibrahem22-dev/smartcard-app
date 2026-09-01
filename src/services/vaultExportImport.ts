@@ -4,10 +4,24 @@ import {
   keyVault,
   type EncryptedStorageHandle,
 } from '../security/keyVault';
+import { STORAGE_NAMESPACE } from '../config/identity';
 import { MMKV_KEYS } from '../store/keys';
 import { isVaultKey } from '../store/packStore';
 
-export const VAULT_EXPORT_SCHEMA = 'smartcard.local-vault-export';
+/**
+ * THE BRAND IS READ, NOT WRITTEN — OD-2, and P2's identity-config gate.
+ *
+ * This was the literal 'smartcard.local-vault-export', carried in from the preserved P6-A shape.
+ * The gate refused it three times over one line, because "smartcard" is simultaneously the slug,
+ * the scheme and the storageNamespace, and OD-2's rule is: do not scatter the string through
+ * source, read it from src/config/identity.ts.
+ *
+ * It matters beyond tidiness here. STAGE-2 is the TREVIK identity change and MDC-RENAME is still
+ * a PENDING Owner ruling, so the brand in this string is a value that is expected to move. An
+ * export file stamped with a hardcoded old brand would have outlived the rename silently, and the
+ * import validator would have gone on accepting a schema the app no longer is.
+ */
+export const VAULT_EXPORT_SCHEMA = `${STORAGE_NAMESPACE}.local-vault-export`;
 export const VAULT_EXPORT_VERSION = 1;
 
 interface VaultExportEntry {
