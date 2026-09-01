@@ -65,8 +65,30 @@ export const run = async ({ root }) => {
   if (!screen.includes('check-verdict-log-purchase')) {
     return fail(SCREEN + ' has no log-purchase control');
   }
-  if (!screen.includes('logPurchase(written)')) {
-    return fail(SCREEN + ' does not write the activity store');
+  /* THE WRITE, NOT ONE SPELLING OF IT — Owner ruling OQ-MDC-013, option 1, 2026-09-01.
+     This clause used to be `screen.includes('logPurchase(written)')`. That pinned a literal source
+     expression rather than the behaviour L1 names, and C2 replaced the direct call with a single
+     authorized lifecycle path that writes the purchase and its linked commitment atomically. The
+     literal disappeared; the guarantee did not — this gate's own required render case, *"'I made
+     this purchase' writes the purchase to the activity store"*, exercises the real store and still
+     passes. So the clause now asserts the guarantee structurally, in two parts that a screen which
+     renders the button and writes nothing cannot satisfy:
+       1. the screen ACQUIRES the activity store's purchase writer, and
+       2. it HANDS THAT WRITER ON as a value — to the lifecycle path the log control invokes —
+          rather than merely naming it.
+     A direct `logPurchase(written)` call satisfies both, so this is strictly wider than what it
+     replaces and refuses nothing the old clause accepted. Every other L1 check in this gate is
+     untouched, and the ruling authorised this clause and nothing else. */
+  const writerAcquired =
+    /useActivityStore\s*\(\s*\([^)]*\)\s*=>\s*[A-Za-z_$][\w$]*\.logPurchase\s*\)/.test(screen);
+  const beyondAcquisition = screen.replace(/useActivityStore\s*\([^;]*;/g, '');
+  const writerHandedOn = /\blogPurchase\s*[,)}]/.test(beyondAcquisition);
+  if (!writerAcquired || !writerHandedOn) {
+    return fail(
+      SCREEN + ' does not write the activity store'
+        + (writerAcquired ? '' : ' — it never acquires the store\'s purchase writer')
+        + (writerHandedOn ? '' : ' — the acquired writer is never handed to the lifecycle path'),
+    );
   }
 
   const unitCfg = projectConfig(root, 'unit', UNIT);
