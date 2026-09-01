@@ -324,6 +324,16 @@
       "why": "ALLOW-CROSSSET-RESOLVER states the principle and ALLOW-LEARN-SEAM-IMPORT applies it one criterion earlier: a seam nothing may import is not a seam, and reaching the boundary THROUGH its modules is the arrangement D2 exists to make possible. The screen imports the seam and nothing else - the C7 gate derives the screen import closure and fails if ANY file in it names a manifest, a pack, MMKV or SQLite directly. The render suite is included because it asserts every rendered figure against the value the seam derives at runtime; asserting against typed constants instead is precisely the defect C7 forbids, so the test has to hold the same door the screen does. Scoped to those two files BY NAME.",
       "reviewedBy": "MDC C7 / OQ-MDC-007",
       "reviewedAt": "2026-09-01"
+    },
+    {
+      "id": "ALLOW-STALENESS-SEAM-IMPORT",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/screens/check/CheckInputScreen\\.tsx$",
+      "message": "pack module '[^']*data/adapter/fxStaleness' imported outside",
+      "why": "THE SAME PREDECESSOR-LINT ARTEFACT ALLOW-CROSSSET-RESOLVER RECORDS, and the third criterion to meet it after ALLOW-LEARN-SEAM-IMPORT and ALLOW-DATA-PRIVACY-SEAM-IMPORT. R3 names src/authority/** because that was the boundary directory when this lint was adopted; the rule in force is D2, and reaching the boundary THROUGH its modules is the arrangement D2 exists to make possible rather than a violation of it. What is imported is stalenessReading, which holds no pack bytes: it takes a rate date and an EXPLICIT asOf and returns an age. That explicitness is the whole point of C10 - the criterion s declared control is clock-bypass, \"pin the staleness clock to now\", so a screen that could not be handed its clock could not be falsified. The alternative, letting the screen read the clock itself, is exactly what the criterion forbids. Scoped to CheckInputScreen.tsx BY NAME, so a second screen reaching for the staleness seam is still UNACCOUNTED and has to be argued on its own. The successor boundary gate, lint-boundaries, is green on this import at 5 rules and 0 violations - it is only the predecessor lint that objects.",
+      "reviewedBy": "MDC C10 / OQ-MDC-007",
+      "reviewedAt": "2026-09-01"
     }
   ],
   "$closedNote": [

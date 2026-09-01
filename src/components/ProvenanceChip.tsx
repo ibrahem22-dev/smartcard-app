@@ -80,7 +80,13 @@ export function StalenessModifier({
   const { t } = useTranslation();
   if (!stale) return null;
   if (asOfDate === undefined || asOfDate.trim() === '') {
-    throw new Error('a stale value requires asOfDate (Data Contract §2.3)');
+    /* Data Contract §2.3: "Any surface rendering a stale value MUST render asOfDate with it."
+       The citation lives in this comment rather than in the thrown string on purpose - P2's
+       financial-literal reader strips comments but not string literals, so a section number
+       inside the message is read as the monetary value 2.3 and fails lint-boundaries rule 4.
+       Recorded as OQ-MDC-011; the explanation stays, and it stays where it is not misread. */
+    throw new Error('a stale value requires an asOfDate: the Data Contract requires the date to '
+      + 'render beside the Stale modifier, so a stale figure can never appear undated');
   }
   return (
     <>

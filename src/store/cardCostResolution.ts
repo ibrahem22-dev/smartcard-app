@@ -110,7 +110,9 @@ export function readCardCost(
   );
   if (resolved !== null) {
     if (resolved.stale && (resolved.asOfDate === undefined || resolved.asOfDate.trim() === '')) {
-      throw new Error('a stale card-cost reading requires asOfDate (Data Contract §2.3)');
+      /* Data Contract §2.3, cited here rather than in the message — see OQ-MDC-011. */
+      throw new Error('a stale card-cost reading requires an asOfDate: the Data Contract requires '
+        + 'the date to travel with the Stale modifier');
     }
     if (resolved.source === 'pack') {
       const conflict = cardCostConflictFrom(resolved.value);
