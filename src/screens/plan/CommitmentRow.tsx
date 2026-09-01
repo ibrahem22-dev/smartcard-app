@@ -4,6 +4,7 @@ import { Pressable, View } from 'react-native';
 import { AppText } from '../../components/AppText';
 import { CardTile } from '../../components/CardTile';
 import { ProvenanceChip } from '../../components/ProvenanceChip';
+import type { ChipView } from '../../components/provenanceChipState';
 import { RtlRow } from '../../components/rtl';
 import { useMoney } from '../../hooks/useMoney';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -12,7 +13,6 @@ import type { EngineCard } from '../../types/card.types';
 import { ltrNumerals } from '../../utils/calendar';
 import { TABULAR_NUMERALS } from '../../utils/money';
 import type { SurfaceContext } from '../../surfaces';
-import type { ProvenancedNumber } from '../../engines/provenance';
 import { CommitmentDetailSheet } from './CommitmentDetailSheet';
 
 export interface CommitmentPaymentProgress {
@@ -24,7 +24,8 @@ export interface CommitmentRowProps {
   readonly id: string;
   readonly name: string;
   readonly monthlyIls: number;
-  readonly monthlyProvenance?: ProvenancedNumber;
+  readonly monthlyChipView?: ChipView;
+  readonly monthlyAsOfDate?: string;
   readonly paymentProgress?: CommitmentPaymentProgress;
   readonly linkedCard?: Pick<
     EngineCard,
@@ -38,7 +39,8 @@ export function CommitmentRow({
   id,
   name,
   monthlyIls,
-  monthlyProvenance,
+  monthlyChipView,
+  monthlyAsOfDate,
   paymentProgress,
   linkedCard,
   context,
@@ -87,16 +89,11 @@ export function CommitmentRow({
             >
               {money(monthlyIls)}
             </AppText>
-            {monthlyProvenance === undefined ? null : (
+            {monthlyChipView === undefined ? null : (
               <ProvenanceChip
-                {...(monthlyProvenance.stale === true
-                  ? { asOfDate: monthlyProvenance.asOfDate }
-                  : {})}
+                {...(monthlyAsOfDate === undefined ? {} : { asOfDate: monthlyAsOfDate })}
                 testID={`commitment-row-${id}-provenance`}
-                view={{
-                  chip: monthlyProvenance.provenance,
-                  stale: monthlyProvenance.stale === true,
-                }}
+                view={monthlyChipView}
               />
             )}
           </View>

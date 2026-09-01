@@ -40,6 +40,7 @@ import React from 'react';
 import { View } from 'react-native';
 
 import { AppText } from '../../components/AppText';
+import type { ChipView } from '../../components/provenanceChipState';
 import { RtlScreen, RtlScrollView } from '../../components/rtl';
 import { useTranslation } from '../../hooks/useTranslation';
 import { commitmentsFromVault } from '../../check/commitmentInput';
@@ -47,7 +48,6 @@ import { useCardsStore } from '../../store/useCardsStore';
 import { useLoansStore } from '../../store/useLoansStore';
 import { BORDER, SURFACE, TEXT } from '../../theme/tokens';
 import type { EngineCard } from '../../types/card.types';
-import type { ProvenancedNumber } from '../../engines/provenance';
 import { CommitmentRow } from './CommitmentRow';
 import { CommitmentsSummary } from './CommitmentsSummary';
 
@@ -56,7 +56,8 @@ interface CommitmentListRow {
   readonly id: string;
   readonly name: string;
   readonly monthlyIls: number;
-  readonly monthlyProvenance?: ProvenancedNumber;
+  readonly monthlyChipView?: ChipView;
+  readonly monthlyAsOfDate?: string;
   readonly paymentProgress?: {
     readonly position: number;
     readonly total: number;
@@ -91,13 +92,21 @@ export function CommitmentsScreen(): React.ReactElement {
   const obligations = useCardsStore((s) => s.obligations);
   const loans = useLoansStore((s) => s.loans);
   const engineCommitments = commitmentsFromVault({ cards, installments: obligations, loans });
-  const monthlyProvenanceFor = (
+  const monthlyPresentationFor = (
     id: string,
-  ): Pick<CommitmentListRow, 'monthlyProvenance'> | Record<string, never> => {
+  ): Pick<CommitmentListRow, 'monthlyChipView' | 'monthlyAsOfDate'> | Record<string, never> => {
     const monthlyProvenance = engineCommitments.find(
       (commitment) => commitment.commitmentId === id,
     )?.monthlyAmountIls;
-    return monthlyProvenance === undefined ? {} : { monthlyProvenance };
+    if (monthlyProvenance === undefined) return {};
+
+    const monthlyChipView: ChipView = {
+      chip: monthlyProvenance.provenance,
+      stale: monthlyProvenance.stale === true,
+    };
+    return monthlyProvenance.stale === true
+      ? { monthlyChipView, monthlyAsOfDate: monthlyProvenance.asOfDate }
+      : { monthlyChipView };
   };
   const linkedCardFor = (
     cardId: string | undefined,
@@ -116,7 +125,7 @@ export function CommitmentsScreen(): React.ReactElement {
         id: o.installmentId,
         name: o.merchantName,
         monthlyIls: o.monthlyPayment,
-        ...monthlyProvenanceFor(o.installmentId),
+        ...monthlyPresentationFor(o.installmentId),
         ...linkedCardFor(o.billingCardId),
       })),
     },
@@ -130,7 +139,7 @@ export function CommitmentsScreen(): React.ReactElement {
           id: l.id,
           name: l.lenderName,
           monthlyIls: l.monthlyPayment,
-          ...monthlyProvenanceFor(l.id),
+          ...monthlyPresentationFor(l.id),
           paymentProgress: { position: l.monthsPaid, total: l.totalMonths },
           ...linkedCardFor(l.linkedCardId),
         })),
@@ -145,7 +154,7 @@ export function CommitmentsScreen(): React.ReactElement {
           id: l.id,
           name: l.lenderName,
           monthlyIls: l.monthlyPayment,
-          ...monthlyProvenanceFor(l.id),
+          ...monthlyPresentationFor(l.id),
           paymentProgress: { position: l.monthsPaid, total: l.totalMonths },
           ...linkedCardFor(l.linkedCardId),
         })),
