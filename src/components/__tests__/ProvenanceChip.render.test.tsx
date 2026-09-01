@@ -77,7 +77,7 @@ describe('ProvenanceChip — A2: four states plus the Stale modifier, one defini
 
   it('renders the Stale modifier ALONGSIDE a state, never instead of one', () => {
     const { queryByTestId, toJSON } = render(
-      <ProvenanceChip view={{ chip: 'VERIFIED', stale: true }} />,
+      <ProvenanceChip asOfDate="2026-08-18" view={{ chip: 'VERIFIED', stale: true }} />,
     );
 
     expect(queryByTestId('provenance-chip-stale')).toBeTruthy();

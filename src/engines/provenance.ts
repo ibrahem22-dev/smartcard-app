@@ -14,19 +14,28 @@
  */
 import { type ProvenanceChip } from '../authority/provenanceChip';
 
-/** A number that admits where it came from, every time it leaves an engine. */
-export interface ProvenancedNumber<T = number> {
+interface ProvenancedNumberBase<T> {
   readonly value: T;
   /** From the Data Contract's four states via src/authority/provenanceChip.ts — never local. */
   readonly provenance: ProvenanceChip;
-  /** The Stale modifier. Absent/false means no staleness claim is being made here. */
-  readonly stale?: boolean;
 }
 
+/** A number that admits where it came from, with §2.3's date required on the stale branch. */
+export type ProvenancedNumber<T = number> = ProvenancedNumberBase<T> & (
+  | { readonly stale?: false; readonly asOfDate?: never }
+  | { readonly stale: true; readonly asOfDate: string }
+);
+
 /** Wrap a number in its provenance. Refuses to wrap nothing: there is no number to label. */
-export function provenanced<T>(value: T, provenance: ProvenanceChip, stale = false): ProvenancedNumber<T> {
+export function provenanced<T>(
+  value: T,
+  provenance: ProvenanceChip,
+  staleAsOfDate?: string,
+): ProvenancedNumber<T> {
   if (value === undefined || value === null) {
     throw new Error('refusing to stamp provenance onto nothing — T3: no unlabelled number reaches an output, but also no fake number reaches one');
   }
-  return stale ? { value, provenance, stale: true } : { value, provenance };
+  return staleAsOfDate === undefined
+    ? { value, provenance }
+    : { value, provenance, stale: true, asOfDate: staleAsOfDate };
 }

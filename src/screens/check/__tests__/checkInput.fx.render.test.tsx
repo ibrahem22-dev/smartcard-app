@@ -26,7 +26,7 @@ const mount = (fxReference?: CheckInputFxReference) =>
       }}
     >
       {fxReference ? (
-        <CheckInputScreen fxReference={fxReference} />
+        <CheckInputScreen asOfDate="2026-08-30" fxReference={fxReference} />
       ) : (
         <CheckInputScreen />
       )}

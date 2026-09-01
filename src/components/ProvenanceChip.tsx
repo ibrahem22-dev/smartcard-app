@@ -61,11 +61,49 @@ const CHIP_TONE: Readonly<Record<ChipState, 'positive' | 'advisory' | 'neutral'>
 export interface ProvenanceChipProps {
   /** What to show. `null` means no chip is honest here — the caller must render nothing. */
   readonly view: ChipView | null;
+  /** §2.3: required at runtime whenever `view.stale` is true; omitted for non-stale values. */
+  readonly asOfDate?: string | undefined;
   /** Optional test id, so a harness can find one chip among several. */
   readonly testID?: string;
 }
 
+export interface StalenessModifierProps {
+  readonly stale: boolean;
+  readonly asOfDate?: string | undefined;
+}
+
+/** The one Stale modifier, shared by scalar chips and chip-less conflicted values. */
+export function StalenessModifier({
+  asOfDate,
+  stale,
+}: StalenessModifierProps): React.ReactElement | null {
+  const { t } = useTranslation();
+  if (!stale) return null;
+  if (asOfDate === undefined || asOfDate.trim() === '') {
+    throw new Error('a stale value requires asOfDate (Data Contract §2.3)');
+  }
+  return (
+    <>
+      <View
+        className={`ms-1 rounded-full border px-1.5 ${SURFACE.sunken} ${BORDER.hairline}`}
+        testID="provenance-chip-stale"
+      >
+        <AppText className={`text-xs font-bold ${TEXT.secondary}`}>
+          {t(CHIP_STALE_LABEL)}
+        </AppText>
+      </View>
+      <AppText
+        className={`text-xs ${TEXT.secondary}`}
+        testID="provenance-chip-as-of-date"
+      >
+        {asOfDate}
+      </AppText>
+    </>
+  );
+}
+
 export function ProvenanceChip({
+  asOfDate,
   view,
   testID,
 }: ProvenanceChipProps): React.ReactElement | null {
@@ -76,7 +114,7 @@ export function ProvenanceChip({
 
   const role = CHIP_TONE[view.chip];
   const label = t(CHIP_LABEL[view.chip]);
-  const stale = t(CHIP_STALE_LABEL);
+  const staleLabel = t(CHIP_STALE_LABEL);
 
   return (
     // RtlRow rather than a hardcoded row direction. The app's own rtlNoHardcodedDirectionClasses
@@ -86,7 +124,7 @@ export function ProvenanceChip({
     // nobody trusts.
     <RtlRow
       accessibilityRole="text"
-      accessibilityLabel={view.stale ? `${label} · ${stale}` : label}
+      accessibilityLabel={view.stale ? `${label} · ${staleLabel}` : label}
       // `self-start` is CROSS-AXIS alignment. In a row it controls vertical placement and has
       // nothing to do with reading direction; it stops the chip stretching to the full width of
       // whatever contains it. The scan's list is deliberately broad, and this is the exception it
@@ -100,14 +138,7 @@ export function ProvenanceChip({
         {CHIP_GLYPH[view.chip]}
       </AppText>
       <AppText className={`text-xs font-bold ${ROLE_TEXT[role]}`}>{label}</AppText>
-      {view.stale ? (
-        <View
-          className={`ms-1 rounded-full border px-1.5 ${SURFACE.sunken} ${BORDER.hairline}`}
-          testID="provenance-chip-stale"
-        >
-          <AppText className={`text-xs font-bold ${TEXT.secondary}`}>{stale}</AppText>
-        </View>
-      ) : null}
+      <StalenessModifier asOfDate={asOfDate} stale={view.stale} />
     </RtlRow>
   );
 }

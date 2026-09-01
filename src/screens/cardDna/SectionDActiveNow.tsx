@@ -71,8 +71,9 @@ function FigureRow({
           {format === 'money' ? money(number.value) : percent(number.value)}
         </AppText>
         <ProvenanceChip
+          asOfDate={number.asOfDate}
           testID={`${testID}-provenance`}
-          view={{ chip: number.provenance, stale: false }}
+          view={{ chip: number.provenance, stale: Boolean(number.stale) }}
         />
       </View>
     </RtlRow>

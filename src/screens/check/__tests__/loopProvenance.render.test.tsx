@@ -238,7 +238,7 @@ const mountVerdict = () =>
 
 describe('Loop — R5: every figure carries a provenance chip; above-generated media is attributed', () => {
   it('every Check Input numeric claim has a ProvenanceChip in its parent group', () => {
-    const mounted = safe(<CheckInputScreen fxReference={fxReference} />);
+    const mounted = safe(<CheckInputScreen asOfDate="2026-08-30" fxReference={fxReference} />);
     fireEvent.press(mounted.getByTestId(`check-input-currency-${Currency.EUR}`));
     fireEvent.press(mounted.getByTestId('check-input-plan-installments'));
     fireEvent.changeText(mounted.getByTestId('check-input-amount'), '1200');

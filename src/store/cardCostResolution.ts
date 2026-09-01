@@ -13,14 +13,21 @@ import { resolveValue } from './storeAdapter';
 
 export { renderPlanForCardCostConflict } from '../authority/cardCostConflict';
 
+type CardCostStaleness =
+  | { readonly stale?: false; readonly asOfDate?: never }
+  | { readonly stale: true; readonly asOfDate: string };
+
 export type CardCostReading =
-  | {
+  | ({
       readonly kind: 'known';
       readonly value: string;
       readonly chip: ProvenanceChip;
       readonly source: 'user' | 'catalog';
-    }
-  | { readonly kind: 'conflict'; readonly conflict: ConflictAuthority<string> }
+    } & CardCostStaleness)
+  | ({
+      readonly kind: 'conflict';
+      readonly conflict: ConflictAuthority<string>;
+    } & CardCostStaleness)
   | { readonly kind: 'unknown' };
 
 /**
@@ -102,9 +109,20 @@ export function readCardCost(
     cardCostOverrideKey(card.cardId, rowId),
   );
   if (resolved !== null) {
+    if (resolved.stale && (resolved.asOfDate === undefined || resolved.asOfDate.trim() === '')) {
+      throw new Error('a stale card-cost reading requires asOfDate (Data Contract §2.3)');
+    }
     if (resolved.source === 'pack') {
       const conflict = cardCostConflictFrom(resolved.value);
-      if (conflict !== null) return { kind: 'conflict', conflict };
+      if (conflict !== null) {
+        return {
+          kind: 'conflict',
+          conflict,
+          ...(resolved.stale
+            ? { stale: resolved.stale, asOfDate: resolved.asOfDate }
+            : {}),
+        };
+      }
     }
     // Unlike an ambiguous EngineCard catalog zero, USER 0 and an explicit pack zero are known.
     return {
@@ -112,6 +130,9 @@ export function readCardCost(
       value: resolved.value,
       chip: resolved.chip,
       source: resolved.source === 'vault' ? 'user' : 'catalog',
+      ...(resolved.stale
+        ? { stale: resolved.stale, asOfDate: resolved.asOfDate }
+        : {}),
     };
   }
 

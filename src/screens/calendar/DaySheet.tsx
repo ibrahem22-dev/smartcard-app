@@ -3,6 +3,7 @@ import { View } from 'react-native';
 
 import { AppText } from '../../components/AppText';
 import { ProvenanceChip } from '../../components/ProvenanceChip';
+import { chipStateFor } from '../../components/provenanceChipState';
 import { useMoney } from '../../hooks/useMoney';
 import { useTranslation } from '../../hooks/useTranslation';
 import type { SurfaceContext, SurfaceEngineResults } from '../../surfaces';
@@ -67,7 +68,7 @@ function EventRow({
       {event.derived ? (
         <ProvenanceChip
           testID={`${testID}-estimate`}
-          view={{ chip: 'ESTIMATE', stale: false }}
+          view={chipStateFor('UNVERIFIED_INPUT', 'ESTIMATE')}
         />
       ) : null}
     </View>

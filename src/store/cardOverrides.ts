@@ -17,7 +17,9 @@ function isCardCostOverrides(value: unknown): value is CardCostOverrides {
         isRecord(entry) &&
         typeof entry.value === 'string' &&
         entry.chip === 'USER' &&
-        typeof entry.stale === 'boolean',
+        typeof entry.stale === 'boolean' &&
+        (entry.asOfDate === undefined || typeof entry.asOfDate === 'string') &&
+        (!entry.stale || typeof entry.asOfDate === 'string'),
     )
   );
 }

@@ -3,6 +3,8 @@ import { Pressable, TextInput, View } from 'react-native';
 
 import { AppText } from '../../components/AppText';
 import { ProvenanceChip } from '../../components/ProvenanceChip';
+import { chipStateFor } from '../../components/provenanceChipState';
+import { stalenessReading } from '../../data/adapter/fxStaleness';
 import { RtlButton, RtlRow, RtlScreen } from '../../components/rtl';
 import { useTranslation } from '../../hooks/useTranslation';
 import { ACCENT, BORDER, ROLE_TEXT, SURFACE, TEXT } from '../../theme/tokens';
@@ -54,6 +56,8 @@ export interface CheckInputScreenProps {
    * not the shekel. Absent on a foreign mount: the line is omitted rather than invented.
    */
   readonly fxReference?: CheckInputFxReference;
+  /** Controlled staleness clock. A supplied FX reference is not rendered without it. */
+  readonly asOfDate?: string;
   /**
    * Quiet benefit hint. Present only when a real match exists. Absent: no chip.
    */
@@ -98,6 +102,7 @@ const parseTypedAmount = (typed: string): number | null => {
 };
 
 export function CheckInputScreen({
+  asOfDate,
   onCheck,
   ownedCards,
   fxReference,
@@ -117,6 +122,9 @@ export function CheckInputScreen({
   const canCheck = amount !== null;
   const foreign = currency !== Currency.ILS;
   const cards = ownedCards ?? [];
+  const fxStaleness = fxReference === undefined || asOfDate === undefined
+    ? undefined
+    : stalenessReading(fxReference.rateDate, asOfDate);
 
   const monthlyPreview = useMemo((): number | null => {
     if (!installmentsMode || amount === null) {
@@ -203,7 +211,7 @@ export function CheckInputScreen({
           })}
         </RtlRow>
 
-        {foreign && fxReference ? (
+        {foreign && fxReference && fxStaleness ? (
           <RtlRow className="mt-2" testID="check-input-fx-lane">
             <AppText
               accessibilityValue={{
@@ -215,8 +223,9 @@ export function CheckInputScreen({
               {`${t('שער בנק ישראל')} ${fxReference.rateIlsPerQuoteUnit} · ${fxReference.rateDate}`}
             </AppText>
             <ProvenanceChip
+              asOfDate={fxReference.rateDate}
               testID="check-input-fx-rate-chip"
-              view={{ chip: 'ESTIMATE', stale: false }}
+              view={{ chip: 'ESTIMATE', stale: fxStaleness.stale }}
             />
           </RtlRow>
         ) : null}
@@ -295,7 +304,7 @@ export function CheckInputScreen({
               </AppText>
               <ProvenanceChip
                 testID="check-input-stepper-count-chip"
-                view={{ chip: 'USER', stale: false }}
+                view={chipStateFor('UNVERIFIED_INPUT', 'USER')}
               />
               <Pressable
                 accessibilityRole="button"
@@ -317,7 +326,7 @@ export function CheckInputScreen({
                 </AppText>
                 <ProvenanceChip
                   testID="check-input-monthly-preview-chip"
-                  view={{ chip: 'USER', stale: false }}
+                  view={chipStateFor('UNVERIFIED_INPUT', 'USER')}
                 />
               </RtlRow>
             ) : null}

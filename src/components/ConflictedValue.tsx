@@ -2,6 +2,7 @@ import React from 'react';
 import { View } from 'react-native';
 
 import { AppText } from './AppText';
+import { StalenessModifier } from './ProvenanceChip';
 import { RtlRow } from './rtl';
 import { BORDER, ROLE_BORDER, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
 import { useTranslation } from '../hooks/useTranslation';
@@ -64,6 +65,11 @@ export interface ConflictedValueProps<T> {
   readonly format: (value: T) => string;
   /** What the disputed figure IS — "FX commission", "annual fee". Already translated. */
   readonly label?: string;
+  /** A conflict remains chip-less; its orthogonal Stale modifier and date still render. */
+  readonly staleness?: {
+    readonly stale: boolean;
+    readonly asOfDate?: string | undefined;
+  };
   readonly testID?: string;
 }
 
@@ -101,6 +107,7 @@ export function ConflictedValue<T>({
   plan,
   format,
   label,
+  staleness,
   testID,
 }: ConflictedValueProps<T>): React.ReactElement {
   const { t } = useTranslation();
@@ -124,6 +131,14 @@ export function ConflictedValue<T>({
             : t('{{label}} — הנתון הזה שנוי במחלוקת', { label })}
         </AppText>
       </RtlRow>
+      {staleness === undefined ? null : (
+        <RtlRow className="mt-2 items-center gap-2">
+          <StalenessModifier
+            asOfDate={staleness.asOfDate}
+            stale={staleness.stale}
+          />
+        </RtlRow>
+      )}
 
       {/*
         A CONFLICT WITH NO CANDIDATES IS STILL A CONFLICT, and it renders as one sentence and

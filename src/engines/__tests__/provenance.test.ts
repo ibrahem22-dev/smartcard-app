@@ -15,8 +15,9 @@ describe('the provenanced wrapper (T2)', () => {
   });
 
   it('carries the Stale modifier beside the chip, never instead of it', () => {
-    const p = provenanced(100, 'VERIFIED', true);
+    const p = provenanced(100, 'VERIFIED', '2026-08-18');
     expect(p.stale).toBe(true);
+    expect(p.asOfDate).toBe('2026-08-18');
     expect(p.provenance).toBe('VERIFIED');
   });
 

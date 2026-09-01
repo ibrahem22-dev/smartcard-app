@@ -42,22 +42,26 @@ import { getPackRow, isVaultKey } from './packStore';
  */
 
 /** A value as one store holds it, with the chip that says where it came from. */
-export interface StoredValue {
+interface StoredValueBase {
   readonly value: string;
   readonly chip: ProvenanceChip;
-  /** §2.3's modifier — orthogonal to the chip, never a fifth chip. */
-  readonly stale: boolean;
 }
+
+/** §2.3 makes the date structurally mandatory on the stale branch. */
+export type StoredValue = StoredValueBase & (
+  | { readonly stale: false; readonly asOfDate?: string }
+  | { readonly stale: true; readonly asOfDate: string }
+);
 
 /** What the vault must provide. An interface, so the adapter can be tested without a device. */
 export interface VaultReader {
   readonly readOverride: (key: string) => StoredValue | null;
 }
 
-export interface ResolvedValue extends StoredValue {
+export type ResolvedValue = StoredValue & {
   /** Which store answered. Carried so a surface can say WHY it is showing what it shows. */
   readonly source: 'vault' | 'pack';
-}
+};
 
 /**
  * Read one value, merging the user's override over the pack at the moment of reading.

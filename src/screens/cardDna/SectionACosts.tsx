@@ -122,8 +122,9 @@ export function SectionACosts({
                     {formattedValue(row.id, reading.value, { money, percent })}
                   </AppText>
                   <ProvenanceChip
+                    asOfDate={reading.asOfDate}
                     testID={`${row.testID}-chip`}
-                    view={{ chip: reading.chip, stale: false }}
+                    view={{ chip: reading.chip, stale: Boolean(reading.stale) }}
                   />
                 </RtlRow>
               ) : reading.kind === 'conflict' ? (
@@ -134,6 +135,12 @@ export function SectionACosts({
                   }
                   label={t('המקורות החדשים ביותר מוצגים תחילה')}
                   plan={renderPlanForCardCostConflict(reading.conflict)}
+                  staleness={{
+                    stale: Boolean(reading.stale),
+                    ...(reading.asOfDate === undefined
+                      ? {}
+                      : { asOfDate: reading.asOfDate }),
+                  }}
                   testID={`${row.testID}-conflict`}
                 />
               ) : (
