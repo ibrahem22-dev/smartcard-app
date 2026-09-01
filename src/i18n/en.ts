@@ -1137,4 +1137,53 @@ export const enBySource: Readonly<Record<string, string>> = {
   '{{label}}: {{count}}': '{{label}}: {{count}}',
   'SQLite ריק כי עדיין אין מסלול ייצור שמייבא אליו; נתוני החבילות המקומיים נקראים מקובצי JSON המובנים שמנויים למעלה.':
     'SQLite is empty because no production path imports into it yet; local pack data is read from the bundled JSON counted above.',
+  // Encrypted vault export/import.
+  'ייצוא וייבוא כספת': 'Vault export and import',
+  'ייצוא וייבוא גיבוי כספת מוצפן': 'Export or import an encrypted vault backup',
+  'הסיסמה מגינה על כל הנתונים הפיננסיים המיוצאים מהכספת. בלעדיה אי אפשר לפענח את הגיבוי, ואי אפשר לשחזר אותה.':
+    'The passphrase protects all financial data exported from your vault. Without it, the backup cannot be decrypted, and the passphrase cannot be recovered.',
+  'יש לבחור סיסמה בת 12 תווים לפחות. אין לשמור אותה יחד עם הגיבוי המוצפן.':
+    'Choose a passphrase of at least 12 characters. Do not store it with the encrypted backup.',
+  'סיסמת העברה': 'Transfer passphrase',
+  '12 תווים לפחות': 'At least 12 characters',
+  'יצירת גיבוי מוצפן': 'Create encrypted backup',
+  'אריזה מוצפנת להעתקה': 'Encrypted envelope to copy',
+  'לא נוצר עדיין גיבוי מוצפן.': 'No encrypted backup has been created yet.',
+  'אריזה מוצפנת לייבוא': 'Encrypted envelope to import',
+  'הדביקו כאן רק את האריזה המוצפנת.': 'Paste only the encrypted envelope here.',
+  'הייבוא משתמש בתמונת מצב, כתיבה, אימות ושחזור במקרה של כשל. זו אינה עסקה אטומית, וקריסה באמצע כתיבה עלולה למנוע שחזור.':
+    'Import uses snapshot, write, verification, and restore on failure. It is not an atomic transaction, and a crash during writing may prevent restoration.',
+  'ייבוא גיבוי מוצפן': 'Import encrypted backup',
+  'נוצר גיבוי מוצפן. רק האריזה המוצפנת מוצגת להעתקה.':
+    'An encrypted backup was created. Only the encrypted envelope is shown for copying.',
+  'הסיסמה קצרה מ-12 תווים. לא נוצר גיבוי.':
+    'The passphrase is shorter than 12 characters. No backup was created.',
+  'יצירת הגיבוי נכשלה. לא יוצאו נתונים.':
+    'Backup creation failed. No data was exported.',
+  'הייבוא הושלם ואומתו {{count}} מפתחות כספת.':
+    'Import completed and {{count}} vault keys were verified.',
+  'הסיסמה קצרה מ-12 תווים. הכספת לא השתנתה.':
+    'The passphrase is shorter than 12 characters. The vault was not changed.',
+  'הגיבוי אינו אריזת Base64 תקינה. הכספת לא השתנתה.':
+    'The backup is not a valid Base64 envelope. The vault was not changed.',
+  'הגיבוי המוצפן נקטע. הכספת לא השתנתה.':
+    'The encrypted backup is truncated. The vault was not changed.',
+  'הגיבוי גדול מהמגבלה המותרת. הכספת לא השתנתה.':
+    'The backup exceeds the allowed limit. The vault was not changed.',
+  'גיבוי בגרסת הצפנה 1 אינו נתמך. הכספת לא השתנתה.':
+    'Encryption-envelope version 1 is unsupported. The vault was not changed.',
+  'האימות ההצפנתי נכשל. הסיסמה שגויה או שהאריזה המוצפנת שונתה. הכספת לא השתנתה.':
+    'Cryptographic validation failed. The passphrase is wrong or the encrypted envelope was changed. The vault was not changed.',
+  'מבנה הגיבוי אינו תקין. הכספת לא השתנתה.':
+    'The backup structure is malformed. The vault was not changed.',
+  'סוג הגיבוי אינו נתמך. הכספת לא השתנתה.':
+    'The backup type is unsupported. The vault was not changed.',
+  'גרסת מבנה הגיבוי אינה נתמכת. הכספת לא השתנתה.':
+    'The backup format version is unsupported. The vault was not changed.',
+  'הייבוא נכשל לפני כתיבה. הכספת לא השתנתה.':
+    'Import failed before writing. The vault was not changed.',
+  'הייבוא נכשל ותמונת המצב הקודמת שוחזרה ואומתה.':
+    'Import failed; the previous snapshot was restored and verified.',
+  'הייבוא והשחזור נכשלו. יש להפסיק להשתמש באפליקציה ולפנות לתמיכה.':
+    'Import and restoration failed. Stop using the app and contact support.',
 };

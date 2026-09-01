@@ -14,6 +14,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import { AppText } from '../../components/AppText';
 import { ContactScreen } from '../../screens/ContactScreen';
 import { DataPrivacyScreen } from '../../screens/DataPrivacyScreen';
+import { VaultExportImportScreen } from '../../screens/VaultExportImportScreen';
 import { GlossaryScreen } from '../../screens/GlossaryScreen';
 import { InstallmentImportScreen } from '../../screens/InstallmentImportScreen';
 import { InterestCalculatorScreen } from '../../screens/InterestCalculatorScreen';
@@ -84,6 +85,15 @@ export function MoreStack(): React.ReactElement {
           headerShown: true,
           headerTitleAlign: isRTL ? 'center' : 'left',
           title: t('מידע ופרטיות'),
+        }}
+      />
+      <Stack.Screen
+        name="VaultExportImport"
+        component={VaultExportImportScreen}
+        options={{
+          headerShown: true,
+          headerTitleAlign: isRTL ? 'center' : 'left',
+          title: t('ייצוא וייבוא כספת'),
         }}
       />
       <Stack.Screen

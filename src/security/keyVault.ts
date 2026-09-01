@@ -102,7 +102,7 @@ const KDF_PARAMS: KdfOptions = {
   keyBytes: 32,
 };
 
-const TRANSFER_ENVELOPE_VERSION = 1;
+const TRANSFER_ENVELOPE_VERSION = 2;
 const TRANSFER_SALT_BYTES = 16;
 const TRANSFER_NONCE_BYTES = 12;
 const TRANSFER_KEY_BYTES = 32;
@@ -172,15 +172,15 @@ function base64ToBytes(value: string): Uint8Array {
 }
 
 async function deriveTransferKey(
-  transferPin: string,
+  transferPassphrase: string,
   salt: Uint8Array,
 ): Promise<Uint8Array> {
-  if (!/^\d{4}$/.test(transferPin)) {
-    throw new Error('INVALID_TRANSFER_PIN');
+  if (Array.from(transferPassphrase).length < 12) {
+    throw new Error('TRANSFER_PASSPHRASE_TOO_SHORT');
   }
 
   return new Uint8Array(
-    await argon2idAsync(transferPin, salt, {
+    await argon2idAsync(transferPassphrase, salt, {
       t: 2,
       m: 19 * 1024,
       p: 1,
@@ -192,11 +192,11 @@ async function deriveTransferKey(
 
 export async function encryptProfileTransferPayload(
   plaintext: string,
-  transferPin: string,
+  transferPassphrase: string,
 ): Promise<string> {
   const salt = await randomBytes(TRANSFER_SALT_BYTES);
   const nonce = await randomBytes(TRANSFER_NONCE_BYTES);
-  const key = await deriveTransferKey(transferPin, salt);
+  const key = await deriveTransferKey(transferPassphrase, salt);
   const ciphertext = gcm(key, nonce).encrypt(
     new TextEncoder().encode(plaintext),
   );
@@ -214,7 +214,7 @@ export async function encryptProfileTransferPayload(
 
 export async function decryptProfileTransferPayload(
   encodedPayload: string,
-  transferPin: string,
+  transferPassphrase: string,
 ): Promise<string> {
   if (encodedPayload.length > MAX_TRANSFER_PAYLOAD_BYTES) {
     throw {
@@ -226,11 +226,27 @@ export async function decryptProfileTransferPayload(
   const envelope = base64ToBytes(encodedPayload);
   const minimumLength =
     1 + TRANSFER_SALT_BYTES + TRANSFER_NONCE_BYTES + TRANSFER_TAG_BYTES;
-  if (
-    envelope.length < minimumLength ||
-    envelope[0] !== TRANSFER_ENVELOPE_VERSION
-  ) {
-    throw new Error('INVALID_TRANSFER_PAYLOAD');
+  /**
+   * THREE REFUSALS, NOT ONE, AND IN THIS ORDER — OQ-MDC-003 clause 2 and 4.
+   *
+   * The Owner requires a wrong secret to be told apart from a corrupt file, and a version-1
+   * envelope to meet its own refusal. Collapsing them into INVALID_TRANSFER_PAYLOAD forced the
+   * caller to re-derive this envelope's geometry from outside in order to guess which had
+   * happened - a second home for `1 + salt + nonce + tag`, in a file that does not own it. This
+   * module knows which of the three it is, so it says so.
+   *
+   * LENGTH IS CHECKED FIRST, deliberately. A truncated buffer whose first byte happens to be 1 is
+   * corrupt, not an old envelope, and telling the user their file is an unsupported old version
+   * when it is actually damaged sends them looking for the wrong thing.
+   */
+  if (envelope.length < minimumLength) {
+    throw new Error('TRUNCATED_TRANSFER_ENVELOPE');
+  }
+  if (envelope[0] === 1) {
+    throw new Error('UNSUPPORTED_TRANSFER_ENVELOPE_VERSION_1');
+  }
+  if (envelope[0] !== TRANSFER_ENVELOPE_VERSION) {
+    throw new Error('UNSUPPORTED_TRANSFER_ENVELOPE_VERSION');
   }
 
   const salt = envelope.slice(1, 1 + TRANSFER_SALT_BYTES);
@@ -241,7 +257,7 @@ export async function decryptProfileTransferPayload(
   const ciphertext = envelope.slice(
     1 + TRANSFER_SALT_BYTES + TRANSFER_NONCE_BYTES,
   );
-  const key = await deriveTransferKey(transferPin, salt);
+  const key = await deriveTransferKey(transferPassphrase, salt);
   const plaintext = gcm(key, nonce).decrypt(ciphertext);
   key.fill(0);
 

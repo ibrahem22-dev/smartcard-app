@@ -93,6 +93,7 @@ export type MoreStackParamList = {
   MoreRoot: undefined;
   Learn: undefined;
   DataPrivacy: undefined;
+  VaultExportImport: undefined;
   Contact: undefined;
   Glossary: undefined;
   InstallmentImport: undefined;
