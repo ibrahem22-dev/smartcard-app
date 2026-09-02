@@ -74,6 +74,7 @@ const INVENTORY = [
   { file: 'src/screens/cardDna/SectionACosts.tsx', arg: 'ratioFromPercent(rate)', unit: 'ALREADY_PERCENT' },
   { file: 'src/screens/cardDna/SectionBGives.tsx', arg: 'ratioFromPercent(row.valuePercent)', unit: 'ALREADY_PERCENT' },
   { file: 'src/screens/DecisionScreen.tsx', arg: 'ratioFromPercent(rowItem.commission)', unit: 'ALREADY_PERCENT' },
+  { file: 'src/screens/fx/FxCompareSheet.tsx', arg: 'ratioFromPercent(value)', unit: 'ALREADY_PERCENT' },
 ];
 
 const walk = (d, out = []) => {
