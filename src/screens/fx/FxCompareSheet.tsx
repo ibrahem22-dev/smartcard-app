@@ -2,11 +2,17 @@ import React, { useState } from 'react';
 import { View } from 'react-native';
 
 import { AppText } from '../../components/AppText';
+import { ConflictedValue } from '../../components/ConflictedValue';
 import { ProvenanceChip } from '../../components/ProvenanceChip';
 import { RtlScreen } from '../../components/rtl';
 import { useTranslation } from '../../hooks/useTranslation';
 import type { FxComparison } from '../../engines/fx';
 import { ACCENT, BORDER, ROLE_BORDER, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../../theme/tokens';
+import { ratioFromPercent } from '../../utils/money';
+import { useMoney } from '../../hooks/useMoney';
+import type { ConflictAuthority } from '../../authority/authorityValue';
+import type { ConflictRenderPlan } from '../../data/adapter/conflictRenderPlan';
+import type { IntervalRankability } from '../../data/adapter/conflictRender';
 
 /**
  * FX COMPARE SHEET — criterion **X2** (spec §17).
@@ -30,13 +36,45 @@ export interface FxCompareSheetProps {
   readonly displayNames?: Readonly<Record<string, string>>;
 }
 
+/** The surface asks the adapter at render time; the engine never chooses either decision. */
+function conflictDecisionFor(conflict: ConflictAuthority<number>): {
+  readonly plan: ConflictRenderPlan;
+  readonly rankability: IntervalRankability;
+} {
+  // Lazy for the same reason as Section A: ordinary comparisons must not pull the adapter runtime
+  // into the React Native graph. The synthetic record only translates the authority envelope back
+  // into the adapter's input shape; renderPlanFor and intervalRankabilityFor make the decisions.
+  const { intervalRankabilityFor, renderPlanFor } = require('../../data/adapter/conflictRender') as typeof import('../../data/adapter/conflictRender');
+  const renderableRecords = conflict.candidates.map((candidate, index) => ({
+    conflictId: `fx-conflict-candidate:${String(index)}`,
+    shape: 'INLINE' as const,
+    scope: candidate.scope ?? 'fx-cost',
+    participants: [{
+      recordId: candidate.sourceId ?? `candidate:${String(index)}`,
+      field: 'FX_COMMISSION_PCT',
+      value: candidate.value,
+      ...(candidate.sourceId === undefined ? {} : { sourceLabel: candidate.sourceId }),
+      ...(candidate.observedAt === undefined ? {} : { publicationDate: candidate.observedAt }),
+    }],
+    detectedBy: 'fx-conflict-authority-envelope',
+    resolution: 'PRESERVED_NOT_ARBITRATED' as const,
+    adjudication: { status: 'UNADJUDICATED' as const },
+  }));
+  return {
+    plan: renderPlanFor(renderableRecords).plan,
+    rankability: intervalRankabilityFor(renderableRecords),
+  };
+}
+
 export function FxCompareSheet({
   comparison,
   displayNames,
 }: FxCompareSheetProps): React.ReactElement {
   const { t } = useTranslation();
+  const { percent } = useMoney();
   const [explainerOpen, setExplainerOpen] = useState(false);
-  const winnerId = comparison?.ranked[0]?.cardId;
+  const comparisonIncomplete = (comparison?.conflictedCards.length ?? 0) > 0;
+  const winnerId = comparisonIncomplete ? undefined : comparison?.ranked[0]?.cardId;
   const winnerQuote = comparison?.ranked[0]?.quote;
   const rateUsed = winnerQuote?.rateUsed;
   const nameOf = (cardId: string): string => displayNames?.[cardId] ?? cardId;
@@ -125,6 +163,39 @@ export function FxCompareSheet({
             );
           })}
         </View>
+        {comparison.conflictedCards.length > 0 ? (
+          <View className="mt-4 gap-3" testID="fx-compare-conflicts">
+            <AppText
+              className={`text-sm font-bold ${ROLE_TEXT.advisory}`}
+              testID="fx-compare-comparison-incomplete"
+            >
+              {t('ההשוואה אינה מלאה כי המקורות חלוקים')}
+            </AppText>
+            {comparison.conflictedCards.map((card) => {
+              const decision = conflictDecisionFor(card.conflict);
+              return (
+                <View
+                  key={card.cardId}
+                  testID={`fx-compare-conflict-surface-${card.cardId}`}
+                >
+                  <ConflictedValue
+                    conflict={card.conflict}
+                    format={(value): string => percent(ratioFromPercent(value))}
+                    label={`${nameOf(card.cardId)} · ${t('עמלת כרטיס במטח')}`}
+                    plan={decision.plan}
+                    testID={`fx-compare-conflict-${card.cardId}`}
+                  />
+                  <AppText
+                    className={`mt-1 text-xs ${TEXT.muted}`}
+                    testID={`fx-compare-conflict-rankability-${card.cardId}`}
+                  >
+                    {`COMPARISON_INCOMPLETE · ${decision.rankability}`}
+                  </AppText>
+                </View>
+              );
+            })}
+          </View>
+        ) : null}
         {comparison.unknownCards.length > 0 ? (
           <View className="mt-4" testID="fx-compare-unknown">
             <AppText className={`text-sm font-bold ${TEXT.secondary}`}>

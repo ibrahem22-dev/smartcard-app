@@ -92,6 +92,7 @@ export const en = {
     winner: 'Winner',
     unknownLeg: 'Cards with no FX leg',
     empty: 'No comparison yet',
+    incomplete: 'The comparison is incomplete because the sources disagree',
     settlementCaveat:
       'Note — Visa/Mastercard settle at their own network rates, which may differ from the Bank of Israel reference rate.',
     howCalculated: 'How this is calculated',
@@ -944,6 +945,7 @@ export const enBySource: Readonly<Record<string, string>> = {
   המנצחת: en.fxCompare.winner,
   'כרטיסים בלי רגל מטח': en.fxCompare.unknownLeg,
   'אין השוואה עדיין': en.fxCompare.empty,
+  'ההשוואה אינה מלאה כי המקורות חלוקים': en.fxCompare.incomplete,
   'שימו לב — ויזה ומאסטרקארד מיישבים לפי שערי הרשת שלהם, שעשויים להיות שונים משער בנק ישראל':
     en.fxCompare.settlementCaveat,
   'איך זה מחושב': en.fxCompare.howCalculated,

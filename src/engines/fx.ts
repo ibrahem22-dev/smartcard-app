@@ -23,6 +23,7 @@
  *    and the label travels on the number itself.
  */
 import type { FxRate } from '../data/adapter/vocabulary';
+import type { ConflictAuthority } from '../authority/authorityValue';
 import { convertToIls, type ConvertedAmount } from './currency';
 import { step, trace, type ReasonTrace } from './reasonTrace';
 
@@ -63,11 +64,31 @@ export function resolveFxRow(
   return matchingRows.slice().sort((a, b) => b.pairId.length - a.pairId.length)[0];
 }
 
-export interface CardFxQuote {
+/**
+ * One card's FX-cost input has three states, two union arms, and no overlapping numeric shape.
+ *
+ * `never` is intentional. Without it an object assembled before assignment could structurally
+ * carry both `conflict` and `fxPercent` and still satisfy the union. A conflicted quote therefore
+ * cannot also carry the scalar that `compareAbroad` ranks.
+ */
+export type CardFxQuote =
+  | {
+      readonly cardId: string;
+      /** FX percent for this leg as read through the adapter (USABLE legs only). Absent = unknown. */
+      readonly fxPercent?: number;
+      readonly fixedFeeIls?: number;
+      readonly conflict?: never;
+    }
+  | {
+      readonly cardId: string;
+      readonly conflict: ConflictAuthority<number>;
+      readonly fxPercent?: never;
+      readonly fixedFeeIls?: never;
+    };
+
+export interface ConflictedFxCard {
   readonly cardId: string;
-  /** FX percent for this leg as read through the adapter (USABLE legs only). Absent = unknown. */
-  readonly fxPercent?: number;
-  readonly fixedFeeIls?: number;
+  readonly conflict: ConflictAuthority<number>;
 }
 
 export interface FxFloor {
@@ -102,6 +123,8 @@ export interface FxComparison {
   readonly ranked: readonly FxEntry[];
   /** Cards whose leg is unknown: shown separately by the surface, ranked by nothing. */
   readonly unknownCards: readonly string[];
+  /** Cards whose sources disagree: rendered separately, never ranked and never called unknown. */
+  readonly conflictedCards: readonly ConflictedFxCard[];
   /** D1 interim behaviour: ordering may be inverted by unmodelled issuer minimum fees. */
   readonly smallAmountAdvisory: boolean;
   readonly smallAmountThresholdIls: number;
@@ -120,7 +143,12 @@ export function compareAbroad(input: FxComparisonInput): FxComparison {
 
   const ranked: FxEntry[] = [];
   const unknownCards: string[] = [];
+  const conflictedCards: ConflictedFxCard[] = [];
   for (const card of input.cards) {
+    if (card.conflict !== undefined) {
+      conflictedCards.push({ cardId: card.cardId, conflict: card.conflict });
+      continue;
+    }
     if (card.fxPercent === undefined) {
       unknownCards.push(card.cardId);
       continue;
@@ -180,9 +208,10 @@ export function compareAbroad(input: FxComparisonInput): FxComparison {
     amountNative: input.amount,
     ranked,
     unknownCards,
+    conflictedCards,
     smallAmountAdvisory,
     smallAmountThresholdIls: threshold,
-    deltasSuppressed: smallAmountAdvisory,
+    deltasSuppressed: smallAmountAdvisory || conflictedCards.length > 0,
     trace: trace('fx', [
       step(
         'engine fx compare',
@@ -197,6 +226,14 @@ export function compareAbroad(input: FxComparisonInput): FxComparison {
               + ' ILS): ordering may be inverted by unmodelled issuer minimum fees; savings '
               + 'claims are suppressed',
             ['smallAmountThresholdIls'],
+          )]
+        : []),
+      ...(conflictedCards.length > 0
+        ? [step(
+            'conflicted FX cost',
+            'one or more cards carry preserved source disagreement: conflicted cards are not '
+              + 'ranked, are not called unknown, and ordering-dependent savings claims are suppressed',
+            ['conflictedCards', 'deltasSuppressed'],
           )]
         : []),
     ]),

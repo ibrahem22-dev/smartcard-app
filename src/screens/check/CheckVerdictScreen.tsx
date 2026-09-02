@@ -427,7 +427,7 @@ export function CheckVerdictScreen({
           </View>
         ) : null}
         {runnerUp ? (
-          runnerUp.deltaFromBestIls !== undefined ? (
+          runnerUp.deltaFromBestIls !== undefined && fxComparison?.deltasSuppressed !== true ? (
             <NumberClaim
               claim={String(runnerUp.deltaFromBestIls.value)}
               className={`text-sm ${TEXT.body}`}
