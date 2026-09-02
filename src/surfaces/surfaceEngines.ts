@@ -55,6 +55,7 @@ import { evaluateFinancialLoad, type FinancialLoadResult, type LoadCommitment, t
 import { evaluateRiskPlanning, type PlanningBilling, type PlanningCommitment, type PlanningSalary, type RiskPlanningResult } from '../engines/risk';
 import { scoreCards, type ScoringCard, type ScoringResult } from '../engines/scoring';
 import { provenanced } from '../engines/provenance';
+import { billingDatesInWindow } from '../engines/billingSchedule';
 import { loadCardsFromVault } from '../check/activityMapper';
 import { commitmentsFromVault } from '../check/commitmentInput';
 import { scoringCardsFromVault } from '../check/scoringInput';
@@ -93,30 +94,6 @@ export interface SurfaceEngineResults {
  */
 const commitmentsFrom = (ctx: SurfaceContext): readonly LoadCommitment[] =>
   commitmentsFromVault({ cards: ctx.cards, installments: ctx.installments, loans: ctx.loans });
-
-/** Day-of-month → the next occurrence on or after `asOfDate`, within the window. Calendar, not policy. */
-const billingDatesInWindow = (dayOfMonth: number, asOfDate: string, throughDate: string): readonly string[] => {
-  if (!Number.isInteger(dayOfMonth) || dayOfMonth < 1 || dayOfMonth > 31) return [];
-  const out: string[] = [];
-  const start = new Date(asOfDate + 'T00:00:00Z');
-  const end = new Date(throughDate + 'T00:00:00Z');
-  if (Number.isNaN(start.getTime()) || Number.isNaN(end.getTime())) return [];
-  const cursor = new Date(Date.UTC(start.getUTCFullYear(), start.getUTCMonth(), 1));
-  while (cursor.getTime() <= end.getTime()) {
-    const y = cursor.getUTCFullYear();
-    const m = cursor.getUTCMonth();
-    const daysInMonth = new Date(Date.UTC(y, m + 1, 0)).getUTCDate();
-    /* A card billing on the 31st bills on the last day of a short month. Clamping is the Israeli
-       billing model, not an approximation of it. */
-    const day = Math.min(dayOfMonth, daysInMonth);
-    const d = new Date(Date.UTC(y, m, day));
-    if (d.getTime() >= start.getTime() && d.getTime() <= end.getTime()) {
-      out.push(d.toISOString().slice(0, 10));
-    }
-    cursor.setUTCMonth(cursor.getUTCMonth() + 1);
-  }
-  return out;
-};
 
 const billingsFrom = (ctx: SurfaceContext): readonly PlanningBilling[] => {
   const rows: PlanningBilling[] = [];

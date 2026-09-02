@@ -1,5 +1,8 @@
 import * as Notifications from 'expo-notifications';
 
+import { BILLING_DAY_MAX, BILLING_DAY_MIN } from '../config/financial';
+import { billingReminderDates } from '../engines/billingSchedule';
+import i18n from '../i18n';
 import { keyVault } from '../security/keyVault';
 import { MMKV_KEYS } from '../store/keys';
 import type { CardInput } from '../types/card.types';
@@ -37,6 +40,13 @@ function activeProfileId(): string {
 
 function notificationKey(profileId: string, cardId: string): string {
   return MMKV_KEYS.profileCardNotificationIds(
+    requireSafeIdentifier(profileId),
+    requireSafeIdentifier(cardId),
+  );
+}
+
+function billingNotificationKey(profileId: string, cardId: string): string {
+  return MMKV_KEYS.profileCardBillingNotificationIds(
     requireSafeIdentifier(profileId),
     requireSafeIdentifier(cardId),
   );
@@ -95,6 +105,72 @@ function expiryContent(
     body: `כרטיס ${card.last4} — ההנחה פגה ב-${expiryDate}. בדוק מול חברת הכרטיסים.`,
     data: { cardId: card.cardId, reminderType: 'discount_expiry' },
   };
+}
+
+function billingContent(card: CardInput): Notifications.NotificationContentInput {
+  const cardLabel = card.last4.trim() === '' ? card.displayName : card.last4;
+  return {
+    title: i18n.t('יום החיוב של הכרטיס הגיע'),
+    body: `${i18n.t('כרטיס')} ${cardLabel} — ${i18n.t('היום הוא יום החיוב')}`,
+    data: { cardId: card.cardId, reminderType: 'card_billing' },
+  };
+}
+
+export async function scheduleBillingReminders(card: CardInput): Promise<void> {
+  if (!(await hasPermission())) {
+    return;
+  }
+
+  const profileId = activeProfileId();
+  const storage = keyVault.getEncryptedStorage();
+  const key = billingNotificationKey(profileId, card.cardId);
+  const existingIds = parseStoredIds(storage.getString(key));
+  await cancelIds(existingIds);
+  storage.delete(key);
+
+  const billingDay = card.billingCycle?.billingDayOfMonth;
+  if (
+    !Number.isInteger(billingDay)
+    || billingDay < BILLING_DAY_MIN
+    || billingDay > BILLING_DAY_MAX
+  ) {
+    return;
+  }
+
+  const scheduledIds: string[] = [];
+  try {
+    const dates = billingReminderDates(billingDay, new Date());
+    for (const date of dates) {
+      const triggerDate = parseLocalDate(date);
+      if (triggerDate === null) {
+        throw new Error('INVALID_BILLING_DATE');
+      }
+      const id = await Notifications.scheduleNotificationAsync({
+        content: billingContent(card),
+        trigger: {
+          type: Notifications.SchedulableTriggerInputTypes.DATE,
+          date: triggerDate,
+        },
+      });
+      scheduledIds.push(id);
+    }
+
+    if (scheduledIds.length > 0) {
+      storage.set(key, JSON.stringify(scheduledIds));
+    }
+  } catch (error: unknown) {
+    await cancelIds(scheduledIds);
+    throw error;
+  }
+}
+
+export async function cancelBillingReminders(cardId: string): Promise<void> {
+  const profileId = activeProfileId();
+  const storage = keyVault.getEncryptedStorage();
+  const key = billingNotificationKey(profileId, cardId);
+  const existingIds = parseStoredIds(storage.getString(key));
+  await cancelIds(existingIds);
+  storage.delete(key);
 }
 
 export async function scheduleDiscountReminders(

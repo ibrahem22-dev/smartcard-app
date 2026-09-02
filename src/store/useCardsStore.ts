@@ -36,7 +36,11 @@ import {
 import type { Transaction } from '../types/benefits.types';
 import { keyVault } from '../security/keyVault';
 import type { ImportedInstallment } from '../types/installment.types';
-import { cancelDiscountReminders } from '../services/notificationScheduler';
+import {
+  cancelBillingReminders,
+  cancelDiscountReminders,
+  scheduleBillingReminders,
+} from '../services/notificationScheduler';
 import { isValidMonetaryAmount } from '../utils/monetary';
 import { MMKV_KEYS } from './keys';
 import {
@@ -245,6 +249,12 @@ function getActiveProfileId(): string {
   return activeProfileId;
 }
 
+function scheduleBillingAfterSave(card: EngineCard): void {
+  void scheduleBillingReminders(card).catch((): void => {
+    // A saved card remains valid if the OS notification API is unavailable.
+  });
+}
+
 // ---------------------------------------------------------------------------
 
 export const useCardsStore = create<CardsState>()((set) => ({
@@ -338,6 +348,7 @@ export const useCardsStore = create<CardsState>()((set) => ({
       persist(entries, getActiveProfileId());
       return { entries, cards: engineViews(entries) };
     });
+    scheduleBillingAfterSave(card);
   },
 
   addVaultEntry(entry: { readonly user: UserCard; readonly product: CardProduct }) {
@@ -346,9 +357,13 @@ export const useCardsStore = create<CardsState>()((set) => ({
       persist(entries, getActiveProfileId());
       return { entries, cards: engineViews(entries) };
     });
+    scheduleBillingAfterSave(composeEngineCard(entry.user, entry.product));
   },
 
   removeCard(cardId: string) {
+    void cancelBillingReminders(cardId).catch((): void => {
+      // Card removal remains available if the OS notification API is unavailable.
+    });
     void cancelDiscountReminders(cardId).catch((): void => {
       // Card removal remains available if the OS notification API is unavailable.
     });
@@ -360,13 +375,15 @@ export const useCardsStore = create<CardsState>()((set) => ({
   },
 
   updateCard(cardId: string, updates: Partial<EngineCard>) {
+    let updatedCard: EngineCard | undefined;
     set((state) => {
       const entries = state.entries.map((e): CardEntry => {
         if (e.user.cardId !== cardId) {
           return e;
         }
         const current = composeEngineCard(e.user, e.product);
-        const { user, product } = splitEngineCard({ ...current, ...updates });
+        updatedCard = { ...current, ...updates };
+        const { user, product } = splitEngineCard(updatedCard);
         return e.clubSuggestedByApp === true
           ? { user, product, clubSuggestedByApp: true }
           : { user, product };
@@ -374,6 +391,9 @@ export const useCardsStore = create<CardsState>()((set) => ({
       persist(entries, getActiveProfileId());
       return { entries, cards: engineViews(entries) };
     });
+    if (updatedCard !== undefined) {
+      scheduleBillingAfterSave(updatedCard);
+    }
   },
 
   addObligation(obligation: ImportedInstallment) {

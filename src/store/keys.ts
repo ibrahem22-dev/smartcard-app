@@ -21,6 +21,8 @@ export const MMKV_KEYS = {
   profileActivity: (id: string): string => `profile_${id}:activity`,
   profileCardNotificationIds: (profileId: string, cardId: string): string =>
     `profile_${profileId}:notif_${cardId}`,
+  profileCardBillingNotificationIds: (profileId: string, cardId: string): string =>
+    `profile_${profileId}:billing_notif_${cardId}`,
   globalDiscountReminderId: 'app:global_discount_reminder_id',
   rtlRestartGuard: 'app:rtl_restart_guard',
   TRANSFER_DECRYPT_ATTEMPTS: 'app:transfer_decrypt_attempts',

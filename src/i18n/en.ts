@@ -325,6 +325,10 @@ export const en = {
 } as const;
 
 export const enBySource: Readonly<Record<string, string>> = {
+  'תזכורת שנתית — דמי כרטיס': 'Annual reminder — card fees',
+  'בדוק את ההנחות על דמי הכרטיסים שלך': 'Check your card-fee discounts',
+  'יום החיוב של הכרטיס הגיע': "The card's billing day is here",
+  'היום הוא יום החיוב': 'Today is the billing day',
   // A5 / OD-30 — an organisation kind the estate does not name.
   'אין שם רשמי במאגר': 'No official name in the register',
   // A1 — the Spec §4 navigation shell, and the surfaces P5a/P5b will fill.

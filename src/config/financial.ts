@@ -166,3 +166,6 @@ export const PERCENT_MAX_FRACTION_DIGITS = 2;
 /** Days in the longest month — a billing day outside this is not a date. */
 export const BILLING_DAY_MIN = 1;
 export const BILLING_DAY_MAX = 31;
+
+/** Product policy: keep one year of monthly card-billing reminders scheduled ahead. */
+export const BILLING_REMINDER_WINDOW_MONTHS = 12;

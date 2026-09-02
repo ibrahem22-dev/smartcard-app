@@ -10,6 +10,10 @@
 // {{bankName}}) and emojis are preserved verbatim.
 
 export const arBySource: Readonly<Record<string, string>> = {
+  'תזכורת שנתית — דמי כרטיס': 'تذكير سنوي — رسوم البطاقة',
+  'בדוק את ההנחות על דמי הכרטיסים שלך': 'تحقق من خصومات رسوم بطاقاتك',
+  'יום החיוב של הכרטיס הגיע': 'حلّ يوم فوترة البطاقة',
+  'היום הוא יום החיוב': 'اليوم هو يوم الفوترة',
   // A5 / OD-30 — an organisation kind the estate does not name.
   'אין שם רשמי במאגר': 'لا يوجد اسم رسمي في السجل',
   // A1 — the Spec §4 navigation shell, and the surfaces P5a/P5b will fill.
