@@ -1,24 +1,27 @@
 /**
  * GATE: notifications — criterion C4.  →  `NOTIFICATIONS OK`
  *
- *   > **C4.** *"NOTIFICATIONS: billing and fee-waiver reminders are scheduled from the
+ *   > **C4, as narrowed by the Owner.** *"NOTIFICATIONS: billing reminders are scheduled from the
  *   > engine-owned schedule, permission flow is honest, and a reminder is observed firing on the
- *   > named device with a captured artifact"*
+ *   > named device with a captured artifact. NARROWED by Owner ruling OQ-MDC-019 option 3:
+ *   > fee-waiver reminders are DEFERRED TO V1.x BY NAME and are not built, not scheduled and not
+ *   > claimed"*
  *
  * ─────────────────────────────────────────────────────────────────────────────────────────────
- * THIS GATE IS RED ON PURPOSE, AND IT SAYS WHY.
+ * WHY THIS GATE WAS RED, AND WHAT CHANGED.
  *
- * C4 names TWO kinds of reminder and joins them with "and". The billing half is built and was
- * proved on the device. The fee-waiver half has no reachable input: `cardFee` and
- * `cardIssuanceDate` are written by exactly one module, and that module is not reachable from the
- * mounted application. Clause 6 walks the import graph and reports that, by name.
+ * C4 originally named TWO kinds of reminder joined by "and". This gate refused to print
+ * NOTIFICATIONS OK on the billing half alone, because a false green over a criterion whose own
+ * wording forbade it is the failure this campaign has spent more receipts on than any other.
  *
- * A gate that printed NOTIFICATIONS OK on the billing half alone would be a false green over a
- * criterion whose own wording forbids it. That is the failure this campaign has spent more
- * receipts on than any other, and it is not being reintroduced by the gate that is supposed to
- * catch it. The clause goes green when the Owner's ruling on OQ-MDC-019 has been carried out —
- * either because the inputs exist, or because the criterion has been narrowed under a named
- * ruling and this clause is removed WITH that authority.
+ * The Owner ruled OQ-MDC-019 option 3 on 2026-09-02: narrow C4 to billing reminders, defer
+ * fee-waiver reminders to V1.x by name. OQ-MDC-018 was answered SUPERSEDED BY OQ-MDC-019.
+ * The fence statement, contract §8 and MDC_DEFERRED.md §2 were amended in that one act.
+ *
+ * So clause 6 no longer fails on the absence — the absence is authorised now. It fails if the
+ * RECORD of that authority goes missing, or if the record stops being true. NOT ONE BILLING
+ * REQUIREMENT WAS RELAXED to get here; clauses 1-5 are byte-for-byte what they were when the
+ * gate was red.
  *
  * ─────────────────────────────────────────────────────────────────────────────────────────────
  * THE BILLING HALF IS PROVED FROM A DEVICE RUN, NOT FROM SOURCE.
@@ -73,7 +76,8 @@ export const MEASURES = 'device';
 
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..', '..', '..');
-const EVIDENCE_DIR = join(ROOT, '..', 'smartcard-data-pipeline', 'campaign-master', 'evidence', 'external', 'C4');
+const CAMPAIGN_DIR = join(ROOT, '..', 'smartcard-data-pipeline', 'campaign-master');
+const EVIDENCE_DIR = join(CAMPAIGN_DIR, 'evidence', 'external', 'C4');
 const CAPTURES = join(EVIDENCE_DIR, 'captures');
 const EVIDENCE_FILE = join(EVIDENCE_DIR, 'EVIDENCE.txt');
 
@@ -316,27 +320,78 @@ export const run = async () => {
   }
   clauses.push('one clamp for the reminder path, imported by both consumers; permission checked first');
 
-  /* 6. THE FEE-WAIVER HALF. THE CLAUSE THAT IS CURRENTLY RED, AND THE POSITIVE CONTROL THAT
-        PROVES THIS READER CAN SAY YES RATHER THAN ONLY NO. */
+  /* 6. THE FEE-WAIVER HALF IS DEFERRED, AND THE DEFERRAL HAS TO KEEP BEING TRUE.
+   *
+   * OQ-MDC-019 was ruled option 3 on 2026-09-02: narrow C4 to billing reminders and defer
+   * fee-waiver reminders to V1.x BY NAME. So this clause no longer fails on their absence — the
+   * absence is now authorised. What it does instead is refuse to let the deferral rot, in both
+   * directions:
+   *
+   *   the RECORD must exist — delete the register row or un-narrow the contract statement and C4
+   *   goes red, because a table that lists only what exists cannot say that something was
+   *   considered and declined (the H6 lesson, and PD-P5-011's before it);
+   *
+   *   the RECORD must still be TRUE — if these inputs or that scheduler ever become reachable,
+   *   the register is describing a world that no longer exists, and a criterion citing a stale
+   *   deferral is the exact failure the gate-checked-citation-not-currency finding named.
+   *
+   * The positive control stays. A reachability walk that answered "unreachable" to everything
+   * would make the deferral look permanently correct while proving nothing, so the same walk is
+   * asked about billingDayOfMonth and must answer "reachable" or the whole clause is void. */
+  const DEFERRAL_RULING = 'OQ-MDC-019';
+  const register = join(CAMPAIGN_DIR, 'MDC_DEFERRED.md');
+  if (!existsSync(register)) {
+    problems.push('MDC_DEFERRED.md is absent — the fee-waiver deferral has no register row, and an unrecorded deferral is missing behaviour wearing a polite name');
+  } else {
+    const reg = read(register);
+    for (const [needle, why] of [
+      ['Fee-waiver reminders', 'the register does not name fee-waiver reminders'],
+      [DEFERRAL_RULING, `the register row does not carry the ruling id ${DEFERRAL_RULING}`],
+      ['V1.x', 'the register row does not name a destination'],
+    ]) {
+      if (!reg.includes(needle)) problems.push(`deferral register: ${why}`);
+    }
+  }
+  const contract = join(CAMPAIGN_DIR, 'MDC_COMPLETION_CONTRACT.md');
+  if (existsSync(contract)) {
+    const text = read(contract);
+    const c4 = (text.match(/"id": "C4"[\s\S]{0,900}?"statement": "([^"]*)"/) || [])[1] || '';
+    if (/fee-waiver reminders are scheduled/.test(c4) || !/NARROWED by Owner ruling OQ-MDC-019/.test(c4)) {
+      problems.push('C4 in the contract fence no longer records the OQ-MDC-019 narrowing — the criterion and the register disagree about what C4 claims');
+    }
+  } else {
+    problems.push('MDC_COMPLETION_CONTRACT.md is absent — C4 cannot be checked against its own statement');
+  }
+
   const reachable = reachableFromApp();
   const controlWriters = writersOf('billingDayOfMonth', files).filter((f) => reachable.has(f));
   if (controlWriters.length === 0) {
-    problems.push('reader control failed: billingDayOfMonth has no reachable writer, which is known to be false — the reachability walk is broken and its verdict on cardFee cannot be trusted');
+    problems.push('reader control failed: billingDayOfMonth has no reachable writer, which is known to be false — the reachability walk is broken, so its verdict on the deferred fields proves nothing');
   } else {
     clauses.push(`reachability control: billingDayOfMonth written by ${controlWriters.map(rel).join(', ')}, reachable from App.tsx`);
   }
   for (const field of ['cardFee', 'cardIssuanceDate']) {
-    const writers = writersOf(field, files);
-    const live = writers.filter((f) => reachable.has(f));
-    if (live.length === 0) {
+    const live = writersOf(field, files).filter((f) => reachable.has(f));
+    if (live.length > 0) {
       problems.push(
-        `FEE-WAIVER HALF NOT BUILT: ${field} is written only by ${writers.map(rel).join(', ') || 'nothing'}, `
-        + 'which the mounted application cannot reach. C4 requires billing AND fee-waiver reminders; '
-        + 'the fee-waiver inputs have no live surface. This is the open Owner boundary OQ-MDC-019 and '
-        + 'is not a defect a worker may resolve by inventing product scope.',
+        `the deferral register has gone stale: ${field} now has a reachable writer (${live.map(rel).join(', ')}), `
+        + `but MDC_DEFERRED.md still records fee-waiver reminders as deferred to V1.x under ${DEFERRAL_RULING}. `
+        + 'Update the record; do not leave C4 citing a deferral that is no longer true.',
       );
     }
   }
+  /* The module that DEFINES it is reachable and must be — the annual global reminder lives in the
+     same file and is live. What must not exist is a reachable CALLER. */
+  const feeScheduler = files.filter((f) => f !== scheduler
+    && reachable.has(f)
+    && /\bscheduleDiscountReminders\b/.test(stripCommentsAndStrings(read(f))));
+  if (feeScheduler.length > 0) {
+    problems.push(
+      `the deferral register has gone stale: scheduleDiscountReminders is now called from reachable code (${feeScheduler.map(rel).join(', ')}). `
+      + 'The register records it as dead code deferred to V1.x.',
+    );
+  }
+  clauses.push(`fee-waiver reminders deferred to V1.x under ${DEFERRAL_RULING}, register row present, still unreachable`);
 
   if (problems.length > 0) return fail(problems.join('; '), { population: captureFiles.length });
   return okOverPopulation({
