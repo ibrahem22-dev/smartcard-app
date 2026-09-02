@@ -1,4 +1,8 @@
-import type { PackConflict } from '@smartcard/data-authority-adapter';
+import type {
+  ConflictRenderPlan,
+  IntervalRankability,
+  PackConflict,
+} from '../data/adapter/conflictRender';
 
 import { conflict, type ConflictAuthority } from './authorityValue';
 
@@ -24,4 +28,36 @@ export function numericConflictAuthorityFromPack(
     }),
     `Preserved conflict ${record.conflictId}: sources disagree; no winner was selected`,
   );
+}
+
+/** Ask the adapter for both FX conflict decisions without exposing candidates to the surface. */
+export function conflictDecisionFor(conflictValue: ConflictAuthority<number>): {
+  readonly plan: ConflictRenderPlan;
+  readonly rankability: IntervalRankability;
+} {
+  // Lazy for the same reason as Section A: ordinary comparisons must not pull the adapter runtime
+  // into the React Native graph. The authority layer translates the complete envelope back into
+  // the adapter input shape; the surface only receives the resulting decisions.
+  const { intervalRankabilityFor, renderPlanFor } = require('../data/adapter/conflictRender') as typeof import('../data/adapter/conflictRender');
+  const renderableRecords = conflictValue.candidates.map((candidate, index) => ({
+    conflictId: `fx-conflict-candidate:${String(index)}`,
+    shape: 'INLINE' as const,
+    scope: candidate.scope ?? 'fx-cost',
+    participants: [{
+      recordId: candidate.sourceId ?? `candidate:${String(index)}`,
+      field: 'FX_COMMISSION_PCT',
+      value: candidate.value,
+      ...(candidate.sourceId === undefined ? {} : { sourceLabel: candidate.sourceId }),
+      ...(candidate.observedAt === undefined
+        ? {}
+        : { publicationDate: candidate.observedAt }),
+    }],
+    detectedBy: 'fx-conflict-authority-envelope',
+    resolution: 'PRESERVED_NOT_ARBITRATED' as const,
+    adjudication: { status: 'UNADJUDICATED' as const },
+  }));
+  return {
+    plan: renderPlanFor(renderableRecords).plan,
+    rankability: intervalRankabilityFor(renderableRecords),
+  };
 }

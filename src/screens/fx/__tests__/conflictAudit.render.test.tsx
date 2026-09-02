@@ -1,9 +1,9 @@
 import React from 'react';
 import { render } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
-import type { PackConflict } from '@smartcard/data-authority-adapter';
 
 import { numericConflictAuthorityFromPack } from '../../../authority/packConflict';
+import { shippedCatalogConflicts } from '../../../authority/shippedConflicts';
 import { runPurchaseCheck } from '../../../check/runPurchaseCheck';
 import { compareAbroad } from '../../../engines/fx';
 import { provenanced } from '../../../engines/provenance';
@@ -18,9 +18,7 @@ import { SectionACosts } from '../../cardDna/SectionACosts';
 import { CheckVerdictScreen } from '../../check/CheckVerdictScreen';
 import { FxCompareSheet } from '../FxCompareSheet';
 
-const catalog = require('../../../data/adapter/packs/catalog/pack.json') as {
-  readonly conflicts: readonly PackConflict[];
-};
+const shippedConflicts = shippedCatalogConflicts();
 
 let storedPackRow: PackRow | null = null;
 const fakeDb = {
@@ -50,12 +48,12 @@ const fakeDb = {
 // Native database only: the conflict authority, adapter decision, engine and surfaces stay real.
 jest.mock('expo-sqlite', () => ({ openDatabaseSync: (): unknown => fakeDb }));
 
-const valuedRecord = catalog.conflicts.find((record) =>
+const valuedRecord = shippedConflicts.find((record) =>
   record.participants.some((participant) =>
     participant.field === 'FX_COMMISSION_PCT' && typeof participant.value === 'number'));
-const valuelessRecord = catalog.conflicts.find((record) =>
+const valuelessRecord = shippedConflicts.find((record) =>
   record.participants.every((participant) => participant.value === undefined));
-const widestRecord = catalog.conflicts.reduce((widest, record) =>
+const widestRecord = shippedConflicts.reduce((widest, record) =>
   record.participants.filter((participant) => typeof participant.value === 'number').length
     > widest.participants.filter((participant) => typeof participant.value === 'number').length
     ? record

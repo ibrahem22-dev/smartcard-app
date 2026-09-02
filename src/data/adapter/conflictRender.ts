@@ -49,7 +49,12 @@ import {
 
 /** Re-exported so a consumer switches on the adapter's domain and never on a local copy of it. */
 export { CONFLICT_RENDER_PLAN };
-export type { ConflictRenderPlan, ConflictRecordAvailability, IntervalRankability };
+export type {
+  ConflictRenderPlan,
+  ConflictRecordAvailability,
+  IntervalRankability,
+  PackConflict,
+};
 
 /**
  * `intervalRankability` -- criterion K3, handoff section 3 row 4, read and never computed.

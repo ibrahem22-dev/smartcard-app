@@ -10,12 +10,14 @@
  * adapter package — a screen that imported that package could not mount in the render harness.
  */
 import catalogJson from './packs/catalog/pack.json';
+import type { PackConflict } from './conflictRender';
 
 type Row = Readonly<Record<string, unknown>>;
 
 const pack = catalogJson as {
   readonly datasetId: string;
   readonly datasetVersion: string;
+  readonly conflicts: readonly PackConflict[];
   readonly units: Readonly<Record<string, readonly Row[]>>;
 };
 
@@ -99,6 +101,11 @@ export function catalogPackIdentity(): {
 
 export function catalogCardRows(): readonly Row[] {
   return pack.units['cards'] ?? [];
+}
+
+/** Shipped conflicts stay behind the catalog adapter instead of exposing the raw pack JSON. */
+export function shippedCatalogConflicts(): readonly PackConflict[] {
+  return pack.conflicts;
 }
 
 export function currentCatalogProducts(): readonly CatalogProductHit[] {
