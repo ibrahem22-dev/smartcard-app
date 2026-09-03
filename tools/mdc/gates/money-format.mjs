@@ -127,15 +127,46 @@ export const run = async () => {
   if (escapes.length > 0) problems.push(`amounts formatted outside the money module: ${escapes.join('; ')}`);
   clauses.push('no surface formats an amount for itself');
 
-  /* 3. TABULAR NUMERALS REACH THE SURFACES. A screen that renders amounts must apply the style,
-        or a column of figures will not align however correct each one is. */
+  /*
+   * 3. TABULAR NUMERALS ARE APPLIED, NOT MERELY MENTIONED.
+   *
+   * A screen that renders amounts must APPLY the style, or a column of figures cannot be read down
+   * however correct each figure is.
+   *
+   * THIS CLAUSE WAS WEAKER THAN ITS OWN SENTENCE, AND ITS FALSIFICATION CAUGHT IT. It tested
+   * `/TABULAR_NUMERALS/.test(file)` — whether the name appears anywhere in the text. Deleting the
+   * one `style={TABULAR_NUMERALS}` from HomeRiskStrip left the import line behind, and the gate
+   * went on printing "18 surface(s) render amounts, all applying tabular numerals" over a surface
+   * that had just stopped applying them. An unused import satisfied it, and so would a comment:
+   * one of the real surfaces, SectionDActiveNow, mentions the name in prose and nowhere else on
+   * that line. A clause that cannot fail is worse than no clause — it prints a sentence nobody
+   * checked, and the sentence is the thing a reader believes.
+   *
+   * So the subject is now the APPLICATION. Both shapes the codebase actually uses are accepted,
+   * measured across the tree rather than guessed: `style={TABULAR_NUMERALS}` and
+   * `style={[TABULAR_NUMERALS, …]}`. Comments are stripped first, so prose cannot satisfy it.
+   *
+   * WHAT THIS DOES NOT DO, so it is not mistaken for something stronger. This is the FILE-level
+   * guarantee: a surface that renders amounts applies the style at least once. The per-call-site
+   * question — does THIS amount sit inside a styled element — belongs to P2's A7, which reads the
+   * six lines above every `{money(…)}` and is green over these same changes. Two readers, two
+   * questions; this one does not restate A7's answer and must not be read as confirming it.
+   */
+  const APPLIED_SOURCE = String.raw`style=\{\s*\[?[^}]*\bTABULAR_NUMERALS\b`;
+  const applies = (text) => new RegExp(APPLIED_SOURCE).test(text);
   const renderers = surfaceFiles().filter((f) => /\b(money|amount)\s*\(/.test(stripComments(read(f))));
-  const withoutTabular = renderers.filter((f) => !/TABULAR_NUMERALS/.test(read(f)));
+  const applications = renderers.reduce(
+    (n, f) => n + (stripComments(read(f)).match(new RegExp(APPLIED_SOURCE, 'g')) || []).length, 0,
+  );
+  const withoutTabular = renderers.filter((f) => !applies(stripComments(read(f))));
   if (renderers.length === 0) problems.push('no surface renders an amount — an empty population proves nothing');
   if (withoutTabular.length > 0) {
-    problems.push(`surfaces rendering amounts without TABULAR_NUMERALS: ${withoutTabular.map(rel).join(', ')}`);
+    problems.push(
+      `surfaces rendering amounts that never APPLY TABULAR_NUMERALS: ${withoutTabular.map(rel).join(', ')}. `
+      + 'Importing the name, or naming it in a comment, is not applying it.',
+    );
   }
-  clauses.push(`${renderers.length} surface(s) render amounts, all applying tabular numerals`);
+  clauses.push(`${renderers.length} surface(s) render amounts, applying tabular numerals at ${applications} site(s)`);
 
   /* 4. ONE PERCENT FORMATTER. money.ts's own warning, enforced. */
   const moneySrc = stripComments(read(MONEY));
