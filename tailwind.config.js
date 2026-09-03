@@ -7,7 +7,7 @@
  * Every hex below is copied from the canonical `color.tokens.json`
  * (`status: FROZEN_COLOR_SYSTEM_V1`, `canonical: true`). Nothing is derived, tinted or blended.
  * The names are the token names with the dots flattened, so a class reads as the alias it came
- * from — `bg-trevik-selected-surface` is `interaction.light.selected.surface` — which is what the
+ * from — `bg-selected-surface` is `interaction.light.selected.surface` — which is what the
  * Brand engineering handoff asks for: *"preserve semantic names and alias relationships rather
  * than copying unlabelled HEX values."*
  *
@@ -23,37 +23,37 @@
  */
 const TREVIK_LIGHT = {
   // neutral.light.*
-  'trevik-text': '#221F1D',
-  'trevik-text-secondary': '#625C57',
-  'trevik-bg': '#FBF9F6',
-  'trevik-surface': '#FFFFFF',
-  'trevik-border': '#D8D1CA',
-  'trevik-inverse-surface': '#1B2523',
-  'trevik-disabled': '#9C958E',
+  'neutral-text': '#221F1D',
+  'neutral-text-secondary': '#625C57',
+  'neutral-bg': '#FBF9F6',
+  'neutral-surface': '#FFFFFF',
+  'neutral-border': '#D8D1CA',
+  'neutral-inverse-surface': '#1B2523',
+  'neutral-disabled': '#9C958E',
 
   // semantic.light.* — foregrounds and boundaries. There is no semantic SURFACE in the frozen
   // system, and none is invented here: OQ-MDC-028 option 1 puts semantic colour on a neutral ground.
-  'trevik-positive': '#196B52',
-  'trevik-negative': '#A03636',
-  'trevik-warning': '#835900',
-  'trevik-information': '#285F84',
-  'trevik-focus': '#9A5B00',
+  'semantic-positive': '#196B52',
+  'semantic-negative': '#A03636',
+  'semantic-warning': '#835900',
+  'semantic-information': '#285F84',
+  'semantic-focus': '#9A5B00',
 
   // interaction.light.*
-  'trevik-action': '#6F421E',
-  'trevik-action-hover': '#5F3718',
-  'trevik-action-pressed': '#4F2D13',
-  'trevik-selected': '#9D602F',
-  'trevik-selected-surface': '#EFE1D2',
-  'trevik-link': '#285F84',
-  'trevik-link-hover': '#1E4B69',
+  'action-default': '#6F421E',
+  'action-hover': '#5F3718',
+  'action-pressed': '#4F2D13',
+  'selected-border': '#9D602F',
+  'selected-surface': '#EFE1D2',
+  'link-default': '#285F84',
+  'link-hover': '#1E4B69',
 
   // brand.trevik.* / brand.sorlane.* — identity, never semantic meaning.
-  'trevik-primary': '#9D602F',
-  'trevik-primary-soft': '#EFE1D2',
-  'trevik-accent': '#C78B3D',
-  'trevik-accent-soft': '#F4E7CC',
-  'sorlane-primary': '#27433F',
+  'brand-primary': '#9D602F',
+  'brand-primary-soft': '#EFE1D2',
+  'brand-accent': '#C78B3D',
+  'brand-accent-soft': '#F4E7CC',
+  'master-primary': '#27433F',
 };
 
 /*

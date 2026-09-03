@@ -11,7 +11,7 @@
  * PHASE_11_COLOR_AUTHORITY_RECONCILIATION.md). Nothing is derived, tinted, blended or rounded.
  * The class names carry the token names, because the Brand engineering handoff asks integrators to
  * *"preserve semantic names and alias relationships rather than copying unlabelled HEX values"* —
- * so `ACCENT.solid` reads `bg-trevik-action`, which is `interaction.light.action.default`, and a
+ * so `ACCENT.solid` reads `bg-action-default`, which is `interaction.light.action.default`, and a
  * reviewer can follow it back to the package without a lookup table.
  *
  * ─────────────────────────────────────────────────────────────────────────────────────────────
@@ -94,10 +94,10 @@ export const ROLE_MEANING: Readonly<Record<SemanticRole, string>> = {
  * travels in the border and the text.
  */
 export const ROLE_SURFACE: Readonly<Record<SemanticRole, string>> = {
-  danger: 'bg-trevik-surface border-trevik-negative',
-  advisory: 'bg-trevik-surface border-trevik-warning',
-  positive: 'bg-trevik-surface border-trevik-positive',
-  neutral: 'bg-trevik-surface border-trevik-border',
+  danger: 'bg-neutral-surface border-semantic-negative',
+  advisory: 'bg-neutral-surface border-semantic-warning',
+  positive: 'bg-neutral-surface border-semantic-positive',
+  neutral: 'bg-neutral-surface border-neutral-border',
 };
 
 /**
@@ -110,19 +110,19 @@ export const ROLE_SURFACE: Readonly<Record<SemanticRole, string>> = {
  * if the ground stopped being addressable by role.
  */
 export const ROLE_SURFACE_BG: Readonly<Record<SemanticRole, string>> = {
-  danger: 'bg-trevik-surface',
-  advisory: 'bg-trevik-surface',
-  positive: 'bg-trevik-surface',
-  neutral: 'bg-trevik-surface',
+  danger: 'bg-neutral-surface',
+  advisory: 'bg-neutral-surface',
+  positive: 'bg-neutral-surface',
+  neutral: 'bg-neutral-surface',
 };
 
 /** The role's meaning, as text. `semantic.light.*`, straight from the frozen package. */
 export const ROLE_TEXT: Readonly<Record<SemanticRole, string>> = {
-  danger: 'text-trevik-negative',
-  advisory: 'text-trevik-warning',
-  positive: 'text-trevik-positive',
+  danger: 'text-semantic-negative',
+  advisory: 'text-semantic-warning',
+  positive: 'text-semantic-positive',
   /** OQ-MDC-027 option 1: the app's neutral role maps to `neutral.light.text.secondary`. */
-  neutral: 'text-trevik-text-secondary',
+  neutral: 'text-neutral-text-secondary',
 };
 
 /**
@@ -134,10 +134,10 @@ export const ROLE_TEXT: Readonly<Record<SemanticRole, string>> = {
  * is what a boundary carrying no judgement is for.
  */
 export const ROLE_BORDER: Readonly<Record<SemanticRole, string>> = {
-  danger: 'border-trevik-negative',
-  advisory: 'border-trevik-warning',
-  positive: 'border-trevik-positive',
-  neutral: 'border-trevik-border',
+  danger: 'border-semantic-negative',
+  advisory: 'border-semantic-warning',
+  positive: 'border-semantic-positive',
+  neutral: 'border-neutral-border',
 };
 
 // ═══════════════════════════════════════════════════════════════════════ neutral chrome
@@ -157,13 +157,13 @@ export const ROLE_BORDER: Readonly<Record<SemanticRole, string>> = {
  * value is declared as `neutral.dark.text.primary`, and V1 activates no dark token.
  */
 export const TEXT = {
-  heading: 'text-trevik-text',
-  body: 'text-trevik-text',
-  secondary: 'text-trevik-text-secondary',
-  muted: 'text-trevik-text-secondary',
-  inverse: 'text-trevik-surface',
+  heading: 'text-neutral-text',
+  body: 'text-neutral-text',
+  secondary: 'text-neutral-text-secondary',
+  muted: 'text-neutral-text-secondary',
+  inverse: 'text-neutral-surface',
   /** Text on a solid action — `interaction.light.action.foreground`, an alias of the surface white. */
-  onAccent: 'text-trevik-surface',
+  onAccent: 'text-neutral-surface',
 } as const;
 
 /**
@@ -175,11 +175,11 @@ export const TEXT = {
  * and giving them different ones would have meant choosing a tint the package does not define.
  */
 export const SURFACE = {
-  page: 'bg-trevik-bg',
-  card: 'bg-trevik-surface',
-  sunken: 'bg-trevik-bg',
-  raised: 'bg-trevik-bg',
-  inverse: 'bg-trevik-inverse-surface',
+  page: 'bg-neutral-bg',
+  card: 'bg-neutral-surface',
+  sunken: 'bg-neutral-bg',
+  raised: 'bg-neutral-bg',
+  inverse: 'bg-neutral-inverse-surface',
   /**
    * The ground behind a modal. A scrim is not a surface — it is the absence of one — so it takes no
    * palette colour in either system, and tinting it with the brand would make the dimming read as a
@@ -190,10 +190,10 @@ export const SURFACE = {
 
 /** Hairlines, from `neutral.light.border`. `subtle` is the quieter of the two. */
 export const BORDER = {
-  hairline: 'border-trevik-border',
-  subtle: 'border-trevik-border',
+  hairline: 'border-neutral-border',
+  subtle: 'border-neutral-border',
   /** A single hairline along the top edge, for rows in a list that share a container. */
-  topHairline: 'border-t-trevik-border',
+  topHairline: 'border-t-neutral-border',
 } as const;
 
 /**
@@ -224,16 +224,16 @@ export const LEGIBLE_ON: Readonly<Record<keyof typeof SURFACE, readonly (keyof t
  * handoff asks to be preserved.
  */
 export const ACCENT = {
-  text: 'text-trevik-action',
-  surface: 'bg-trevik-selected-surface',
-  surfaceStrong: 'bg-trevik-selected-surface',
-  border: 'border-trevik-selected',
-  borderSubtle: 'border-trevik-border',
-  solid: 'bg-trevik-action',
+  text: 'text-action-default',
+  surface: 'bg-selected-surface',
+  surfaceStrong: 'bg-selected-surface',
+  border: 'border-selected-border',
+  borderSubtle: 'border-neutral-border',
+  solid: 'bg-action-default',
   /** `interaction.light.link.default`, for text that navigates rather than acts. */
-  link: 'text-trevik-link',
+  link: 'text-link-default',
   /** `semantic.light.focus` — the focus indicator, which is a state and not a judgement. */
-  focus: 'border-trevik-focus',
+  focus: 'border-semantic-focus',
 } as const;
 
 /**
@@ -246,11 +246,11 @@ export const ACCENT = {
  * danger, nor an advisory, nor a verdict about anybody's money.
  */
 export const PROMO = {
-  text: 'text-trevik-action',
-  textSubtle: 'text-trevik-text-secondary',
-  surface: 'bg-trevik-accent-soft',
-  border: 'border-trevik-accent',
-  solid: 'bg-trevik-action',
+  text: 'text-action-default',
+  textSubtle: 'text-neutral-text-secondary',
+  surface: 'bg-brand-accent-soft',
+  border: 'border-brand-accent',
+  solid: 'bg-action-default',
 } as const;
 
 // ═════════════════════════════════════════════════════════════════════ chrome
