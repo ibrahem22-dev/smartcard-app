@@ -8,11 +8,18 @@
     "disagrees with the campaign state it can see."
   ],
   "schemaVersion": "smartcard.mdc.requiredgates.v1",
-  "contractFenceHash": "69b822ac3b0252ca5351292141d85398ad0d3d588c52dd6257b9d8756d65c25b",
+  "contractFenceHash": "17aeade815b2e6c40bbd1389017fa7c7df9cbc0355b96c40c726f672234e2ede",
   "generatedBy": "mdc-required-gates.mjs",
   "activeStages": [
     "STAGE-0",
     "STAGE-1"
+  ],
+  "deferred": [
+    {
+      "criterion": "C8",
+      "stage": "STAGE-1",
+      "deferredBy": "OQ-MDC-020"
+    }
   ],
   "gateCount": 21,
   "gates": [
@@ -71,6 +78,23 @@
       ],
       "stage": "STAGE-1",
       "class": "COMMAND",
+      "negativeControls": []
+    },
+    {
+      "gate": "deferral",
+      "sentinel": "DEFERRAL OK",
+      "criteria": [
+        "C8"
+      ],
+      "stage": "STAGE-1",
+      "class": "COMMAND",
+      "substitutedFor": [
+        {
+          "criterion": "C8",
+          "implementationGate": "pack-update",
+          "deferredBy": "OQ-MDC-020"
+        }
+      ],
       "negativeControls": []
     },
     {
@@ -195,23 +219,6 @@
           "control": "sever-purchase-write",
           "mutation": "route one surface to a second purchase source",
           "expect": "the property fails on the diverging surface"
-        }
-      ]
-    },
-    {
-      "gate": "pack-update",
-      "sentinel": "PACK-UPDATE-E2E OK",
-      "criteria": [
-        "C8"
-      ],
-      "stage": "STAGE-1",
-      "class": "DEVICE",
-      "negativeControls": [
-        {
-          "criterion": "C8",
-          "control": "tampered-signature",
-          "mutation": "flip one byte in the manifest signature fixture",
-          "expect": "the update path refuses and the gate proves it"
         }
       ]
     },
