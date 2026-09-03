@@ -1,0 +1,251 @@
+{
+  "system": "SORLANE_TREVIK_TYPOGRAPHY_SYSTEM",
+  "version": "1.0.0",
+  "phase": "PHASE_9",
+  "owner_approval": {
+    "typography_system": "SYSTEM B — PLEX TRI-SCRIPT",
+    "authority_file": "05_Typography/12_Owner_Decision/SORLANE_TREVIK_PHASE_8N_OWNER_FINAL_TYPOGRAPHY_SELECTION.md",
+    "approved_by": "Ibrahim Abu Nasser",
+    "technical_parameters_finalized_in": "PHASE 9"
+  },
+  "fontSources": {
+    "latin": {
+      "family": "IBM Plex Sans",
+      "version": "3.005",
+      "upstream": "github.com/IBM/plex packages/plex-sans/fonts/complete/ttf",
+      "license": "SIL OFL 1.1"
+    },
+    "hebrew": {
+      "family": "IBM Plex Sans Hebrew",
+      "version": "1.2",
+      "upstream": "google/fonts ofl/ibmplexsanshebrew",
+      "license": "SIL OFL 1.1"
+    },
+    "arabic": {
+      "family": "IBM Plex Sans Arabic",
+      "version": "1.101",
+      "upstream": "google/fonts ofl/ibmplexsansarabic",
+      "license": "SIL OFL 1.1"
+    }
+  },
+  "weights": {
+    "regular": 400,
+    "medium": 500,
+    "semibold": 600,
+    "bold": 700,
+    "notShipped": [{ "weight": 300, "reason": "Light exists upstream for Hebrew/Arabic only; no approved functional role in V1" }],
+    "syntheticWeights": "PROHIBITED — font-synthesis: none"
+  },
+  "numericBehavior": {
+    "digits": "TABULAR BY DEFAULT IN ALL THREE SCRIPT FAMILIES",
+    "tnumRequired": false,
+    "evidence": "hmtx advance spread 0.00 units/em (upm 1000) verified per binary in PHASE_9_FONT_INVENTORY_RAW.json; no tnum GSUB feature exists in any build",
+    "minusSignData": "U+2212 preferred in data contexts (present in all builds)",
+    "currencySymbolsNative": ["₪", "$", "€", "£"]
+  },
+  "scriptCalibration": {
+    "latin": { "lineHeightPolicy": "base", "letterSpacingPolicy": "per-token" },
+    "hebrew": {
+      "lineHeightPolicy": "same-as-latin (Plex Hebrew rhythm measured tight/professional)",
+      "letterSpacingPolicy": "always 0 — no uppercase concept, no mechanical tracking",
+      "uppercaseRule": "NEVER uppercase Hebrew labels"
+    },
+    "arabic": {
+      "lineHeightPolicy": "+4..6px vs Latin per token — prevents mark/extender clipping",
+      "letterSpacingPolicy": "ALWAYS 0 — joined script; tracking visually breaks connections",
+      "uppercaseRule": "NEVER uppercase Arabic labels"
+    }
+  },
+  "tokens": {
+    "display-xl": {
+      "role": "Marketing hero, store header",
+      "familyRef": "fontSources (resolve by content script)",
+      "weight": 600,
+      "size": { "desktop": "48px", "mobileCompactMax360": "40px" },
+      "lineHeight": { "latin": 1.167, "hebrew": 1.167, "arabic": 1.25 },
+      "letterSpacing": { "latin": "-0.01em", "hebrew": "0", "arabic": "0" },
+      "scripts": ["en", "he", "ar"]
+    },
+    "display-l": {
+      "role": "Onboarding, feature headers",
+      "familyRef": "fontSources (resolve by content script)",
+      "weight": 600,
+      "size": { "desktop": "40px", "mobileCompactMax360": "32px" },
+      "lineHeight": { "latin": 1.2, "hebrew": 1.2, "arabic": 1.3 },
+      "letterSpacing": { "latin": "-0.01em", "hebrew": "0", "arabic": "0" },
+      "scripts": ["en", "he", "ar"]
+    },
+    "h1": {
+      "role": "Screen titles",
+      "familyRef": "fontSources (resolve by content script)",
+      "weight": 600,
+      "size": { "all": "32px" },
+      "lineHeight": { "latin": 1.25, "hebrew": 1.25, "arabic": 1.375 },
+      "letterSpacing": { "latin": "0", "hebrew": "0", "arabic": "0" },
+      "scripts": ["en", "he", "ar"]
+    },
+    "h2": {
+      "role": "Section titles",
+      "familyRef": "fontSources (resolve by content script)",
+      "weight": 600,
+      "size": { "all": "28px" },
+      "lineHeight": { "latin": 1.286, "hebrew": 1.286, "arabic": 1.357 },
+      "letterSpacing": { "latin": "0", "hebrew": "0", "arabic": "0" },
+      "scripts": ["en", "he", "ar"]
+    },
+    "h3": {
+      "role": "Card titles",
+      "familyRef": "fontSources (resolve by content script)",
+      "weight": 600,
+      "size": { "all": "24px" },
+      "lineHeight": { "latin": 1.333, "hebrew": 1.333, "arabic": 1.417 },
+      "letterSpacing": { "latin": "0", "hebrew": "0", "arabic": "0" },
+      "scripts": ["en", "he", "ar"]
+    },
+    "body-l": {
+      "role": "Intro copy",
+      "familyRef": "fontSources (resolve by content script)",
+      "weight": 400,
+      "size": { "all": "18px" },
+      "lineHeight": { "latin": 1.556, "hebrew": 1.556, "arabic": 1.667 },
+      "letterSpacing": { "latin": "0", "hebrew": "0", "arabic": "0" },
+      "scripts": ["en", "he", "ar"]
+    },
+    "body-m": {
+      "role": "Default body workhorse",
+      "familyRef": "fontSources (resolve by content script)",
+      "weight": 400,
+      "size": { "all": "16px" },
+      "lineHeight": { "latin": 1.5, "hebrew": 1.5, "arabic": 1.625 },
+      "letterSpacing": { "latin": "0", "hebrew": "0", "arabic": "0" },
+      "scripts": ["en", "he", "ar"]
+    },
+    "body-s": {
+      "role": "Secondary body, dense cards",
+      "familyRef": "fontSources (resolve by content script)",
+      "weight": 400,
+      "size": { "all": "14px" },
+      "lineHeight": { "latin": 1.429, "hebrew": 1.429, "arabic": 1.571 },
+      "letterSpacing": { "latin": "0", "hebrew": "0", "arabic": "0" },
+      "scripts": ["en", "he", "ar"]
+    },
+    "label-l": {
+      "role": "Field labels, buttons, navigation",
+      "familyRef": "fontSources (resolve by content script)",
+      "weight": 500,
+      "size": { "all": "16px" },
+      "lineHeight": { "latin": 1.25, "hebrew": 1.25, "arabic": 1.5 },
+      "letterSpacing": { "latin": "0", "hebrew": "0", "arabic": "0" },
+      "scripts": ["en", "he", "ar"]
+    },
+    "label-m": {
+      "role": "Labels, emphasized metadata; UPPERCASE LATIN ONLY",
+      "familyRef": "fontSources (resolve by content script)",
+      "weight": 500,
+      "size": { "all": "14px" },
+      "lineHeight": { "latin": 1.286, "hebrew": 1.286, "arabic": 1.429 },
+      "letterSpacing": { "latin": "0.02em", "hebrew": "0", "arabic": "0" },
+      "uppercaseLatinOnly": true,
+      "scripts": ["en", "he", "ar"]
+    },
+    "label-s": {
+      "role": "Badges, chips (Latin tracking allowed; HE/AR always 0)",
+      "familyRef": "fontSources (resolve by content script)",
+      "weight": 600,
+      "size": { "all": "12px" },
+      "lineHeight": { "latin": 1.333, "hebrew": 1.333, "arabic": 1.417 },
+      "letterSpacing": { "latin": "0.04em", "hebrew": "0", "arabic": "0" },
+      "uppercaseLatinOnly": true,
+      "scripts": ["en", "he", "ar"]
+    },
+    "caption": {
+      "role": "Metadata, legal",
+      "familyRef": "fontSources (resolve by content script)",
+      "weight": 400,
+      "size": { "all": "12px" },
+      "lineHeight": { "latin": 1.333, "hebrew": 1.333, "arabic": 1.5 },
+      "letterSpacing": { "latin": "0", "hebrew": "0", "arabic": "0" },
+      "scripts": ["en", "he", "ar"]
+    },
+    "data-xl": {
+      "role": "Headline amounts",
+      "familyRef": "fontSources (resolve by content script)",
+      "weight": 600,
+      "size": { "desktop": "40px", "mobileCompactMax360": "32px" },
+      "lineHeight": { "latin": 1.1, "hebrew": 1.1, "arabic": 1.25 },
+      "letterSpacing": { "latin": "-0.005em", "hebrew": "0", "arabic": "0" },
+      "scripts": ["en", "he", "ar"],
+      "tabularDefault": true
+    },
+    "data-l": {
+      "role": "Card amounts",
+      "familyRef": "fontSources (resolve by content script)",
+      "weight": 600,
+      "size": { "all": "32px" },
+      "lineHeight": { "latin": 1.188, "hebrew": 1.188, "arabic": 1.313 },
+      "letterSpacing": { "latin": "0", "hebrew": "0", "arabic": "0" },
+      "scripts": ["en", "he", "ar"],
+      "tabularDefault": true
+    },
+    "data-m": {
+      "role": "Inline emphasized amounts",
+      "familyRef": "fontSources (resolve by content script)",
+      "weight": 600,
+      "size": { "all": "20px" },
+      "lineHeight": { "latin": 1.3, "hebrew": 1.3, "arabic": 1.5 },
+      "letterSpacing": { "latin": "0", "hebrew": "0", "arabic": "0" },
+      "scripts": ["en", "he", "ar"],
+      "tabularDefault": true
+    },
+    "data-s": {
+      "role": "Metadata numbers, FX quotes",
+      "familyRef": "fontSources (resolve by content script)",
+      "weight": 500,
+      "size": { "all": "14px" },
+      "lineHeight": { "latin": 1.429, "hebrew": 1.429, "arabic": 1.571 },
+      "letterSpacing": { "latin": "0", "hebrew": "0", "arabic": "0" },
+      "scripts": ["en", "he", "ar"],
+      "tabularDefault": true
+    }
+  },
+  "responsiveModel": {
+    "breakpoints": [
+      { "name": "compact-mobile", "maxWidth": 360, "rule": "display-xl→40/48·display-l→32/40·data-xl→32 (reuses tested sizes only)" },
+      { "name": "mobile-tablet", "minWidth": 361, "maxWidth": 1023, "rule": "full base scale" },
+      { "name": "desktop", "minWidth": 1024, "rule": "full base scale" }
+    ],
+    "note": "No invented sizes: compact substitutions reuse Phase 8H-tested values."
+  },
+  "fallbacks": {
+    "latinContext": "\"IBM Plex Sans\", \"IBM Plex Sans Hebrew\", \"IBM Plex Sans Arabic\", \"Segoe UI\", Arial, sans-serif",
+    "hebrewContext": "\"IBM Plex Sans Hebrew\", \"IBM Plex Sans\", \"Segoe UI\", Arial, sans-serif",
+    "arabicContext": "\"IBM Plex Sans Arabic\", \"IBM Plex Sans\", \"Segoe UI\", Arial, sans-serif",
+    "policy": "EMERGENCY RESILIENCE ONLY — sibling Plex families are in-system; system fonts are failure insurance, not brand appearance"
+  },
+  "brandBehavior": {
+    "trevik": {
+      "voice": "clear, practical, consumer-facing, precise, approachable",
+      "rules": [
+        "Full hierarchy contrast permitted: 600 card titles/H2/H3 prominent",
+        "Prominent numeric values: Data XL/L 600",
+        "Buttons/labels 500",
+        "Warmth carried by G1 wordmark, TM-C mark, layout, spacing — not by altering type"
+      ]
+    },
+    "sorlane": {
+      "voice": "calm, mature, global, understated, stable",
+      "rules": [
+        "Restrained headlines: Display/H1 600 max, prefer generous whitespace over weight",
+        "Sub-headings may use 500",
+        "Avoid 700 in corporate contexts except exceptional statements",
+        "Never let UI typography imitate SW-B artwork"
+      ]
+    }
+  },
+  "logoRelationship": {
+    "g1_trevik_wordmark": "custom artwork — never substitute with live Plex text",
+    "tm_c_app_mark": "custom artwork",
+    "swb_sorlane_wordmark": "custom artwork",
+    "rule": "IBM Plex complements logo assets; it must never reproduce or replace them"
+  }
+}

@@ -1,0 +1,8 @@
+{
+  "$authority": "Brand/09_Design_Library/01_Phase_15_Production_Design_Library_Figma_System/07_Grid_Spacing/GRID_SPACING_RADIUS_STROKE_REFERENCE.md",
+  "$note": "The Phase 15 reference ships as prose, not as JSON, so these primitives are transcribed from its Primitives section. The tokens-swap gate PARSES that markdown on every run and compares it to this file, so the transcription is checked against its authority rather than trusted.",
+  "spacing": [4, 8, 12, 16, 24, 32, 48, 64, 96, 128],
+  "spacingCore": [16, 32, 64],
+  "radius": { "structural": 0, "control": 4, "card": 8, "largeImageField": 12 },
+  "stroke": { "passive": 1, "selected": 2, "icon": 1.75, "diagram": 1.5 }
+}

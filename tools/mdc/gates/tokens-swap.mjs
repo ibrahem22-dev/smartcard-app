@@ -271,6 +271,86 @@ export const run = async () => {
     clauses.push(`${ttf.length} approved face(s), byte-identical, registered and awaited, under OFL 1.1`);
   }
 
+  /*
+   * 8. THE TWO DATA FILES ARE CHECKED AGAINST THEIR AUTHORITIES, NOT TRUSTED.
+   *
+   * The frozen type and geometry values used to be typed out as TypeScript literals. P3 flagged the
+   * ratios — 1.556 has the shape of a rate — and they were allowlisted with reasons; then P5's
+   * version of the same gate refused THAT, because an exception a campaign writes for its own new
+   * code is "marking its own homework". It was right. The values are data now, and this clause is
+   * what makes them safe to be data: the typography file must be BYTE-IDENTICAL to the canonical
+   * package, and the geometry file — whose authority ships as prose rather than JSON — is compared
+   * against the numbers parsed out of that prose on every run. A transcription nobody checks is
+   * exactly what the allowlist was standing in for.
+   */
+  const APP_TYPE_JSON = join(ROOT, 'assets', 'brand', 'typography.tokens.json');
+  const BRAND_TYPE_JSON = 'C:/Users/ebrah/Brand/05_Typography/13_Phase_9_Final_Typography_Package/05_Design_Tokens/typography.tokens.json';
+  const APP_GEOM_JSON = join(ROOT, 'assets', 'brand', 'geometry.tokens.json');
+  const BRAND_GEOM_MD = 'C:/Users/ebrah/Brand/09_Design_Library/01_Phase_15_Production_Design_Library_Figma_System/07_Grid_Spacing/GRID_SPACING_RADIUS_STROKE_REFERENCE.md';
+
+  if (!existsSync(APP_TYPE_JSON)) problems.push('assets/brand/typography.tokens.json is missing — the type scale has no data source');
+  else if (!existsSync(BRAND_TYPE_JSON)) problems.push('the canonical typography package is unreachable, so the shipped copy cannot be compared to it');
+  else if (!readFileSync(APP_TYPE_JSON).equals(readFileSync(BRAND_TYPE_JSON))) {
+    problems.push('assets/brand/typography.tokens.json is NOT byte-identical to the canonical package');
+  } else {
+    const t = JSON.parse(readFileSync(APP_TYPE_JSON, 'utf8'));
+    const names = Object.keys(t.tokens ?? {});
+    if (names.length !== 16) problems.push(`the type scale carries ${names.length} token(s), not the frozen 16`);
+    const weights = Object.values(t.weights ?? {}).filter((v) => typeof v === 'number');
+    for (const w of [400, 500, 600, 700]) {
+      if (!weights.includes(w)) problems.push(`the frozen package no longer ships weight ${w}`);
+    }
+    clauses.push(`${names.length} frozen type token(s) and 4 weight(s), byte-identical to the canonical package`);
+  }
+
+  if (!existsSync(APP_GEOM_JSON)) problems.push('assets/brand/geometry.tokens.json is missing — the spacing scale has no data source');
+  else if (!existsSync(BRAND_GEOM_MD)) problems.push('the Phase 15 geometry reference is unreachable, so the shipped primitives cannot be compared to it');
+  else {
+    const g = JSON.parse(readFileSync(APP_GEOM_JSON, 'utf8'));
+    const md = readFileSync(BRAND_GEOM_MD, 'utf8');
+    const nums = (re) => {
+      const m = md.match(re);
+      return m ? m[1].split(',').map((x) => Number.parseFloat(x.trim())).filter((n) => !Number.isNaN(n)) : null;
+    };
+    const spacing = nums(/Spacing:\s*([\d,\s]+)\./);
+    const radius = [...md.matchAll(/Radius:\s*(.+)/g)].map((m) => m[1])[0] ?? '';
+    const stroke = [...md.matchAll(/Stroke:\s*(.+)/g)].map((m) => m[1])[0] ?? '';
+    if (!spacing) problems.push('could not read the spacing scale out of the Phase 15 reference — the authority moved or changed shape');
+    else if (spacing.join(',') !== g.spacing.join(',')) {
+      problems.push(`the shipped spacing scale [${g.spacing.join(' ')}] does not match the Phase 15 reference [${spacing.join(' ')}]`);
+    }
+    for (const [name, value] of Object.entries(g.radius)) {
+      if (!new RegExp('(^|[^\\d.])' + value + '(?![\\d.])').test(radius)) {
+        problems.push(`radius.${name} = ${value} is not in the Phase 15 reference's radius line`);
+      }
+    }
+    for (const [name, value] of Object.entries(g.stroke)) {
+      if (!new RegExp('(^|[^\\d.])' + String(value).replace('.', '\\.') + '(?![\\d.])').test(stroke)) {
+        problems.push(`stroke.${name} = ${value} is not in the Phase 15 reference's stroke line`);
+      }
+    }
+    clauses.push(`${g.spacing.length} spacing step(s), ${Object.keys(g.radius).length} radi(us/i) and ${Object.keys(g.stroke).length} stroke(s) matching the Phase 15 reference`);
+  }
+
+  /*
+   * 9. NO EXCEPTION IS WRITTEN FOR THIS CAMPAIGN'S OWN THEME FILES.
+   *
+   * P5's rule, enforced here so it cannot come back through the side door: if a frozen value ever
+   * needs a financial-literals exception again, that is the signal it was typed into source instead
+   * of being read from its authority.
+   */
+  const ALLOW = join(ROOT, 'tools', 'p2', 'financial-literals.allow.json');
+  if (existsSync(ALLOW)) {
+    const own = (JSON.parse(readFileSync(ALLOW, 'utf8')).allow ?? [])
+      .filter((a) => String(a.file).startsWith('src/theme/'));
+    if (own.length > 0) {
+      problems.push(`${own.length} financial-literals exception(s) written for this campaign's own theme files `
+        + `(${[...new Set(own.map((a) => a.file))].join(', ')}). A frozen value that needs an exception was `
+        + 'typed into source rather than read from its authority — move it to assets/brand and read it.');
+    }
+  }
+  clauses.push('no financial-literals exception for a theme file this campaign created');
+
   const population = declared.length + Object.keys(roleSurfaceBg).length + 12;
   if (problems.length > 0) return fail(problems.join(' · '), { population });
   return okOverPopulation({
