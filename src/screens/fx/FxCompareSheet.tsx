@@ -8,7 +8,7 @@ import { RtlScreen } from '../../components/rtl';
 import { useTranslation } from '../../hooks/useTranslation';
 import type { FxComparison } from '../../engines/fx';
 import { ACCENT, BORDER, ROLE_BORDER, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../../theme/tokens';
-import { ratioFromPercent } from '../../utils/money';
+import { TABULAR_NUMERALS, ratioFromPercent } from '../../utils/money';
 import { useMoney } from '../../hooks/useMoney';
 import { conflictDecisionFor } from '../../authority/packConflict';
 
@@ -39,7 +39,7 @@ export function FxCompareSheet({
   displayNames,
 }: FxCompareSheetProps): React.ReactElement {
   const { t } = useTranslation();
-  const { percent } = useMoney();
+  const { money, percent } = useMoney();
   const [explainerOpen, setExplainerOpen] = useState(false);
   const comparisonIncomplete = (comparison?.conflictedCards.length ?? 0) > 0;
   const winnerId = comparisonIncomplete ? undefined : comparison?.ranked[0]?.cardId;
@@ -119,9 +119,10 @@ export function FxCompareSheet({
                 <AppText
                   accessibilityValue={{ text: String(entry.quote.effectiveIls) }}
                   className={`mt-1 text-sm ${TEXT.body}`}
+                  style={TABULAR_NUMERALS}
                   testID={`fx-compare-total-${entry.cardId}`}
                 >
-                  {`₪${entry.quote.effectiveIls}`}
+                  {money(entry.quote.effectiveIls)}
                 </AppText>
                 <ProvenanceChip
                   testID={`fx-compare-total-${entry.cardId}-chip`}
@@ -196,30 +197,34 @@ export function FxCompareSheet({
                 <AppText
                   accessibilityValue={{ text: String(winnerQuote.referenceIls) }}
                   className={`mt-2 text-sm ${TEXT.body}`}
+                  style={TABULAR_NUMERALS}
                   testID="fx-compare-explainer-base"
                 >
-                  {`${t('בסיס')} ₪${winnerQuote.referenceIls}`}
+                  {`${t('בסיס')} ${money(winnerQuote.referenceIls)}`}
                 </AppText>
                 <AppText
                   accessibilityValue={{ text: String(winnerQuote.fxPercentApplied) }}
                   className={`mt-1 text-sm ${TEXT.body}`}
+                  style={TABULAR_NUMERALS}
                   testID="fx-compare-explainer-markup"
                 >
-                  {`${t('עמלה')} ${winnerQuote.fxPercentApplied}`}
+                  {`${t('עמלה')} ${percent(ratioFromPercent(winnerQuote.fxPercentApplied))}`}
                 </AppText>
                 <AppText
                   accessibilityValue={{ text: String(winnerQuote.fixedFeeIlsApplied) }}
                   className={`mt-1 text-sm ${TEXT.body}`}
+                  style={TABULAR_NUMERALS}
                   testID="fx-compare-explainer-fixed"
                 >
-                  {`${t('עמלה קבועה')} ₪${winnerQuote.fixedFeeIlsApplied}`}
+                  {`${t('עמלה קבועה')} ${money(winnerQuote.fixedFeeIlsApplied)}`}
                 </AppText>
                 <AppText
                   accessibilityValue={{ text: String(winnerQuote.effectiveIls) }}
                   className={`mt-1 text-sm ${TEXT.body}`}
+                  style={TABULAR_NUMERALS}
                   testID="fx-compare-explainer-total"
                 >
-                  {`${t('סה״כ')} ₪${winnerQuote.effectiveIls}`}
+                  {`${t('סה״כ')} ${money(winnerQuote.effectiveIls)}`}
                 </AppText>
                 <ProvenanceChip
                   testID="fx-compare-explainer-chip"

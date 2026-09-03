@@ -4,6 +4,7 @@ import { Pressable, View } from 'react-native';
 import { AppText } from '../../components/AppText';
 import { RtlRow } from '../../components/rtl';
 import { useMoney } from '../../hooks/useMoney';
+import { TABULAR_NUMERALS } from '../../utils/money';
 import { useTranslation, type UseTranslationResult } from '../../hooks/useTranslation';
 import { useActivityStore } from '../../store/useActivityStore';
 import { useCardsStore } from '../../store/useCardsStore';
@@ -153,6 +154,7 @@ export function HomeRiskStrip({ context }: HomeRiskStripProps): React.ReactEleme
               {explanationVisible ? (
                 <AppText
                   className={`w-full text-xs leading-5 ${TEXT.body}`}
+                  style={TABULAR_NUMERALS}
                   testID={`${testID}-explanation`}
                 >
                   {explanationFor(results, iso, t, money)}

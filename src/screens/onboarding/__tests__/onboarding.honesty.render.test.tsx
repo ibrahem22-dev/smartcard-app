@@ -9,12 +9,28 @@ import React from 'react';
 import { fireEvent, render } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
+import { APP_NAME } from '../../../config/identity';
 import { AuthProvider } from '../../../navigation/authContext';
 import { useLanguageStore } from '../../../store/useLanguageStore';
 import OnboardingScreen from '../OnboardingScreen';
 
+/*
+ * THE SENTENCE IS PINNED VERBATIM; THE PRODUCT NAME IS READ FROM THE SAME PLACE THE SCREEN READS IT.
+ *
+ * This constant used to spell the product name out — "This is how SmartCard knows what's safe." —
+ * and MDC-RENAME turned it red, because the screen renders `t('… {{app}} …', { app: APP_NAME })`
+ * and `APP_NAME` is `identity.displayName`, which the Owner ruled to TREVIK. The app was right and
+ * this expectation was stale.
+ *
+ * Re-spelling it as "TREVIK" would fix today and break on the next rename, which is the whole
+ * defect a second time. So the brand token now comes from `config/identity` — the ONE source T6
+ * established — and the words around it stay frozen. What O3 actually guards is unweakened: the
+ * sentence is still matched whole, a paraphrase still fails, and the claim "It never leaves your
+ * device" is still verbatim. It gains a property it did not have: if the rename ever regresses in
+ * the copy layer while identity.json says otherwise, this line fails instead of passing quietly.
+ */
 const INCOME_SPEC =
-  "This is how SmartCard knows what's safe. It never leaves your device.";
+  `This is how ${APP_NAME} knows what's safe. It never leaves your device.`;
 const SCOPED_CLAIM = 'Your financial data lives only on this device.';
 const RETIRED_CLAIM = 'All data lives on this device.';
 

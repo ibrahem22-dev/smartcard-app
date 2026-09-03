@@ -28,7 +28,7 @@ import { readdirSync, readFileSync, statSync, existsSync } from 'node:fs';
 import { join, dirname, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { okOverPopulation, fail, requireJestCases } from '../lib/report.mjs';
-import { stripCommentsAndStrings } from '../lib/source.mjs';
+import { stripCodeInTemplates, stripCommentsAndStrings } from '../lib/source.mjs';
 
 export const SENTINEL = 'DEBT-RETIREMENT OK';
 export const FAILURE_SENTINEL = 'DEBT-RETIREMENT FAILED';
@@ -75,6 +75,31 @@ const INVENTORY = [
   { file: 'src/screens/cardDna/SectionBGives.tsx', arg: 'ratioFromPercent(row.valuePercent)', unit: 'ALREADY_PERCENT' },
   { file: 'src/screens/DecisionScreen.tsx', arg: 'ratioFromPercent(rowItem.commission)', unit: 'ALREADY_PERCENT' },
   { file: 'src/screens/fx/FxCompareSheet.tsx', arg: 'ratioFromPercent(value)', unit: 'ALREADY_PERCENT' },
+  /*
+   * ADDED UNDER T2, and each unit MEASURED rather than inferred from the name.
+   *
+   * These four call sites did not exist when this inventory was written because the figures they
+   * render were not going through the app's formatter at all. Two were painted by a module-level
+   * `asDisplayPercent` that CheckVerdictScreen declared for itself — the second percent formatter
+   * money.ts warns about — and two were painted with no percent sign whatsoever, a bare `3` beside
+   * the words "card FX fee", which reads as ₪3 or 3% with nothing to say which. T2 routed all four
+   * through `percent`, which is what put them in front of this gate.
+   *
+   * ratioOfIncome is a RATIO: `load.ts` builds it as `monthlyObligations / income` and the
+   * thresholds it is compared against are 0.25/0.35/0.50. The retired `asDisplayPercent` also
+   * multiplied by 100, so the UNIT is unchanged by T2 and no figure moved by a factor of a hundred.
+   * The PRECISION did move: `asDisplayPercent` printed one fixed decimal, the app's formatter
+   * prints up to two and drops trailing zeros, so 500/18,000 now renders 2.78% where the device
+   * saw 2.8%, and a threshold renders 35% where it read 35.0%. That is the duplicate formatter's
+   * rounding going away, not a new calculation — the ratio behind it is the same number.
+   *
+   * fxPercentApplied is ALREADY A PERCENT: `currency.ts` computes with `(1 + fxPercent / 100)`,
+   * so the stored 3 means three percent. Both callers convert with `ratioFromPercent` at the call
+   * site, which is the rule OQ-MDC-004 set and the reason there is still only one formatter.
+   */
+  { file: 'src/screens/check/CheckVerdictScreen.tsx', arg: 'bullet.ratioOfIncome.value', unit: 'RATIO' },
+  { file: 'src/screens/check/CheckVerdictScreen.tsx', arg: 'ratioFromPercent(fxBlock.quote.fxPercentApplied)', unit: 'ALREADY_PERCENT' },
+  { file: 'src/screens/fx/FxCompareSheet.tsx', arg: 'ratioFromPercent(winnerQuote.fxPercentApplied)', unit: 'ALREADY_PERCENT' },
 ];
 
 const walk = (d, out = []) => {
@@ -92,7 +117,12 @@ const percentCallSites = (files) => {
   const sites = [];
   for (const f of files) {
     if (rel(f) === 'src/utils/money.ts') continue; // the definition, not a call site
-    const src = stripCommentsAndStrings(readFileSync(f, 'utf8'));
+    /* CODE INSIDE `${…}` MUST SURVIVE HERE. `stripCommentsAndStrings` blanks a template literal
+       whole, and a React screen paints its figures through template literals, so three of the four
+       call sites T2 created were invisible to this classifier — it would have gone on printing its
+       sentinel over a population that had quietly stopped including them. Measured, not assumed:
+       15 of 19 call sites were visible under the old stripper at the moment T2 landed. */
+    const src = stripCodeInTemplates(readFileSync(f, 'utf8'));
     for (const m of src.matchAll(/(?:^|[^A-Za-z0-9_.])(?:format\.)?(percent|formatPercent)\s*\(/g)) {
       const open = m.index + m[0].length - 1;
       let depth = 0, i = open;

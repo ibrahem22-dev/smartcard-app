@@ -16,6 +16,7 @@ import {
   nextPurchaseActivityId,
   type PurchaseLifecycleActions,
 } from '../../services/purchaseLifecycle';
+import { useMoney, type UseMoneyResult } from '../../hooks/useMoney';
 import { useTranslation } from '../../hooks/useTranslation';
 import { FxCompareFromCheckVerdict } from '../fx/FxCompareFromCheckVerdict';
 import type { ConvertedAmount } from '../../engines/currency';
@@ -26,6 +27,7 @@ import type { RecommendationEmphasis } from '../../check/recommendation';
 import type { ImpactBullet, PurchaseVerdict, PurchaseVerdictResult } from '../../engines/verdict';
 import type { SemanticRole } from '../../theme/tokens';
 import { ACCENT, BORDER, ROLE_SURFACE, ROLE_TEXT, SURFACE, TEXT } from '../../theme/tokens';
+import { TABULAR_NUMERALS, ratioFromPercent } from '../../utils/money';
 
 /**
  * CHECK VERDICT — criteria **D1** (four states) and **D2** (one computation).
@@ -150,10 +152,19 @@ const BULLET_WORD: { readonly [K in ImpactBullet['kind']]: string } = {
   LOAD_AFTER_BILLING: 'עומס אחרי החיוב',
 };
 
-/** Display scale of an engine unit share. Not a second load calculation. */
-function asDisplayPercent(unitShare: number): string {
-  return `${(unitShare * 100).toFixed(1)}%`;
-}
+/**
+ * THE PERCENT FORMATTER IS PASSED IN, NEVER REDECLARED HERE.
+ *
+ * This file used to carry `asDisplayPercent(unitShare) = (unitShare * 100).toFixed(1) + '%'` —
+ * a module-level second formatter for the percent unit. It was unit-CORRECT, which is exactly why
+ * it survived: nothing rendered a wrong number, so nothing looked broken. It was still the shape
+ * `money.ts` warns against — "adding a second function beside this one leaves two formatters
+ * serving two units with nothing to say which is right at a new call site" — and it had already
+ * drifted, printing one decimal where the app's formatter prints up to two and drops trailing
+ * zeros, so the same ratio rendered differently on two screens. `useMoney`'s own note says why a
+ * module-level formatter causes this: a function outside the component tree cannot ask what
+ * language the reader chose, so its author picks one. The formatters now arrive as parameters.
+ */
 
 function bulletClaim(bullet: ImpactBullet): string {
   switch (bullet.kind) {
@@ -167,15 +178,15 @@ function bulletClaim(bullet: ImpactBullet): string {
   }
 }
 
-function bulletVisible(bullet: ImpactBullet): string {
+function bulletVisible(bullet: ImpactBullet, format: UseMoneyResult): string {
   switch (bullet.kind) {
     case 'PURCHASE_MONTHLY_COMMITMENT':
     case 'HARD_THRESHOLD_HEADROOM':
-      return `₪${bullet.amountIls.value}`;
+      return format.money(bullet.amountIls.value);
     case 'LOAD_AFTER_PURCHASE':
-      return asDisplayPercent(bullet.ratioOfIncome.value);
+      return format.percent(bullet.ratioOfIncome.value);
     case 'LOAD_AFTER_BILLING':
-      return `${bullet.billingDate} ${asDisplayPercent(bullet.ratioOfIncome.value)}`;
+      return `${bullet.billingDate} ${format.percent(bullet.ratioOfIncome.value)}`;
   }
 }
 
@@ -220,6 +231,7 @@ function NumberClaim({
       <AppText
         accessibilityValue={{ text: claim }}
         {...(className !== undefined ? { className } : {})}
+        style={TABULAR_NUMERALS}
         testID={testID}
       >
         {children}
@@ -242,6 +254,7 @@ export function CheckVerdictScreen({
   onPurchaseLifecycleChange,
 }: CheckVerdictScreenProps): React.ReactElement {
   const { t } = useTranslation();
+  const format = useMoney();
   const logPurchase = useActivityStore((s) => s.logPurchase);
   const recordVerdict = useActivityStore((s) => s.recordVerdict);
   const updatePurchase = useActivityStore((s) => s.updatePurchase);
@@ -344,7 +357,7 @@ export function CheckVerdictScreen({
               testID={`check-verdict-impact-${bullet.kind}`}
               view={chipView(bulletNumber(bullet))}
             >
-              {`${t(BULLET_WORD[bullet.kind])} ${bulletVisible(bullet)}`}
+              {`${t(BULLET_WORD[bullet.kind])} ${bulletVisible(bullet, format)}`}
             </NumberClaim>
           ))}
         </View>
@@ -435,7 +448,7 @@ export function CheckVerdictScreen({
               testID="check-verdict-runner-up"
               view={chipView(runnerUp.deltaFromBestIls)}
             >
-              {`${t('גם טוב')}: ${runnerUp.displayName} · ${t('חוסכת')} ₪${runnerUp.deltaFromBestIls.value} ${t('פחות')}`}
+              {`${t('גם טוב')}: ${runnerUp.displayName} · ${t('חוסכת')} ${format.money(runnerUp.deltaFromBestIls.value)} ${t('פחות')}`}
             </NumberClaim>
           ) : (
             <AppText className={`mt-3 text-sm ${TEXT.body}`} testID="check-verdict-runner-up">
@@ -459,7 +472,7 @@ export function CheckVerdictScreen({
               testID="check-verdict-fx-fee"
               view={{ chip: fxBlock.quote.provenance, stale: false }}
             >
-              {`${t('עמלת כרטיס במטח')} ${fxBlock.quote.fxPercentApplied}`}
+              {`${t('עמלת כרטיס במטח')} ${format.percent(ratioFromPercent(fxBlock.quote.fxPercentApplied))}`}
             </NumberClaim>
             <NumberClaim
               claim={String(fxBlock.quote.effectiveIls)}
@@ -467,7 +480,7 @@ export function CheckVerdictScreen({
               testID="check-verdict-fx-estimate"
               view={{ chip: fxBlock.quote.provenance, stale: false }}
             >
-              {`${t('עלות משוערת')} ₪${fxBlock.quote.effectiveIls}`}
+              {`${t('עלות משוערת')} ${format.money(fxBlock.quote.effectiveIls)}`}
             </NumberClaim>
             <AppText
               accessibilityRole="link"
@@ -491,7 +504,7 @@ export function CheckVerdictScreen({
             testID="check-verdict-impact-strip"
             view={chipView(impactStrip.availableAfterPurchaseIls)}
           >
-            {`${t('מסגרת פנויה אחרי הרכישה')} ₪${impactStrip.availableAfterPurchaseIls.value}`}
+            {`${t('מסגרת פנויה אחרי הרכישה')} ${format.money(impactStrip.availableAfterPurchaseIls.value)}`}
           </NumberClaim>
         ) : null}
         <AppText className={`mt-3 text-xs ${TEXT.muted}`} testID="check-verdict-freshness">

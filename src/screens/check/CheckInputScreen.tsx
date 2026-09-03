@@ -6,6 +6,8 @@ import { ProvenanceChip } from '../../components/ProvenanceChip';
 import { chipStateFor } from '../../components/provenanceChipState';
 import { stalenessReading } from '../../data/adapter/fxStaleness';
 import { RtlButton, RtlRow, RtlScreen } from '../../components/rtl';
+import { useMoney } from '../../hooks/useMoney';
+import { TABULAR_NUMERALS } from '../../utils/money';
 import { useTranslation } from '../../hooks/useTranslation';
 import { ACCENT, BORDER, ROLE_TEXT, SURFACE, TEXT } from '../../theme/tokens';
 import { Currency, PurchaseCategory } from '../../types/purchase.types';
@@ -109,6 +111,7 @@ export function CheckInputScreen({
   benefitHint,
 }: CheckInputScreenProps): React.ReactElement {
   const { t } = useTranslation();
+  const { money } = useMoney();
 
   const [typedAmount, setTypedAmount] = useState<string>('');
   const [currency, setCurrency] = useState<Currency>(Currency.ILS);
@@ -320,9 +323,10 @@ export function CheckInputScreen({
                 <AppText
                   accessibilityValue={{ text: String(monthlyPreview) }}
                   className={`text-sm ${TEXT.muted}`}
+                  style={TABULAR_NUMERALS}
                   testID="check-input-monthly-preview"
                 >
-                  {`≈ ₪${monthlyPreview.toFixed(2)}`}
+                  {`≈ ${money(monthlyPreview)}`}
                 </AppText>
                 <ProvenanceChip
                   testID="check-input-monthly-preview-chip"
