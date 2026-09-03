@@ -121,9 +121,22 @@ export const run = async () => {
   clauses.push(`${familyCount} named component(s) across ${Object.keys(FAMILIES).length} famil(y/ies), each reaching colour by name`);
 
   /* 2. EVERY ROLE APPLICATION RESOLVES TO A DECLARED ROLE. */
+  /*
+   * COMMENTS ARE STRIPPED FIRST, AND T1 IS WHAT SHOWED WHY.
+   *
+   * This scanned raw file text, so PROSE ABOUT a role read as a USE of one. The token module's own
+   * documentation says A9 "keeps measuring `ROLE_TEXT.x` against `ROLE_SURFACE_BG.x` for each role"
+   * — a sentence explaining the design — and this clause reported a fifth semantic role named `x`
+   * and failed the whole ladder. A gate that cannot tell code from the comment beside it will
+   * eventually fail correct work, which is the same defect as passing incorrect work: both mean it
+   * was not reading the thing it claims to read.
+   */
+  const stripComments = (src) => src
+    .replace(/\/\*[\s\S]*?\*\//g, ' ')
+    .replace(/(^|[^:])\/\/[^\n]*/g, '$1 ');
   const roleUses = new Map();
   for (const f of product) {
-    for (const m of readFileSync(f, 'utf8').matchAll(/ROLE_[A-Z_]+\.(\w+)/g)) {
+    for (const m of stripComments(readFileSync(f, 'utf8')).matchAll(/ROLE_[A-Z_]+\.(\w+)/g)) {
       roleUses.set(m[1], (roleUses.get(m[1]) ?? 0) + 1);
     }
   }
