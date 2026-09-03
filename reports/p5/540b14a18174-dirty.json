@@ -1,0 +1,850 @@
+{
+  "$comment": "Written by tools/p5/all.mjs. Every step decided on printed output; acceptance requires every step green.",
+  "sha": "540b14a18174b90358aaff6ff8b167cca7ba6f13",
+  "worktreeDirty": true,
+  "node": "v20.20.2",
+  "acceptanceRun": true,
+  "ok": true,
+  "verdict": "OK",
+  "noFailures": true,
+  "failed": [],
+  "skipped": [],
+  "notImplemented": [],
+  "gatesMissing": [],
+  "gatesNotRequired": [],
+  "gatesRequired": 46,
+  "contractVersion": "1.0-DRAFT",
+  "agreement": {
+    "gates": [
+      "one-scoring",
+      "one-load",
+      "one-risk",
+      "one-limit",
+      "caches-agree"
+    ],
+    "onDisk": [
+      "gate:caches-agree",
+      "gate:one-limit",
+      "gate:one-load",
+      "gate:one-risk",
+      "gate:one-scoring"
+    ],
+    "missing": [],
+    "green": true,
+    "$comment": "Contract §16 test 2 is a separate test from test 1 because agreement is the one thing P5 exists to prove. A report that cannot say which steps were the agreement properties cannot support it."
+  },
+  "steps": [
+    {
+      "step": "typecheck",
+      "ok": true,
+      "skipped": false,
+      "ms": 7081,
+      "decidedOn": "output",
+      "line": "TYPECHECK OK",
+      "processStatus": 0,
+      "tail": "TYPECHECK OK"
+    },
+    {
+      "step": "lint",
+      "ok": true,
+      "skipped": false,
+      "ms": 3215,
+      "decidedOn": "output",
+      "line": "LINT OK",
+      "processStatus": 0,
+      "tail": "LINT OK"
+    },
+    {
+      "step": "suite",
+      "ok": true,
+      "skipped": false,
+      "ms": 89783,
+      "decidedOn": "output",
+      "line": "Tests:       1296 passed, 1296 total",
+      "processStatus": 0,
+      "tail": "PASS render src/components/__tests__/NamedRecordRender.render.test.tsx (23.338 s)\nPASS render src/screens/fx/__tests__/conflictAudit.render.test.tsx (24.097 s)\nTest Suites: 167 passed, 167 total\nTests:       1296 passed, 1296 total\nSnapshots:   0 total\nTime:        88.663 s"
+    },
+    {
+      "step": "gate:accessibility-labels",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "R4"
+      ],
+      "measures": "source",
+      "agreement": false,
+      "ms": 19,
+      "decidedOn": "output",
+      "line": "ACCESSIBILITY-LABELS OK",
+      "processStatus": null,
+      "tail": "  passes every check about keys and still speaks an English enum to an Arabic reader; for a dot or\n  a marker that label is the ONLY channel carrying the state, so there is no second one to fall\n  back on. This gate found that live, in two files, before R4 was recorded.\n1 image alt text(s) taken from the media resolver's altTextKey through t(), never a literal.\nAll four kinds R4 names — tile, chip, dot, marker — were LOCATED, not assumed: R3 already paid for\n  a testID substring that never matched, and a sweep covering three of four still prints OK."
+    },
+    {
+      "step": "gate:accessibility-static",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "R3"
+      ],
+      "measures": "source",
+      "agreement": false,
+      "ms": 19,
+      "decidedOn": "output",
+      "line": "ACCESSIBILITY-STATIC OK",
+      "processStatus": null,
+      "tail": "  background, 44 pairings — but it never opens a screen file. HomeRiskStrip puts ROLE_TEXT.neutral\n  inside a pressable whose background is one of four ROLE_SURFACE_BG branches, and no token\n  declares neutral-on-danger, so nothing measured it until this did.\nThe arithmetic and the token parsing are P2's, imported from tools/p2/lib/ — what is P5's here is\n  the POPULATION, not the maths. An earlier version of this clause matched fg and bg classes\n  inside one className string, resolved ZERO pairings, and printed OK."
+    },
+    {
+      "step": "gate:agreement-population",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "A6"
+      ],
+      "measures": "source",
+      "agreement": false,
+      "ms": 2811,
+      "decidedOn": "output",
+      "line": "AGREEMENT-POPULATION OK",
+      "processStatus": null,
+      "tail": "  · four surfaces from BOTTOM_NAVIGATION in src/navigation/ia.ts\n  · one contextual surface, route \"CardDetail\", cross-checked against src/navigation/stacks/WalletStack.tsx\n  · card ids from the shipped catalog pack through src/data/adapter/catalogSearch.ts\n  · no array literal of surface ids anywhere in the generator\nand src/surfaces/__tests__/population.test.ts proves it is non-empty, lands exactly on the thresholds, and fixes its window:\n  9 case(s) required BY NAME · Tests:       11 passed, 11 total"
+    },
+    {
+      "step": "gate:analytics-barrier",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "U3"
+      ],
+      "measures": "source",
+      "agreement": false,
+      "ms": 56,
+      "decidedOn": "output",
+      "line": "ANALYTICS-BARRIER OK",
+      "processStatus": null,
+      "tail": "  few well-reviewed call sites needs every future author to be careful; one permitting none needs\n  only that somebody notice a new one.\nThe four things U3 names are named for different reasons — a vault type is a shape that exists\n  because the data is the user's; one ₪ figure is a fact about their finances; which card someone\n  holds is an identity; and last4 is the fragment people believe is anonymous, which P4 already\n  fenced because it is not."
+    },
+    {
+      "step": "gate:best-for-chips",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "W4"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 15244,
+      "decidedOn": "output",
+      "line": "BEST-FOR-CHIPS OK",
+      "processStatus": null,
+      "tail": "The reason is the engine's own trace sentence — not composed, not templated, not edited, and\n  not in src/i18n, where a string becomes UI copy by construction (D-018's presence-plus-absence).\nChips are capped at two, tappable, and the reason deep-links into Card DNA §C.\nAnd both readers A1 compares return the same shape, so the property compares one question\n  rather than two (D-020).\n6 case(s) required BY NAME · Tests:       6 passed, 6 total"
+    },
+    {
+      "step": "gate:caches-agree",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "A5"
+      ],
+      "measures": "agreement",
+      "agreement": true,
+      "ms": 17773,
+      "decidedOn": "output",
+      "line": "CACHES-AGREE OK",
+      "processStatus": null,
+      "tail": "  · and a cache with no engine field to be re-derived from, which cannot be shown current\nover the derived population, with no expected number anywhere in the file.\nAND the invalidation clause, which this gate did not used to require: src/surfaces/__tests__/derivedCache.test.ts proves a changed input yields NOTHING rather than the old value, and that the cache\n  reaches no store. Without those, deleting the staleness check left this gate green — a\n  criterion with two clauses needs evidence for both.\n2 case(s) required BY NAME · claimed by \"agreement\" and excluded from \"render\" · Tests:       2 passed, 2 total"
+    },
+    {
+      "step": "gate:caches-local",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "U4"
+      ],
+      "measures": "source",
+      "agreement": false,
+      "ms": 2,
+      "decidedOn": "output",
+      "line": "CACHES-LOCAL OK",
+      "processStatus": null,
+      "tail": "  trustworthy was computed against a context that will not exist when it is read back, and the\n  invalidation A5 verified cannot happen, because nothing on the far side knows what to compare.\nThat is why the criterion says SHIPPED stale rather than kept stale. A cache that goes stale in\n  memory is a bug lasting until the next read; a shipped one outlives every input it had.\nsrc/surfaces/derivedCache.ts reaches no vault, no store, no device storage and no transfer path.\nAnd U1's table agrees with U4 about where it lives: classified in-memory, not persisted."
+    },
+    {
+      "step": "gate:calendar-grid",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "K1"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 15571,
+      "decidedOn": "output",
+      "line": "CALENDAR-GRID OK",
+      "processStatus": null,
+      "tail": "  length: WEEK_ORDER is Sunday-first as an array, RTL writing direction already lays a plain row\n  out right-to-left, and mirroring reverses it a second time — two reversals cancel, and the\n  dates end up disagreeing with the letters by exactly one reflection.\nDay letters come from DAY_LETTERS for he, ar and en, read from the module rather than retyped.\nAnd the grid arranges days and computes nothing: markers are K2, the day sheet is K3.\n5 case(s) required BY NAME · Tests:       5 passed, 5 total"
+    },
+    {
+      "step": "gate:calendar-markers",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "K2"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 15276,
+      "decidedOn": "output",
+      "line": "CALENDAR-MARKERS OK",
+      "processStatus": null,
+      "tail": "Every marker carries a cue that is not its colour, and the legend does not stand in for one: a\n  legend explains a colour once, somewhere else, to someone who can see it. A screen reader\n  reads a coloured View as nothing at all.\nA day with no marker gets none, and nothing on this surface is computed.\nreadCalendarRiskDotDay is real, so builtIn: PHASE-6 is true rather than aspirational.\n7 case(s) required BY NAME · Tests:       7 passed, 7 total"
+    },
+    {
+      "step": "gate:calendar-scope-guard",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "K4"
+      ],
+      "measures": "source",
+      "agreement": false,
+      "ms": 3,
+      "decidedOn": "output",
+      "line": "CALENDAR-SCOPE-GUARD OK",
+      "processStatus": null,
+      "tail": "  Plan's equivalent guard the shape here is already right — nothing about the layout resists it.\nAnd no forward-looking market-holiday date assembled on this surface. P2's C9 already put that\n  door at the data layer; this closes the corridor around it. A holiday table in a UI file is\n  market data with no authority behind it, and it looks entirely ordinary — an array of dates\n  nobody thinks to ask the provenance of. The dates might be right this year; WHO SAYS SO is the\n  test, and a hardcoded array answers \"nobody\"."
+    },
+    {
+      "step": "gate:card-dna-active-now",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "N7"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 15323,
+      "decidedOn": "output",
+      "line": "CARD-DNA-ACTIVE-NOW OK",
+      "processStatus": null,
+      "tail": "  release calculation here would be the second implementation A4 is waiting for, shipped a phase\n  early and passing every test in sight.\nA card with no waiver renders no countdown and a card with no evidenced offer renders none —\n  absent is absent, the same discipline §A and §B already keep.\nreadCardDnaUtilizationRatio is real, so builtIn: PHASE-3 is true in one-load and one-limit both.\n7 case(s) required BY NAME · Tests:       7 passed, 7 total"
+    },
+    {
+      "step": "gate:card-dna-costs",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "N2"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 16348,
+      "decidedOn": "output",
+      "line": "CARD-DNA-COSTS OK",
+      "processStatus": null,
+      "tail": "  time from src/authority/provenanceChip.ts: USER, VERIFIED, ESTIMATE, UNKNOWN.\nA row whose value is not known renders the quiet \"Add this\" affordance and keeps its pencil.\nAnd a card whose annualFee is 0 renders NO formatted zero — the case is required by name\n  because card.types.ts cannot tell a free annual fee from an unknown one, which makes ₪0 the\n  most plausible-looking wrong answer on this screen.\n7 case(s) required BY NAME · Tests:       7 passed, 7 total"
+    },
+    {
+      "step": "gate:card-dna-footer",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "N8"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 15500,
+      "decidedOn": "output",
+      "line": "CARD-DNA-FOOTER OK",
+      "processStatus": null,
+      "tail": "The FX actions open the sheet P4 built, and the footer and §A reach it the same way — two buttons\n  opening one sheet two ways is the shape A4 exists to catch.\nAnd the freshness line does not invent a date. No new Date(), no literal ISO string: today is\n  when the user opened the screen, not when anybody verified anything, and a line whose whole\n  purpose is honesty about age is the worst possible place to write a plausible number.\n5 case(s) required BY NAME · Tests:       5 passed, 5 total"
+    },
+    {
+      "step": "gate:card-dna-gives",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "N5"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 16018,
+      "decidedOn": "output",
+      "line": "CARD-DNA-GIVES OK",
+      "processStatus": null,
+      "tail": "  our evidence, the second a claim about the world we have no basis for.\nBenefits are tagged card or club, values render as percentages, and no reward balance appears:\n  spec §11 is earn rates and never balances, and this gate is the V2-plus scope gate N5 names.\nEvery image resolves through src/media/resolveMedia.ts at the app-owned tiers. No fetch, no URL, and no\n  rightsDecidedBy — P5 collects nothing and may not record a clearance nobody made.\n7 case(s) required BY NAME · Tests:       7 passed, 7 total"
+    },
+    {
+      "step": "gate:card-dna-layout",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "N1"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 15989,
+      "decidedOn": "output",
+      "line": "CARD-DNA-LAYOUT OK",
+      "processStatus": null,
+      "tail": "The header renders before section A, and no section container carries placeholder wording:\n  an empty section is the correct render for one a later package fills.\nsrc/navigation/stacks/WalletStack.tsx routes CardDetail to Card DNA, and src/screens/cardDna/SectionACosts.tsx carries a fee editor that\n  opens and saves — M4 is measured as reachable EDITING BEHAVIOUR, not as a route name\n  (PD-P5-011 discharged; repaired under Owner ruling OQ-MDC-005 option 2).\n5 case(s) required BY NAME · Tests:       5 passed, 5 total"
+    },
+    {
+      "step": "gate:card-dna-when-best",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "N6"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 15086,
+      "decidedOn": "output",
+      "line": "CARD-DNA-WHEN-BEST OK",
+      "processStatus": null,
+      "tail": "  src/i18n, not templated, not appended to, not rewritten. A string in the catalogue is UI copy\n  by construction, and the next person to change the wording would change it there.\nSection C reads through src/surfaces/surfaceEngines.ts and never an engine: a §C that scored for itself would be a\n  second scoring result, which is the disagreement A1 exists to catch.\nAnd readCardDnaWhenBestChips is real, so the participants table's builtIn: PHASE-3 is true.\n5 case(s) required BY NAME · Tests:       6 passed, 6 total"
+    },
+    {
+      "step": "gate:commitments-groups",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "J2"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 15482,
+      "decidedOn": "output",
+      "line": "COMMITMENTS-GROUPS OK",
+      "processStatus": null,
+      "tail": "  placeholder and says nothing about order, so this is a measurement that did not exist before.\nEvery group renders even when empty, which is both the honesty rule and what makes a fixed order\n  testable: an order over a list that drops its empty members is an order over whatever the\n  fixture populated. fixed-orders has no store at all, so it is always the empty case and the one\n  most likely to be quietly tidied away.\n2 case(s) required BY NAME · Tests:       6 passed, 6 total"
+    },
+    {
+      "step": "gate:commitments-row",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "J3"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 15104,
+      "decidedOn": "output",
+      "line": "COMMITMENTS-ROW OK",
+      "processStatus": null,
+      "tail": "The mini-tile composes the shared CardTile, so it resolves through src/media/resolveMedia.ts and nowhere\n  else — W5's rule, on a smaller and denser surface where a require() would look right.\nAnd the row computes nothing. J1 put a real monthly total on this screen from the load engine,\n  which makes a remaining balance or a payoff figure tempting here: a number no engine produced,\n  on a surface, sitting next to one that did.\n7 case(s) required BY NAME · Tests:       7 passed, 7 total"
+    },
+    {
+      "step": "gate:commitments-scope-guard",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "J5"
+      ],
+      "measures": "source",
+      "agreement": false,
+      "ms": 4,
+      "decidedOn": "output",
+      "line": "COMMITMENTS-SCOPE-GUARD OK",
+      "processStatus": null,
+      "tail": "  is a single subtraction away and reads as the natural next sentence.\nNone of them is a bad idea. All three are a different product, and the deferral table puts them\n  outside P5. The guard is here because the pull is toward them.\nIt refuses the FEATURES, not the words: `category` is a real field on a Benefit and a row may\n  legitimately carry one. What is refused is a user assigning categories, a screen grouping\n  spending by them, and a budget being set or a remainder computed."
+    },
+    {
+      "step": "gate:commitments-summary",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "J1"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 17915,
+      "decidedOn": "output",
+      "line": "COMMITMENTS-SUMMARY OK",
+      "processStatus": null,
+      "tail": "The cap is derived in src/surfaces/commitmentCap.ts, in the seam, from load.thresholds.strongWarningRatio — no 0.35\n  literal anywhere, because that figure already has a home and a copy would not move when it did.\nAnd the suggestion is never written to the vault: unknown-until-set is a real state, and a\n  default stored there would be the app's opinion wearing the user's provenance.\n3 seam case(s) · Tests:       3 passed, 3 total\n7 render case(s) required BY NAME · Tests:       7 passed, 7 total"
+    },
+    {
+      "step": "gate:conflicted-value",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "N9"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 16737,
+      "decidedOn": "output",
+      "line": "CONFLICTED-VALUE OK",
+      "processStatus": null,
+      "tail": "  and the row SAYS that is the order — a list that happens to be sorted and a list that tells\n  the reader it is sorted are different artefacts.\nNo most-likely badge, no default selection, nothing preselected.\nAnd the pencil survives: a conflicted row is the one a user most needs to settle, so N3's\n  writer still turns it into \"Your value\".\n7 case(s) required BY NAME · Tests:       7 passed, 7 total"
+    },
+    {
+      "step": "gate:day-sheet",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "K3"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 16365,
+      "decidedOn": "output",
+      "line": "DAY-SHEET OK",
+      "processStatus": null,
+      "tail": "  That is a real loss: a salary date the user typed is the most reliable fact on this screen, and\n  marking it an estimate tells them the app is unsure about something they said.\nThe pressure summary is a sentence, not a new number — nothing publishes a per-day total, so a\n  sum here would be invented on a surface.\nAnd the sheet reads the seam, never the M3-era cashflow stack that K2 ruled out of this screen.\n7 case(s) required BY NAME · Tests:       7 passed, 7 total"
+    },
+    {
+      "step": "gate:home-billing-and-cta",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "H5"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 15743,
+      "decidedOn": "output",
+      "line": "HOME-BILLING-AND-CTA OK",
+      "processStatus": null,
+      "tail": "A derived billing date wears the Estimate chip and a stated one does not — K3's rule, and its\n  second half again, because labelling everything Estimate costs the label its meaning.\n\"The nearest\" is a selection over dates the data already carries, not a computation of when a\n  card bills.\nAnd a wallet whose cards carry no billing date gets no billing block at all.\n6 case(s) required BY NAME · Tests:       6 passed, 6 total"
+    },
+    {
+      "step": "gate:home-hero",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "H1"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 17555,
+      "decidedOn": "output",
+      "line": "HOME-HERO OK",
+      "processStatus": null,
+      "tail": "With no income there is no figure, and the hero says WHAT is missing rather than that something\n  is — the seam reports why each result is null and throwing that away tells the user less than\n  the app knows. A ₪0 would be worse: zero safe-to-commit is a real and alarming state, and it\n  is not the same fact as not knowing their income.\n3 seam case(s) · Tests:       3 passed, 3 total\n6 render case(s) required BY NAME · Tests:       6 passed, 6 total"
+    },
+    {
+      "step": "gate:home-hero-honesty",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "H2"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 14390,
+      "decidedOn": "output",
+      "line": "HOME-HERO-HONESTY OK",
+      "processStatus": null,
+      "tail": "  rests on an income they typed, obligations the app assembled and a buffer someone configured.\n  VERIFIED would claim a confirmation nobody made, on the figure most likely to be acted on.\nAnd tap-to-explain names the three parts. A chip reading Estimate says the number is uncertain;\n  it does not say what it is MADE OF, and an estimate whose inputs are invisible is one a user\n  can only take or leave. A tap that reveals \"this is an estimate\" has restated the chip.\n3 case(s) required BY NAME · Tests:       6 passed, 6 total"
+    },
+    {
+      "step": "gate:home-load-bar",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "H3"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 14760,
+      "decidedOn": "output",
+      "line": "HOME-LOAD-BAR OK",
+      "processStatus": null,
+      "tail": "  head for it to mean anything.\nWith no income there is no bar. A 0% bar is not an honest rendering of an unknown income — it is\n  a full-width empty bar reading \"you have committed nothing\", the most reassuring possible\n  misreading of having no data at all.\nAnd readHomeLoadBar returns the RATIO, which is what one-load compares (D-020).\n5 case(s) required BY NAME · Tests:       5 passed, 5 total"
+    },
+    {
+      "step": "gate:home-no-suggestions",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "H6"
+      ],
+      "measures": "source",
+      "agreement": false,
+      "ms": 3,
+      "decidedOn": "output",
+      "line": "HOME-NO-SUGGESTIONS OK",
+      "processStatus": null,
+      "tail": "  No empty card with a heading, no skeleton, no \"coming soon\". A gap where a feature will go is\n  a feature announcement, and B2 refuses those on a live route.\nAnd the refusal is still ON THE RECORD: src/store/p5UserState.ts keeps the homeSuggestionDismissed row\n  classified prohibited. Deleting that row would make U1 go green — nothing left to check — and\n  the decision would quietly become an absence. A table listing only what exists cannot say that\n  something was considered and declined."
+    },
+    {
+      "step": "gate:home-risk-strip",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "H4"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 15340,
+      "decidedOn": "output",
+      "line": "HOME-RISK-STRIP OK",
+      "processStatus": null,
+      "tail": "Every level carries a non-colour cue and an accessibility label, as K2 requires of the calendar\n  dots: risk is not information anyone should have to guess at from a hue.\nThe levels come from the risk engine through the seam — if this read anything else, A3 would\n  compare two engine stacks, which is the failure the PHASE-1 note was written to prevent,\n  arriving from the other end.\n5 case(s) required BY NAME · Tests:       5 passed, 5 total"
+    },
+    {
+      "step": "gate:no-account-surface",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "U5"
+      ],
+      "measures": "source",
+      "agreement": false,
+      "ms": 82,
+      "decidedOn": "output",
+      "line": "NO-ACCOUNT-SURFACE OK",
+      "processStatus": null,
+      "tail": "  translation maps, which render the issuer's OWN PUBLISHED complaints address from the content\n  pack — read through the adapter, never collected, never stored. It is verified live rather than\n  asserted: the adapter still declares complaintsEmail and src/screens/LearnScreen.tsx still renders it,\n  and this gate FAILS if either stops being true. Every other email anywhere in the swept graph,\n  including anywhere else in those same files, is still a hit.\n11 module(s) belonging to earlier phases were reached and skipped."
+    },
+    {
+      "step": "gate:no-magic-numbers",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "B3"
+      ],
+      "measures": "source",
+      "agreement": false,
+      "ms": 157,
+      "decidedOn": "output",
+      "line": "NO-MAGIC-NUMBERS OK",
+      "processStatus": null,
+      "tail": "citations      0 §-section / WP-id number(s) in strings, not figures\nself-excused   0 — of 32 exception(s) on file, none names any of the 113\n               file(s) P5 created (derived from git at the intake pin, not hand-listed).\n               The allowlist is the honest way to carry a reviewed exception and also the\n               easiest way to turn this criterion green without touching a line of code, so a\n               campaign writing one for its own new code fails here."
+    },
+    {
+      "step": "gate:no-rederivation",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "B4"
+      ],
+      "measures": "source",
+      "agreement": false,
+      "ms": 295,
+      "decidedOn": "output",
+      "line": "NO-REDERIVATION OK",
+      "processStatus": null,
+      "tail": "    · Required gate set — tools/p3/required-gates.json is generated in the pipeline\nEvery row must be matched by a check or by a recorded reason, and a row matching neither FAILS.\n  P4's B4 delegated to P2 alone, which was right for P4's sentence; P5's sentence adds the second\n  handoff, and delegating alone would have answered a narrower question than the criterion asks\n  while printing the contracted sentinel. The reverse is checked too: a check whose row has left\n  the table is a check that can no longer fail for a reason anybody cares about."
+    },
+    {
+      "step": "gate:one-limit",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "A4"
+      ],
+      "measures": "agreement",
+      "agreement": true,
+      "ms": 17835,
+      "decidedOn": "output",
+      "line": "ONE-LIMIT OK",
+      "processStatus": null,
+      "tail": "  · the load engine’s cardLimits position for the card\n  · Wallet’s bar against availableAfterEarlyPayoffIls — limit minus ACTIVE holds minus logged\n  · Card DNA §D and the Verdict’s impact strip against availableAfterChangesIls\n  · and all three moving by releasedByEarlyPayoffIls when a commitment is Paid early\nover the derived population, with no expected number anywhere in the file.\n3 case(s) required BY NAME · claimed by \"agreement\" and excluded from \"render\" · Tests:       3 passed, 3 total"
+    },
+    {
+      "step": "gate:one-load",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "A2"
+      ],
+      "measures": "agreement",
+      "agreement": true,
+      "ms": 18047,
+      "decidedOn": "output",
+      "line": "ONE-LOAD OK",
+      "processStatus": null,
+      "tail": "  · the load engine’s current.ratioOfIncome and projected.ratioOfIncome\n  · Home, Plan Commitments and Card DNA §D against the current ratio\n  · the Verdict’s Financial Impact panel against the projected ratio\n  · and the BAND, which is where a >= and a > disagree and the ratio does not\nover the derived population, with no expected number anywhere in the file.\n3 case(s) required BY NAME · claimed by \"agreement\" and excluded from \"render\" · Tests:       3 passed, 3 total"
+    },
+    {
+      "step": "gate:one-risk",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "A3"
+      ],
+      "measures": "agreement",
+      "agreement": true,
+      "ms": 17692,
+      "decidedOn": "output",
+      "line": "ONE-RISK OK",
+      "processStatus": null,
+      "tail": "  · the risk engine’s per-day level, keyed BY DATE and not by position\n  · over the intersection of the two surfaces’ windows, because Home shows seven days\n    and the calendar shows a month, and element 0 against element 0 would agree on the\n    first of every month for the wrong reason\nover the derived population, with no expected number anywhere in the file.\n3 case(s) required BY NAME · claimed by \"agreement\" and excluded from \"render\" · Tests:       3 passed, 3 total"
+    },
+    {
+      "step": "gate:one-scoring",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "A1"
+      ],
+      "measures": "agreement",
+      "agreement": true,
+      "ms": 17048,
+      "decidedOn": "output",
+      "line": "ONE-SCORING OK",
+      "processStatus": null,
+      "tail": "    can print the same words from different orderings\n  · every surface naming the SAME winner, each painted sequence a prefix of that order\n  · Check naming ranked[1] as its runner-up, so the ORDER is exercised and not just first place\n  · and unknownCostCards or unavailableCards never painted by any surface\nover the derived population, with no expected number anywhere in the file.\n3 case(s) required BY NAME · claimed by \"agreement\" and excluded from \"render\" · Tests:       3 passed, 3 total"
+    },
+    {
+      "step": "gate:override-durability",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "N4"
+      ],
+      "measures": "artifact",
+      "agreement": false,
+      "ms": 3595,
+      "decidedOn": "output",
+      "line": "OVERRIDE-DURABILITY OK",
+      "processStatus": null,
+      "tail": "    the new pack drops the key entirely.\nPrecedence is still only in src/store/storeAdapter.ts; the update is src/store/packStore.ts.replacePackSet,\n  \"the shape a pack UPDATE takes\", and not the staged-file flow.\nC2 is untouched and uncited: no importPackSets, no staging, no rollback. §8.1 forbids the\n  borrow, and the two are easy to conflate because both sentences say \"pack update\".\n5 case(s) required BY NAME · Tests:       5 passed, 5 total"
+    },
+    {
+      "step": "gate:override-write",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "N3"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 20728,
+      "decidedOn": "output",
+      "line": "OVERRIDE-WRITE OK",
+      "processStatus": null,
+      "tail": "  · src/screens/cardDna/SectionACosts.tsx resolves nothing and holds no copy: it renders what readCardCost returns.\nN2 and N3 meet at the zero and this proves both directions: the CATALOG's ambiguous zero still\n  renders \"Add this\", and a zero the USER asserted renders as a value — same digit, and the\n  difference is entirely who said it.\n5 store case(s) required BY NAME · Tests:       5 passed, 5 total\n5 render case(s) required BY NAME · Tests:       5 passed, 5 total"
+    },
+    {
+      "step": "gate:paid-early",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "J4"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 21205,
+      "decidedOn": "output",
+      "line": "PAID-EARLY OK",
+      "processStatus": null,
+      "tail": "The freed figure is releasedByEarlyPayoffIls, read from the engine and not computed.\nAnd no interest rebate anywhere. Paying early plausibly saves interest and a user would want to\n  know — but nothing computes it, so any figure shown would be a rate times a balance invented on\n  a screen. The hold that was freed is the true thing the engine actually reports.\n4 hook case(s) · Tests:       4 passed, 4 total\n4 render case(s) required BY NAME · Tests:       4 passed, 4 total"
+    },
+    {
+      "step": "gate:placeholder-surfaces-absent",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "B2"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 17961,
+      "decidedOn": "output",
+      "line": "PLACEHOLDER-SURFACES-ABSENT OK",
+      "processStatus": null,
+      "tail": "  · src/navigation/stacks/WalletStack.tsx → owner \"V1.x\" · V1.x — Benefits Hub (spec §26; P5 contract §17)\nsrc/navigation/stacks/PlanStack.tsx renders CommitmentsScreen and no placeholder.\nsrc/screens/plan/__tests__/commitments.render.test.tsx proves it on the rendered tree — the four groups in spec §15 order, an empty group\nkeeping its own line, the vault's real commitments with their monthly figures, and NO total,\nbecause a total is J1's and comes from the load engine.\n5 case(s) required BY NAME · Tests:       6 passed, 6 total"
+    },
+    {
+      "step": "gate:state-classification",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "U1"
+      ],
+      "measures": "source",
+      "agreement": false,
+      "ms": 3611,
+      "decidedOn": "output",
+      "line": "STATE-CLASSIFICATION OK",
+      "processStatus": null,
+      "tail": "And the reverse direction is DERIVED, not guessed: every file under src/ that did not exist\n  at the intake pin is a file P5 created, and every MMKV key those files touch which was not\n  already in src/store/keys.ts at that pin must carry a row. The old rule asked whether a key name\n  contained \"p5\" — which profileCardOverrides does not, so N3 could have shipped a store of the\n  user's own figures unclassified while this printed OK.\n6 case(s) required BY NAME · Tests:       8 passed, 8 total"
+    },
+    {
+      "step": "gate:surfaces-pure",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "B1"
+      ],
+      "measures": "source",
+      "agreement": false,
+      "ms": 81,
+      "decidedOn": "output",
+      "line": "SURFACES-PURE OK",
+      "processStatus": null,
+      "tail": "  walk crosses into P4 by design and re-measuring it would be P5 re-litigating a closed phase.\nNo P5 SURFACE value-imports an engine, and no P5 module outside src/engines/ holds a\nthreshold, a load ratio or a division by income — the two halves have different populations\non purpose: a hook that calls an engine is the B1 shape, a hook that computes a ratio is not.\n20 engine file(s) carry no media or artwork field.\nsrc/surfaces/surfaceEngines.ts calls each of evaluateFinancialLoad, evaluateRiskPlanning, scoreCards exactly once."
+    },
+    {
+      "step": "gate:vault-only",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "U2"
+      ],
+      "measures": "source",
+      "agreement": false,
+      "ms": 11,
+      "decidedOn": "output",
+      "line": "VAULT-ONLY OK",
+      "processStatus": null,
+      "tail": "  store doing it is the design.\nThe shortcut is always available — getEncryptedStorage() is exported and two lines from anywhere,\n  and the value it writes is genuinely encrypted, so nothing visibly breaks. What is lost is the\n  active profile, the parsing, and the single definition of a shape.\nP5 writes user state in two places today — N3's card-cost overrides and J1's commitment cap —\n  and both go through their stores. This gate is here so the third one does too."
+    },
+    {
+      "step": "gate:waiver-badge",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "W3"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 17684,
+      "decidedOn": "output",
+      "line": "WAIVER-BADGE OK",
+      "processStatus": null,
+      "tail": "  a reminder nobody asked for.\nThe countdown takes an injectable now, and the suite renders at two instants and proves the\n  remaining time moved — a component reading the clock itself can only be right on the day the\n  test runs.\nA card with no waiver gets no badge at all.\n5 case(s) required BY NAME · Tests:       5 passed, 5 total"
+    },
+    {
+      "step": "gate:wallet-limit-bar",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "W2"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 19042,
+      "decidedOn": "output",
+      "line": "WALLET-LIMIT-BAR OK",
+      "processStatus": null,
+      "tail": "  issuer confirmed it. A chip variable that is ESTIMATE today is one call site away from not.\nAn absent limit position renders an honest unknown, never a zero.\nAnd readWalletLimitBar reads a shekel limit position, which is the quantity one-limit compares —\n  a reader with the wrong quantity does not fail the property, it makes it answer a different\n  question (D-020).\n5 case(s) required BY NAME · Tests:       5 passed, 5 total"
+    },
+    {
+      "step": "gate:wallet-render-discipline",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "W5"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 19614,
+      "decidedOn": "output",
+      "line": "WALLET-RENDER-DISCIPLINE OK",
+      "processStatus": null,
+      "tail": "And a conflicted fact is CARRIED as an Estimate, never surfaced. That is the deliberate opposite\n  of N9, and both are right: §A is where someone came to look closely, and hiding a disagreement\n  there would be the dishonest choice. A wallet is a glance surface — a disagreement on five\n  tiles at once turns a glance into an audit, and hands the user a problem they cannot act on in\n  a place they cannot act in. ConflictedValue is refused under src/screens/wallet for that reason.\n6 case(s) required BY NAME · Tests:       6 passed, 6 total"
+    },
+    {
+      "step": "gate:wallet-tile",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "W1"
+      ],
+      "measures": "render",
+      "agreement": false,
+      "ms": 20593,
+      "decidedOn": "output",
+      "line": "WALLET-TILE OK",
+      "processStatus": null,
+      "tail": "  red no honest sequence of work could clear. Placeholder wording is refused instead.\nThe tile COMPOSES src/components/CardTile.tsx and git confirms that file is unmodified since the intake pin:\n  editing it would invalidate a closed campaign's boundary record even with every gate green,\n  which is exactly how D-021 went unnoticed until a phase refused to close.\n\"Add card\" is visible with cards and without them — the empty wallet is the case a new user sees.\n7 case(s) required BY NAME · Tests:       7 passed, 7 total"
+    }
+  ]
+}
