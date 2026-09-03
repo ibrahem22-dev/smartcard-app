@@ -61,11 +61,59 @@ export const requiredGates = () => {
   }
 };
 
-/** The gates the contract requires RIGHT NOW: those whose owning stage is active. */
+/**
+ * THE STAGES THE CAMPAIGN IS ACTUALLY IN, read from campaign state rather than from the file that
+ * is being checked. Returns null when the state cannot be read — the caller decides what that means.
+ */
+const campaignActiveStages = () => {
+  const statePath = join(
+    HERE, '..', '..', '..', 'smartcard-data-pipeline', 'campaign-master', 'state', 'CAMPAIGN_STATE.json',
+  );
+  if (!existsSync(statePath)) return null;
+  try {
+    const stages = JSON.parse(readFileSync(statePath, 'utf8')).stages;
+    if (!Array.isArray(stages)) return null;
+    return stages.filter((s) => s.status === 'CLOSED' || s.status === 'IN_PROGRESS').map((s) => s.id);
+  } catch { return null; }
+};
+
+/**
+ * The gates the contract requires RIGHT NOW: those whose owning stage is active.
+ *
+ * THE AGREEMENT CHECK WAS DOCUMENTED AND ABSENT. `required-gates.json` carries its own header
+ * saying "mdc:all refuses this file if activeStages disagrees with the campaign state it can see",
+ * and no such comparison existed anywhere in this runner. `activeStages` was read from the file and
+ * believed. It went stale exactly as you would expect: STAGE-2 was entered and opened seven
+ * criteria, the file still said STAGE-0 and STAGE-1, and the ladder reported "MDC-ALL OK — every
+ * required gate green (11 of 11)" while calling every STAGE-2 gate "not yet in scope". A ladder
+ * whose scope is defined by a file nobody re-generates can only ever confirm the stage it was
+ * generated for, and it says OK the whole time. Regenerating fixed today; this stops it recurring.
+ *
+ * The state file is authority here and the generated file is the claim, which is the right way
+ * round: state is derived from the owning files on every run, and this JSON is a snapshot.
+ * If campaign state cannot be read at all, that is reported rather than assumed benign — a check
+ * that silently passes when its input is missing is the failure it was written to prevent.
+ */
 export const activeRequiredGates = () => {
   const r = requiredGates();
   if (r.error) return r;
-  const active = new Set(r.required.activeStages || []);
+  const declared = r.required.activeStages || [];
+  const actual = campaignActiveStages();
+  if (actual === null) {
+    return { error: 'campaign state could not be read, so required-gates.json activeStages cannot be checked against it. A ladder that cannot confirm its own scope is not a ladder.' };
+  }
+  const missing = actual.filter((s) => !declared.includes(s));
+  const extra = declared.filter((s) => !actual.includes(s));
+  if (missing.length || extra.length) {
+    return {
+      error: 'required-gates.json declares activeStages [' + declared.join(' ') + '] but the campaign is in ['
+        + actual.join(' ') + ']'
+        + (missing.length ? '; it would SKIP every gate owned by ' + missing.join(' ') : '')
+        + (extra.length ? '; it names ' + extra.join(' ') + ', which the campaign has not entered' : '')
+        + '. Regenerate with campaign-master/bin/mdc-required-gates.mjs.',
+    };
+  }
+  const active = new Set(declared);
   return {
     required: r.required,
     active: r.required.gates.filter((g) => active.has(g.stage)),

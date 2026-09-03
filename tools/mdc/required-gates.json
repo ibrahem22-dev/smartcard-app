@@ -12,7 +12,8 @@
   "generatedBy": "mdc-required-gates.mjs",
   "activeStages": [
     "STAGE-0",
-    "STAGE-1"
+    "STAGE-1",
+    "STAGE-2"
   ],
   "deferred": [
     {
