@@ -50,7 +50,7 @@ export type CheckStackParamList = {
  * still reference them; registered nowhere, because that is the criterion.
  */
 export type PurchaseGateStackParamList = {
-  // Supports deep link: smartcard://purchase?amount=500&category=grocery
+  // Supports deep link: trevik://purchase?amount=500&category=grocery
   PurchaseGateRoot: { amount?: number; category?: string } | undefined;
   Decision: {
     verdict: DecisionVerdict;

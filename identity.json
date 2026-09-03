@@ -21,11 +21,11 @@
     "CHANGING A VALUE HERE IS A RENAME. app.config.js builds the Expo config from it, and",
     "src/config/identity.ts is the app's view of the same file. Nothing else may name the product."
   ],
-  "displayName": "SmartCard",
-  "slug": "smartcard",
-  "scheme": "smartcard",
-  "bundleIdentifier": "com.smartcard.app",
-  "androidPackage": "com.smartcard.app",
+  "displayName": "TREVIK",
+  "slug": "trevik",
+  "scheme": "trevik",
+  "bundleIdentifier": "app.trevik.mobile",
+  "androidPackage": "app.trevik.mobile",
   "$storageNamespaceNote": [
     "THE STORAGE NAMESPACE IS NOT THE SLUG, AND MUST NEVER FOLLOW A RENAME.",
     "",
