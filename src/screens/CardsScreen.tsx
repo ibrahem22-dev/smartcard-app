@@ -48,7 +48,7 @@ export function CardsScreen(): React.ReactElement {
               <AppText
                 className={`mt-1.5 text-base leading-6 ${TEXT.secondary}`}
               >
-                {t(viewModel.body)}
+                {t(viewModel.body, viewModel.bodyValues)}
               </AppText>
             )}
           </View>

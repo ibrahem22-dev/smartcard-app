@@ -24,6 +24,7 @@ import {
   type CollectionReadiness,
   type HydrationState,
 } from '../store/hydration';
+import { APP_NAME } from '../config/identity';
 
 export const CARDS_VIEWS = [
   'LOADING',
@@ -40,6 +41,22 @@ export interface CardsViewModel {
   readonly title: string;
   /** Supporting copy. Empty string when the view needs none. */
   readonly body: string;
+  /**
+   * The interpolation values `body` needs, travelling WITH the string that needs them.
+   *
+   * `body` is data, and the screen renders it through `t(viewModel.body)`. A placeholder inside a
+   * data string is invisible to every reader that audits `t('…literal…')` call sites, because there
+   * is no literal at the call site to audit. That is exactly how `{{app}}` shipped: the invitation
+   * copy carried it, nothing supplied it, and `interpolate` returns the source unchanged when no
+   * values are given — so the reader saw the characters `{{app}}` on the screen, in all three
+   * languages, and the device capture in C9 recorded it (PD-MDC-034).
+   *
+   * Putting the values on the view model rather than at the call site is the structural half of the
+   * repair. The screen cannot forget them, because it no longer decides them; and a future body that
+   * gains a placeholder declares its value here, next to the sentence, where the author is already
+   * looking. The gate `localization-polish` enforces the rule this field makes expressible.
+   */
+  readonly bodyValues?: Readonly<Record<string, string | number>>;
   /**
    * The primary action, when the state has one. `null` for LOADING and
    * UNAVAILABLE — offering "add a card" while we cannot read existing cards
@@ -100,6 +117,7 @@ export function buildCardsViewModel(
         view: 'FIRST_CARD_INVITATION',
         title: 'בוא נוסיף את הכרטיס הראשון',
         body: '{{app}} עובד על הכרטיסים שלך בלבד. הכל נשמר מוצפן במכשיר.',
+        bodyValues: { app: APP_NAME },
         primaryAction: ADD_CARD_ACTION,
         showFooterAddCard: false,
       };
