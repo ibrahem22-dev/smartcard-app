@@ -91,7 +91,7 @@ export function StalenessModifier({
   return (
     <>
       <View
-        className={`ms-1 rounded-full border px-1.5 ${SURFACE.sunken} ${BORDER.hairline}`}
+        className={`ms-1 rounded-full border px-2 ${SURFACE.sunken} ${BORDER.hairline}`}
         testID="provenance-chip-stale"
       >
         <AppText className={`text-xs font-bold ${TEXT.secondary}`}>
@@ -137,7 +137,7 @@ export function ProvenanceChip({
       // provides a marker for — declared with its reason rather than silently reworded. The marker
       // sits on the line directly above the class, because that is the only place the scan reads it.
       // rtl-ok
-      className={`items-center gap-1 self-start rounded-full border px-2 py-0.5 ${ROLE_SURFACE_BG[role]} ${ROLE_BORDER[role]}`}
+      className={`items-center gap-1 self-start rounded-full border px-2 py-1 ${ROLE_SURFACE_BG[role]} ${ROLE_BORDER[role]}`}
       testID={testID ?? `provenance-chip-${view.chip}`}
     >
       <AppText className={`text-xs font-bold ${ROLE_TEXT[role]}`}>

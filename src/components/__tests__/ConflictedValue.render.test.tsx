@@ -16,6 +16,7 @@ import { render } from '@testing-library/react-native';
 import { ConflictedValue } from '../ConflictedValue';
 import { conflict } from '../../authority/authorityValue';
 import type { ConflictCandidate } from '../../authority/authorityValue';
+import { ROLE_BORDER, ROLE_TEXT } from '../../theme/tokens';
 
 const pct = (v: number): string => `${String(v)}%`;
 
@@ -86,8 +87,14 @@ describe('ConflictedValue — A3 / OD-9: one shared component, no winner', () =>
     );
     const text = JSON.stringify(toJSON());
 
-    expect(text).toMatch(/amber/);
-    expect(text).not.toMatch(/\bred-\d{2,3}\b/);
+    // A3's claim is that a disputed figure is ADVISORY and never DANGER. It used to be checked by
+    // looking for the word "amber", which was the hue family the advisory role happened to own. The
+    // frozen palette has no such family, and the claim was never about the family: it is about the
+    // role. Both halves are named now, so this fails if the component ever paints itself danger.
+    expect(text).toContain(ROLE_TEXT.advisory);
+    expect(text).toContain(ROLE_BORDER.advisory);
+    expect(text).not.toContain(ROLE_TEXT.danger);
+    expect(text).not.toContain(ROLE_BORDER.danger);
   });
 });
 

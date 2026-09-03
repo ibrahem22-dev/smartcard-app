@@ -110,7 +110,7 @@ export function HomeLoadBar({ context }: HomeLoadBarProps): React.ReactElement {
     const loadAbsence = results.absent.find((item) => item.engine === 'load');
     return (
       <View
-        className={`mb-4 gap-2 rounded-lg border p-[18px] ${BORDER.hairline} ${SURFACE.card}`}
+        className={`mb-4 gap-2 rounded-lg border p-4 ${BORDER.hairline} ${SURFACE.card}`}
       >
         <AppText className={`text-lg font-extrabold ${TEXT.heading}`}>
           {t('עומס מול הכנסה')}
@@ -135,7 +135,7 @@ export function HomeLoadBar({ context }: HomeLoadBarProps): React.ReactElement {
      unauthorized Plan edit. Both surfaces still read the same unmodified load-result fields. */
   return (
     <View
-      className={`mb-4 gap-3 rounded-lg border p-[18px] ${BORDER.hairline} ${SURFACE.card}`}
+      className={`mb-4 gap-3 rounded-lg border p-4 ${BORDER.hairline} ${SURFACE.card}`}
     >
       <AppText className={`text-lg font-extrabold ${TEXT.heading}`}>
         {t('עומס מול הכנסה')}
@@ -148,7 +148,7 @@ export function HomeLoadBar({ context }: HomeLoadBarProps): React.ReactElement {
           </AppText>
           <AppText
             accessibilityValue={{ text: String(ratio) }}
-            className={`text-3xl font-black ${TEXT.heading}`}
+            className={`text-h1 font-black ${TEXT.heading}`}
             style={TABULAR_NUMERALS}
             testID="home-load-bar-ratio"
           >

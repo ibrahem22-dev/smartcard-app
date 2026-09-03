@@ -66,7 +66,7 @@ export function HomeScreen(): React.ReactElement {
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="min-h-full w-full px-5 pb-28 pt-5">
+        <View className="min-h-full w-full px-4 pb-24 pt-4">
           <HomeHero />
           <Pressable
             accessibilityRole="button"
@@ -83,7 +83,7 @@ export function HomeScreen(): React.ReactElement {
           <HomeUpcomingBilling />
 
           <View
-            className="mb-5 w-full"
+            className="mb-4 w-full"
             style={{ backgroundColor: theme.bankColor }}
           >
             <ProfileSwitcher
@@ -103,7 +103,7 @@ export function HomeScreen(): React.ReactElement {
 
           {showFinishSetup ? (
             <View
-              className={`mb-4 rounded-lg border p-[18px] ${ACCENT.borderSubtle} ${ACCENT.surface}`}
+              className={`mb-4 rounded-lg border p-4 ${ACCENT.borderSubtle} ${ACCENT.surface}`}
               testID="home-finish-setup"
             >
               <AppText className={`text-lg font-extrabold ${TEXT.heading}`}>
@@ -131,7 +131,7 @@ export function HomeScreen(): React.ReactElement {
             </View>
           ) : null}
 
-          <View className={`rounded-lg border p-[18px] ${BORDER.hairline} ${SURFACE.card}`}>
+          <View className={`rounded-lg border p-4 ${BORDER.hairline} ${SURFACE.card}`}>
             <AppText
               className={`text-lg font-extrabold ${TEXT.heading}`}
             >
@@ -144,7 +144,7 @@ export function HomeScreen(): React.ReactElement {
             </AppText>
           </View>
 
-          <View className={`mt-4 rounded-lg border p-[18px] ${ACCENT.borderSubtle} ${ACCENT.surface}`}>
+          <View className={`mt-4 rounded-lg border p-4 ${ACCENT.borderSubtle} ${ACCENT.surface}`}>
             <AppText
               className={`text-lg font-extrabold ${TEXT.heading}`}
             >
@@ -162,14 +162,14 @@ export function HomeScreen(): React.ReactElement {
           </View>
 
           <FeatureGate feature="InternationalTravel">
-            <View className={`mt-4 rounded-lg border p-[18px] opacity-45 ${ROLE_BORDER.advisory} ${ROLE_SURFACE_BG.advisory}`}>
+            <View className={`mt-4 rounded-lg border p-4 opacity-45 ${ROLE_BORDER.advisory} ${ROLE_SURFACE_BG.advisory}`}>
               <AppText
                 className={`text-lg font-extrabold ${ROLE_TEXT.advisory}`}
               >
                 {t('נוסעים לחו"ל? ✈️')}
               </AppText>
               <AppText
-                className={`mt-2 text-[15px] leading-[22px] ${ROLE_TEXT.advisory}`}
+                className={`mt-2 text-sm leading-6 ${ROLE_TEXT.advisory}`}
               >
                 {t(
                   'בקרוב תוכלו לבדוק מראש איזה כרטיס עדיף לנסיעות ולחיובים במט"ח.',

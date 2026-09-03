@@ -57,15 +57,15 @@ export function ContactScreen(): React.ReactElement {
   return (
     <RtlScreen className={`${SURFACE.page}`}>
       <RtlScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}>
-      <View className={`min-h-full w-full p-5 ${SURFACE.pageDarkOnly}`}>
+      <View className="min-h-full w-full p-4">
         <AppText
-          className={`mb-[18px] text-[26px] font-extrabold ${TEXT.heading}`}
+          className={`mb-4 text-2xl font-extrabold ${TEXT.heading}`}
           style={{ color: theme.bankColor }}
         >
           {t('צור קשר עם חברת האשראי')}
         </AppText>
 
-        <RtlRow className="mb-[18px] w-full flex-wrap gap-2">
+        <RtlRow className="mb-4 w-full flex-wrap gap-2">
           {PROBLEM_OPTIONS.map(option => {
             const isSelected = option.id === selectedProblem;
 
@@ -104,24 +104,24 @@ export function ContactScreen(): React.ReactElement {
                 {issuer.name}
               </AppText>
               <AppText
-                className={`mt-1 text-[17px] font-extrabold ${ACCENT.text}`}
+                className={`mt-1 text-base font-extrabold ${ACCENT.text}`}
               >
                 {issuer.phone}
               </AppText>
 
               <View className={`mt-3 rounded-lg p-3 ${SURFACE.sunken}`}>
                 <AppText
-                  className={`mb-1.5 text-sm font-extrabold ${TEXT.body}`}
+                  className={`mb-2 text-sm font-extrabold ${TEXT.body}`}
                 >
                   {t('מה לומר')}
                 </AppText>
                 <AppText
-                  className={`text-[15px] leading-[22px] ${TEXT.body}`}
+                  className={`text-sm leading-6 ${TEXT.body}`}
                 >
                   {t(script[0])}
                 </AppText>
                 <AppText
-                  className={`text-[15px] leading-[22px] ${TEXT.body}`}
+                  className={`text-sm leading-6 ${TEXT.body}`}
                 >
                   {t(script[1])}
                 </AppText>
@@ -129,11 +129,11 @@ export function ContactScreen(): React.ReactElement {
 
               <Pressable
                 accessibilityRole="button"
-                className={`mt-3.5 min-h-11 items-center justify-center rounded-lg ${SURFACE.inverse}`}
+                className={`mt-3 min-h-11 items-center justify-center rounded-lg ${SURFACE.inverse}`}
                 onPress={(): Promise<void> => Linking.openURL(getTelUrl(issuer.phone))}
               >
                 <AppText
-                  className={`text-center text-[15px] font-extrabold ${TEXT.inverse}`}
+                  className={`text-center text-sm font-extrabold ${TEXT.inverse}`}
                 >
                   {t('התקשר עכשיו')}
                 </AppText>

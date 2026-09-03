@@ -40,7 +40,7 @@ function Marker({ iso, marker }: { readonly iso: string; readonly marker: DayMar
         testID={testID}
       >
         <AppText
-          className={`text-[12px] font-black ${ROLE_TEXT.neutral}`}
+          className={`text-xs font-black ${ROLE_TEXT.neutral}`}
           testID={`${testID}-cue`}
         >
           {presentation.cue}
@@ -58,7 +58,7 @@ function Marker({ iso, marker }: { readonly iso: string; readonly marker: DayMar
         testID={testID}
       >
         <AppText
-          className={`text-[12px] font-black ${ROLE_TEXT.neutral}`}
+          className={`text-xs font-black ${ROLE_TEXT.neutral}`}
           testID={`${testID}-cue`}
         >
           ₪
@@ -75,7 +75,7 @@ function Marker({ iso, marker }: { readonly iso: string; readonly marker: DayMar
       testID={testID}
     >
       <AppText
-        className={`text-[12px] font-black ${ROLE_TEXT.neutral}`}
+        className={`text-xs font-black ${ROLE_TEXT.neutral}`}
         testID={`${testID}-cue`}
       >
         ▣
@@ -95,7 +95,7 @@ export function DayMarkers({
   if (markers.length === 0) return null;
 
   return (
-    <RtlRow className="items-center gap-0.5">
+    <RtlRow className="items-center gap-1">
       {markers.map((marker) => (
         <Marker iso={iso} key={marker.kind} marker={marker} />
       ))}

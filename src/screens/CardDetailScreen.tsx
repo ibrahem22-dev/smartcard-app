@@ -216,7 +216,7 @@ export function CardDetailScreen({
         className={`flex-1 ${SURFACE.page}`}
         edges={['top', 'bottom']}
       >
-        <View className="flex-1 items-center justify-center p-5">
+        <View className="flex-1 items-center justify-center p-4">
           <AppText className={`text-base ${TEXT.muted}`}>
             {t('הכרטיס לא נמצא')}
           </AppText>
@@ -369,7 +369,7 @@ export function CardDetailScreen({
           contentContainerStyle={{ flexGrow: 1, paddingBottom: 32 }}
           keyboardShouldPersistTaps="handled"
         >
-          <View className="w-full gap-1 p-5">
+          <View className="w-full gap-1 p-4">
             {/* Header */}
             <AppText className={`text-2xl font-black ${TEXT.heading}`}>
               {card.displayName}
@@ -399,7 +399,7 @@ export function CardDetailScreen({
             />
 
             {/* Rates */}
-            <AppText className={`mt-5 text-lg font-extrabold ${TEXT.heading}`}>
+            <AppText className={`mt-4 text-lg font-extrabold ${TEXT.heading}`}>
               {t('שיעורי ריבית ועמלות')}
             </AppText>
             {rates === undefined && databaseRates !== null ? (
@@ -479,7 +479,7 @@ export function CardDetailScreen({
             )}
 
             {/* Card fee / discount */}
-            <AppText className={`mt-5 text-lg font-extrabold ${TEXT.heading}`}>
+            <AppText className={`mt-4 text-lg font-extrabold ${TEXT.heading}`}>
               {t('הנחת דמי כרטיס')}
             </AppText>
             <AppText className={LABEL_CLASS}>{t('דמי כרטיס מקוריים (₪)')}</AppText>
@@ -555,7 +555,7 @@ export function CardDetailScreen({
             ) : null}
 
             {/* Foreign-currency account */}
-            <AppText className={`mt-5 text-lg font-extrabold ${TEXT.heading}`}>
+            <AppText className={`mt-4 text-lg font-extrabold ${TEXT.heading}`}>
               {t('חשבון מט"ח')}
             </AppText>
             <RtlRow className="mt-2 min-h-[48px] items-center justify-between">

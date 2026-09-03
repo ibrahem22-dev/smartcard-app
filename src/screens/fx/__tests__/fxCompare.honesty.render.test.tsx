@@ -11,6 +11,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { compareAbroad } from '../../../engines/fx';
 import { FxCompareSheet } from '../FxCompareSheet';
+import { ROLE_BORDER, ROLE_TEXT } from '../../../theme/tokens';
 
 const rate = (currency: string, quoteUnit: number, rateIlsPerQuoteUnit: number) => ({
   currency,
@@ -106,7 +107,11 @@ describe('FX Compare — X3: reference is not the estimated real cost', () => {
       `${used!.rateIlsPerQuoteUnit}|${used!.rateDate}`,
     );
     const classes = collectClassNames(getByTestId('fx-compare-reference')).join(' ');
-    expect(classes).toMatch(/slate/);
+    // A neutral reference chip is a ROLE, not a hue family. It was pinned to the word `slate`,
+    // which the frozen palette does not contain; the role token says the same thing and keeps
+    // saying it. The negative below is what carries the real claim: no estimate framing.
+    expect(classes).toContain(ROLE_TEXT.neutral);
+    expect(classes).not.toContain(ROLE_BORDER.advisory);
     expect(classes).not.toMatch(/border-dashed/);
   });
 

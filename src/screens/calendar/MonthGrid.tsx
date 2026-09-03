@@ -63,7 +63,7 @@ export function MonthGrid({
   return (
     <>
       <View
-        className={`mb-5 overflow-hidden rounded-lg border ${SURFACE.card} ${BORDER.hairline}`}
+        className={`mb-4 overflow-hidden rounded-lg border ${SURFACE.card} ${BORDER.hairline}`}
         testID="calendar-month-grid"
       >
         <WeekHeader />
@@ -81,7 +81,7 @@ export function MonthGrid({
               <Pressable
                 accessibilityLabel={t('יום {{day}}', { day: day.dayOfMonth })}
                 accessibilityRole="button"
-                className="min-h-[52px] flex-1 items-center justify-center gap-0.5 py-1"
+                className="min-h-[52px] flex-1 items-center justify-center gap-1 py-1"
                 key={day.iso}
                 onPress={(): void => {
                   setSelectedDay(day);

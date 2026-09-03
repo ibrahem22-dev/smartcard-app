@@ -513,7 +513,7 @@ const styles = StyleSheet.create({
   title: {
     color: CHROME.white,
     fontSize: 28,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   subtitle: {
     color: CHROME.hairline,
@@ -524,8 +524,8 @@ const styles = StyleSheet.create({
     minHeight: 56,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: CHROME.inkDark,
-    backgroundColor: CHROME.surfaceDark,
+    borderColor: CHROME.hairline,
+    backgroundColor: CHROME.white,
     paddingHorizontal: 16,
     fontSize: 20,
     letterSpacing: 8,
@@ -535,7 +535,7 @@ const styles = StyleSheet.create({
     textAlign: 'center',
   },
   error: {
-    color: CHROME.dangerSoft,
+    color: CHROME.dangerValue,
     fontSize: 14,
     fontWeight: '700',
   },
@@ -550,7 +550,7 @@ const styles = StyleSheet.create({
   primaryButtonText: {
     color: CHROME.white,
     fontSize: 16,
-    fontWeight: '800',
+    fontWeight: '700',
   },
   secondaryButton: {
     minHeight: 44,

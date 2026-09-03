@@ -152,7 +152,7 @@ export function InstallmentImportScreen(): React.ReactElement {
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="w-full gap-3 p-5">
+        <View className="w-full gap-3 p-4">
           <AppText
             className={`text-2xl font-black ${TEXT.heading}`}
           >

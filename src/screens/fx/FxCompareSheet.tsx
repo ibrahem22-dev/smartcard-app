@@ -62,7 +62,7 @@ export function FxCompareSheet({
         {rateUsed ? (
           <View
             // rtl-ok: chip must not stretch; self-start is cross-axis, not reading direction
-            className={`mt-3 self-start rounded-full border px-2 py-0.5 ${ROLE_SURFACE_BG.neutral} ${ROLE_BORDER.neutral}`}
+            className={`mt-3 self-start rounded-full border px-2 py-1 ${ROLE_SURFACE_BG.neutral} ${ROLE_BORDER.neutral}`}
             testID="fx-compare-reference"
           >
             <AppText

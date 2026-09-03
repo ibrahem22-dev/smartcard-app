@@ -37,16 +37,16 @@ export function CardsScreen(): React.ReactElement {
   return (
     <RtlScreen className={`${SURFACE.page}`}>
       <RtlScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}>
-        <View className="min-h-full w-full p-5 pb-24">
-          <View className="mb-5 w-full">
+        <View className="min-h-full w-full p-4 pb-24">
+          <View className="mb-4 w-full">
             <AppText
-              className={`text-3xl font-extrabold ${TEXT.heading}`}
+              className={`text-h1 font-extrabold ${TEXT.heading}`}
             >
               {t(viewModel.title)}
             </AppText>
             {viewModel.body === '' ? null : (
               <AppText
-                className={`mt-1.5 text-base leading-6 ${TEXT.secondary}`}
+                className={`mt-2 text-base leading-6 ${TEXT.secondary}`}
               >
                 {t(viewModel.body, viewModel.bodyValues)}
               </AppText>
@@ -54,7 +54,7 @@ export function CardsScreen(): React.ReactElement {
           </View>
 
           {viewModel.view !== 'CARD_LIST' ? (
-            <View className={`min-h-40 w-full items-center justify-center rounded-lg border p-5 ${BORDER.hairline} ${SURFACE.card}`}>
+            <View className={`min-h-40 w-full items-center justify-center rounded-lg border p-4 ${BORDER.hairline} ${SURFACE.card}`}>
               {viewModel.primaryAction === null ? (
                 <AppText
                   className={`text-center text-lg font-bold ${TEXT.muted}`}
@@ -64,7 +64,7 @@ export function CardsScreen(): React.ReactElement {
               ) : (
                 <Pressable
                   accessibilityRole="button"
-                  className={`min-h-[50px] w-full items-center justify-center rounded-lg px-5 ${ACCENT.solid}`}
+                  className={`min-h-[50px] w-full items-center justify-center rounded-lg px-4 ${ACCENT.solid}`}
                   onPress={(): void =>
                     navigation.navigate(viewModel.primaryAction!.route)
                   }

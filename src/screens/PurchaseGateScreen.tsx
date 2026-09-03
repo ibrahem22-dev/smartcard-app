@@ -113,10 +113,10 @@ export function PurchaseGateScreen(): React.ReactElement {
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
       >
-        <View className={`min-h-full w-full p-5 ${SURFACE.pageDarkOnly}`}>
-          <View className="mb-5 w-full items-stretch">
+        <View className="min-h-full w-full p-4">
+          <View className="mb-4 w-full items-stretch">
             <AppText
-              className={`text-3xl font-extrabold ${TEXT.heading}`}
+              className={`text-h1 font-extrabold ${TEXT.heading}`}
               style={[
                 {
                   textDecorationColor: theme.bankColor,
@@ -127,7 +127,7 @@ export function PurchaseGateScreen(): React.ReactElement {
               {t('בדיקת רכישה')}
             </AppText>
             <AppText
-              className={`mt-1.5 text-base leading-6 ${TEXT.secondary}`}
+              className={`mt-2 text-base leading-6 ${TEXT.secondary}`}
             >
               {t('בדקו אם הרכישה מתאימה לתזרים הנוכחי.')}
             </AppText>
@@ -170,7 +170,7 @@ export function PurchaseGateScreen(): React.ReactElement {
               </RtlRow>
 
               {cards.length > 0 ? (
-                <View className="mb-5 w-full">
+                <View className="mb-4 w-full">
                   <AppText
                     className={`mb-2 text-sm font-bold ${TEXT.body}`}
                   >
@@ -210,13 +210,13 @@ export function PurchaseGateScreen(): React.ReactElement {
                 </View>
               ) : null}
 
-              <View className="mb-5 w-full">
+              <View className="mb-4 w-full">
                 <AppText
                   className={`mb-2 text-sm font-bold ${TEXT.body}`}
                 >
                   {t('סכום הרכישה')}
                 </AppText>
-                <RtlRow className={`min-h-[54px] items-center rounded-lg border px-3.5 ${BORDER.hairline} ${SURFACE.card}`}>
+                <RtlRow className={`min-h-[54px] items-center rounded-lg border px-3 ${BORDER.hairline} ${SURFACE.card}`}>
                   <AppText
                     className={`ms-2 text-xl font-extrabold ${TEXT.heading}`}
                   >
@@ -235,7 +235,7 @@ export function PurchaseGateScreen(): React.ReactElement {
                 </RtlRow>
                 {isAmountInvalid ? (
                   <AppText
-                    className={`mt-1.5 text-sm font-bold ${ROLE_TEXT.danger}`}
+                    className={`mt-2 text-sm font-bold ${ROLE_TEXT.danger}`}
                   >
                     {t('סכום לא תקין')}
                   </AppText>
@@ -264,7 +264,7 @@ export function PurchaseGateScreen(): React.ReactElement {
               </Pressable>
             </>
           ) : (
-            <View className={`rounded-lg border p-[18px] ${ROLE_BORDER.advisory} ${ROLE_SURFACE_BG.advisory}`}>
+            <View className={`rounded-lg border p-4 ${ROLE_BORDER.advisory} ${ROLE_SURFACE_BG.advisory}`}>
               <AppText
                 className={`text-lg font-extrabold ${ROLE_TEXT.advisory}`}
               >
@@ -276,19 +276,19 @@ export function PurchaseGateScreen(): React.ReactElement {
           <View className="mt-6 min-h-[150px] w-full">
             {verdictClass === null || decision === null ? (
               <AppText
-                className={`rounded-lg border p-[18px] text-base leading-6 ${BORDER.hairline} ${SURFACE.card} ${TEXT.muted}`}
+                className={`rounded-lg border p-4 text-base leading-6 ${BORDER.hairline} ${SURFACE.card} ${TEXT.muted}`}
               >
                 {t('ההחלטה תופיע כאן אחרי הבדיקה.')}
               </AppText>
             ) : (
-              <View className={`rounded-lg border p-[18px] ${verdictClass.banner}`}>
+              <View className={`rounded-lg border p-4 ${verdictClass.banner}`}>
                 <AppText
                   className={`text-xl font-extrabold ${TEXT.heading}`}
                 >
                   {t(verdictClass.title)}
                 </AppText>
                 <AppText
-                  className={`mt-1.5 text-base leading-6 ${TEXT.heading}`}
+                  className={`mt-2 text-base leading-6 ${TEXT.heading}`}
                 >
                   {t(decision.reason)}
                 </AppText>
@@ -297,7 +297,7 @@ export function PurchaseGateScreen(): React.ReactElement {
 
             {shouldShowExchangeWarning ? (
               <AppText
-                className={`mt-3 rounded-lg p-3.5 text-sm leading-5 ${ROLE_SURFACE_BG.advisory} ${ROLE_TEXT.advisory}`}
+                className={`mt-3 rounded-lg p-3 text-sm leading-5 ${ROLE_SURFACE_BG.advisory} ${ROLE_TEXT.advisory}`}
               >
                 {t(exchangeFeeWarning)}
               </AppText>

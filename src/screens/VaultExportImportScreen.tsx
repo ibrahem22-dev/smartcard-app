@@ -151,7 +151,7 @@ export function VaultExportImportScreen(): React.ReactElement {
         </AppText>
         <TextInput
           accessibilityLabel={t('אריזה מוצפנת להעתקה')}
-          className={`mb-5 min-h-[112px] rounded-lg border p-3 ${BORDER.hairline} ${SURFACE.card} ${TEXT.body}`}
+          className={`mb-4 min-h-[112px] rounded-lg border p-3 ${BORDER.hairline} ${SURFACE.card} ${TEXT.body}`}
           editable={false}
           multiline
           placeholder={t('לא נוצר עדיין גיבוי מוצפן.')}

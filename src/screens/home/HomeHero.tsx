@@ -69,7 +69,7 @@ export function HomeHero({ context }: HomeHeroProps): React.ReactElement {
     const loadAbsence = results.absent.find((item) => item.engine === 'load');
     return (
       <View
-        className={`mb-4 gap-2 rounded-lg border p-[18px] ${BORDER.hairline} ${SURFACE.card}`}
+        className={`mb-4 gap-2 rounded-lg border p-4 ${BORDER.hairline} ${SURFACE.card}`}
         testID="home-hero"
       >
         <AppText className={`text-lg font-extrabold ${TEXT.heading}`}>
@@ -84,7 +84,7 @@ export function HomeHero({ context }: HomeHeroProps): React.ReactElement {
 
   return (
     <View
-      className={`mb-4 gap-3 rounded-lg border p-[18px] ${ACCENT.borderSubtle} ${ACCENT.surface}`}
+      className={`mb-4 gap-3 rounded-lg border p-4 ${ACCENT.borderSubtle} ${ACCENT.surface}`}
       testID="home-hero"
     >
       <AppText className={`text-lg font-extrabold ${TEXT.heading}`}>
@@ -92,7 +92,7 @@ export function HomeHero({ context }: HomeHeroProps): React.ReactElement {
       </AppText>
       <AppText
         accessibilityValue={{ text: String(safeToCommit.amountIls) }}
-        className={`text-4xl font-black ${TEXT.heading}`}
+        className={`text-data-xl font-black ${TEXT.heading}`}
         style={TABULAR_NUMERALS}
         testID="home-hero-amount"
       >

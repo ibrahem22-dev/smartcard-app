@@ -141,7 +141,7 @@ export function SettingsScreen({
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="w-full p-5">
+        <View className="w-full p-4">
           {promoToast !== null ? (
             <View className={`mb-4 rounded-xl px-4 py-3 shadow-sm ${ROLE_SURFACE_BG.positive}`}>
               <AppText
@@ -154,7 +154,7 @@ export function SettingsScreen({
           ) : null}
 
           <AppText
-            className={`mb-[18px] text-[26px] font-extrabold ${TEXT.heading}`}
+            className={`mb-4 text-2xl font-extrabold ${TEXT.heading}`}
             style={{
               borderBottomColor: bankDividerColor,
               borderBottomWidth: 1,
@@ -181,7 +181,7 @@ export function SettingsScreen({
 
           <Pressable
             accessibilityRole="button"
-            className={`mb-5 min-h-[50px] justify-center rounded-lg border px-4 shadow-sm ${PROMO.border} ${PROMO.surface}`}
+            className={`mb-4 min-h-[50px] justify-center rounded-lg border px-4 shadow-sm ${PROMO.border} ${PROMO.surface}`}
             onPress={openPromoModal}
           >
             <RtlRow className="items-center justify-between">
@@ -204,7 +204,7 @@ export function SettingsScreen({
             {t('שפה')}
           </AppText>
 
-          <View accessibilityRole="radiogroup" className="mb-5 gap-2">
+          <View accessibilityRole="radiogroup" className="mb-4 gap-2">
             {LANGUAGE_OPTIONS.map(option => {
               const isSelected = languageChoice === option.preference;
 
@@ -339,9 +339,9 @@ export function SettingsScreen({
         transparent
         visible={isPromoModalVisible}
       >
-        <View className={`flex-1 items-center justify-center px-5 ${SURFACE.modalScrim}`}>
+        <View className={`flex-1 items-center justify-center px-4 ${SURFACE.modalScrim}`}>
           <View
-            className={`w-full max-w-md gap-4 rounded-2xl p-5 shadow-lg ${SURFACE.card}`}
+            className={`w-full max-w-md gap-4 rounded-2xl p-4 shadow-lg ${SURFACE.card}`}
             key={isRTL ? 'promo-modal-rtl' : 'promo-modal-ltr'}
           >
             <AppText className={`text-xl font-extrabold ${TEXT.heading}`}>

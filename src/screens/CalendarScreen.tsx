@@ -69,7 +69,7 @@ function renderCharge(
         </AppText>
       </View>
       <AppText
-        className={`me-3.5 min-w-24 text-[17px] font-black ${TEXT.heading}`}
+        className={`me-3 min-w-24 text-base font-black ${TEXT.heading}`}
         style={TABULAR_NUMERALS}
       >
         {money(item.amount)}

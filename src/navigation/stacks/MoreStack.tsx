@@ -60,8 +60,8 @@ export function MoreStack(): React.ReactElement {
               renderBackButton(canGoBack, navigation.goBack)
           : (): null => null,
         headerShown: false,
-        headerStyle: { backgroundColor: CHROME.appDark },
-        headerTintColor: CHROME.white,
+        headerStyle: { backgroundColor: CHROME.white },
+        headerTintColor: CHROME.ink,
       })}
     >
       <Stack.Screen

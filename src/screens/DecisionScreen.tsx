@@ -78,19 +78,19 @@ export function DecisionScreen({
   return (
     <RtlScreen safe className={`${SURFACE.page}`}>
       <RtlScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}>
-      <View className={`min-h-full w-full p-5 ${SURFACE.pageDarkOnly}`}>
+      <View className="min-h-full w-full p-4">
         <View
-          className={`rounded-lg border p-5 ${VERDICT_CLASSES[verdict]}`}
+          className={`rounded-lg border p-4 ${VERDICT_CLASSES[verdict]}`}
           style={{ backgroundColor: theme.companyAccent }}
         >
           <AppText
-            className={`text-3xl font-extrabold ${TEXT.heading}`}
+            className={`text-h1 font-extrabold ${TEXT.heading}`}
             style={{ color: theme.bankColor }}
           >
             {t(VERDICT_LABELS[verdict])}
           </AppText>
           <AppText
-            className={`mt-2.5 text-base leading-6 ${TEXT.heading}`}
+            className={`mt-2 text-base leading-6 ${TEXT.heading}`}
           >
             {reasonText}
           </AppText>
@@ -104,7 +104,7 @@ export function DecisionScreen({
         </View>
 
         <FeatureGate feature="ScoreSection">
-          <View className={`mt-5 rounded-lg border p-[18px] opacity-45 ${BORDER.hairline} ${SURFACE.card}`}>
+          <View className={`mt-4 rounded-lg border p-4 opacity-45 ${BORDER.hairline} ${SURFACE.card}`}>
             <AppText
               className={`mb-3 text-lg font-extrabold ${TEXT.heading}`}
             >
@@ -134,7 +134,7 @@ export function DecisionScreen({
         </FeatureGate>
 
         {fxComparison.length > 0 ? (
-          <View className={`mt-5 rounded-lg border p-[18px] ${BORDER.hairline} ${SURFACE.card}`}>
+          <View className={`mt-4 rounded-lg border p-4 ${BORDER.hairline} ${SURFACE.card}`}>
             <AppText className={`mb-3 text-lg font-extrabold ${TEXT.heading}`}>
               {t('השוואת עמלות המרה')}
             </AppText>

@@ -195,7 +195,7 @@ export default function OnboardingScreen(): React.ReactElement {
     if (currentStep === 'language') {
       return (
         <View className="w-full" testID="onboarding-step-language">
-          <AppText className={`mb-5 text-2xl font-black ${TEXT.heading}`}>
+          <AppText className={`mb-4 text-2xl font-black ${TEXT.heading}`}>
             {t('אישור שפה')}
           </AppText>
           <View
@@ -222,7 +222,7 @@ export default function OnboardingScreen(): React.ReactElement {
             })}
           </View>
           <AppText
-            className={`mt-5 text-sm font-bold ${TEXT.body}`}
+            className={`mt-4 text-sm font-bold ${TEXT.body}`}
             testID="onboarding-why"
           >
             {t('השפה קובעת איך האפליקציה מדברת איתך.')}
@@ -240,7 +240,7 @@ export default function OnboardingScreen(): React.ReactElement {
     if (currentStep === 'income') {
       return (
         <View className="w-full" testID="onboarding-step-income">
-          <AppText className={`mb-5 text-2xl font-black ${TEXT.heading}`}>
+          <AppText className={`mb-4 text-2xl font-black ${TEXT.heading}`}>
             {t('הכנסה חודשית (₪)')}
           </AppText>
           <TextInput
@@ -253,7 +253,7 @@ export default function OnboardingScreen(): React.ReactElement {
             testID="onboarding-income-amount"
             value={incomeText}
           />
-          <AppText className={`mb-2 mt-5 text-base font-extrabold ${TEXT.body}`}>
+          <AppText className={`mb-2 mt-4 text-base font-extrabold ${TEXT.body}`}>
             {t('יום משכורת')}
           </AppText>
           <RtlRow className="w-full flex-wrap gap-3">
@@ -281,7 +281,7 @@ export default function OnboardingScreen(): React.ReactElement {
             })}
           </RtlRow>
           <AppText
-            className={`mt-5 text-sm font-bold ${TEXT.body}`}
+            className={`mt-4 text-sm font-bold ${TEXT.body}`}
             testID="onboarding-why"
           >
             {t('ההכנסה ויום המשכורת הם העוגן של מנוע התזרים.')}
@@ -302,7 +302,7 @@ export default function OnboardingScreen(): React.ReactElement {
     if (currentStep === 'add-card') {
       return (
         <View className="w-full" testID="onboarding-step-add-card">
-          <AppText className={`mb-5 text-2xl font-black ${TEXT.heading}`}>
+          <AppText className={`mb-4 text-2xl font-black ${TEXT.heading}`}>
             {t('הוסף את הכרטיס הראשון שלך')}
           </AppText>
           <AppText className={`mb-3 text-base font-bold ${TEXT.body}`}>
@@ -326,7 +326,7 @@ export default function OnboardingScreen(): React.ReactElement {
 
     return (
       <View className="w-full" testID="onboarding-step-security">
-        <AppText className={`mb-5 text-2xl font-black ${TEXT.heading}`}>
+        <AppText className={`mb-4 text-2xl font-black ${TEXT.heading}`}>
           {t('אבטחה וסיום')}
         </AppText>
         <AppText className={`mb-3 text-base font-bold ${TEXT.body}`}>
@@ -359,7 +359,7 @@ export default function OnboardingScreen(): React.ReactElement {
       style={{ flex: 1, backgroundColor: CHROME.appLight }}
     >
       <RtlRow
-        className={`gap-2 border-b px-5 py-4 ${BORDER.subtle} ${SURFACE.card}`}
+        className={`gap-2 border-b px-4 py-4 ${BORDER.subtle} ${SURFACE.card}`}
         testID="onboarding-progress"
       >
         {STEPS.map(step => (
@@ -379,11 +379,11 @@ export default function OnboardingScreen(): React.ReactElement {
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="min-h-full w-full px-5 py-6">
+        <View className="min-h-full w-full px-4 py-6">
           {renderStep()}
           {error !== null ? (
             <AppText
-              className={`mt-5 text-sm font-bold ${ROLE_TEXT.danger}`}
+              className={`mt-4 text-sm font-bold ${ROLE_TEXT.danger}`}
               testID="onboarding-error"
             >
               {error}

@@ -274,8 +274,8 @@ export function LearnScreen(): React.ReactElement {
   return (
     <RtlScreen className={SURFACE.page}>
       <RtlScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}>
-        <View className="w-full gap-4 px-5 py-6" testID="learn-screen">
-          <AppText className={`text-[26px] font-extrabold ${TEXT.heading}`}>{t('לומדים')}</AppText>
+        <View className="w-full gap-4 px-4 py-6" testID="learn-screen">
+          <AppText className={`text-2xl font-extrabold ${TEXT.heading}`}>{t('לומדים')}</AppText>
           <AppText className={`text-sm leading-6 ${TEXT.secondary}`}>
             {t('מילון, זכויות ודרכי קשר מתוך חבילת התוכן של האפליקציה.')}
           </AppText>

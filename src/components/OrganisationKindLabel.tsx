@@ -87,7 +87,7 @@ export function OrganisationKindLabel({
             estate-looking label".
           */}
           <AppText
-            className={`rounded border px-1.5 py-0.5 font-mono text-xs ${SURFACE.sunken} ${BORDER.hairline} ${TEXT.secondary}`}
+            className={`rounded border px-2 py-1 font-mono text-xs ${SURFACE.sunken} ${BORDER.hairline} ${TEXT.secondary}`}
             testID="organisation-kind-key"
           >
             {kind.key}

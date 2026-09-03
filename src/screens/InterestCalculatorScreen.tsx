@@ -108,7 +108,7 @@ export function InterestCalculatorScreen(): React.ReactElement {
           contentContainerStyle={{ flexGrow: 1, paddingBottom: 32 }}
           keyboardShouldPersistTaps="handled"
         >
-          <View className="min-h-full w-full p-5">
+          <View className="min-h-full w-full p-4">
             <AppText className={`text-2xl font-black ${TEXT.heading}`}>
               {t('מחשבון ריבית')}
             </AppText>
@@ -205,7 +205,7 @@ export function InterestCalculatorScreen(): React.ReactElement {
 
             {/* Results */}
             {result !== null ? (
-              <View className={`mt-5 rounded-lg border p-4 ${BORDER.hairline} ${SURFACE.card}`}>
+              <View className={`mt-4 rounded-lg border p-4 ${BORDER.hairline} ${SURFACE.card}`}>
                 <RtlRow className="items-center justify-between">
                   <AppText className={`text-sm font-bold ${TEXT.secondary}`}>
                     {t('תשלום חודשי')}

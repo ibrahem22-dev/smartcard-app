@@ -109,7 +109,7 @@ export function HomeRiskStrip({ context }: HomeRiskStripProps): React.ReactEleme
 
   return (
     <View
-      className={`mb-4 gap-3 rounded-lg border p-[18px] ${BORDER.hairline} ${SURFACE.card}`}
+      className={`mb-4 gap-3 rounded-lg border p-4 ${BORDER.hairline} ${SURFACE.card}`}
       testID="home-risk-strip"
     >
       <AppText className={`text-lg font-extrabold ${TEXT.heading}`}>
@@ -145,10 +145,10 @@ export function HomeRiskStrip({ context }: HomeRiskStripProps): React.ReactEleme
                   {presentation.cue}
                 </AppText>
               </Pressable>
-              <AppText className={`text-[12px] font-bold ${TEXT.secondary}`}>
+              <AppText className={`text-xs font-bold ${TEXT.secondary}`}>
                 {iso.slice(5)}
               </AppText>
-              <AppText className={`text-[12px] font-extrabold ${presentation.className}`}>
+              <AppText className={`text-xs font-extrabold ${presentation.className}`}>
                 {t(presentation.labelKey)}
               </AppText>
               {explanationVisible ? (

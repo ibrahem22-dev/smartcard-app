@@ -134,7 +134,11 @@ describe('Wallet fee-waiver-expiry badge', () => {
     expect(classes).toContain(ROLE_SURFACE_BG.advisory);
     expect(classes).toContain(ROLE_BORDER.advisory);
     expect(classes).toContain(ROLE_TEXT.advisory);
-    expect(classes).not.toContain(ROLE_SURFACE_BG.danger);
+    // The SURFACE no longer distinguishes one role from another: the frozen system has no semantic
+    // surface, so every role sits on the same neutral ground (OQ-MDC-028 option 1). Asserting the
+    // danger SURFACE is absent would now be asserting that white is not white — vacuous, and it
+    // would fail forever. The claim lives where the meaning does, in the border and the text, and
+    // the two negatives below still carry it in full.
     expect(classes).not.toContain(ROLE_BORDER.danger);
     expect(classes).not.toContain(ROLE_TEXT.danger);
     expect(classes).not.toMatch(/\b(?:bg|border|text)-red-\d{2,3}\b/);

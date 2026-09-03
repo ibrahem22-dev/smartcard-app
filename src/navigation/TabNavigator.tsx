@@ -111,8 +111,8 @@ export function TabNavigator(): React.ReactElement {
             BOTTOM_NAVIGATION.find((i) => i.key === route.name)?.label ?? route.name,
           ),
           tabBarStyle: {
-            backgroundColor: CHROME.appDark,
-            borderTopColor: CHROME.hairlineDark,
+            backgroundColor: CHROME.white,
+            borderTopColor: CHROME.hairline,
           },
           tabBarIcon: ({ color, size }) => (
             <Ionicons color={color} name={ICONS[route.name] ?? 'ellipse-outline'} size={size} />

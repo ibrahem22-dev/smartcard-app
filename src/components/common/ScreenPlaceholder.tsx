@@ -39,13 +39,13 @@ const styles = StyleSheet.create({
     backgroundColor: CHROME.white,
   },
   title: {
-    fontSize: 22,
+    fontSize: 24,
     fontWeight: '700',
     color: CHROME.ink,
   },
   subtitle: {
     marginTop: 8,
-    fontSize: 15,
+    fontSize: 14,
     color: CHROME.muted,
   },
 });

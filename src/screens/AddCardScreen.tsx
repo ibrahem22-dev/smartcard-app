@@ -356,7 +356,7 @@ export function AddCardScreen(): React.ReactElement {
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
       >
-        <View className="w-full gap-3 p-5" testID="add-card-wizard">
+        <View className="w-full gap-3 p-4" testID="add-card-wizard">
           <AppText className={`text-2xl font-black ${TEXT.heading}`}>{t('הוסף כרטיס')}</AppText>
 
           {path === 'search' ? (

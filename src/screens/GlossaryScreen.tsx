@@ -88,9 +88,9 @@ export function GlossaryScreen(): React.ReactElement {
   return (
     <RtlScreen className={`${SURFACE.page}`}>
       <RtlScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}>
-        <View className="w-full gap-4 px-5 py-6">
+        <View className="w-full gap-4 px-4 py-6">
           <AppText
-            className={`text-[26px] font-extrabold ${TEXT.heading}`}
+            className={`text-2xl font-extrabold ${TEXT.heading}`}
           >
             {t('מילון פיננסי')}
           </AppText>

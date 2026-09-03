@@ -16,6 +16,7 @@ import { runPurchaseCheck, type PurchaseCheckContext } from '../../../check/runP
 import type { CheckInputDraft } from '../CheckInputScreen';
 import { Currency } from '../../../types/purchase.types';
 import type { PurchaseVerdict } from '../../../engines/verdict';
+import { ROLE_BORDER, ROLE_SURFACE_BG } from '../../../theme/tokens';
 
 const draft = (amount: number): CheckInputDraft => ({
   amount,
@@ -80,7 +81,12 @@ describe('Check Verdict — D1: four states, icon + word + colour', () => {
     const word = String(getByTestId('check-verdict-pill-word').props.children);
     expect(getByTestId('check-verdict-pill-icon').props.children).toBe(VERDICT_PILL.good_to_go.icon);
     expect(word.length).toBeGreaterThan(0);
-    expect(String(pill.props.className)).toContain('bg-green');
+    // The role's meaning moved from the panel's fill to its BOUNDARY when the frozen palette
+    // landed (OQ-MDC-028 option 1): the frozen system has no semantic surface, so every role
+    // now sits on the same neutral ground and is told apart by border and text. Asserting the
+    // ROLE token rather than a hue family is what makes this survive the next palette too.
+    expect(String(pill.props.className)).toContain(ROLE_BORDER.positive);
+    expect(String(pill.props.className)).toContain(ROLE_SURFACE_BG.positive);
     expect(pill.props.accessibilityLabel).toContain(word);
   });
 
@@ -90,7 +96,12 @@ describe('Check Verdict — D1: four states, icon + word + colour', () => {
     const word = String(getByTestId('check-verdict-pill-word').props.children);
     expect(getByTestId('check-verdict-pill-icon').props.children).toBe(VERDICT_PILL.caution.icon);
     expect(word.length).toBeGreaterThan(0);
-    expect(String(pill.props.className)).toContain('bg-amber');
+    // The role's meaning moved from the panel's fill to its BOUNDARY when the frozen palette
+    // landed (OQ-MDC-028 option 1): the frozen system has no semantic surface, so every role
+    // now sits on the same neutral ground and is told apart by border and text. Asserting the
+    // ROLE token rather than a hue family is what makes this survive the next palette too.
+    expect(String(pill.props.className)).toContain(ROLE_BORDER.advisory);
+    expect(String(pill.props.className)).toContain(ROLE_SURFACE_BG.advisory);
     expect(pill.props.accessibilityLabel).toContain(word);
   });
 
@@ -100,7 +111,12 @@ describe('Check Verdict — D1: four states, icon + word + colour', () => {
     const word = String(getByTestId('check-verdict-pill-word').props.children);
     expect(getByTestId('check-verdict-pill-icon').props.children).toBe(VERDICT_PILL.dont_buy_now.icon);
     expect(word.length).toBeGreaterThan(0);
-    expect(String(pill.props.className)).toContain('bg-red');
+    // The role's meaning moved from the panel's fill to its BOUNDARY when the frozen palette
+    // landed (OQ-MDC-028 option 1): the frozen system has no semantic surface, so every role
+    // now sits on the same neutral ground and is told apart by border and text. Asserting the
+    // ROLE token rather than a hue family is what makes this survive the next palette too.
+    expect(String(pill.props.className)).toContain(ROLE_BORDER.danger);
+    expect(String(pill.props.className)).toContain(ROLE_SURFACE_BG.danger);
     expect(pill.props.accessibilityLabel).toContain(word);
   });
 
@@ -112,7 +128,12 @@ describe('Check Verdict — D1: four states, icon + word + colour', () => {
       VERDICT_PILL.wait_until_billing_passes.icon,
     );
     expect(word.length).toBeGreaterThan(0);
-    expect(String(pill.props.className)).toContain('bg-slate');
+    // The role's meaning moved from the panel's fill to its BOUNDARY when the frozen palette
+    // landed (OQ-MDC-028 option 1): the frozen system has no semantic surface, so every role
+    // now sits on the same neutral ground and is told apart by border and text. Asserting the
+    // ROLE token rather than a hue family is what makes this survive the next palette too.
+    expect(String(pill.props.className)).toContain(ROLE_BORDER.neutral);
+    expect(String(pill.props.className)).toContain(ROLE_SURFACE_BG.neutral);
     expect(pill.props.accessibilityLabel).toContain(word);
     expect(getByTestId('check-verdict-wait-date').props.children).toBe('2026-09-02');
   });

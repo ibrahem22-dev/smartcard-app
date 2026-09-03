@@ -111,7 +111,7 @@ export function HomeUpcomingBilling({
 
   return (
     <View
-      className={`mb-4 gap-3 rounded-lg border p-[18px] ${BORDER.hairline} ${SURFACE.card}`}
+      className={`mb-4 gap-3 rounded-lg border p-4 ${BORDER.hairline} ${SURFACE.card}`}
       testID="home-upcoming-billing"
     >
       <AppText className={`text-lg font-extrabold ${TEXT.heading}`}>

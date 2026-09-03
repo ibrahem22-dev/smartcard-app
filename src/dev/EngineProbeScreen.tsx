@@ -184,10 +184,10 @@ export function EngineProbeScreen(): React.ReactElement {
 };
 
 const styles = StyleSheet.create({
-  root: { flex: 1, backgroundColor: CHROME.appDark },
+  root: { flex: 1, backgroundColor: CHROME.appLight },
   content: { padding: 16, gap: 2 },
   row: { flexDirection: 'row', justifyContent: 'space-between', gap: 12 },
-  mono: { fontFamily: 'monospace', fontSize: 13, color: CHROME.white },
+  mono: { fontFamily: 'monospace', fontSize: 13, color: CHROME.ink },
   dim: { opacity: 0.7 },
-  accent: { color: CHROME.devProbeAccent, paddingVertical: 8 },
+  accent: { color: CHROME.link, paddingVertical: 8 },
 });

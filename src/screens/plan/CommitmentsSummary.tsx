@@ -123,7 +123,7 @@ export function CommitmentsSummary({
           <RtlRow className="items-center gap-2">
             <AppText
               accessibilityValue={{ text: String(load.current.monthlyObligationsIls.value) }}
-              className={`text-3xl font-black ${TEXT.heading}`}
+              className={`text-h1 font-black ${TEXT.heading}`}
               style={TABULAR_NUMERALS}
               testID="commitments-summary-total"
             >

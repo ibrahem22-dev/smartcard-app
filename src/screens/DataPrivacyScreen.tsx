@@ -118,9 +118,9 @@ export function DataPrivacyScreen(): React.ReactElement {
   return (
     <RtlScreen className={SURFACE.page}>
       <RtlScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}>
-        <View className="w-full gap-5 px-5 py-6" testID="data-privacy-screen">
+        <View className="w-full gap-4 px-4 py-6" testID="data-privacy-screen">
           <View>
-            <AppText className={`text-[26px] font-extrabold ${TEXT.heading}`}>
+            <AppText className={`text-2xl font-extrabold ${TEXT.heading}`}>
               {t('מידע ופרטיות')}
             </AppText>
             <AppText className={`mt-2 text-sm leading-6 ${TEXT.secondary}`}>
