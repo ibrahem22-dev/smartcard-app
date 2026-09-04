@@ -242,7 +242,7 @@ export function CheckInputScreen({
                 <Pressable
                   accessibilityRole="button"
                   accessibilityState={{ selected }}
-                  className={`rounded-full border px-3 py-1 ${
+                  className={`min-h-12 justify-center rounded-full border px-3 py-1 ${
                     selected ? `${ACCENT.surface} ${ACCENT.border}` : `${SURFACE.sunken} ${BORDER.hairline}`
                   }`}
                   key={option}

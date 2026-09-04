@@ -459,6 +459,7 @@ export const enBySource: Readonly<Record<string, string>> = {
   'יש לך בעיה?': en.decision.problem,
   'אין חיובים מתוכננים 📅': en.calendar.empty,
   'יום {{day}}': en.calendar.day,
+  'יום {{day}} מחוץ לחודש המוצג': 'Calendar day {{day}}, outside the shown month',
   'סיכון': en.calendar.risk,
   'משכורת': en.calendar.salary,
   'חיוב כרטיס': en.calendar.cardBilling,

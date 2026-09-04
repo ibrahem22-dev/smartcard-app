@@ -282,6 +282,22 @@ describe('C2 — purchase lifecycle', () => {
     tree.unmount();
   });
 
+  it('keeps the plain-lane strip at the verdict promise after commit, no double count', () => {
+    // OQ-MDC-012 option 2 (PD-MDC-071): a plain purchase, like an installment pair, moves from
+    // prospect to fact on the press. The strip therefore does not move, Wallet catches up to the
+    // promise, and the persisted purchase is counted once.
+    const seeded = seed(null);
+    const tree = mountLifecycle(seeded.cardId, seeded.unrelatedCardId);
+    const before = painted(tree);
+    act(() => fireEvent.press(tree.getByTestId('check-verdict-log-purchase')));
+    const after = painted(tree);
+    expect(useActivityStore.getState().purchases).toHaveLength(1);
+    expect(after.wallet).toBe(before.wallet - TOTAL);
+    expect(after.wallet).toBe(before.verdict);
+    expect(after.verdict).toBe(before.verdict);
+    tree.unmount();
+  });
+
   it('treats a double press as one idempotent lifecycle despite same-millisecond timing', () => {
     const seeded = seed();
     const tree = mountLifecycle(seeded.cardId, seeded.unrelatedCardId);

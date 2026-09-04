@@ -415,6 +415,7 @@ export function AddCardScreen(): React.ReactElement {
               <View className="mt-3 gap-2" testID="add-card-results">
                 {hits.map(hit => (
                   <Pressable
+                    accessibilityLabel={catalogDisplayName(hit)}
                     accessibilityRole="button"
                     className={`min-h-[48px] justify-center rounded-lg border px-3 ${BORDER.hairline} ${SURFACE.card}`}
                     key={hit.cardId}

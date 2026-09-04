@@ -8,7 +8,9 @@
  * The suite loads the real surface engine. A one-time purchase reaches it through
  * `loadCardsFromVault`, where it contributes to the selected card's logged-this-cycle utilisation.
  * It does not create an installment or loan, so Home's safe-to-commit amount and Plan's commitment
- * total must remain unchanged. Persistence is proved by discarding in-memory activity and asking
+ * total must remain unchanged. The Verdict's impact strip keeps its promise on the press — it
+ * already stated the available limit after this purchase — and Wallet catches up to it
+ * (OQ-MDC-012 option 2, PD-MDC-071/073). Persistence is proved by discarding in-memory activity and asking
  * the real activity store to re-read the active profile's encrypted-vault record.
  */
 import React from 'react';
@@ -169,7 +171,7 @@ describe('C1 — one canonical purchase write', () => {
     expect(participants.map((item) => item.key)).toEqual(['Home', 'Wallet', 'Check', 'Plan']);
   });
 
-  it('writes and rehydrates one attributed plain purchase while only Wallet and the Verdict move', () => {
+  it('writes and rehydrates one attributed plain purchase while only Wallet moves and the Verdict keeps its promise', () => {
     const problems: string[] = [];
     let checked = 0;
 
@@ -214,8 +216,15 @@ describe('C1 — one canonical purchase write', () => {
       if (after.plan !== before.plan) {
         problems.push(`${generated.label}: Plan painted ${after.plan}, expected unchanged ${before.plan}`);
       }
-      if (after.verdict !== before.verdict - PURCHASE_AMOUNT_ILS) {
-        problems.push(`${generated.label}: Verdict painted ${after.verdict}, expected ${before.verdict - PURCHASE_AMOUNT_ILS}`);
+      /* OQ-MDC-012 option 2 (PD-MDC-071/073): the strip already promised the available limit AFTER
+         this purchase; the press turns the prospect into the fact, so the strip does not move and
+         Wallet catches up to it. The earlier expectation (a further drop by the amount) pinned the
+         double count as if it were movement. */
+      if (after.verdict !== before.verdict) {
+        problems.push(`${generated.label}: Verdict painted ${after.verdict}, expected its own promise ${before.verdict} to hold on the press`);
+      }
+      if (after.wallet !== before.verdict) {
+        problems.push(`${generated.label}: Wallet painted ${after.wallet}, expected the Verdict's promise ${before.verdict}`);
       }
       if (commitmentsAfter.count !== commitmentsBefore.count) {
         problems.push(`${generated.label}: derived commitment count changed from ${commitmentsBefore.count} to ${commitmentsAfter.count}`);

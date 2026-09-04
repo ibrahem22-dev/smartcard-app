@@ -23,6 +23,7 @@ const REQUIRED_CASES = [
   'moves Home by M, Plan by M, and attributed limit exposure by T from one commit',
   'does not move an unrelated card limit',
   'keeps a plain purchase free of any linked commitment',
+  'keeps the plain-lane strip at the verdict promise after commit, no double count',
   'treats a double press as one idempotent lifecycle despite same-millisecond timing',
   'does not duplicate on re-render, retry, or genuine hydrate reload',
   'rolls back the purchase when the real commitment action seam throws',

@@ -69,10 +69,16 @@ function CheckVerdictRoute({ route }: VerdictProps): React.ReactElement {
       installments: classifyCollection(cardsHydration, installments.length),
       loans: classifyCollection(loansHydration, loans.length),
     },
-    /* C1's closed plain-purchase rendering keeps its prospective strip semantics. An installment
-       pair replaces the prospect after commit so the persisted M + M(N-1) is not shown beside a
-       second T hold. */
-    includeProspectivePurchase: draft.installments === null || committedActivityId === null,
+    /* THE PROSPECT LEAVES WHEN THE PURCHASE BECOMES A FACT — in BOTH lanes. OQ-MDC-012 option 2,
+       PD-MDC-071. Before the press the strip is "available limit after this purchase": the load
+       engine holds the prospect. After the press the same purchase is persisted and reaches the
+       card through the logged purchases, so keeping the prospect as well subtracted it twice: with
+       a 20,000 limit and a 1,200 purchase the strip read 18,800 before and 17,600 after, while the
+       truth was 18,800 in both. The installment lane already dropped the prospect on commit (C2);
+       the plain lane now does the same, and C2's property — the strip does not move on the press,
+       Wallet catches up to the verdict promise — holds for a plain purchase too. The NEXT check is
+       still lower by the logged amount (L2, limitConsumption), which is the movement C1 measures. */
+    includeProspectivePurchase: committedActivityId === null,
   });
   return (
     <CheckVerdictScreen

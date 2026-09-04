@@ -79,7 +79,9 @@ export function MonthGrid({
           >
             {week.map((day) => (
               <Pressable
-                accessibilityLabel={t('יום {{day}}', { day: day.dayOfMonth })}
+                accessibilityLabel={day.inMonth
+                  ? t('יום {{day}}', { day: day.dayOfMonth })
+                  : t('יום {{day}} מחוץ לחודש המוצג', { day: day.dayOfMonth })}
                 accessibilityRole="button"
                 className="min-h-[52px] flex-1 items-center justify-center gap-1 py-1"
                 key={day.iso}

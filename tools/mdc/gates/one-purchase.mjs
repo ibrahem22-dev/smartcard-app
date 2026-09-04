@@ -26,7 +26,7 @@ const SUITE_PATH = join(ROOT, SUITE);
 const STORE = join(ROOT, 'src', 'store', 'useActivityStore.ts');
 const REQUIRED_CASES = [
   'derives a non-zero generated context and surface population from navigation and the shipped catalog',
-  'writes and rehydrates one attributed plain purchase while only Wallet and the Verdict move',
+  'writes and rehydrates one attributed plain purchase while only Wallet moves and the Verdict keeps its promise',
 ];
 
 const rel = path => relative(ROOT, path).split('\\').join('/');
