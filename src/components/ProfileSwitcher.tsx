@@ -173,7 +173,7 @@ export function ProfileSwitcher({
                     </AppText>
                     <Pressable
                       accessibilityRole="button"
-                      className={`min-h-[48px] justify-center rounded-lg border px-3 ${BORDER.hairline}`}
+                      className={`min-h-[48px] min-w-[48px] items-center justify-center rounded-lg border px-3 ${BORDER.hairline}`}
                       onPress={(): void => beginRename(profile)}
                     >
                       <AppText className={`text-sm font-bold ${TEXT.body}`}>

@@ -272,7 +272,7 @@ export function CommitmentsSummary({
           <Pressable
             accessibilityRole="button"
             accessibilityState={{ disabled: !canSave }}
-            className="min-h-[48px] justify-center px-3"
+            className="min-h-[48px] min-w-[48px] items-center justify-center px-3"
             disabled={!canSave}
             onPress={saveCap}
             testID="commitments-summary-cap-save"

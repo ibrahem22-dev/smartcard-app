@@ -165,7 +165,7 @@ export function CheckInputScreen({
         <AppText className={`mt-4 text-sm font-bold ${TEXT.body}`}>{t('סכום הרכישה')}</AppText>
         <TextInput
           accessibilityLabel={t('סכום הרכישה')}
-          className={`mt-1 rounded-lg border p-3 text-lg ${SURFACE.sunken} ${BORDER.hairline}`}
+          className={`mt-1 min-h-[48px] rounded-lg border p-3 text-lg ${SURFACE.sunken} ${BORDER.hairline}`}
           keyboardType="decimal-pad"
           onChangeText={setTypedAmount}
           testID="check-input-amount"
@@ -242,7 +242,7 @@ export function CheckInputScreen({
                 <Pressable
                   accessibilityRole="button"
                   accessibilityState={{ selected }}
-                  className={`min-h-[48px] justify-center rounded-full border px-3 py-1 ${
+                  className={`min-h-[48px] min-w-[48px] items-center justify-center rounded-full border px-3 py-1 ${
                     selected ? `${ACCENT.surface} ${ACCENT.border}` : `${SURFACE.sunken} ${BORDER.hairline}`
                   }`}
                   key={option}
