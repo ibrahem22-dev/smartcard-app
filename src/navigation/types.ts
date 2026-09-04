@@ -93,6 +93,8 @@ export type MoreStackParamList = {
   MoreRoot: undefined;
   Learn: undefined;
   DataPrivacy: undefined;
+  /** V9 — the local crash log the user can inspect and copy (MDC-OBSERVABILITY option 1). */
+  CrashLog: undefined;
   VaultExportImport: undefined;
   Contact: undefined;
   Glossary: undefined;

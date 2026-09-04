@@ -12,6 +12,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import './global.css';
 import { useAppDirection } from './src/hooks/useAppDirection';
 import { RootNavigator } from './src/navigation/RootNavigator';
+import { installCrashLog } from './src/observability/crashLog';
 import { useLanguageStore } from './src/store/useLanguageStore';
 import { CHROME } from './src/theme/tokens';
 import { PLEX_FONT_ASSETS } from './src/theme/typography';
@@ -55,6 +56,12 @@ function AppShell(): React.ReactElement {
     </View>
   );
 }
+
+/**
+ * THE CRASH LOG IS INSTALLED BEFORE THE FIRST RENDER — V9, MDC-OBSERVABILITY option 1. It records
+ * uncaught errors on the device only and hands them on to the platform handler unchanged.
+ */
+installCrashLog();
 
 export default function App(): React.ReactElement {
   const isHydrated = useLanguageStore(state => state.isHydrated);

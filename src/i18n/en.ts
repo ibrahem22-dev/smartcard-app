@@ -1116,6 +1116,14 @@ export const enBySource: Readonly<Record<string, string>> = {
   // Data & Privacy — runtime manifest and local-store readings.
   'מידע ופרטיות': 'Data & privacy',
   'מידע ופרטיות: גרסאות, רעננות ואחסון מקומי': 'Data & privacy: versions, freshness and local storage',
+  // V9 — the local crash log (MDC-OBSERVABILITY option 1)
+  'יומן קריסות': 'Crash log',
+  'יומן קריסות: שגיאות שנשמרו במכשיר בלבד': 'Crash log: errors kept on this device only',
+  'היומן נשמר במכשיר בלבד ואינו נשלח לשום מקום. אפשר להעתיק אותו ולשתף ידנית.': 'The log stays on this device and is never sent anywhere. You can copy it and share it yourself.',
+  'אין קריסות שנשמרו': 'No crashes recorded',
+  'העתק': 'Copy',
+  'הועתק': 'Copied',
+  'נקה': 'Clear',
   'כל הגרסאות, התאריכים והספירות נקראים עכשיו מהמניפסטים ומהאחסון המקומי.':
     'Every version, date and count is read now from manifests and local storage.',
   'גרסאות ורעננות מוצהרת': 'Versions and declared freshness',

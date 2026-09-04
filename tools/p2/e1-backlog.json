@@ -134,6 +134,16 @@
       "reviewedAt": "2026-09-04"
     },
     {
+      "id": "ALLOW-CRASH-LOG-MMKV",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/observability/crashLog\\.ts$",
+      "message": "local storage driver 'react-native-mmkv' imported outside",
+      "why": "A CRASH-TIME WRITE MUST BE SYNCHRONOUS, AND IT HOLDS NOTHING ABOUT MONEY - V9, MDC-OBSERVABILITY option 1, PD-MDC-069. The global error handler runs while the process is dying; MMKV's set() is a synchronous native call, a file write through expo-file-system is a promise the process may never resolve. The module owns one MMKV instance ('crash-log'), stores the NAME, a REDACTED message (every run of three or more digits becomes ###, so no amount, last-four or date survives) and a bounded stack of an uncaught error, and imports nothing else: tools/mdc/gates/observability-local.mjs proves it imports only react-native-mmkv, mentions no network module, reaches into no vault, store, analytics or engine module, cannot lose its redaction, and hands the error on to the platform handler. Nothing leaves the device (OD-5). Scoped to the one file; a second MMKV owner is still UNACCOUNTED.",
+      "reviewedBy": "PD-MDC-069 (Owner's standing delegation; MDC-OBSERVABILITY option 1)",
+      "reviewedAt": "2026-09-04"
+    },
+    {
       "id": "ALLOW-PACK-STORE-DRIVER",
       "disposition": "ALLOWED",
       "rule": "R3",

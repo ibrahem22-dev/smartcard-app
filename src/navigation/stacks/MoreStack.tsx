@@ -13,6 +13,7 @@ import { createNativeStackNavigator } from '@react-navigation/native-stack';
 
 import { AppText } from '../../components/AppText';
 import { ContactScreen } from '../../screens/ContactScreen';
+import { CrashLogScreen } from '../../screens/CrashLogScreen';
 import { DataPrivacyScreen } from '../../screens/DataPrivacyScreen';
 import { VaultExportImportScreen } from '../../screens/VaultExportImportScreen';
 import { GlossaryScreen } from '../../screens/GlossaryScreen';
@@ -95,6 +96,11 @@ export function MoreStack(): React.ReactElement {
           headerTitleAlign: isRTL ? 'center' : 'left',
           title: t('ייצוא וייבוא כספת'),
         }}
+      />
+      <Stack.Screen
+        name="CrashLog"
+        component={CrashLogScreen}
+        options={{ title: t('יומן קריסות') }}
       />
       <Stack.Screen
         name="Contact"
