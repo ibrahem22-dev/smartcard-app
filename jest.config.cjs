@@ -52,6 +52,18 @@ const {
 } = require('./tools/p5/agreement.jest.cjs');
 
 module.exports = {
+  /**
+   * WORKERS ARE CAPPED — PD-MDC-068.
+   *
+   * jest defaults to (logical CPUs − 1) workers: 31 on the campaign's machine, each a full jest-expo
+   * render environment. Under the emulator and the rest of a working desktop that starved the render
+   * suites — properties "did not pass" for no reason in the code (PD-MDC-060's intermittent flake),
+   * and on 2026-09-04 the host killed the standing regression outright for lack of memory. Eight
+   * workers keep every ladder inside a few gigabytes; the suites are the same suites, only fewer at
+   * once, and a worker that grows past the idle limit is recycled rather than kept.
+   */
+  maxWorkers: 8,
+  workerIdleMemoryLimit: '1GB',
   projects: [
     {
       displayName: 'unit',

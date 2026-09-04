@@ -1,0 +1,714 @@
+{
+  "$comment": "Written by tools/p2/all.mjs. Every step is decided on its printed output; a process status is recorded for the log and is never the decision. `acceptanceRun` is true only when nothing failed, nothing was skipped and nothing is unimplemented — a skipped or unwritten step can never read as green.",
+  "sha": "a88dd97421b94cb63026c40cf6d837124553c440",
+  "worktreeDirty": false,
+  "node": "v20.20.2",
+  "acceptanceRun": true,
+  "ok": true,
+  "noFailures": true,
+  "failed": [],
+  "skipped": [],
+  "notImplemented": [],
+  "gatesOnDisk": 46,
+  "gatesRequired": 44,
+  "gatesMissing": [],
+  "gatesNotRequired": [
+    "mirror-parity",
+    "node-apis-absent"
+  ],
+  "contractVersion": "1.0-PROPOSED",
+  "steps": [
+    {
+      "step": "preflight",
+      "ok": true,
+      "skipped": false,
+      "ms": 530,
+      "decidedOn": "output",
+      "line": "PREFLIGHT OK — 7 of 7",
+      "processStatus": 0,
+      "tail": "  ok    binary: git            git version 2.55.0.windows.3\n  ok    binary: npm            10.8.2\n  ok    lockfile               package-lock.json v3, node_modules installed from it\n  ok    worktree clean         clean\n  ok    branch                 on mdc/execution\n  ok    not nested (OD-13)     C:/Users/ebrah/smartcard-app-mdc has no git repository above it\n\nPREFLIGHT OK — 7 of 7"
+    },
+    {
+      "step": "typecheck",
+      "ok": true,
+      "skipped": false,
+      "ms": 6861,
+      "decidedOn": "output",
+      "line": "TYPECHECK OK",
+      "processStatus": 0,
+      "tail": "TYPECHECK OK"
+    },
+    {
+      "step": "lint",
+      "ok": true,
+      "skipped": false,
+      "ms": 3397,
+      "decidedOn": "output",
+      "line": "LINT OK",
+      "processStatus": 0,
+      "tail": "LINT OK"
+    },
+    {
+      "step": "suite",
+      "ok": true,
+      "skipped": false,
+      "ms": 83544,
+      "decidedOn": "output",
+      "line": "Tests:       1310 passed, 1310 total",
+      "processStatus": 0,
+      "tail": "PASS render src/screens/__tests__/vaultExportImport.render.test.tsx (23.159 s)\nPASS render src/components/__tests__/NamedRecordRender.render.test.tsx (23.271 s)\nPASS render src/screens/__tests__/onePurchase.render.test.tsx (23.057 s)\n\nTest Suites: 169 passed, 169 total\nTests:       1310 passed, 1310 total\nSnapshots:   0 total\nTime:        82.414 s"
+    },
+    {
+      "step": "ci-controls",
+      "ok": true,
+      "skipped": false,
+      "ms": 2286,
+      "decidedOn": "output",
+      "line": "CI-WORKFLOW-CONTROLS OK",
+      "processStatus": 0,
+      "tail": "  ok   [fail] E6 with the wrong count is refused (4 of 5 is not 5 of 5)\n  ok   [pass] a genuinely green ladder is accepted\n  ok   [fail] a P4 ladder that printed nothing is refused\n  ok   [fail] a RED P4 ladder is refused\n  ok   [fail] a DEVICE-BLOCKED P4 ladder is refused\n  ok   [pass] a genuinely green P4 ladder is accepted\n\nCI-WORKFLOW-CONTROLS OK — 14 of 14 fired"
+    },
+    {
+      "step": "gate:a11y",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "A9"
+      ],
+      "ms": 44,
+      "decidedOn": "output",
+      "line": "A11Y OK — AA both modes, 40 pairings measured",
+      "processStatus": null,
+      "tail": "contrast        40 pairing(s) measured in both modes · 40 at or above AA 4.5:1\n  ProvenanceChip.tsx    4 glyph(s) beside the words\n  ConflictedValue.tsx   1 glyph(s) beside the words\nstate cues      2 component(s) carry a glyph and a word beside the role colour\ntouch targets   104 pressable(s) · 0 declared minimum(s) below 44pt\ntype            0 explicit size(s) below 12px"
+    },
+    {
+      "step": "gate:adapter-consumption",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "D1"
+      ],
+      "ms": 2668,
+      "decidedOn": "output",
+      "line": "ADAPTER-CONSUMPTION OK",
+      "processStatus": null,
+      "tail": "package         @smartcard/data-authority-adapter · declared as file:../smartcard-data-pipeline/dist/adapter-package\ninstalled       v1.1.0+local.d81a82352e12 · adapterVersion 1.1.0 · built from 416e4d13597a\npinned to       adapterVersion 1.1.0 · commit 416e4d13597a\nimporters       12 file(s) name the package · 0 outside src/data/adapter/**\nrefusal proven  yes · Tests:       10 passed, 10 total\nformats         adapter reads [1]"
+    },
+    {
+      "step": "gate:adr-append-only",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "F9"
+      ],
+      "ms": 2,
+      "decidedOn": "output",
+      "line": "ADR OK — 21 ADRs, 0 edited",
+      "processStatus": null,
+      "tail": "  ADR-031  v1.0 · 2 commits · accounted for (P3-era)\n\nEVERY ADR THIS CAMPAIGN WROTE HAS EXACTLY ONE COMMIT AND VERSION 1.0. If one of them\n  ever grows a second commit without a version bump, it will not be in the accounting\n  and this gate fails — which is why the inherited case is accounted for BY NAME\n  rather than by widening the rule."
+    },
+    {
+      "step": "gate:analytics-boundary",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "B6"
+      ],
+      "ms": 2681,
+      "decidedOn": "output",
+      "line": "ANALYTICS-BOUNDARY OK",
+      "processStatus": null,
+      "tail": "population      260 source file(s)\n\nNO PROVIDER HAS BEEN SELECTED, and that is the current state rather than an oversight.\n  OD-5 permits an external privacy-safe service; choosing one carries a data-processing\n  agreement that is not a campaign's to sign. The shipped transport sends nothing, which\n  makes B8's zero true by construction as well as by policy."
+    },
+    {
+      "step": "gate:app-root",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "F1"
+      ],
+      "ms": 631,
+      "decidedOn": "output",
+      "line": "APP-ROOT OK — history preserved",
+      "processStatus": null,
+      "tail": "nested under    nothing — this is a top-level root\norigin          https://github.com/ibrahem22-dev/smartcard-app.git\ncommits         413  from 34724481 (2026-06-21) to HEAD (2026-09-04)\nbranch          mdc/execution  ->  origin/mdc/execution\nfsck            no errors (13 dangling objects, which are not errors)\nworktrees       14 (14 resolving to this root)"
+    },
+    {
+      "step": "gate:colour-semantics",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "A8"
+      ],
+      "ms": 40,
+      "decidedOn": "output",
+      "line": "COLOUR-SEMANTICS OK — 4 roles, 1 definition, 0 raw colour outside it",
+      "processStatus": null,
+      "tail": "  neutral  warm-greyno judgement is being expressed about the user or their money\n\npopulation      260 files under src/**, src/theme/tokens.ts exempt\nraw colour      0 outside the token module, in 0 file(s)\n\ntailwind        24 custom colour(s) declared, all mirrored in CHROME"
+    },
+    {
+      "step": "gate:conflicted-value",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "A3"
+      ],
+      "ms": 35,
+      "decidedOn": "output",
+      "line": "CONFLICTED-VALUE OK",
+      "processStatus": null,
+      "tail": "decides         nothing — no sort, no slice, no fold, no preselection\nrole            advisory (amber). A3: amber never red\nshows           value · source · scope, for every candidate in the order given\npopulation      260 files scanned for per-screen conflict logic · found 0\nmembers         DISPUTED_WITH_CANDIDATES and DISPUTED_WITHOUT_CANDIDATES, both covered by\n                src/components/__tests__/ConflictedValue.render.test.tsx"
+    },
+    {
+      "step": "gate:consent",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "B8"
+      ],
+      "ms": 5167,
+      "decidedOn": "output",
+      "line": "CONSENT OK — 0 outbound with consent off",
+      "processStatus": null,
+      "tail": "  all three, so the zero is a measurement rather than a silence.\n\nWHAT IT IS NOT. A packet capture. It proves nothing leaves the JavaScript runtime; it\n  cannot prove a native module made a request. The reason it does not have to is\n  measured by analytics-boundary: NO ANALYTICS SDK IS A DEPENDENCY, so there is no\n  native module to make one. Hardware is C2, and Phase 11."
+    },
+    {
+      "step": "gate:decision-log",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "F11"
+      ],
+      "ms": 2,
+      "decidedOn": "output",
+      "line": "DECISION-LOG OK — 9 decisions, all fields present",
+      "processStatus": null,
+      "tail": "  PD-009  EASY     risk MEDIUM 4 alternative(s) · 3 artifact(s) · FLAGGED\n\nALTERNATIVES IS THE FIELD THAT USUALLY GOES MISSING, and it is the one that matters\n  most: the Owner cannot tell whether the other options were bad or merely\n  unconsidered, and UNCONSIDERED is the failure mode a surrogate decision actually\n  has — not bad judgement, but a narrow field of view nobody else was there to widen."
+    },
+    {
+      "step": "gate:deferred-register",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "F8"
+      ],
+      "ms": 2,
+      "decidedOn": "output",
+      "line": "DEFERRED-REGISTER OK — reconciled",
+      "processStatus": null,
+      "tail": "  later: A public repository nobody outside the account can build\n\nAN ITEM THAT ARRIVED AFTER §9 IS NOT A FAILURE — the contract was accepted before some\n  of these rulings existed, which is the same finding OD-31 Clause A accepted for P1\n  and fixed by amending §9 from list-complete to mechanism-complete. What would be a\n  failure is an item that arrived later and does not say so."
+    },
+    {
+      "step": "gate:e1-backlog",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "D7"
+      ],
+      "ms": 4573,
+      "decidedOn": "output",
+      "line": "E1-BACKLOG OK — -24 closed / 39 deferred, derived",
+      "processStatus": null,
+      "tail": "\n  closed          -24   (baseline minus now, both from lint runs)\n  deferred        39   each with a date and an OD id\n  allowed         71   each with a reason a reviewer can disagree with\n  unaccounted     0\n  growth          24 since the baseline, every one of them covered by a disposition below"
+    },
+    {
+      "step": "gate:engine-boundary-defects",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "D6"
+      ],
+      "ms": 62,
+      "decidedOn": "output",
+      "line": "ENGINE-BOUNDARY OK — 0 hardcoded scores in 440 source files, 0 canned findings",
+      "processStatus": null,
+      "tail": "scanned         440 source files under src/, derived from disk\nscore literals  0 in code · 3 including comments\ncanned findings 0 in code · 1 file(s) mentioning the symbol\n  named defect  gone    · DecisionScreen 84/100\n  named defect  gone    · DecisionScreen 71/100\n  named defect  gone    · VERDICT_FALLBACK_REASONS"
+    },
+    {
+      "step": "gate:fenced-surfaces",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "B9"
+      ],
+      "ms": 492,
+      "decidedOn": "output",
+      "line": "FENCED OK — 0 reachable, of 10 modules and 4 packages fenced",
+      "processStatus": null,
+      "tail": "  not reached not in manifest @supabase/supabase-js\n  not reached not in manifest react-native-purchases\n  not reached not in manifest expo-camera\n  not reached not in manifest react-native-qrcode-svg\nundeclared      0 reference(s) to packages the manifest does not declare · 440 files and 5 expo plugin(s) checked against 50 declared\narchive         docs/archive/P2_FENCED_SURFACES.md"
+    },
+    {
+      "step": "gate:format-matrix",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "C6"
+      ],
+      "ms": 5329,
+      "decidedOn": "output",
+      "line": "FORMAT-MATRIX OK",
+      "processStatus": null,
+      "tail": "  benefits    packFormatVersion 1 · packVersion 2026.08.22+3 · minApp 1.0.0\n  catalog     packFormatVersion 1 · packVersion 2026.08.22+3 · minApp 1.0.0\n  content     packFormatVersion 1 · packVersion 2026.08.22+2 · minApp 1.0.0\n  taxonomy    packFormatVersion 1 · packVersion 2026.08.22+2 · minApp 1.0.0\n  fx-rates    snapshotFormatVersion 1 · snapshotVersion 2026.08.22+1 · minApp 1.1.0\napp version     1.1.0 · floor 1.1.0 required by fx-rates"
+    },
+    {
+      "step": "gate:handoff-no-discovery",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "F10"
+      ],
+      "ms": 2,
+      "decidedOn": "output",
+      "line": "HANDOFF OK — 0 discoveries",
+      "processStatus": null,
+      "tail": "                reports/p2/949e0e6f9eff.json, not with another document\n\n\"THE CAMPAIGN FOUND IT\" IS NOT A PERMITTED SOURCE. A handoff that introduced an\n  obligation would be a campaign discovering, at the end, work it should have named at\n  the start — and transferring it to somebody who was not there. P1's §10 test 4\n  failed on this clause literally, which is what OD-31 Clause A was raised to fix."
+    },
+    {
+      "step": "gate:holiday-calendar",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "C9"
+      ],
+      "ms": 2633,
+      "decidedOn": "output",
+      "line": "HOLIDAY-CALENDAR OK",
+      "processStatus": null,
+      "tail": "unqualified     0 site(s) reading businessDaysOld without its qualifier\n\nTHE DEFERRAL FAILS TOWARD STALE, and that is why it is a deferral and not a defect. A\n  holiday counted as a publication day makes a rate look OLDER than it is. A calendar\n  assembled without authority would fail the other way — a stale rate looking fresh —\n  and inventing one to turn this gate green would be the worse answer."
+    },
+    {
+      "step": "gate:honesty",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "E4"
+      ],
+      "ms": 2624,
+      "decidedOn": "output",
+      "line": "HONESTY OK — 4 properties",
+      "processStatus": null,
+      "tail": "bare numbers    0 interpolation(s) with nothing attached\n\nTHE FAILURE THESE PREVENT IS NOT A WRONG NUMBER. It is a TRUE one presented as more\n  certain than it is: a figure with no unit, a computed total wearing the badge that\n  means somebody checked it, a sum that treats \"we do not know\" as zero, a\n  disagreement shown as one number. Every one of them renders perfectly."
+    },
+    {
+      "step": "gate:i18n-audit",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "A7"
+      ],
+      "ms": 114,
+      "decidedOn": "output",
+      "line": "I18N-AUDIT OK — 1 formatter, 50 fall-throughs visible and accounted for",
+      "processStatus": null,
+      "tail": "\n    14  ALLOWED   ALLOW-LANGUAGE-KEYED-TABLE   → undefined [undefined, undefined]\n    22  DEFERRED  DEFER-ENGINE-REASONS   → P3 — the engine rewrite, which owns decision output shape [OD-32, 2026-08-24]\n    14  DEFERRED  DEFER-ENGLISH-COPY   → Owner or a translator — the register is the deliverable, the sentences are not this campaign's to invent [OD-32, 2026-08-24]\n  unaccounted   0\ntabular         0 rendered amount(s) without the tabular style"
+    },
+    {
+      "step": "gate:identity-config",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "A10"
+      ],
+      "ms": 91,
+      "decidedOn": "output",
+      "line": "IDENTITY-CONFIG OK — 1 source",
+      "processStatus": null,
+      "tail": "  bundleIdentifier    app.trevik.mobile\n  androidPackage      app.trevik.mobile\n  storageNamespace    smartcard\n\nconsumers       identity.json, app.config.js, src/config/identity.ts, package.json, src/data/adapter/datasetId.ts\npopulation      281 file(s) searched for the values themselves · found 0 outside the permitted set"
+    },
+    {
+      "step": "gate:legacy-path-absent",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "D3"
+      ],
+      "ms": 329,
+      "decidedOn": "output",
+      "line": "LEGACY-PATH OK — 0 reachable, of 6 legacy paths and 1 symbol(s) checked",
+      "processStatus": null,
+      "tail": "  module        removed · src/hooks/useCardRatesDatabase.ts\n  module        removed · src/hooks/useFxAbroad.ts\n  module        removed · src/authority/nonAuthorityDataAccess.ts\n  symbol        not used in code · mentioned in 3 comment(s)/file(s) · DisabledDataAuthorityAdapter\n  seam          present and reached · src/authority/noSource.ts\n  adr           docs/adr/ADR-P2-001-legacy-data-path-removed.md"
+    },
+    {
+      "step": "gate:lint-boundaries",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "B7",
+        "D2",
+        "D5"
+      ],
+      "ms": 382,
+      "decidedOn": "output",
+      "line": "BOUNDARY-LINT OK — 5 rules, 0 violations",
+      "processStatus": null,
+      "tail": "          4 track() call site(s) and 6 declared prop(s) examined\n\n  controls        9 of 9 fired · recorded 2026-09-04T12:17:17.153Z\n  controls at sha 527427cd14b0a0bc6b96bf463f224360145c1f63\n\n  also required   e1-backlog (D7) runs .eslintrc.boundaries.js R1..R5; this gate is not that gate"
+    },
+    {
+      "step": "gate:mirror-parity",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [],
+      "ms": 1437,
+      "decidedOn": "output",
+      "line": "MIRROR-PARITY OK — 9 mirrors current",
+      "processStatus": null,
+      "tail": "  manifests need the Owner signing key OB-8 says exists nowhere this runs. Those bytes\n  are gate:real-artifacts / criterion E6, which checks them against the contract shas.\n\n  Each compares a fact in the pipeline against its copy in this repository. Those\n  copies are what this ladder reads, which is why the comparison runs HERE and not\n  only in the pipeline preflight, where it could not protect these gates."
+    },
+    {
+      "step": "gate:nav",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "A1"
+      ],
+      "ms": 5,
+      "decidedOn": "output",
+      "line": "NAV-IA OK",
+      "processStatus": null,
+      "tail": "bar             HOME · WALLET · [CHECK] · PLAN · MORE\nspec            HOME · WALLET · [CHECK] · PLAN · MORE\nraised action   CHECK → CheckModal on the authenticated stack, fullScreenModal, not a tab\nsegments        WALLET  Cards | Benefits\nsegments        PLAN  Calendar | Commitments"
+    },
+    {
+      "step": "gate:newarch",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "F2"
+      ],
+      "ms": 4,
+      "decidedOn": "output",
+      "line": "NEWARCH OK",
+      "processStatus": null,
+      "tail": "OD-14           OD-14 — `newArchEnabled` · ✅ CLOSED — APPROVED (2026-08-23)\nflag            app.config.js = true · android\\gradle.properties = true\n\ndevice run      captured at ../smartcard-data-pipeline/campaign-p2/evidence/device/NEWARCH.md"
+    },
+    {
+      "step": "gate:no-rederivation",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "D4"
+      ],
+      "ms": 77,
+      "decidedOn": "output",
+      "line": "NO-REDERIVATION OK — 8 of 8 interfaces",
+      "processStatus": null,
+      "tail": "  IF-7  not re-derived  The compatibility matrices\n        lives in: adapter (D4, OB-5)\n  IF-8  not re-derived  EXPECTED_DATASET_ID and the trust store\n        lives in: compiled in (OB-4)\n\n  controls        8 of 8 checks watched to fire · recorded 2026-08-25T21:19:14.274Z"
+    },
+    {
+      "step": "gate:node-apis-absent",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [],
+      "ms": 317,
+      "decidedOn": "output",
+      "line": "NODE-APIS OK — 0 node builtins in the runtime graph",
+      "processStatus": null,
+      "tail": "entries         index.js, App.tsx\nruntime graph   237 file(s) reachable · 22 package(s) imported\nnode builtins   0 in the runtime graph\nfsPackReader    not reachable from the app entry, which is the claim its header makes"
+    },
+    {
+      "step": "gate:ob-coverage",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "F7"
+      ],
+      "ms": 1,
+      "decidedOn": "output",
+      "line": "OB-COVERAGE OK — 8 of 8 mapped, derived",
+      "processStatus": null,
+      "tail": "  coverage, so counting it would let \"OB-8 is covered by the criterion that checks\n  whether OB-8 is covered\" pass — a circle with a green tick on it.\n\nAN OBLIGATION WITH NO CRITERION IS NOT A FAILURE. OB-8 has none and cannot have one:\n  closing it needs a hardware-backed signing key the Owner has to provide. What would\n  be a failure is an obligation with no criterion AND no entry saying so."
+    },
+    {
+      "step": "gate:ob1-named-records",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "A4"
+      ],
+      "ms": 18372,
+      "decidedOn": "output",
+      "line": "OB-1 OK — named records rendered",
+      "processStatus": null,
+      "tail": "\nAN EMPTY conflictIds IS AN ANSWER, NOT AN ABSENCE OF ONE. The estate graded the fact as\n  disputed and named no counterparty anywhere in the corpus. §7.3 requires two or more\n  participants precisely so a record always names a real disagreement, and\n  manufacturing a one-participant record would assert a disagreement whose other side\n  does not exist. The pipeline refuses, and the refusal is correct."
+    },
+    {
+      "step": "gate:ob2-skew",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "C4"
+      ],
+      "ms": 17751,
+      "decidedOn": "output",
+      "line": "OB-2 OK — skew renders absent",
+      "processStatus": null,
+      "tail": "handled in      2 file(s) · 0 with error vocabulary\n                scanned in he · ar · en\n\nSKEW IS NOT A FAULT. It is the price of benefits.pack being republishable without\n  catalog.pack — the argument OD-17 accepted when it made G06b a parallel lane. A miss\n  renders as nothing, and the row around it is simply shorter."
+    },
+    {
+      "step": "gate:ob3-ob6-prohibitions",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "D8"
+      ],
+      "ms": 69,
+      "decidedOn": "output",
+      "line": "OB-3/OB-6 OK — 0 local classifiers",
+      "processStatus": null,
+      "tail": "\nNOTHING TO POLICE YET, and that is stated rather than counted as a pass. The app does\n                not consume conflict records — D1 landed the adapter seam and the\n                reads that use it are Phase 9. The prohibition is in force before its\n                subject arrives, which is the only order in which a prohibition is\n                ever obeyed, and its negative controls prove it can fire."
+    },
+    {
+      "step": "gate:ob4-refusals",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "C1"
+      ],
+      "ms": 2799,
+      "decidedOn": "output",
+      "line": "OB-4 OK — 10 of 10 refusals proven",
+      "processStatus": null,
+      "tail": "C3              a separate criterion with a separate gate: ob4-unproven-three\n\nNOT PROVEN HERE, and said rather than implied:\n  a real power-loss crash. These interruptions are injected exceptions, which unwind a\n  stack where a power cut unwinds nothing. src/data/adapter/import/POWER_LOSS.md characterises the gap;\n  C2 closes it, on a device, in Phase 11."
+    },
+    {
+      "step": "gate:ob4-unproven-three",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "C3"
+      ],
+      "ms": 2836,
+      "decidedOn": "output",
+      "line": "OB-4-RESIDUAL OK — lock + disk-full proven, power-loss characterised",
+      "processStatus": null,
+      "tail": "characterised   src/data/adapter/import/POWER_LOSS.md\nsuite           Tests:       24 passed, 24 total\n\nTWO VERBS, DELIBERATELY. A lock and a disk-full rename are PROVEN — they can be made to\n  happen here. A power loss is CHARACTERISED, because an injected exception unwinds a\n  stack and a power cut unwinds nothing. C2 closes it, on a device, in Phase 11."
+    },
+    {
+      "step": "gate:ob5-fx-fallback",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "C8"
+      ],
+      "ms": 2672,
+      "decidedOn": "output",
+      "line": "OB-5 OK — JPY control 934.85",
+      "processStatus": null,
+      "tail": "  src/data/fx/** carries fetch, cache and lane, proven by tools/p3/gates/boi-*.mjs.\n  The converter scan above still polices every layer EXCEPT src/engines/**, where\n  OD-23b places the divide and tools/p3/gates/quote-unit.mjs requires exactly one site.\n\nAND THE HOLIDAY HALF IS UNPROVEN. The weekend half is proven on 84 real probes in P1\n  and re-measured here; a market holiday is P1_DEFERRED §2.11 and criterion C9."
+    },
+    {
+      "step": "gate:ob7-organisation-kinds",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "A5"
+      ],
+      "ms": 73,
+      "decidedOn": "output",
+      "line": "OB-7 OK — 3 kinds, 0 invented labels",
+      "processStatus": null,
+      "tail": "  CONSUMER_CLUB             label null · UNKNOWN_NOT_IN_ESTATE\n  ISSUER_OPERATED_STORE     label null · UNKNOWN_NOT_IN_ESTATE\n  PROFESSIONAL_ASSOCIATION  label null · UNKNOWN_NOT_IN_ESTATE\n\nrenderer        src/components/OrganisationKindLabel.tsx · switches on labelState · renders the key as a key\npopulation      260 files searched for synthesis · found 0"
+    },
+    {
+      "step": "gate:override-wins",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "B4"
+      ],
+      "ms": 2583,
+      "decidedOn": "output",
+      "line": "OVERRIDE-WINS OK — user value survived pack update",
+      "processStatus": null,
+      "tail": "regression      src/store/__tests__/overrideSurvivesPackUpdate.test.ts\n                Tests:       9 passed, 9 total\nnamed case      ran and passed\nmerged at       read — resolveValue(vault, packSet, key), override never written to the pack store\nprecedence      Data Contract §2.2 ordering, asserted by the test as well as used"
+    },
+    {
+      "step": "gate:provenance-chip",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "A2"
+      ],
+      "ms": 33,
+      "decidedOn": "output",
+      "line": "PROVENANCE-CHIP OK — 5 states, 1 definition",
+      "processStatus": null,
+      "tail": "definition      src/components/ProvenanceChip.tsx · decision in src/components/provenanceChipState.ts\nstates          4 (USER, VERIFIED, ESTIMATE, UNKNOWN) + the Stale modifier\nwords           5 distinct, each with an ar and an en rendering\nglyphs          4 of 4 — A9: icon + word, never colour alone\npopulation      260 files scanned for a second definition · found 0"
+    },
+    {
+      "step": "gate:provenance-single-enum",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "B5"
+      ],
+      "ms": 89,
+      "decidedOn": "output",
+      "line": "PROVENANCE-ENUM OK — 1 vocabulary",
+      "processStatus": null,
+      "tail": "contract        authority/SMARTCARD_DATA_CONTRACT.md §2.1 Layer B\nvocabulary      src/authority/provenanceChip.ts · USER · VERIFIED · ESTIMATE · UNKNOWN\nagreement       exact — same members, same spelling\nstale modifier  yes — §2.3, not a fifth chip\nUSER outranks   yes — §2.2 · survives a pack update: yes\npopulation      440 files · 0 second vocabular(ies) · 0 retired member(s)"
+    },
+    {
+      "step": "gate:real-artifacts",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "E6"
+      ],
+      "ms": 8,
+      "decidedOn": "output",
+      "line": "REAL-ARTIFACTS OK — 5 of 5 shas matched",
+      "processStatus": null,
+      "tail": "  packs and compared them to a manifest the same script wrote would prove that a file\n  equals itself. The other side of this comparison is one the campaign did not choose.\n\nA FIXTURE IS NOT BANNED OUTRIGHT. memoryPackSetStore is a fake, and a store that wrote\n  to a real disk would be testing the filesystem. What is banned is a fixture standing\n  in for THE DATA."
+    },
+    {
+      "step": "gate:regression",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "E3"
+      ],
+      "ms": 83912,
+      "decidedOn": "output",
+      "line": "REGRESSION OK — 1310 passed, 4 deliberate",
+      "processStatus": null,
+      "tail": "\nA GREEN SUITE AFTER A SPEC CHANGE IS MORE SUSPICIOUS THAN A RED ONE. P2 deleted a\n  paywall, removed Register/OTP, archived two SDKs, replaced a static app.json, moved\n  the colour system to tokens and changed what a conflict renders. A suite that\n  noticed none of that was not testing any of it — so this gate checks that the suite\n  is big enough to have noticed, and that every deletion left a record."
+    },
+    {
+      "step": "gate:release-gate",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "C7"
+      ],
+      "ms": 2697,
+      "decidedOn": "output",
+      "line": "RELEASE-GATE OK — delivery refused, release:false",
+      "processStatus": null,
+      "tail": "would qualify   HARDWARE_BACKED\nbypasses        0 site(s) outside src/data/adapter/import/releaseGate.ts\n\nDELIVERY IS REFUSED, AND THAT IS THE PASS. OD-25 has not been taken: no HARDWARE_BACKED\n  custody exists, so nothing in this repository may reach a real device. A gate\n  reporting \"delivery permitted\" would be describing a state nobody has reached."
+    },
+    {
+      "step": "gate:render-harness",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "E2"
+      ],
+      "ms": 112786,
+      "decidedOn": "output",
+      "line": "RENDER-HARNESS OK — 44 screens render (of 44)",
+      "processStatus": null,
+      "tail": "jest projects   unit[node] · render[jest-expo]\nsuite           Tests:       401 passed, 401 total\npopulation      44 screens, derived from src/screens/**/*.tsx\nrendered        44\nawaiting fixture 0\nfailed          0"
+    },
+    {
+      "step": "gate:repos-in-sync",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "F5"
+      ],
+      "ms": 2401,
+      "decidedOn": "output",
+      "line": "REPOS-IN-SYNC OK — 0 ahead / 0 behind",
+      "processStatus": null,
+      "tail": "app            a88dd97 on mdc/execution → origin/mdc/execution · 0 ahead / 0 behind · clean\npipeline       2158688 on main → origin/main · 0 ahead / 0 behind · clean\n\nFETCHED FIRST, COMPARED AFTERWARDS. A repository that pushed an hour ago and had its\n  branch force-moved since then still says \"up to date\" from a cache, cheerfully. The\n  network round-trip is the check."
+    },
+    {
+      "step": "gate:rtl",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "A6"
+      ],
+      "ms": 48,
+      "decidedOn": "output",
+      "line": "RTL OK — 3 locales",
+      "processStatus": null,
+      "tail": "locales         en · he · ar  (RTL: he, ar)\nweek            starts on day 0 (Sunday) · order 0,1,2,3,4,5,6\nday letters     en SMTWTFS  ·  he אבגדהוש  ·  ar حنثرخجس\nisolates        ltrNumerals declared · 0 bare slash-date(s) found in 260 files"
+    },
+    {
+      "step": "gate:store-split",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "B3"
+      ],
+      "ms": 46,
+      "decidedOn": "output",
+      "line": "STORE-SPLIT OK",
+      "processStatus": null,
+      "tail": "adapter         src/store/storeAdapter.ts · reads the vault and the pack store, merges at read\n\nNOT PROVEN HERE that SQLCipher encrypted the database file. That is a native build\n                variant, JavaScript cannot see which binary it opened, and criterion\n                B2 asks for it on a device with a captured artifact. The pack store\n                says so itself rather than returning a boolean that reads as a fact."
+    },
+    {
+      "step": "gate:update-refusals",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "C5"
+      ],
+      "ms": 2751,
+      "decidedOn": "output",
+      "line": "UPDATE-REFUSALS OK — 4 refusals, 2 constants compiled in",
+      "processStatus": null,
+      "tail": "suite           Tests:       11 passed, 11 total\n\nTHE FOUR CODES EXIST BECAUSE THEY HAVE FOUR DIFFERENT FIXES. Collapsing \"this is not our\n  data\" or \"your app is too old\" into \"this may have been altered\" sends somebody\n  hunting for corruption that is not there — and teaches them that tampering warnings\n  are routine, which is how a device eventually accepts a forged pack."
+    },
+    {
+      "step": "gate:vault-crypto",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "B1"
+      ],
+      "ms": 45,
+      "decidedOn": "output",
+      "line": "VAULT-CRYPTO OK",
+      "processStatus": null,
+      "tail": "ownership       260 files · 0 module(s) other than the vault touching the OS keystore\n\nNOT PROVEN HERE this gate reads source. That the OS honoured the keychain policy, that\n                the Secure Enclave was used, that AES-GCM is correctly implemented —\n                those need a device, and criterion B2 asks for exactly that with a\n                captured artifact. This proves the app ASKS for the right things."
+    }
+  ]
+}
