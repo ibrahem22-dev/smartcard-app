@@ -54,6 +54,7 @@ import { inflateRawSync } from 'node:zlib';
 import { createHash } from 'node:crypto';
 
 import { fail, okOverPopulation } from '../lib/report.mjs';
+import { bindToRecordedArtifact } from '../lib/artifacts.mjs';
 import { stripComments } from '../lib/source.mjs';
 
 export const SENTINEL = 'NO-DEV-CHROME OK';
@@ -164,13 +165,9 @@ export const run = async () => {
   if (!/ro\.serialno/.test(evidence) || !/avd\s+Pixel_API36_stable/.test(evidence)) {
     problems.push('evidence does not record the authorised emulator identity (serialno + AVD)');
   }
-  if (existsSync(APK) && hostSha) {
-    const now = createHash('sha256').update(readFileSync(APK)).digest('hex');
-    if (now !== hostSha) problems.push(`the release APK on disk (${now.slice(0, 12)}) is no longer the artefact the run measured (${hostSha.slice(0, 12)})`);
-    else clauses.push('bound to the release APK still on disk, host sha == on-device sha');
-  } else {
-    problems.push('the release APK is not on disk to re-verify the binding');
-  }
+  // PD-MDC-070: bound to STAGE-2's committed artifact record; the APK on disk may be a later stage's recorded build.
+  const artifact = bindToRecordedArtifact({ campaignDir: CAMPAIGN_DIR, apkPath: APK, hostSha, stage: 'STAGE-2' });
+  problems.push(...artifact.problems); clauses.push(...artifact.clauses);
 
   /* 2. NO STATIC DEV IMPORT — a static import bundles the dev screen unconditionally. */
   const files = sourceFiles();
@@ -200,8 +197,13 @@ export const run = async () => {
     }
     if (bundle) {
       const bundleSha = createHash('sha256').update(bundle).digest('hex');
-      if (!evidence.includes(bundleSha)) {
+      // The bundle on disk belongs to whichever artifact is on disk: the frozen one must match the
+      // evidence; a later recorded build must match ITS record's bundle sha (PD-MDC-070).
+      const expectedBundle = artifact.status === 'frozen' ? null : (Object.values(artifact.records).find((r) => r.apk === artifact.now) || {}).bundle;
+      if (artifact.status === 'frozen' && !evidence.includes(bundleSha)) {
         problems.push(`the shipped bundle sha256 ${bundleSha.slice(0, 12)} is not recorded in the evidence — the run did not bind the bundle it now ships`);
+      } else if (artifact.status !== 'frozen' && expectedBundle && expectedBundle !== bundleSha) {
+        problems.push(`the bundle on disk (${bundleSha.slice(0, 12)}) is not the bundle its artifact record names (${expectedBundle.slice(0, 12)})`);
       }
       const present = FORBIDDEN_IN_BUNDLE.filter((s) => bundle.includes(Buffer.from(s, 'utf8')));
       if (present.length > 0) {

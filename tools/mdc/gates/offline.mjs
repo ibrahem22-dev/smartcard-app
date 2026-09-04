@@ -47,6 +47,7 @@ import { dirname, join, relative } from 'node:path';
 import { fileURLToPath } from 'node:url';
 
 import { fail, okOverPopulation } from '../lib/report.mjs';
+import { bindToRecordedArtifact } from '../lib/artifacts.mjs';
 import { stripCommentsAndStrings } from '../lib/source.mjs';
 
 export const SENTINEL = 'OFFLINE-PASS OK';
@@ -193,11 +194,10 @@ export const run = async () => {
   clauses.push(`${srcFiles.length} source files scanned, 0 runtime network callers`);
 
   /* 6. The APK the run bound itself to should still be the one on disk, when it is on disk. */
-  if (existsSync(APK) && hostSha) {
-    const { createHash } = await import('node:crypto');
-    const now = createHash('sha256').update(readFileSync(APK)).digest('hex');
-    if (now !== hostSha) problems.push(`the release APK on disk (${now.slice(0, 12)}) is no longer the artefact the run measured (${hostSha.slice(0, 12)})`);
-    else clauses.push('the release APK on disk still hashes to the artefact the run measured');
+  // PD-MDC-070: bound to STAGE-2's committed artifact record; the APK on disk may be a later stage's recorded build.
+  {
+    const artifact = bindToRecordedArtifact({ campaignDir: join(EVIDENCE_DIR, '..', '..', '..'), apkPath: APK, hostSha, stage: 'STAGE-2' });
+    problems.push(...artifact.problems); clauses.push(...artifact.clauses);
   }
 
   if (problems.length > 0) return fail(problems.join('; '), { population: captureFiles.length });

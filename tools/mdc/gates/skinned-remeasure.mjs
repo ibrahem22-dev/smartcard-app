@@ -53,6 +53,7 @@ import { fileURLToPath, pathToFileURL } from 'node:url';
 import { createHash } from 'node:crypto';
 
 import { fail, okOverPopulation } from '../lib/report.mjs';
+import { bindToRecordedArtifact } from '../lib/artifacts.mjs';
 
 export const SENTINEL = 'SKINNED-REMEASURE OK';
 export const FAILURE_SENTINEL = 'SKINNED-REMEASURE FAILED';
@@ -115,11 +116,9 @@ export const run = async () => {
   if (!deviceSha || !hostSha) problems.push('evidence does not record both the on-device and host APK sha256');
   else if (deviceSha !== hostSha) problems.push(`the APK on the device (${deviceSha.slice(0, 12)}) is not the host artifact (${hostSha.slice(0, 12)})`);
   if (!/package\s+app\.trevik\.mobile/.test(evidence)) problems.push('evidence does not record package app.trevik.mobile');
-  if (existsSync(APK) && hostSha) {
-    const now = createHash('sha256').update(readFileSync(APK)).digest('hex');
-    if (now !== hostSha) problems.push(`the release APK on disk (${now.slice(0, 12)}) is no longer the artefact the run measured (${hostSha.slice(0, 12)})`);
-    else clauses.push(`bound to the skinned release APK ${hostSha.slice(0, 12)}, host == device == on-disk`);
-  } else problems.push('the release APK is not on disk to re-verify the binding');
+  // PD-MDC-070: bound to STAGE-2's committed artifact record; the APK on disk may be a later stage's recorded build.
+  const artifact = bindToRecordedArtifact({ campaignDir: CAMPAIGN_DIR, apkPath: APK, hostSha, stage: 'STAGE-2', label: 'the skinned release APK' });
+  problems.push(...artifact.problems); clauses.push(...artifact.clauses);
 
   /* 2. THREE LANGUAGES, THE SURFACE SET. */
   let totalCaptures = 0;
