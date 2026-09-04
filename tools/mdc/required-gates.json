@@ -13,13 +13,24 @@
   "activeStages": [
     "STAGE-0",
     "STAGE-1",
-    "STAGE-2"
+    "STAGE-2",
+    "STAGE-3"
   ],
   "deferred": [
     {
       "criterion": "C8",
       "stage": "STAGE-1",
       "deferredBy": "OQ-MDC-020"
+    },
+    {
+      "criterion": "V4",
+      "stage": "STAGE-3",
+      "deferredBy": "MDC-PHYSICAL-DEVICE"
+    },
+    {
+      "criterion": "V6",
+      "stage": "STAGE-3",
+      "deferredBy": "MDC-USER-VALIDATION"
     }
   ],
   "gateCount": 21,
@@ -85,7 +96,9 @@
       "gate": "deferral",
       "sentinel": "DEFERRAL OK",
       "criteria": [
-        "C8"
+        "C8",
+        "V4",
+        "V6"
       ],
       "stage": "STAGE-1",
       "class": "COMMAND",
@@ -94,6 +107,16 @@
           "criterion": "C8",
           "implementationGate": "pack-update",
           "deferredBy": "OQ-MDC-020"
+        },
+        {
+          "criterion": "V4",
+          "implementationGate": null,
+          "deferredBy": "MDC-PHYSICAL-DEVICE"
+        },
+        {
+          "criterion": "V6",
+          "implementationGate": null,
+          "deferredBy": "MDC-USER-VALIDATION"
         }
       ],
       "negativeControls": []
