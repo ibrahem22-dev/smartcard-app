@@ -236,6 +236,31 @@ const rule2 = (root) => {
  */
 const DB_DRIVERS = ['react-native-sqlite-storage', 'expo-sqlite', 'op-sqlite', 'react-native-quick-sqlite', 'better-sqlite3', 'sqlite3'];
 
+/**
+ * THE TWO FROZEN BRAND-TOKEN READS — importer → file, ENUMERATED and EXPORTED. OQ-MDC-029 option 1,
+ * PD-MDC-065, adjudicated under the Owner's standing delegation on 2026-09-04.
+ *
+ * `assets/brand/geometry.tokens.json` and `assets/brand/typography.tokens.json` hold the spacing,
+ * radius, stroke and type scales the Brand packages freeze (Phase 15, Phase 9). A spacing step of 16
+ * is not a fact about anybody's money and has no provenance tier to lose — the same reasoning under
+ * which `identity.json` is named below. They are data rather than TypeScript literals because P5's
+ * no-magic-numbers gate refuses a campaign allowlisting literals in files it created (T1 tried that
+ * and was refused), and they are not TRUSTED as data: tools/mdc/gates/tokens-swap.mjs clause 8
+ * compares the typography file byte for byte with the canonical package and the geometry file
+ * against the numbers parsed out of the Phase 15 reference, on every run.
+ *
+ * ONE HOME, COMPARED. tokens-swap imports THIS map and FAILS if the set it checks against the
+ * authorities is not identical to the set exempted here, or if the D7 register's disposition does
+ * not cover exactly these pairs. So a third file cannot be added to one list and forgotten in the
+ * other. It is a map of importer → file, not a directory or a suffix pattern: the same file read
+ * from any other module, or any other file under assets/brand/, is still a violation — both are
+ * negative controls in tools/p2/boundary-controls.mjs.
+ */
+export const BRAND_TOKEN_READS = Object.freeze({
+  'src/theme/geometry.ts': 'assets/brand/geometry.tokens.json',
+  'src/theme/typography.ts': 'assets/brand/typography.tokens.json',
+});
+
 const rule3 = (root) => {
   const files = walk(join(root, 'src'));
   /**
@@ -272,7 +297,9 @@ const rule3 = (root) => {
       // Named explicitly rather than exempting root JSON generally: a blanket exemption would
       // cover the next dataset somebody drops at the root.
       const isIdentitySource = local === 'identity.json';
-      if (local && /\.json$/.test(local) && !/^src\/config\//.test(local) && !isIdentitySource) {
+      // The two enumerated brand-token reads (BRAND_TOKEN_READS above): this importer, this file.
+      const isBrandTokenRead = BRAND_TOKEN_READS[r] === local;
+      if (local && /\.json$/.test(local) && !/^src\/config\//.test(local) && !isIdentitySource && !isBrandTokenRead) {
         violations.push({ rule: 3, file: r, line, detail: 'imports a raw JSON dataset: ' + local });
       }
       if (/\.pack(\.json)?$/.test(spec)) {

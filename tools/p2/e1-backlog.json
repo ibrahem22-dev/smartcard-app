@@ -124,6 +124,16 @@
       "reviewedAt": "2026-08-24"
     },
     {
+      "id": "ALLOW-BRAND-TOKENS-DATA",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/theme/(geometry|typography)\\.ts$",
+      "message": "raw dataset '\\.\\./\\.\\./assets/brand/(geometry|typography)\\.tokens\\.json' imported",
+      "why": "FROZEN DESIGN DATA, NOT A REFERENCE READ - OQ-MDC-029 option 1, PD-MDC-065. R3 exists so every reference read carries its provenance, tier and lastUpdated - a rate, a fee, a card. geometry.tokens.json and typography.tokens.json hold the spacing, radius, stroke and type scales the Brand packages freeze (Phase 15, Phase 9): a spacing step of 16 is not a fact about anybody's money and has no provenance tier to lose, the same ground on which identity.json is allowed above. They are data rather than TypeScript literals because P5's no-magic-numbers gate refuses a campaign allowlisting literals in files it created (PD-MDC-059), and they are not trusted as data: tools/mdc/gates/tokens-swap.mjs clause 8 compares the typography file byte for byte with the canonical Brand package and the geometry file, by name, against the Phase 15 reference on every run. The section 9.4 gate (tools/p2/lib/boundary-rules.mjs, BRAND_TOKEN_READS) exempts exactly these two importer-file pairs, and tokens-swap clause 8b fails if this disposition, that map and its own checked set ever disagree - one fact, compared, not three lists. Scoped by importer file name and exact specifier: the same file read from any other module, or any other JSON under assets/brand/, is still UNACCOUNTED.",
+      "reviewedBy": "PD-MDC-065 (OQ-MDC-029 option 1, Owner's standing delegation)",
+      "reviewedAt": "2026-09-04"
+    },
+    {
       "id": "ALLOW-PACK-STORE-DRIVER",
       "disposition": "ALLOWED",
       "rule": "R3",

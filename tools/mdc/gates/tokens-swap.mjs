@@ -46,6 +46,7 @@
  */
 import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
 import { dirname, join, relative } from 'node:path';
+import { BRAND_TOKEN_READS } from '../../p2/lib/boundary-rules.mjs';
 import { fileURLToPath } from 'node:url';
 
 import { fail, okOverPopulation } from '../lib/report.mjs';
@@ -319,18 +320,91 @@ export const run = async () => {
     else if (spacing.join(',') !== g.spacing.join(',')) {
       problems.push(`the shipped spacing scale [${g.spacing.join(' ')}] does not match the Phase 15 reference [${spacing.join(' ')}]`);
     }
-    for (const [name, value] of Object.entries(g.radius)) {
-      if (!new RegExp('(^|[^\\d.])' + value + '(?![\\d.])').test(radius)) {
-        problems.push(`radius.${name} = ${value} is not in the Phase 15 reference's radius line`);
-      }
+    /*
+     * PD-MDC-065: EVERYTHING geometry.ts READS IS CHECKED, BY NAME. The first version of this clause
+     * never looked at spacingCore and tested radius and stroke by value presence on the line, so
+     * swapping card 8 and largeImageField 12 would have passed while geometry.ts's own header says
+     * the purpose names are the point. The reference states each value WITH its purpose, so each is
+     * read name to value.
+     */
+    const core = md.match(/Core:\s*([\d/]+)\./);
+    const coreNums = core ? core[1].split('/').map((x) => Number.parseFloat(x)) : null;
+    if (!coreNums) problems.push('could not read the core rhythm (Core: a/b/c) out of the Phase 15 reference');
+    else if (!Array.isArray(g.spacingCore) || coreNums.join(',') !== g.spacingCore.join(',')) {
+      problems.push(`the shipped core rhythm [${(g.spacingCore ?? []).join(' ')}] does not match the Phase 15 reference [${coreNums.join(' ')}]`);
     }
-    for (const [name, value] of Object.entries(g.stroke)) {
-      if (!new RegExp('(^|[^\\d.])' + String(value).replace('.', '\\.') + '(?![\\d.])').test(stroke)) {
-        problems.push(`stroke.${name} = ${value} is not in the Phase 15 reference's stroke line`);
+    const RADIUS_NAMES = {
+      structural: /(\d+(?:\.\d+)?)\s+structural/, control: /(\d+(?:\.\d+)?)\s+controls?\b/,
+      card: /(\d+(?:\.\d+)?)\s+cards\b/, largeImageField: /(\d+(?:\.\d+)?)\s+large image fields/,
+    };
+    const STROKE_NAMES = {
+      passive: /(\d+(?:\.\d+)?)\s+passive\b/, selected: /(\d+(?:\.\d+)?)\s+selected\b/,
+      icon: /(\d+(?:\.\d+)?)\s+icon\b/, diagram: /(\d+(?:\.\d+)?)\s+diagram\b/,
+    };
+    const byName = (line, table, kind, shipped) => {
+      for (const name of Object.keys(shipped)) {
+        const re = table[name];
+        if (!re) { problems.push(`${kind}.${name} is shipped but the gate knows no Phase 15 purpose name for it`); continue; }
+        const hit = line.match(re);
+        if (!hit) problems.push(`could not read ${kind}.${name} out of the Phase 15 reference's ${kind} line`);
+        else if (Number.parseFloat(hit[1]) !== shipped[name]) problems.push(`${kind}.${name} = ${shipped[name]} but the Phase 15 reference says ${hit[1]} for that purpose`);
       }
-    }
-    clauses.push(`${g.spacing.length} spacing step(s), ${Object.keys(g.radius).length} radi(us/i) and ${Object.keys(g.stroke).length} stroke(s) matching the Phase 15 reference`);
+      for (const name of Object.keys(table)) if (!(name in shipped)) problems.push(`the Phase 15 reference names ${kind}.${name} and the shipped file does not carry it`);
+    };
+    byName(radius, RADIUS_NAMES, 'radius', g.radius ?? {});
+    byName(stroke, STROKE_NAMES, 'stroke', g.stroke ?? {});
+    clauses.push(`${g.spacing.length} spacing step(s), core ${(g.spacingCore ?? []).join('/')}, ${Object.keys(g.radius).length} radi(us/i) and ${Object.keys(g.stroke).length} stroke(s) matching the Phase 15 reference by name`);
   }
+
+  /*
+   * 8b. THE EXEMPTION P2 CARRIES FOR THESE READS IS COMPARED HERE, NOT TRUSTED — OQ-MDC-029 option 1,
+   * PD-MDC-065. P2's rule 3 (tools/p2/lib/boundary-rules.mjs) exempts an enumerated importer → file
+   * map, BRAND_TOKEN_READS, and the D7 register carries one ALLOWED disposition for the setsAgree reads.
+   * That is three homes for one fact, so this clause is the comparison: the set this clause checks
+   * against the Brand authorities must be exactly the exempt set, every exempt importer must really
+   * import its file, and the single disposition must cover exactly those pairs and no other module.
+   * A brand file added to one list and not the otherThemeFiles turns THIS gate red.
+   */
+  const CLAUSE8_CHECKED_SET = new Set(['assets/brand/typography.tokens.json', 'assets/brand/geometry.tokens.json']);
+  const P2_EXEMPT_SET = new Set(Object.values(BRAND_TOKEN_READS));
+  const setsAgree = [...CLAUSE8_CHECKED_SET].every((f) => P2_EXEMPT_SET.has(f)) && [...P2_EXEMPT_SET].every((f) => CLAUSE8_CHECKED_SET.has(f));
+  if (!setsAgree) {
+    problems.push(`P2 rule 3 exempts [${[...P2_EXEMPT_SET].join(' ')}] but this clause checks [${[...CLAUSE8_CHECKED_SET].join(' ')}] against an authority — the two sets must be identical`);
+  }
+  const brandSpecFor = (importer, file) => {
+    const rel = relative(dirname(join(ROOT, importer)), join(ROOT, file)).replace(/\\/g, '/');
+    return rel.startsWith('.') ? rel : './' + rel;
+  };
+  const brandEscapeRe = (x) => x.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+  for (const [importer, file] of Object.entries(BRAND_TOKEN_READS)) {
+    const p = join(ROOT, importer);
+    if (!existsSync(p)) { problems.push(`${importer} is named in P2's BRAND_TOKEN_READS and does not exist`); continue; }
+    const spec = brandSpecFor(importer, file);
+    if (!new RegExp("from\\s+'" + brandEscapeRe(spec) + "'").test(readFileSync(p, 'utf8'))) {
+      problems.push(`${importer} does not import '${spec}' — P2's exemption names a read that is not there`);
+    }
+  }
+  const D7_REGISTER = join(ROOT, 'tools', 'p2', 'e1-backlog.json');
+  const d7Dispositions = existsSync(D7_REGISTER) ? (JSON.parse(readFileSync(D7_REGISTER, 'utf8')).dispositions ?? []) : [];
+  const brandDisp = d7Dispositions.filter((d) => d.id === 'ALLOW-BRAND-TOKENS-DATA');
+  if (brandDisp.length !== 1) {
+    problems.push(`tools/p2/e1-backlog.json carries ${brandDisp.length} ALLOW-BRAND-TOKENS-DATA disposition(s), not exactly one`);
+  } else {
+    const d = brandDisp[0];
+    if (d.rule !== 'R3' || d.disposition !== 'ALLOWED') problems.push('ALLOW-BRAND-TOKENS-DATA is not an ALLOWED R3 disposition');
+    const fileRe = new RegExp(d.file);
+    const msgRe = new RegExp(d.message);
+    for (const [importer, file] of Object.entries(BRAND_TOKEN_READS)) {
+      const spec = brandSpecFor(importer, file);
+      const message = "R3: raw dataset '" + spec + "' imported outside src/authority/**.";
+      if (!fileRe.test(importer) || !msgRe.test(message)) problems.push(`ALLOW-BRAND-TOKENS-DATA does not cover ${importer} → '${spec}'`);
+    }
+    const otherThemeFiles = readdirSync(join(ROOT, 'src', 'theme')).map((f) => 'src/theme/' + f).filter((f) => !(f in BRAND_TOKEN_READS));
+    for (const other of [...otherThemeFiles, 'src/screens/HomeScreen.tsx', 'src/authority/index.ts', 'src/data/adapter/index.ts']) {
+      if (fileRe.test(other)) problems.push(`ALLOW-BRAND-TOKENS-DATA's file pattern also matches ${other}, which P2 does not exempt`);
+    }
+  }
+  clauses.push(`P2 rule-3 exemption, this clause's checked set and the D7 disposition agree on ${P2_EXEMPT_SET.size} brand-token read(s), importer-scoped`);
 
   /*
    * 9. NO EXCEPTION IS WRITTEN FOR THIS CAMPAIGN'S OWN THEME FILES.

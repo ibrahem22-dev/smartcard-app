@@ -159,6 +159,35 @@ control({
   },
 });
 
+// ───────────────────────────────────────────────────── rule 3, the OQ-MDC-029 exemption is enumerated
+/**
+ * PD-MDC-065 exempted TWO importer → file pairs from rule 3 (BRAND_TOKEN_READS). These two controls
+ * are what distinguish an enumerated exemption from a pattern: a sibling JSON under assets/brand/
+ * that is not one of the two files must still fire, even from the exempted importer's directory,
+ * and the canonical geometry file must still fire when read from a module that is not its
+ * enumerated owner. The sibling file is created and removed like every other control path — it is
+ * a new file under a shipped directory, never an edit to a shipped file.
+ */
+control({
+  rule: 3,
+  name: 'a sibling brand JSON that is not one of the two enumerated token files is still a raw dataset, even from src/theme',
+  write: {
+    'assets/brand/__negctl_sibling.tokens.json': '{"spacing": [4, 8], "rate": 2.5}\n',
+    'src/theme/__negctl_rule3sibling.ts':
+      "import sibling from '../../assets/brand/__negctl_sibling.tokens.json';\n"
+      + 'export const negctl = { sibling };\n',
+  },
+});
+control({
+  rule: 3,
+  name: 'the canonical geometry token file read from a module that is not its enumerated importer is still a raw dataset',
+  write: {
+    'src/screens/__negctl_rule3brand.tsx':
+      "import geometry from '../../assets/brand/geometry.tokens.json';\n"
+      + 'export const negctl = { geometry };\n',
+  },
+});
+
 // ─────────────────────────────────────────────────────────── the one control nobody injected
 controls.push({
   rule: 2,

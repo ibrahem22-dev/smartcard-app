@@ -9,8 +9,8 @@
     "The entry marked foundInTree was not injected: it is the defect rule 2 caught in shipped code",
     "once the line-based import scanner it depended on was replaced with a whole-source one."
   ],
-  "recordedAt": "2026-08-24T01:40:03.072Z",
-  "sha": "9177665fbc5b58d5ddfa2516aa9582c058e6dac5",
+  "recordedAt": "2026-09-04T12:17:17.153Z",
+  "sha": "527427cd14b0a0bc6b96bf463f224360145c1f63",
   "ruleCount": 5,
   "rulesProven": [
     1,
@@ -77,6 +77,24 @@
       "restored": true,
       "sawExactly": [
         "src/utils/__negctl_rule5.ts:3 — a vault value reaches track(): export const negctl = () => track('opened', { pinHash });"
+      ]
+    },
+    {
+      "rule": 3,
+      "name": "a sibling brand JSON that is not one of the two enumerated token files is still a raw dataset, even from src/theme",
+      "fired": true,
+      "restored": true,
+      "sawExactly": [
+        "src/theme/__negctl_rule3sibling.ts:1 — imports a raw JSON dataset: assets/brand/__negctl_sibling.tokens.json"
+      ]
+    },
+    {
+      "rule": 3,
+      "name": "the canonical geometry token file read from a module that is not its enumerated importer is still a raw dataset",
+      "fired": true,
+      "restored": true,
+      "sawExactly": [
+        "src/screens/__negctl_rule3brand.tsx:1 — imports a raw JSON dataset: assets/brand/geometry.tokens.json"
       ]
     },
     {
