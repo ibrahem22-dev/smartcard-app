@@ -145,7 +145,7 @@ export function SectionACosts({
                 />
               ) : (
                 <Pressable
-                  accessibilityLabel={`${t('להוסיף את זה')} — ${labelFor(row.id, t)}`}
+                  accessibilityLabel={t('להוסיף את זה — {{row}}', { row: labelFor(row.id, t) })}
                   accessibilityRole="button"
                   className="min-h-[48px] justify-center"
                   onPress={(): void => openEditor(row.id, reading)}
@@ -192,7 +192,7 @@ export function SectionACosts({
               ) : null}
             </View>
             <Pressable
-              accessibilityLabel={`${t('עריכה')} — ${labelFor(row.id, t)}`}
+              accessibilityLabel={t('עריכה — {{row}}', { row: labelFor(row.id, t) })}
               accessibilityRole="button"
               className="min-h-[48px] min-w-[48px] items-center justify-center"
               onPress={(): void => openEditor(row.id, reading)}

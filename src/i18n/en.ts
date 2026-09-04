@@ -999,6 +999,8 @@ export const enBySource: Readonly<Record<string, string>> = {
   'שיעורי ריבית': 'Interest rates',
   'עלויות נוספות': 'Other costs',
   'להוסיף את זה': 'Add this',
+  'להוסיף את זה — {{row}}': 'Add this — {{row}}',
+  'עריכה — {{row}}': 'Edit — {{row}}',
   'שמירה': 'Save',
   'לא נמצאה עדות להטבה עבור הכרטיס הזה': 'No benefit is evidenced for this card',
   'אין כרגע דירוג לכרטיס': 'There is currently no ranking for this card',
