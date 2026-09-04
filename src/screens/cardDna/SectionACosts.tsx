@@ -147,7 +147,7 @@ export function SectionACosts({
                 <Pressable
                   accessibilityLabel={`${t('להוסיף את זה')} — ${labelFor(row.id, t)}`}
                   accessibilityRole="button"
-                  className="min-h-[44px] justify-center"
+                  className="min-h-[48px] justify-center"
                   onPress={(): void => openEditor(row.id, reading)}
                   testID={`${row.testID}-add`}
                 >
@@ -160,7 +160,7 @@ export function SectionACosts({
                 <RtlRow className="items-center gap-2">
                   <TextInput
                     accessibilityLabel={labelFor(row.id, t)}
-                    className={`min-h-[44px] flex-1 rounded-lg border px-3 ${BORDER.hairline}`}
+                    className={`min-h-[48px] flex-1 rounded-lg border px-3 ${BORDER.hairline}`}
                     keyboardType="decimal-pad"
                     onChangeText={setDraft}
                     testID={`${row.testID}-input`}
@@ -168,7 +168,7 @@ export function SectionACosts({
                   />
                   <Pressable
                     accessibilityRole="button"
-                    className="min-h-[44px] justify-center px-3"
+                    className="min-h-[48px] justify-center px-3"
                     onPress={(): void => saveDraft(row.id)}
                     testID={`${row.testID}-save`}
                   >
@@ -181,7 +181,7 @@ export function SectionACosts({
               {row.id === 'fx-commission' ? (
                 <Pressable
                   accessibilityRole="button"
-                  className="min-h-[44px] justify-center"
+                  className="min-h-[48px] justify-center"
                   onPress={onCompareFx}
                   testID="card-dna-cost-fx-commission-compare"
                 >
@@ -194,7 +194,7 @@ export function SectionACosts({
             <Pressable
               accessibilityLabel={`${t('עריכה')} — ${labelFor(row.id, t)}`}
               accessibilityRole="button"
-              className="min-h-[44px] min-w-[44px] items-center justify-center"
+              className="min-h-[48px] min-w-[48px] items-center justify-center"
               onPress={(): void => openEditor(row.id, reading)}
               testID={`${row.testID}-pencil`}
             >

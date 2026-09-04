@@ -228,6 +228,7 @@ export function AddCardScreen(): React.ReactElement {
         className={inputClass}
         onChangeText={setDisplayName}
         style={inputStyle}
+        accessibilityLabel={t('שם הכרטיס')}
         testID="add-card-display-name"
         value={displayName}
       />
@@ -240,7 +241,7 @@ export function AddCardScreen(): React.ReactElement {
             <Pressable
               accessibilityRole="button"
               accessibilityState={{ selected: isSelected }}
-              className={`min-h-[46px] min-w-24 items-center justify-center rounded-lg border px-3 ${
+              className={`min-h-[48px] min-w-24 items-center justify-center rounded-lg border px-3 ${
                 isSelected
                   ? `${ACCENT.border} ${ACCENT.surfaceStrong}`
                   : `${BORDER.hairline} ${SURFACE.card}`
@@ -366,6 +367,7 @@ export function AddCardScreen(): React.ReactElement {
                 className={inputClass}
                 onChangeText={setQuery}
                 style={inputStyle}
+                accessibilityLabel={t('חפש כרטיס')}
                 testID="add-card-search"
                 value={query}
               />
@@ -375,7 +377,7 @@ export function AddCardScreen(): React.ReactElement {
                 <Pressable
                   accessibilityRole="button"
                   accessibilityState={{ selected: issuerOrgId === undefined }}
-                  className={`min-h-[44px] items-center justify-center rounded-lg border px-3 ${
+                  className={`min-h-[48px] items-center justify-center rounded-lg border px-3 ${
                     issuerOrgId === undefined
                       ? `${ACCENT.border} ${ACCENT.surfaceStrong}`
                       : `${BORDER.hairline} ${SURFACE.card}`
@@ -395,7 +397,7 @@ export function AddCardScreen(): React.ReactElement {
                     <Pressable
                       accessibilityRole="button"
                       accessibilityState={{ selected: isSelected }}
-                      className={`min-h-[44px] items-center justify-center rounded-lg border px-3 ${
+                      className={`min-h-[48px] items-center justify-center rounded-lg border px-3 ${
                         isSelected
                           ? `${ACCENT.border} ${ACCENT.surfaceStrong}`
                           : `${BORDER.hairline} ${SURFACE.card}`
@@ -446,7 +448,7 @@ export function AddCardScreen(): React.ReactElement {
             <View testID="add-card-generic-form">
               <Pressable
                 accessibilityRole="button"
-                className="mb-3 min-h-[44px] justify-center"
+                className="mb-3 min-h-[48px] justify-center"
                 onPress={backToSearch}
                 testID="add-card-back-to-search"
               >
@@ -460,7 +462,7 @@ export function AddCardScreen(): React.ReactElement {
             <View testID="add-card-catalog-form">
               <Pressable
                 accessibilityRole="button"
-                className="mb-3 min-h-[44px] justify-center"
+                className="mb-3 min-h-[48px] justify-center"
                 onPress={backToSearch}
                 testID="add-card-back-to-search"
               >
