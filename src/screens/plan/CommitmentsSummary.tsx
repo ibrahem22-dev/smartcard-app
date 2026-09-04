@@ -262,7 +262,7 @@ export function CommitmentsSummary({
         <RtlRow className="items-center gap-2">
           <TextInput
             accessibilityLabel={t('הכנס תקרה בשקלים')}
-            className={`min-h-[44px] flex-1 rounded-lg border px-3 ${BORDER.hairline}`}
+            className={`min-h-[48px] flex-1 rounded-lg border px-3 ${BORDER.hairline}`}
             keyboardType="decimal-pad"
             onChangeText={setDraftCap}
             placeholder={suggestedCap === null ? undefined : String(suggestedCap)}
@@ -272,7 +272,7 @@ export function CommitmentsSummary({
           <Pressable
             accessibilityRole="button"
             accessibilityState={{ disabled: !canSave }}
-            className="min-h-[44px] justify-center px-3"
+            className="min-h-[48px] justify-center px-3"
             disabled={!canSave}
             onPress={saveCap}
             testID="commitments-summary-cap-save"

@@ -148,14 +148,14 @@ export function ProfileSwitcher({
                 {isEditing ? (
                   <View className="gap-2">
                     <TextInput
-                      className={`min-h-[44px] rounded-lg border px-3 text-base ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`}
+                      className={`min-h-[48px] rounded-lg border px-3 text-base ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`}
                       onChangeText={setDraftName}
                       style={{ textAlign, writingDirection }}
                       value={draftName}
                     />
                     <Pressable
                       accessibilityRole="button"
-                      className={`min-h-[44px] items-center justify-center rounded-lg ${ACCENT.solid}`}
+                      className={`min-h-[48px] items-center justify-center rounded-lg ${ACCENT.solid}`}
                       onPress={(): void => saveRename(profile.id)}
                     >
                       <AppText
@@ -173,7 +173,7 @@ export function ProfileSwitcher({
                     </AppText>
                     <Pressable
                       accessibilityRole="button"
-                      className={`min-h-[44px] justify-center rounded-lg border px-3 ${BORDER.hairline}`}
+                      className={`min-h-[48px] justify-center rounded-lg border px-3 ${BORDER.hairline}`}
                       onPress={(): void => beginRename(profile)}
                     >
                       <AppText className={`text-sm font-bold ${TEXT.body}`}>
@@ -182,7 +182,7 @@ export function ProfileSwitcher({
                     </Pressable>
                     <Pressable
                       accessibilityRole="button"
-                      className={`min-h-[44px] justify-center rounded-lg border px-3 ${
+                      className={`min-h-[48px] justify-center rounded-lg border px-3 ${
                         isActive
                           ? `${BORDER.subtle} ${SURFACE.sunken}`
                           : `${ROLE_BORDER.danger} ${ROLE_SURFACE_BG.danger}`

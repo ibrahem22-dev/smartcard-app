@@ -396,7 +396,7 @@ export default function OnboardingScreen(): React.ReactElement {
         {currentStep === 'language' ? (
           <Pressable
             accessibilityRole="button"
-            className={`min-h-[44px] items-center justify-center rounded-lg border ${BORDER.hairline} ${SURFACE.card}`}
+            className={`min-h-[48px] items-center justify-center rounded-lg border ${BORDER.hairline} ${SURFACE.card}`}
             onPress={handleSkip}
             testID="onboarding-language-skip"
           >
@@ -409,7 +409,7 @@ export default function OnboardingScreen(): React.ReactElement {
         {skippable ? (
           <Pressable
             accessibilityRole="button"
-            className={`min-h-[44px] items-center justify-center rounded-lg border ${BORDER.hairline} ${SURFACE.card}`}
+            className={`min-h-[48px] items-center justify-center rounded-lg border ${BORDER.hairline} ${SURFACE.card}`}
             onPress={handleSkip}
             testID="onboarding-skip"
           >

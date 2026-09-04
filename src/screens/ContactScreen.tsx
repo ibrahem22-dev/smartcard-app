@@ -73,7 +73,7 @@ export function ContactScreen(): React.ReactElement {
               <Pressable
                 accessibilityRole="button"
                 accessibilityState={{ selected: isSelected }}
-                className={`min-h-11 justify-center rounded-lg border px-3 ${
+                className={`min-h-[48px] justify-center rounded-lg border px-3 ${
                   isSelected
                     ? `${ACCENT.border} ${ACCENT.surfaceStrong}`
                     : `${BORDER.hairline} ${SURFACE.card}`
@@ -128,8 +128,9 @@ export function ContactScreen(): React.ReactElement {
               </View>
 
               <Pressable
+                accessibilityLabel={`${t('התקשר עכשיו')} — ${issuer.name}`}
                 accessibilityRole="button"
-                className={`mt-3 min-h-11 items-center justify-center rounded-lg ${SURFACE.inverse}`}
+                className={`mt-3 min-h-[48px] items-center justify-center rounded-lg ${SURFACE.inverse}`}
                 onPress={(): Promise<void> => Linking.openURL(getTelUrl(issuer.phone))}
               >
                 <AppText

@@ -223,7 +223,7 @@ export function SectionDActiveNow({
               {installment.canPayEarly ? (
                 <Pressable
                   accessibilityRole="button"
-                  className="min-h-[44px] justify-center px-2"
+                  className="min-h-[48px] justify-center px-2"
                   onPress={(): void => markPaidEarly(installment.id)}
                   testID={`card-dna-installment-${installment.id}-paid-early`}
                 >

@@ -142,7 +142,7 @@ export function PurchaseGateScreen(): React.ReactElement {
                 <Pressable
                   accessibilityRole="button"
                   accessibilityState={{ selected: !isInternational }}
-                  className={`min-h-11 flex-1 items-center justify-center rounded-md ${
+                  className={`min-h-[48px] flex-1 items-center justify-center rounded-md ${
                     !isInternational ? `${SURFACE.card}` : ''
                   }`}
                   onPress={(): void => setIsInternational(false)}
@@ -156,7 +156,7 @@ export function PurchaseGateScreen(): React.ReactElement {
                 <Pressable
                   accessibilityRole="button"
                   accessibilityState={{ selected: isInternational }}
-                  className={`min-h-11 flex-1 items-center justify-center rounded-md ${
+                  className={`min-h-[48px] flex-1 items-center justify-center rounded-md ${
                     isInternational ? `${SURFACE.card}` : ''
                   }`}
                   onPress={(): void => setIsInternational(true)}
@@ -186,7 +186,7 @@ export function PurchaseGateScreen(): React.ReactElement {
                         <Pressable
                           accessibilityRole="button"
                           accessibilityState={{ selected: isSelected }}
-                          className={`min-h-11 items-center justify-center rounded-md border px-3 ${
+                          className={`min-h-[48px] items-center justify-center rounded-md border px-3 ${
                             isSelected
                               ? `${ACCENT.border} ${SURFACE.card}`
                               : `border-transparent ${SURFACE.sunken}`

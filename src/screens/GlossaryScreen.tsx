@@ -127,9 +127,10 @@ export function GlossaryScreen(): React.ReactElement {
                 </AppText>
 
                 <Pressable
+                  accessibilityLabel={`${t('כיצד זה משפיע עליך?')} — ${t(term.title, undefined, englishTerm?.title)}`}
                   accessibilityRole="button"
                   accessibilityState={{ expanded: isExpanded }}
-                  className={`mt-3 min-h-[44px] items-center justify-center rounded-lg border px-4 ${ACCENT.borderSubtle} ${ACCENT.surface}`}
+                  className={`mt-3 min-h-[48px] items-center justify-center rounded-lg border px-4 ${ACCENT.borderSubtle} ${ACCENT.surface}`}
                   onPress={(): void => toggleTerm(term.title)}
                 >
                   <AppText

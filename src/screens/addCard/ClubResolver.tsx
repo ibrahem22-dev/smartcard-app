@@ -57,7 +57,7 @@ export function ClubResolver({
             {institutions.map(orgId => (
               <Pressable
                 accessibilityRole="button"
-                className={`min-h-[44px] items-center justify-center rounded-lg border px-3 ${BORDER.hairline} ${SURFACE.card}`}
+                className={`min-h-[48px] items-center justify-center rounded-lg border px-3 ${BORDER.hairline} ${SURFACE.card}`}
                 key={orgId}
                 onPress={(): void => {
                   setQ1(orgId);

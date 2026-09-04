@@ -111,7 +111,7 @@ export function CommitmentRow({
         <Pressable
           accessibilityLabel={t('פתיחת פרטי התחייבות')}
           accessibilityRole="button"
-          className="min-h-[44px] min-w-[44px] items-center justify-center"
+          className="min-h-[48px] min-w-[48px] items-center justify-center"
           onPress={(): void => setDetailVisible(true)}
           testID={`commitment-row-${id}-chevron`}
         >

@@ -119,7 +119,7 @@ export function InterestCalculatorScreen(): React.ReactElement {
                 <Pressable
                   accessibilityRole="tab"
                   accessibilityState={{ selected: activeTab === tab }}
-                  className={`min-h-[44px] flex-1 items-center justify-center ${
+                  className={`min-h-[48px] flex-1 items-center justify-center ${
                     activeTab === tab ? `${ACCENT.solid}` : `${SURFACE.card}`
                   }`}
                   key={tab}
@@ -148,7 +148,7 @@ export function InterestCalculatorScreen(): React.ReactElement {
                     return (
                       <Pressable
                         accessibilityRole="button"
-                        className={`min-h-[44px] items-center justify-center rounded-lg border px-3 ${
+                        className={`min-h-[48px] items-center justify-center rounded-lg border px-3 ${
                           isSelected
                             ? `${ACCENT.border} ${ACCENT.surfaceStrong}`
                             : `${BORDER.hairline} ${SURFACE.card}`
@@ -175,6 +175,7 @@ export function InterestCalculatorScreen(): React.ReactElement {
             {/* Inputs */}
             <AppText className={LABEL_CLASS}>{t('סכום (₪)')}</AppText>
             <TextInput
+              accessibilityLabel={t('סכום (₪)')}
               className={INPUT_CLASS}
               keyboardType="decimal-pad"
               onChangeText={setAmountText}
@@ -183,6 +184,7 @@ export function InterestCalculatorScreen(): React.ReactElement {
             />
             <AppText className={LABEL_CLASS}>{t('מספר חודשים (1–360)')}</AppText>
             <TextInput
+              accessibilityLabel={t('מספר חודשים (1–360)')}
               className={INPUT_CLASS}
               keyboardType="number-pad"
               onChangeText={setMonthsText}
@@ -191,6 +193,7 @@ export function InterestCalculatorScreen(): React.ReactElement {
             />
             <AppText className={LABEL_CLASS}>{t('ריבית שנתית (0–30%)')}</AppText>
             <TextInput
+              accessibilityLabel={t('ריבית שנתית (0–30%)')}
               className={INPUT_CLASS}
               keyboardType="decimal-pad"
               onChangeText={setRateText}

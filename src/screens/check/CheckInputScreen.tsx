@@ -177,7 +177,7 @@ export function CheckInputScreen({
               {KEYPAD.slice(row * 3, row * 3 + 3).map((key) => (
                 <Pressable
                   accessibilityRole="button"
-                  className={`flex-1 items-center rounded-lg border p-3 ${SURFACE.sunken} ${BORDER.hairline}`}
+                  className={`min-h-[48px] justify-center flex-1 items-center rounded-lg border p-3 ${SURFACE.sunken} ${BORDER.hairline}`}
                   key={key}
                   onPress={(): void => typeKey(key)}
                   testID={`check-input-key-${key}`}
@@ -199,7 +199,7 @@ export function CheckInputScreen({
                 accessibilityLabel={CURRENCY_SYMBOL[option] + ' ' + option}
                 accessibilityRole="button"
                 accessibilityState={{ selected }}
-                className={`rounded-lg border px-3 py-2 ${
+                className={`min-h-[48px] justify-center rounded-lg border px-3 py-2 ${
                   selected ? `${ACCENT.surface} ${ACCENT.border}` : `${SURFACE.sunken} ${BORDER.hairline}`
                 }`}
                 key={option}
@@ -262,7 +262,7 @@ export function CheckInputScreen({
           <Pressable
             accessibilityRole="button"
             accessibilityState={{ selected: !installmentsMode }}
-            className={`rounded-lg border px-3 py-2 ${
+            className={`min-h-[48px] justify-center rounded-lg border px-3 py-2 ${
               !installmentsMode ? `${ACCENT.surface} ${ACCENT.border}` : `${SURFACE.sunken} ${BORDER.hairline}`
             }`}
             onPress={(): void => setInstallmentsMode(false)}
@@ -275,7 +275,7 @@ export function CheckInputScreen({
           <Pressable
             accessibilityRole="button"
             accessibilityState={{ selected: installmentsMode }}
-            className={`rounded-lg border px-3 py-2 ${
+            className={`min-h-[48px] justify-center rounded-lg border px-3 py-2 ${
               installmentsMode ? `${ACCENT.surface} ${ACCENT.border}` : `${SURFACE.sunken} ${BORDER.hairline}`
             }`}
             onPress={(): void => setInstallmentsMode(true)}
@@ -292,7 +292,7 @@ export function CheckInputScreen({
             <RtlRow className="items-center gap-3">
               <Pressable
                 accessibilityRole="button"
-                className={`rounded-lg border px-3 py-2 ${SURFACE.sunken} ${BORDER.hairline}`}
+                className={`min-h-[48px] justify-center rounded-lg border px-3 py-2 ${SURFACE.sunken} ${BORDER.hairline}`}
                 onPress={(): void => setInstallmentCount((n) => Math.max(2, n - 1))}
                 testID="check-input-stepper-minus"
               >
@@ -311,7 +311,7 @@ export function CheckInputScreen({
               />
               <Pressable
                 accessibilityRole="button"
-                className={`rounded-lg border px-3 py-2 ${SURFACE.sunken} ${BORDER.hairline}`}
+                className={`min-h-[48px] justify-center rounded-lg border px-3 py-2 ${SURFACE.sunken} ${BORDER.hairline}`}
                 onPress={(): void => setInstallmentCount((n) => n + 1)}
                 testID="check-input-stepper-plus"
               >
@@ -340,7 +340,7 @@ export function CheckInputScreen({
         <Pressable
           accessibilityRole="button"
           accessibilityState={{ expanded: cardPickerOpen }}
-          className={`mt-4 rounded-lg border p-3 ${SURFACE.sunken} ${BORDER.hairline}`}
+          className={`min-h-[48px] justify-center mt-4 rounded-lg border p-3 ${SURFACE.sunken} ${BORDER.hairline}`}
           onPress={(): void => setCardPickerOpen((open) => !open)}
           testID="check-input-card-picker"
         >
@@ -355,7 +355,7 @@ export function CheckInputScreen({
             <Pressable
               accessibilityRole="button"
               accessibilityState={{ selected: cardId === null }}
-              className={`rounded-lg border p-3 ${
+              className={`min-h-[48px] justify-center rounded-lg border p-3 ${
                 cardId === null ? `${ACCENT.surface} ${ACCENT.border}` : `${SURFACE.sunken} ${BORDER.hairline}`
               }`}
               onPress={(): void => {
@@ -370,7 +370,7 @@ export function CheckInputScreen({
               <Pressable
                 accessibilityRole="button"
                 accessibilityState={{ selected: cardId === card.cardId }}
-                className={`rounded-lg border p-3 ${
+                className={`min-h-[48px] justify-center rounded-lg border p-3 ${
                   cardId === card.cardId ? `${ACCENT.surface} ${ACCENT.border}` : `${SURFACE.sunken} ${BORDER.hairline}`
                 }`}
                 key={card.cardId}
@@ -405,7 +405,7 @@ export function CheckInputScreen({
         <RtlButton
           accessibilityRole="button"
           accessibilityState={{ disabled: !canCheck }}
-          className={`mt-4 items-center rounded-lg p-3 ${canCheck ? ACCENT.solid : SURFACE.raised}`}
+          className={`min-h-[48px] justify-center mt-4 items-center rounded-lg p-3 ${canCheck ? ACCENT.solid : SURFACE.raised}`}
           disabled={!canCheck}
           label={t('בדוק רכישה')}
           labelClassName={`text-base font-extrabold ${canCheck ? TEXT.onAccent : TEXT.muted}`}

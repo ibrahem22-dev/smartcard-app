@@ -165,6 +165,7 @@ export function InstallmentImportScreen(): React.ReactElement {
             {t('שם בית העסק')}
           </AppText>
           <TextInput
+            accessibilityLabel={t('שם בית העסק')}
             className={`min-h-[50px] rounded-lg border px-4 text-base ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`}
             onChangeText={setMerchantName}
             style={inputStyle}
@@ -177,6 +178,7 @@ export function InstallmentImportScreen(): React.ReactElement {
             {t('סכום כולל (₪)')}
           </AppText>
           <TextInput
+            accessibilityLabel={t('סכום כולל (₪)')}
             className={`min-h-[50px] rounded-lg border px-4 text-base ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`}
             keyboardType="decimal-pad"
             onChangeText={setTotalAmountText}
@@ -190,6 +192,7 @@ export function InstallmentImportScreen(): React.ReactElement {
             {t('חודשים שנותרו')}
           </AppText>
           <TextInput
+            accessibilityLabel={t('חודשים שנותרו')}
             className={`min-h-[50px] rounded-lg border px-4 text-base ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`}
             keyboardType="number-pad"
             onChangeText={setMonthsRemainingText}
@@ -203,6 +206,7 @@ export function InstallmentImportScreen(): React.ReactElement {
             {t('תשלום חודשי (₪)')}
           </AppText>
           <TextInput
+            accessibilityLabel={t('תשלום חודשי (₪)')}
             className={`min-h-[50px] rounded-lg border px-4 text-base ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`}
             keyboardType="decimal-pad"
             onChangeText={setMonthlyPaymentText}
@@ -222,7 +226,7 @@ export function InstallmentImportScreen(): React.ReactElement {
                 <Pressable
                   accessibilityRole="button"
                   accessibilityState={{ selected: isSelected }}
-                  className={`min-h-[46px] min-w-28 items-center justify-center rounded-lg border px-3 ${
+                  className={`min-h-[48px] min-w-28 items-center justify-center rounded-lg border px-3 ${
                     isSelected
                       ? `${ACCENT.border} ${ACCENT.surfaceStrong}`
                       : `${BORDER.hairline} ${SURFACE.card}`
@@ -253,6 +257,7 @@ export function InstallmentImportScreen(): React.ReactElement {
             {t('הערות (אופציונלי)')}
           </AppText>
           <TextInput
+            accessibilityLabel={t('הערות (אופציונלי)')}
             className={`min-h-20 rounded-lg border px-4 py-3 text-base ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`}
             multiline
             onChangeText={setNotes}
@@ -324,7 +329,7 @@ export function InstallmentImportScreen(): React.ReactElement {
                 </Pressable>
                 <Pressable
                   accessibilityRole="button"
-                  className={`mt-3 min-h-[44px] items-center justify-center rounded-lg border ${ROLE_BORDER.danger} ${ROLE_SURFACE_BG.danger}`}
+                  className={`mt-3 min-h-[48px] items-center justify-center rounded-lg border ${ROLE_BORDER.danger} ${ROLE_SURFACE_BG.danger}`}
                   onPress={(): void => confirmDelete(obligation)}
                 >
                   <AppText

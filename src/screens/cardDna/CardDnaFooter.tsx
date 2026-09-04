@@ -32,7 +32,7 @@ export function CardDnaFooter({
     >
       <Pressable
         accessibilityRole="button"
-        className="min-h-[44px] justify-center"
+        className="min-h-[48px] justify-center"
         onPress={(): void => setBenefitsUnbuiltVisible(true)}
         testID="card-dna-footer-benefits"
       >
@@ -57,7 +57,7 @@ export function CardDnaFooter({
 
       <Pressable
         accessibilityRole="button"
-        className="min-h-[44px] justify-center"
+        className="min-h-[48px] justify-center"
         onPress={onCompareFx}
         testID="card-dna-footer-fx"
       >

@@ -63,7 +63,7 @@ export function WeekHeader({ testID }: WeekHeaderProps): React.ReactElement {
       {WEEK_ORDER.map((dayIndex) => (
         <View
           accessibilityLabel={names[dayIndex]}
-          className="min-h-[44px] flex-1 items-center justify-center"
+          className="min-h-[48px] flex-1 items-center justify-center"
           key={dayIndex}
           testID={`week-header-day-${String(dayIndex)}`}
         >

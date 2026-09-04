@@ -119,7 +119,7 @@ export function HomeUpcomingBilling({
       </AppText>
       <Pressable
         accessibilityRole="link"
-        className="min-h-[44px] gap-2 justify-center"
+        className="min-h-[48px] gap-2 justify-center"
         onPress={() => navigation.navigate('Plan')}
         testID="home-upcoming-billing-link"
       >

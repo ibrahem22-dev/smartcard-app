@@ -287,7 +287,7 @@ export function LearnScreen(): React.ReactElement {
                   accessibilityRole="tab"
                   accessibilityState={{ selected }}
                   accessibilityValue={{ text: String(item.count) }}
-                  className={`min-h-11 flex-1 items-center justify-center rounded-lg border px-2 ${selected ? `${ACCENT.border} ${ACCENT.surfaceStrong}` : `${BORDER.hairline} ${SURFACE.card}`}`}
+                  className={`min-h-[48px] flex-1 items-center justify-center rounded-lg border px-2 ${selected ? `${ACCENT.border} ${ACCENT.surfaceStrong}` : `${BORDER.hairline} ${SURFACE.card}`}`}
                   key={item.id}
                   onPress={(): void => setSection(item.id)}
                   testID={`learn-tab-${item.id}`}

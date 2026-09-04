@@ -120,7 +120,7 @@ export function HomeScreen(): React.ReactElement {
               ))}
               <Pressable
                 accessibilityRole="button"
-                className={`mt-4 min-h-[44px] items-center justify-center rounded-lg border ${BORDER.hairline} ${SURFACE.card}`}
+                className={`mt-4 min-h-[48px] items-center justify-center rounded-lg border ${BORDER.hairline} ${SURFACE.card}`}
                 onPress={dismissFinishSetup}
                 testID="home-finish-setup-dismiss"
               >

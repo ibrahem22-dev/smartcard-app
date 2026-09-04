@@ -226,7 +226,7 @@ export function WalletTile({ card }: WalletTileProps): React.ReactElement {
   return (
     <Pressable
       accessibilityRole="button"
-      className="w-full"
+      className="min-h-[48px] justify-center w-full"
       onPress={(): void =>
         navigation.navigate('CardDetail', { cardId: card.cardId })
       }

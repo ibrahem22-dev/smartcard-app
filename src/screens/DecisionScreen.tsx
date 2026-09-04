@@ -142,7 +142,7 @@ export function DecisionScreen({
               const isLowest = rowItem.verified && index === 0;
               return (
                 <RtlRow
-                  className={`min-h-[44px] items-center justify-between rounded-md border px-2 ${
+                  className={`min-h-[48px] items-center justify-between rounded-md border px-2 ${
                     isLowest
                       ? `shadow-sm ${ROLE_BORDER.positive} ${ROLE_SURFACE_BG.positive}`
                       : `border-transparent ${BORDER.topHairline}`

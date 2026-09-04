@@ -106,7 +106,7 @@ export function HomeHero({ context }: HomeHeroProps): React.ReactElement {
       </RtlRow>
       <Pressable
         accessibilityRole="button"
-        className="min-h-[44px] justify-center"
+        className="min-h-[48px] justify-center"
         onPress={() => setExplanationVisible((visible) => !visible)}
         testID="home-hero-explain"
       >

@@ -127,14 +127,14 @@ export function HomeRiskStrip({ context }: HomeRiskStripProps): React.ReactEleme
             <View
               accessibilityLabel={`${t('רמת הסיכון ליום {{date}}', { date: iso })}: ${t(presentation.labelKey)}`}
               accessibilityValue={{ text: t(presentation.labelKey) }}
-              className="min-w-[42px] flex-1 items-center gap-1"
+              className="min-w-[48px] flex-1 items-center gap-1"
               key={iso}
               testID={testID}
             >
               <Pressable
                 accessibilityLabel={t('הסבר על יום {{date}}', { date: iso })}
                 accessibilityRole="button"
-                className={`h-9 w-9 items-center justify-center rounded border ${presentation.className}`}
+                className={`h-[48px] w-[48px] items-center justify-center rounded border ${presentation.className}`}
                 onPress={() => setExplainedDate(explanationVisible ? null : iso)}
                 testID={`${testID}-explain`}
               >

@@ -97,7 +97,7 @@ export function CommitmentDetailSheet({
       </AppText>
       <Pressable
         accessibilityRole="button"
-        className="min-h-[44px] justify-center"
+        className="min-h-[48px] justify-center"
         onPress={(): void => markPaidEarly(id)}
         testID={`commitment-detail-${id}-paid-early`}
       >

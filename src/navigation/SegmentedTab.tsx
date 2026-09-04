@@ -54,7 +54,7 @@ export function SegmentedTab({
             <Pressable
               accessibilityRole="tab"
               accessibilityState={{ selected }}
-              className={`min-h-[44px] flex-1 items-center justify-center rounded-lg ${
+              className={`min-h-[48px] flex-1 items-center justify-center rounded-lg ${
                 selected ? `${SURFACE.card} ${BORDER.hairline}` : ''
               }`}
               key={segment.key}

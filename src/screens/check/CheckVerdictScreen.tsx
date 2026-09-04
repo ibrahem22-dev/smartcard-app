@@ -513,7 +513,7 @@ export function CheckVerdictScreen({
         {contextLine ? (
           <RtlButton
             accessibilityRole="button"
-            className={`mt-4 items-center rounded-lg p-3 ${ACCENT.solid}`}
+            className={`min-h-[48px] justify-center mt-4 items-center rounded-lg p-3 ${ACCENT.solid}`}
             label={t('עשיתי את הרכישה הזאת')}
             labelClassName={`text-base font-extrabold ${TEXT.onAccent}`}
             onPress={(): void => {
@@ -549,7 +549,7 @@ export function CheckVerdictScreen({
         {committedActivityId === null ? null : (
           <RtlButton
             accessibilityRole="button"
-            className={`mt-3 items-center rounded-lg border p-3 ${BORDER.subtle}`}
+            className={`min-h-[48px] justify-center mt-3 items-center rounded-lg border p-3 ${BORDER.subtle}`}
             label={t('ביטול הרכישה')}
             labelClassName={`text-sm font-bold ${TEXT.body}`}
             onPress={(): void => {

@@ -67,7 +67,7 @@ export function WalletBestForChips({
           <View className="gap-1" key={chip.id}>
             <Pressable
               accessibilityRole="button"
-              className={`rounded-full border px-3 py-1 ${SURFACE.raised} ${BORDER.subtle}`}
+              className={`min-h-[48px] justify-center rounded-full border px-3 py-1 ${SURFACE.raised} ${BORDER.subtle}`}
               onPress={(): void => {
                 setRevealedChipIds((current) => {
                   const next = new Set(current);

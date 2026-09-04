@@ -61,7 +61,7 @@ export function CrashLogScreen(): React.ReactElement {
             <Pressable
               accessibilityRole="button"
               accessibilityState={{ disabled: entries.length === 0 }}
-              className={`min-h-11 flex-1 items-center justify-center rounded-lg border px-3 ${ACCENT.border} ${ACCENT.surface}`}
+              className={`min-h-[48px] flex-1 items-center justify-center rounded-lg border px-3 ${ACCENT.border} ${ACCENT.surface}`}
               disabled={entries.length === 0}
               onPress={(): void => {
                 void copy();
@@ -75,7 +75,7 @@ export function CrashLogScreen(): React.ReactElement {
             <Pressable
               accessibilityRole="button"
               accessibilityState={{ disabled: entries.length === 0 }}
-              className={`min-h-11 flex-1 items-center justify-center rounded-lg border px-3 ${BORDER.hairline} ${SURFACE.card}`}
+              className={`min-h-[48px] flex-1 items-center justify-center rounded-lg border px-3 ${BORDER.hairline} ${SURFACE.card}`}
               disabled={entries.length === 0}
               onPress={clear}
               testID="crash-log-clear"
