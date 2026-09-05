@@ -1,0 +1,1 @@
+export const RELEASE_ELIGIBLE_CUSTODIES = ['HARDWARE_BACKED'] as const;

@@ -1,0 +1,10 @@
+{
+ "main-today-no-roots": "RED",
+ "one-root-no-lifecycle-recorded": "GREEN",
+ "two-roots-lifecycle-recorded": "GREEN",
+ "two-active-signing": "RED",
+ "recovery-not-in-record": "RED",
+ "unknown-lifecycle": "RED",
+ "record-unfilled-field": "RED",
+ "retired-key-release-eligible": "RED"
+}
