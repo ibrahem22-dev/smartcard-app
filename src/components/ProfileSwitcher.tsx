@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Pressable, ScrollView, TextInput, View } from 'react-native';
+import { Pressable, ScrollView, StyleSheet, TextInput, View } from 'react-native';
 
 import { AppText } from './AppText';
 import { RtlRow } from './rtl';
@@ -74,8 +74,12 @@ export function ProfileSwitcher({
 
   return (
     <View className="w-full">
-      <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-        <RtlRow className="gap-3" style={{ alignItems: startAlign }}>
+      <ScrollView
+        contentContainerStyle={styles.scrollContent}
+        horizontal
+        showsHorizontalScrollIndicator={false}
+      >
+        <RtlRow className="gap-3" style={{ alignItems: startAlign, flexGrow: 1 }}>
           {allProfiles.map(profile => {
             const isActive = activeProfile?.id === profile.id;
             const visibleName = localizeProfileName(profile.displayName, t);
@@ -206,3 +210,8 @@ export function ProfileSwitcher({
     </View>
   );
 }
+
+// The horizontal list must fill its viewport so the row-reversed RtlRow anchors at the start edge in RTL (PD-MDC-078).
+const styles = StyleSheet.create({
+  scrollContent: { flexGrow: 1 },
+});
