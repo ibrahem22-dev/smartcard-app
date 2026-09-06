@@ -22,7 +22,7 @@ import {
   type CatalogProduct,
 } from '../../authority/cardCatalogAuthority';
 import { ACCENT, BORDER, ROLE_TEXT, SURFACE, TEXT } from '../../theme/tokens';
-import { TABULAR_NUMERALS } from '../../utils/money';
+import { ratioFromPercent, TABULAR_NUMERALS } from '../../utils/money';
 
 /**
  * THE GUIDED CARD PICKER — card nature, then issuer, then product, then programme.
@@ -359,7 +359,7 @@ export function GuidedCardPicker({
                 className={`text-xs font-extrabold ${TEXT.heading}`}
                 style={TABULAR_NUMERALS}
               >
-                {percent(feeProfile.fxCommissionPct.single.value / 100)}
+                {percent(ratioFromPercent(feeProfile.fxCommissionPct.single.value))}
               </AppText>
               <ProvenanceChip
                 testID="guided-review-fx-chip"
@@ -375,21 +375,21 @@ export function GuidedCardPicker({
                 className={`text-xs font-extrabold ${TEXT.heading}`}
                 style={TABULAR_NUMERALS}
               >
-                {percent(feeProfile.foreignAtmPct.single.value / 100)}
+                {percent(ratioFromPercent(feeProfile.foreignAtmPct.single.value))}
               </AppText>
             </RtlRow>
           )}
-          {feeProfile === undefined ? null : feeProfile.cardFee.single !== undefined ? (
+          {feeProfile === undefined ? null : feeProfile.publishedCardFee.single !== undefined ? (
             <RtlRow className="items-center gap-2" testID="guided-review-card-fee">
               <AppText className={`text-xs ${TEXT.body}`}>{t('דמי כרטיס חודשיים')}</AppText>
               <AppText
-                accessibilityValue={{ text: String(feeProfile.cardFee.single.value) }}
+                accessibilityValue={{ text: String(feeProfile.publishedCardFee.single.value) }}
                 className={`text-xs font-extrabold ${TEXT.heading}`}
                 style={TABULAR_NUMERALS}
               >
-                {feeProfile.cardFee.single.unit === 'ILS'
-                  ? money(feeProfile.cardFee.single.value)
-                  : `${feeProfile.cardFee.single.value} ${feeProfile.cardFee.single.unit}`}
+                {feeProfile.publishedCardFee.single.unit === 'ILS'
+                  ? money(feeProfile.publishedCardFee.single.value)
+                  : `${feeProfile.publishedCardFee.single.value} ${feeProfile.publishedCardFee.single.unit}`}
               </AppText>
             </RtlRow>
           ) : (

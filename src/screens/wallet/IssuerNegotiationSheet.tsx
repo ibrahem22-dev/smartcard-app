@@ -19,7 +19,7 @@ import {
   TEXT,
 } from '../../theme/tokens';
 import type { CardInput } from '../../types/card.types';
-import { TABULAR_NUMERALS } from '../../utils/money';
+import { ratioFromPercent, TABULAR_NUMERALS } from '../../utils/money';
 import {
   NEGOTIATION_TOPICS,
   negotiationScript,
@@ -192,16 +192,16 @@ export function IssuerNegotiationSheet({
                 <AppText className={`text-xs ${TEXT.secondary}`} testID="issuer-negotiation-fee-absent">
                   {t('הכרטיס הזה אינו מוצר מהקטלוג, ולכן אין אליו תעריפון')}
                 </AppText>
-              ) : feeProfile.cardFee.single !== undefined ? (
+              ) : feeProfile.publishedCardFee.single !== undefined ? (
                 <AppText
-                  accessibilityValue={{ text: String(feeProfile.cardFee.single.value) }}
+                  accessibilityValue={{ text: String(feeProfile.publishedCardFee.single.value) }}
                   className={`text-base font-extrabold ${TEXT.heading}`}
                   style={TABULAR_NUMERALS}
                   testID="issuer-negotiation-fee-value"
                 >
-                  {feeProfile.cardFee.single.unit === 'ILS'
-                    ? money(feeProfile.cardFee.single.value)
-                    : `${feeProfile.cardFee.single.value} ${feeProfile.cardFee.single.unit}`}
+                  {feeProfile.publishedCardFee.single.unit === 'ILS'
+                    ? money(feeProfile.publishedCardFee.single.value)
+                    : `${feeProfile.publishedCardFee.single.value} ${feeProfile.publishedCardFee.single.unit}`}
                 </AppText>
               ) : (
                 <AppText className={`text-xs ${TEXT.secondary}`} testID="issuer-negotiation-fee-unresolved">
@@ -316,7 +316,7 @@ export function IssuerNegotiationSheet({
                 style={TABULAR_NUMERALS}
                 testID="issuer-negotiation-fx"
               >
-                {`${t('עמלת מט"ח')} ${percent(feeProfile.fxCommissionPct.single.value / 100)}`}
+                {`${t('עמלת מט"ח')} ${percent(ratioFromPercent(feeProfile.fxCommissionPct.single.value))}`}
               </AppText>
             )}
           </ScrollView>

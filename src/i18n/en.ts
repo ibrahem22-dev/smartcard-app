@@ -1360,4 +1360,5 @@ export const enBySource: Readonly<Record<string, string>> = {
   'הכרטיס הזה נוצר לפני שהאפליקציה עבדה מול קטלוג. אישור הזהות יקשר אותו לעמלות ולהטבות המתועדות.': 'This card was created before the app worked against a catalog. Confirming its identity links it to the recorded fees and benefits.',
   'התקשרות אל {{number}}': 'Call {{number}}',
   'חיובים שמתרכזים באותו יום — {{date}}': 'Charges clustering on the same day — {{date}}',
+  'תוקף': 'Validity',
 };

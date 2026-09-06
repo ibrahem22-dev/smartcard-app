@@ -100,6 +100,26 @@ const INVENTORY = [
   { file: 'src/screens/check/CheckVerdictScreen.tsx', arg: 'bullet.ratioOfIncome.value', unit: 'RATIO' },
   { file: 'src/screens/check/CheckVerdictScreen.tsx', arg: 'ratioFromPercent(fxBlock.quote.fxPercentApplied)', unit: 'ALREADY_PERCENT' },
   { file: 'src/screens/fx/FxCompareSheet.tsx', arg: 'ratioFromPercent(winnerQuote.fxPercentApplied)', unit: 'ALREADY_PERCENT' },
+  /*
+   * ADDED BY THE UNIFIED PRODUCT UPGRADE, and each unit MEASURED on the shipped pack rather than
+   * inferred from a field name ending in `Pct`.
+   *
+   * `fxCommissionPct` and `foreignAtmPct` come from the catalog pack's per-card `costs` block and are
+   * ALREADY PERCENTAGES: the estate stores 3 for the SKYMAX card and 1.5 for Leumi's United Airlines
+   * card, and both were read back on emulator-5554 rendering as 3% and 1.5%. The wizard's own vault
+   * writer agrees in the other direction — `wizardVault.ts` divides the same field by 100 before
+   * storing it as a ratio. So the call sites convert with `ratioFromPercent`, which is the rule
+   * OQ-MDC-004 set, and the app still has exactly one percent formatter.
+   *
+   * `ratioOfTarget` is a RATIO and is built as one: `budgetProgress.ts` computes
+   * `seenOutflowIls / targetIls` and compares it against BUDGET_APPROACHING_FRACTION = 0.8. It is
+   * deliberately UNCLAMPED so a surface can show 130% as 130%, which is another reason the unit has
+   * to be stated here rather than guessed from the range.
+   */
+  { file: 'src/screens/addCard/GuidedCardPicker.tsx', arg: 'ratioFromPercent(feeProfile.fxCommissionPct.single.value)', unit: 'ALREADY_PERCENT' },
+  { file: 'src/screens/addCard/GuidedCardPicker.tsx', arg: 'ratioFromPercent(feeProfile.foreignAtmPct.single.value)', unit: 'ALREADY_PERCENT' },
+  { file: 'src/screens/wallet/IssuerNegotiationSheet.tsx', arg: 'ratioFromPercent(feeProfile.fxCommissionPct.single.value)', unit: 'ALREADY_PERCENT' },
+  { file: 'src/screens/home/HomeBudgetBar.tsx', arg: 'reading.ratioOfTarget ?? 0', unit: 'RATIO' },
 ];
 
 const walk = (d, out = []) => {

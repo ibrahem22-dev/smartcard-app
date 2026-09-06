@@ -58,7 +58,7 @@ describe('card fee profile', () => {
       const profile = cardFeeProfileFor(product.cardId);
       if (profile === undefined) continue;
       for (const reading of [
-        profile.cardFee,
+        profile.publishedCardFee,
         profile.fxCommissionPct,
         profile.foreignAtmPct,
         profile.atmSameCurrencyFee,
@@ -90,14 +90,14 @@ describe('card fee profile', () => {
 
   it('returns a card fee as a candidate SET when the tariff differs by a level the estate does not model', () => {
     const profile = cardFeeProfileFor('card:amex-il:adif-american-express');
-    expect(profile?.cardFee.state).toBe('CONDITIONAL');
-    expect(profile?.cardFee.reason).toBe('LEVEL_NOT_MODELLED');
-    expect((profile?.cardFee.publishedRows.length ?? 0)).toBeGreaterThan(1);
+    expect(profile?.publishedCardFee.state).toBe('CONDITIONAL');
+    expect(profile?.publishedCardFee.reason).toBe('LEVEL_NOT_MODELLED');
+    expect((profile?.publishedCardFee.publishedRows.length ?? 0)).toBeGreaterThan(1);
     /* Each candidate names the tariff's own level labels, so the user can recognise their card. */
-    expect(profile?.cardFee.publishedRows.some((c) => c.levels.includes('Blue'))).toBe(true);
-    expect(profile?.cardFee.publishedRows.some((c) => c.levels.includes('Platinum'))).toBe(true);
+    expect(profile?.publishedCardFee.publishedRows.some((c) => c.levels.includes('Blue'))).toBe(true);
+    expect(profile?.publishedCardFee.publishedRows.some((c) => c.levels.includes('Platinum'))).toBe(true);
     /* And no single figure is presented as THE fee. */
-    expect(profile?.cardFee.single).toBeUndefined();
+    expect(profile?.publishedCardFee.single).toBeUndefined();
   });
 
   it('never binds a NAMED_CARD_OR_LEVEL tariff row to a product by its name', () => {
@@ -105,7 +105,7 @@ describe('card fee profile', () => {
     const named = unbindableNamedFeeRowCount('org:leumi');
     expect(named).toBeGreaterThanOrEqual(0);
     const profile = cardFeeProfileFor('card:leumi:leumi-first-credit-card');
-    for (const candidate of profile?.cardFee.publishedRows ?? []) {
+    for (const candidate of profile?.publishedCardFee.publishedRows ?? []) {
       /* Every bound candidate came from an operator-scoped or issuer-wide row, so its evidence
          is a tariff scope rather than a card name. */
       expect(candidate.sourceLabel ?? candidate.registryId).toBeDefined();

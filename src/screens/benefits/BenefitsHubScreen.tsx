@@ -110,11 +110,18 @@ function ValidityLine({ row }: { readonly row: EligibleBenefit }): React.ReactEl
      "the pack published no dates for this benefit" — the UNKNOWN provenance state. A2 says that
      state has one definition, and a second wording of it here would be a second badge. */
   if (row.validity === 'UNKNOWN') {
+    /* THE WORD BESIDE IT IS NOT DECORATION. Two provenance chips sit on this row — one for the
+       benefit's dates and one for the estate's own grading of the benefit — and unlabelled they
+       render as "לא ידוע ? · לא ידוע ?", which was read back off emulator-5554 exactly like that.
+       Each chip says which value it qualifies. */
     return (
-      <ProvenanceChip
-        testID={`benefits-hub-validity-${row.benefit.benefitId}`}
-        view={{ chip: 'UNKNOWN', stale: false }}
-      />
+      <RtlRow className="items-center gap-1">
+        <AppText className={`text-xs ${TEXT.muted}`}>{t('תוקף')}</AppText>
+        <ProvenanceChip
+          testID={`benefits-hub-validity-${row.benefit.benefitId}`}
+          view={{ chip: 'UNKNOWN', stale: false }}
+        />
+      </RtlRow>
     );
   }
 
@@ -315,13 +322,16 @@ export function BenefitsHubScreen({
 
               <RtlRow className="flex-wrap items-center gap-2">
                 <ValidityLine row={row} />
-                <ProvenanceChip
-                  testID={`benefits-hub-chip-${row.benefit.benefitId}`}
-                  view={{
-                    chip: row.benefit.provenanceChip === 'VERIFIED' ? 'VERIFIED' : 'UNKNOWN',
-                    stale: false,
-                  }}
-                />
+                <RtlRow className="items-center gap-1">
+                  <AppText className={`text-xs ${TEXT.muted}`}>{t('מקור')}</AppText>
+                  <ProvenanceChip
+                    testID={`benefits-hub-chip-${row.benefit.benefitId}`}
+                    view={{
+                      chip: row.benefit.provenanceChip === 'VERIFIED' ? 'VERIFIED' : 'UNKNOWN',
+                      stale: false,
+                    }}
+                  />
+                </RtlRow>
               </RtlRow>
 
               {/* WHICH OF YOUR CARDS. One row per offer, every reaching card named inside it. */}

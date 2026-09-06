@@ -124,7 +124,7 @@ export function bottomLineFor(input: BottomLineInput): BottomLineReading {
     };
   }
 
-  const fee = profile.cardFee;
+  const fee = profile.publishedCardFee;
   const monthlyRows = fee.publishedRows.filter(isMonthly);
 
   if (fee.state === 'NOT_AVAILABLE' || monthlyRows.length === 0) {

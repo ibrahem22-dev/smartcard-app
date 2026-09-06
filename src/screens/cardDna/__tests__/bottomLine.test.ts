@@ -58,7 +58,7 @@ describe('card DNA bottom line', () => {
 
   it('subtracts only when the fee is a single figure AND a realised value was supplied', () => {
     const single = allCatalogProducts().find((p) => {
-      const fee = cardFeeProfileFor(p.cardId)?.cardFee;
+      const fee = cardFeeProfileFor(p.cardId)?.publishedCardFee;
       if (fee === undefined) return false;
       const monthly = fee.publishedRows.filter((c) => /חודש|monthly/i.test(c.frequency ?? ''));
       const distinct = new Set(monthly.map((c) => `${c.value}|${c.unit}`));
@@ -84,7 +84,7 @@ describe('card DNA bottom line', () => {
 
   it('treats a zero realised value as a fact and not as an absence', () => {
     const single = allCatalogProducts().find((p) => {
-      const monthly = (cardFeeProfileFor(p.cardId)?.cardFee.publishedRows ?? [])
+      const monthly = (cardFeeProfileFor(p.cardId)?.publishedCardFee.publishedRows ?? [])
         .filter((c) => /חודש|monthly/i.test(c.frequency ?? ''));
       return new Set(monthly.map((c) => `${c.value}|${c.unit}`)).size === 1 && monthly[0]?.unit === 'ILS';
     });

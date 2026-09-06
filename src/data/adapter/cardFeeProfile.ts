@@ -113,8 +113,16 @@ export interface CardFeeProfile {
   readonly cardId: string;
   readonly issuerOrgId: string;
   readonly operatingCardCompanyId?: string;
-  /** Monthly/annual card fee. Usually `CONDITIONAL` with a level set — see the header. */
-  readonly cardFee: FeeReading;
+  /**
+   * The TARIFF'S published card fee. Usually `CONDITIONAL` with a level set — see the header.
+   *
+   * NOT `UserCard.cardFee`, and the name says so on purpose. That field is the fee the HOLDER told the
+   * app about, carrying `discountPercent` and `discountEndDate`, and whether anything reachable writes
+   * it is the live question behind the OQ-MDC-019 deferral of fee-waiver reminders — C4's notifications
+   * gate reads the tree for a writer of it. A second field of the same name in a different object made
+   * that gate report the deferral stale over a fact about a name.
+   */
+  readonly publishedCardFee: FeeReading;
   /** Per-card and VERIFIED on every current product. The estate resolved it card by card. */
   readonly fxCommissionPct: FeeReading;
   /** Per-card and VERIFIED on every current product. */
@@ -348,7 +356,7 @@ export function cardFeeProfileFor(cardId: string): CardFeeProfile | undefined {
     ...(product.operatingCardCompanyId === undefined
       ? {}
       : { operatingCardCompanyId: product.operatingCardCompanyId }),
-    cardFee: readingFromTariff('CARD_FEE', product),
+    publishedCardFee: readingFromTariff('CARD_FEE', product),
     fxCommissionPct: readingFromCardCost('fxCommissionPct', costs),
     foreignAtmPct: readingFromCardCost('foreignAtmPct', costs),
     atmSameCurrencyFee: readingFromCardCost('atmSameCurrencyFee', costs),
