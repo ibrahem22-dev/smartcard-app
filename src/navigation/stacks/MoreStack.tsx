@@ -18,8 +18,8 @@ import { DataPrivacyScreen } from '../../screens/DataPrivacyScreen';
 import { VaultExportImportScreen } from '../../screens/VaultExportImportScreen';
 import { GlossaryScreen } from '../../screens/GlossaryScreen';
 import { InstallmentImportScreen } from '../../screens/InstallmentImportScreen';
-import { InterestCalculatorScreen } from '../../screens/InterestCalculatorScreen';
 import { LearnScreen } from '../../screens/LearnScreen';
+import { MoreScreen } from '../../screens/MoreScreen';
 import { SettingsScreen } from '../../screens/SettingsScreen';
 import { useAppDirection, useStackBackGlyph } from '../../hooks/useAppDirection';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -67,8 +67,20 @@ export function MoreStack(): React.ReactElement {
     >
       <Stack.Screen
         name="MoreRoot"
+        component={MoreScreen}
+        options={{ title: t('עוד') }}
+      />
+      {/* SETTINGS IS A ROUTE, NOT A TAB. Criterion A1 fixes the bar at the spec's five items, so a
+          sixth tab would make the route tree say more than the navigation bar does. Its primary
+          entry is the gear on Home; this registration is what both entries reach. */}
+      <Stack.Screen
+        name="Settings"
         component={SettingsScreen}
-        options={{ title: t('הגדרות') }}
+        options={{
+          headerShown: true,
+          headerTitleAlign: isRTL ? 'center' : 'left',
+          title: t('הגדרות'),
+        }}
       />
       <Stack.Screen
         name="Learn"
@@ -125,15 +137,9 @@ export function MoreStack(): React.ReactElement {
           title: t('תשלומים קיימים'),
         }}
       />
-      <Stack.Screen
-        name="InterestCalculator"
-        component={InterestCalculatorScreen}
-        options={{
-          headerShown: true,
-          headerTitleAlign: isRTL ? 'center' : 'left',
-          title: t('מחשבון ריבית'),
-        }}
-      />
+      {/* THE INTEREST CALCULATOR IS NOT REGISTERED HERE ANY MORE — it moved to WalletStack, where
+          it opens from the card whose rate it is about and receives that card's id. Two routes to
+          one screen would be two places a rate could arrive from. */}
       {__DEV__ ? (
         <Stack.Screen
           name="EngineProbe"

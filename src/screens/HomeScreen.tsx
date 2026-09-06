@@ -1,11 +1,12 @@
 import React from 'react';
 import { Pressable, View } from 'react-native';
+import Ionicons from '@expo/vector-icons/Ionicons';
 import { useNavigation, type NavigationProp } from '@react-navigation/native';
 
 import { AppText } from '../components/AppText';
 import { FeatureGate } from '../components/FeatureGate';
 import { ProfileSwitcher } from '../components/ProfileSwitcher';
-import { RtlScreen, RtlScrollView } from '../components/rtl';
+import { RtlRow, RtlScreen, RtlScrollView } from '../components/rtl';
 import { useTheme } from '../hooks/useTheme';
 import { useTranslation } from '../hooks/useTranslation';
 import type { TabParamList } from '../navigation/types';
@@ -18,6 +19,9 @@ import {
 } from '../store/useFinishSetupStore';
 import { ACCENT, BORDER, CHROME, ROLE_BORDER, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
 import { RAISED_ACTION_ROUTE } from '../navigation/ia';
+import { HomeBenefitsEntry } from './home/HomeBenefitsEntry';
+import { HomeBillingCluster } from './home/HomeBillingCluster';
+import { HomeBudgetBar } from './home/HomeBudgetBar';
 import { HomeHero } from './home/HomeHero';
 import { HomeLoadBar } from './home/HomeLoadBar';
 import { HomeRiskStrip } from './home/HomeRiskStrip';
@@ -54,10 +58,13 @@ export function HomeScreen(): React.ReactElement {
   const dismissed = useFinishSetupStore(state => state.dismissed);
   const dismissFinishSetup = useFinishSetupStore(state => state.dismiss);
   const showFinishSetup = finishSetupIsVisible(skipped, dismissed);
-  const upcomingObligationsCount = cards.length;
 
   function handleCheckPurchase(): void {
     navigation.getParent()?.navigate(RAISED_ACTION_ROUTE);
+  }
+
+  function openSettings(): void {
+    navigation.navigate('More', { screen: 'Settings' });
   }
 
   return (
@@ -78,7 +85,10 @@ export function HomeScreen(): React.ReactElement {
               {t('בדוק רכישה')}
             </AppText>
           </Pressable>
+          <HomeBudgetBar />
+          <HomeBenefitsEntry />
           <HomeLoadBar />
+          <HomeBillingCluster />
           <HomeRiskStrip />
           <HomeUpcomingBilling />
 
@@ -90,15 +100,31 @@ export function HomeScreen(): React.ReactElement {
               activeBorderColor={theme.bankColor}
               mode="compact"
             />
-            <AppText
-              className="mt-2 text-base font-extrabold"
-              style={{ color: CHROME.white }}
-            >
-              {activeProfile?.displayName === 'פרופיל מקומי' ||
-              activeProfile?.displayName === 'Local profile'
-                ? t('פרופיל מקומי')
-                : (activeProfile?.displayName ?? '')}
-            </AppText>
+            {/* THE ACCOUNT ROW IS WHERE THE GEAR BELONGS. The directive asks for a settings
+                affordance in a top-level user/account area rather than buried under More, and this
+                is the only account area the product has. It deep-links into the More stack's
+                Settings route, which is where the screen is registered — Settings is not a sixth
+                tab because criterion A1 fixes the bar at the spec's five items. */}
+            <RtlRow className="mt-2 items-center justify-between gap-2">
+              <AppText
+                className="text-base font-extrabold"
+                style={{ color: CHROME.white }}
+              >
+                {activeProfile?.displayName === 'פרופיל מקומי' ||
+                activeProfile?.displayName === 'Local profile'
+                  ? t('פרופיל מקומי')
+                  : (activeProfile?.displayName ?? '')}
+              </AppText>
+              <Pressable
+                accessibilityLabel={t('הגדרות')}
+                accessibilityRole="button"
+                className="min-h-[48px] min-w-[48px] items-center justify-center"
+                onPress={openSettings}
+                testID="home-settings-gear"
+              >
+                <Ionicons color={CHROME.white} name="settings-outline" size={24} />
+              </Pressable>
+            </RtlRow>
           </View>
 
           {showFinishSetup ? (
@@ -144,22 +170,16 @@ export function HomeScreen(): React.ReactElement {
             </AppText>
           </View>
 
-          <View className={`mt-4 rounded-lg border p-4 ${ACCENT.borderSubtle} ${ACCENT.surface}`}>
-            <AppText
-              className={`text-lg font-extrabold ${TEXT.heading}`}
-            >
-              {t('חיובים קרובים')}
-            </AppText>
-            <AppText
-              className={`mt-2 text-base font-bold ${ACCENT.text}`}
-            >
-              {upcomingObligationsCount === 0
-                ? t('אין חיובים קרובים 📅')
-                : t('יש {{count}} חיובים קרובים', {
-                    count: upcomingObligationsCount,
-                  })}
-            </AppText>
-          </View>
+          {/* THE "UPCOMING CHARGES" COUNT IS GONE, AND IT WAS THE WRONG NUMBER.
+              It read `cards.length` and printed it as "you have N upcoming charges" — a count of
+              CARDS relabelled as a count of CHARGES. A user with three cards and no billing date
+              in the window was told they had three charges coming. The directive's instruction is
+              exactly this case: "Do NOT relabel a different metric as real spending."
+
+              What replaces it is `HomeUpcomingBilling`, which was already on this screen and
+              already derives the next billing DATE from each card's own billing day, and
+              `HomeBillingCluster`, which renders the risk engine's own same-day clusters. Both say
+              nothing when there is nothing to say, rather than counting something else. */}
 
           <FeatureGate feature="InternationalTravel">
             <View className={`mt-4 rounded-lg border p-4 opacity-45 ${ROLE_BORDER.advisory} ${ROLE_SURFACE_BG.advisory}`}>

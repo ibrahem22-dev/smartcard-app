@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, render } from '@testing-library/react-native';
+import { act, fireEvent, render } from '@testing-library/react-native';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { EMPTY_BENEFITS_DB } from '../../../authority/noSource';
@@ -103,8 +103,19 @@ function textsInTree(node: unknown): string[] {
   return textsInTree((node as { readonly children?: unknown }).children);
 }
 
+/**
+ * SECTION B IS AN ACCORDION NOW, AND THIS OPENS IT.
+ *
+ * Card DNA folds §B, §C and §D by default so the Bottom Line is what a reader meets first. The
+ * two cases below are about WHAT §B says when no benefit is evidenced, not about whether it starts
+ * open, so the reader presses the section header exactly as a user would. The assertion each case
+ * makes is unchanged; what is added is that the accordion has to actually work for either of them
+ * to reach the panel at all.
+ */
 function showEmpty() {
-  return render(wrap(<CardDnaScreen />));
+  const tree = render(wrap(<CardDnaScreen />));
+  fireEvent.press(tree.getByTestId('card-dna-section-b-toggle'));
+  return tree;
 }
 
 function showPopulated() {

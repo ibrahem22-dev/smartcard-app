@@ -48,6 +48,7 @@ const draft: CheckInputDraft = {
   category: null,
   installments: null,
   cardId: null,
+  merchantId: null,
 };
 
 const result = runPurchaseCheck(draft, {

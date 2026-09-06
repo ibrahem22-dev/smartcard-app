@@ -4,6 +4,7 @@ import { keyVault } from '../security/keyVault';
 import { useActivityStore } from './useActivityStore';
 import { useCardsStore } from './useCardsStore';
 import { useLoansStore } from './useLoansStore';
+import { useRecentMerchantsStore } from './useRecentMerchantsStore';
 import { useUserStore } from './useUserStore';
 import type {
   AppProfile,
@@ -162,6 +163,7 @@ export const useProfileStore = create<ProfileState>()((set, get) => ({
       useCardsStore.getState().hydrateProfile(activeProfile.id);
       useLoansStore.getState().hydrateProfile(activeProfile.id);
       useActivityStore.getState().hydrateProfile(activeProfile.id);
+      useRecentMerchantsStore.getState().hydrateProfile(activeProfile.id);
     }
   },
 
@@ -288,10 +290,15 @@ export const useProfileStore = create<ProfileState>()((set, get) => ({
     useCardsStore.getState().hydrateProfile(activeProfile.id);
     useLoansStore.getState().hydrateProfile(activeProfile.id);
     useActivityStore.getState().hydrateProfile(activeProfile.id);
+    /* WHERE THE OUTGOING PROFILE SHOPS DOES NOT FOLLOW THEM. Recents are read fresh for the
+       incoming profile; nothing is persisted for the outgoing one because `record` already wrote
+       every change as it happened. */
+    useRecentMerchantsStore.getState().hydrateProfile(activeProfile.id);
   },
 
   clearProfiles() {
     // A deliberate clear is a KNOWN empty state, not an unloaded one.
+    useRecentMerchantsStore.getState().forget();
     set({
       activeProfile: null,
       allProfiles: [],

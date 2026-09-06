@@ -20,6 +20,7 @@ import {
   type ClubResolution,
 } from '../authority/addCardCatalog';
 import { ClubResolver } from './addCard/ClubResolver';
+import { GuidedCardPicker, type GuidedSelection } from './addCard/GuidedCardPicker';
 import { useAppDirection } from '../hooks/useAppDirection';
 import { useTranslation } from '../hooks/useTranslation';
 import type { WalletStackParamList } from '../navigation/types';
@@ -30,7 +31,17 @@ import { parseAmount } from '../utils/parseAmount';
 
 type AddCardNavigation = NativeStackNavigationProp<WalletStackParamList, 'AddCard'>;
 
-type WizardPath = 'search' | 'generic' | 'catalog';
+/**
+ * `guided` IS THE HIERARCHY THE OWNER ASKED FOR: nature, issuer, product, programme, review.
+ *
+ * `search` REMAINS THE OPENING SURFACE, and that is a criterion rather than a preference.
+ * `catalog-reach`'s named case is *"opens as a search surface, not a three-issuer picker"* — P4
+ * replaced an inherited three-issuer picker with a search over the whole canonical catalog
+ * precisely so a user is never forced through a small list first. The guided path is offered ON
+ * that surface, above the search field, so somebody who does not know their card's name has a
+ * hierarchy to walk and somebody who does can type it.
+ */
+type WizardPath = 'search' | 'guided' | 'generic' | 'catalog';
 
 const ISSUER_OPTIONS: readonly { value: CardIssuer; label: string }[] = [
   { value: CardIssuer.Max, label: 'Max' },
@@ -107,6 +118,8 @@ export function AddCardScreen(): React.ReactElement {
   const [formError, setFormError] = useState<string | null>(null);
   const [showClubResolver, setShowClubResolver] = useState(false);
   const [clubResolution, setClubResolution] = useState<ClubResolution | null>(null);
+  /** Programme node ids the guided flow collected. Empty until that flow is used. */
+  const [programmeNodeIds, setProgrammeNodeIds] = useState<readonly string[]>([]);
 
   const hits = useMemo(
     () => searchCatalog(query, issuerOrgId === undefined ? undefined : { issuerOrgId }),
@@ -124,6 +137,7 @@ export function AddCardScreen(): React.ReactElement {
     setFormError(null);
     setShowClubResolver(false);
     setClubResolution(null);
+    setProgrammeNodeIds([]);
   }
 
   function openGeneric(): void {
@@ -148,6 +162,27 @@ export function AddCardScreen(): React.ReactElement {
     resetForm();
     setSelected(null);
     setPath('search');
+  }
+
+  /**
+   * THE GUIDED SELECTION LANDS IN THE SAME DETAILS FORM the search path uses.
+   *
+   * One form, one save path, one vault write. A second form for the guided flow would be a second
+   * place a card can be created and the first thing it would do is drift.
+   */
+  function acceptGuided(selection: GuidedSelection): void {
+    const hit: CatalogProductHit = {
+      cardId: selection.product.cardId,
+      issuerOrgId: selection.product.issuerOrgId,
+      ...(selection.product.operatingCardCompanyId === undefined
+        ? {}
+        : { operatingCardCompanyId: selection.product.operatingCardCompanyId }),
+      ...(selection.product.nameHe === undefined ? {} : { nameHe: selection.product.nameHe }),
+      ...(selection.product.nameEn === undefined ? {} : { nameEn: selection.product.nameEn }),
+      ...(selection.product.nameAr === undefined ? {} : { nameAr: selection.product.nameAr }),
+    };
+    openCatalog(hit);
+    setProgrammeNodeIds(selection.programmeNodeIds);
   }
 
   function saveCard(): void {
@@ -185,6 +220,7 @@ export function AddCardScreen(): React.ReactElement {
         ...(fee === undefined ? {} : { foreignTransactionFee: fee }),
         ...(selected === null ? {} : { catalogCardId: selected.cardId }),
         ...(clubResolution?.outcome === 'unknown' ? { unknownClub: true } : {}),
+        ...(programmeNodeIds.length === 0 ? {} : { programmeNodeIds }),
       }),
     );
     navigation.goBack();
@@ -362,6 +398,25 @@ export function AddCardScreen(): React.ReactElement {
 
           {path === 'search' ? (
             <View testID="add-card-search-path">
+              {/* THE GUIDED HIERARCHY, OFFERED FIRST. The search field below is what criterion
+                  catalog-reach protects — the wizard must not open as a small issuer picker — and
+                  this is the walk for somebody who does not know what their card is called. */}
+              <Pressable
+                accessibilityLabel={t('בחירה מודרכת של כרטיס')}
+                accessibilityRole="button"
+                className={`mb-4 min-h-[50px] items-center justify-center rounded-lg ${ACCENT.solid}`}
+                onPress={(): void => {
+                  resetForm();
+                  setSelected(null);
+                  setPath('guided');
+                }}
+                testID="add-card-guided-path"
+              >
+                <AppText className={`text-center text-base font-extrabold ${TEXT.onAccent}`}>
+                  {t('בחירה מודרכת של כרטיס')}
+                </AppText>
+              </Pressable>
+
               <AppText className={labelClass}>{t('חפש כרטיס')}</AppText>
               <TextInput
                 className={inputClass}
@@ -441,6 +496,12 @@ export function AddCardScreen(): React.ReactElement {
                   {t('לא מוצאים? הזנה ידנית')}
                 </AppText>
               </Pressable>
+            </View>
+          ) : null}
+
+          {path === 'guided' ? (
+            <View testID="add-card-guided-form">
+              <GuidedCardPicker onCancel={backToSearch} onConfirm={acceptGuided} />
             </View>
           ) : null}
 

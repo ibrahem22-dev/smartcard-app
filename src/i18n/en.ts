@@ -1210,4 +1210,153 @@ export const enBySource: Readonly<Record<string, string>> = {
     'Import failed; the previous snapshot was restored and verified.',
   'הייבוא והשחזור נכשלו. יש להפסיק להשתמש באפליקציה ולפנות לתמיכה.':
     'Import and restoration failed. Stop using the app and contact support.',
+
+  /* -----------------------------------------------------------------------------------------
+     THE UNIFIED PRODUCT UPGRADE - Merchant Radar, the Negotiation Hub, Card DNA's Bottom Line,
+     the Command Center budget, the dedicated Settings screen and the Benefits Hub.
+
+     Every string here is one a surface renders through a literal t('...'). The
+     localization-polish gate compares this map's key set against the other language's and fails
+     on any key present in one and absent from the other, so these two blocks are added and
+     edited together.
+     ----------------------------------------------------------------------------------------- */
+  'אין במאגר פרטי קשר לחברה שהנפיקה את הכרטיס הזה': 'The dataset holds no contact details for the company that issued this card',
+  'אין הטבות בקטגוריה הזאת': 'No benefits in this category',
+  'אין המלצה מאומתת לבית העסק הזה כרגע': 'No verified recommendation for this merchant right now',
+  'אין המלצת כרטיס לרכישה הזו': 'No card recommendation for this purchase',
+  'אין כרטיסים בכספת, ולכן אין מה לדרג': 'There are no cards in the vault, so there is nothing to rank',
+  'אין ערך נטו חודשי שאפשר להציג': 'No monthly net value can be shown',
+  'אין פרופיל טעון, ולכן אי אפשר לשמור יעד': 'No profile is loaded, so a target cannot be saved',
+  'איפה קונים היום?': 'Where are you shopping today?',
+  'אפשר להזין סכום ולהמשיך לבדיקה מלאה, וההמלצה תהיה כללית ולא לבית עסק מסוים': 'You can enter an amount and continue to the full check; the recommendation will be general and not merchant-specific',
+  'אשראי ותשלומים': 'Credit and installments',
+  'בחירת בית עסק אחר': 'Choose a different merchant',
+  'ביטוח': 'Insurance',
+  'בתוך היעד': 'Within the target',
+  'בתוקף': 'Valid',
+  'בתוקף עד': 'Valid until',
+  'בתי עסק': 'Merchants',
+  'הדירוג לפי הריבית על פריסת התשלומים הזאת': 'Ranked by the interest on this installment plan',
+  'ההטבה המתועדת לבית העסק הזה אינה חלה על הכרטיסים שברשותך': 'The benefit recorded for this merchant does not apply to the cards you hold',
+  'ההטבות של הכרטיס הזה': 'This card\'s benefits',
+  'ההטבות שלי': 'My benefits',
+  'הוגדר יעד, אך אין עדיין נתונים למדוד מולו': 'A target is set, but there is nothing to measure against it yet',
+  'הוסיפו כרטיס כדי לראות אילו הטבות מגיעות לכם': 'Add a card to see the benefits available to you',
+  'החלף': 'Change',
+  'הטבה מאומתת בבית העסק': 'Verified benefit at this merchant',
+  'הטבות זמינות': 'Available benefits',
+  'הטבות מתועדות לכרטיס הזה': 'Benefits recorded for this card',
+  'הטקסט הועתק': 'Text copied',
+  'הטקסט נפתח לעריכה באפליקציית ההודעות ואינו נשלח מכאן': 'The text opens for editing in the messaging app and is not sent from here',
+  'היעד הנוכחי': 'Current target',
+  'היעד שהגדרת': 'The target you set',
+  'הכול': 'All',
+  'הכרטיס הזה אינו מוצר מהקטלוג, ולכן אין אליו תעריפון': 'This card is not a catalog product, so no tariff reaches it',
+  'הנחות בבתי עסק': 'Merchant discounts',
+  'הסכומים שהתעריפון מפרסם לכרטיסים מהסוג הזה': 'The amounts the tariff publishes for cards of this kind',
+  'העדפות': 'Preferences',
+  'העתקת הטקסט': 'Copy the text',
+  'הפרופילים נשמרים במכשיר בלבד ואינם חשבון מקוון': 'Profiles are stored on this device only and are not an online account',
+  'הקלד שם של חנות': 'Type a shop name',
+  'הרכישה הזו עולה אותו דבר בכל הכרטיסים שלך, ולכן אין כרטיס מועדף': 'This purchase costs the same on all of your cards, so no card is preferred',
+  'השורה התחתונה': 'Bottom line',
+  'התעריפון מפרסם כמה סכומים לפי דרגת כרטיס, והנתונים אינם מציינים את הדרגה שלך': 'The tariff publishes several amounts by card level, and the data does not state your level',
+  'התקדמות מול יעד ההוצאה החודשי': 'Progress against the monthly spending target',
+  'התקשרות': 'Call',
+  'זהו מספר ההטבות שיש להן עדות במאגר, ולא שווי שנמדד בפועל': 'This is the number of benefits evidenced in the dataset, not a value measured in practice',
+  'זו קביעה על המאגר ולא על הכרטיס — ייתכן שמנפיק הכרטיס משווק הטבות שאין להן עדות כאן': 'This is a statement about the dataset and not about the card — the issuer may market benefits that are not evidenced here',
+  'זמין עם': 'Available with',
+  'חיובים שמתרכזים באותו יום': 'Charges landing on the same day',
+  'חיפוש בהטבות': 'Search benefits',
+  'חיפוש בית עסק': 'Search for a merchant',
+  'חיפוש לפי בית עסק, שם הטבה או קטגוריה': 'Search by merchant, benefit name or category',
+  'חשבון': 'Account',
+  'טרקלין נמל תעופה': 'Airport lounge',
+  'יעד הוצאה חודשי': 'Monthly spending target',
+  'כל הכרטיסים בכספת אינם פעילים': 'Every card in the vault is inactive',
+  'כמה חיובי כרטיס צפויים לרדת בסמיכות': 'Several card charges are scheduled close together',
+  'כרטיסים שמעניקים הטבות': 'Cards providing benefits',
+  'לא הוגדר יעד': 'No target set',
+  'לא הוגדר יעד חודשי. אפשר להגדיר אותו בהגדרות.': 'No monthly target is set. You can set one in Settings.',
+  'לא ניתן היה לחשב את העלות של הכרטיסים שלך לרכישה הזו': 'The cost of your cards for this purchase could not be worked out',
+  'לא נמדד שווי הטבות בפועל, ולכן אי אפשר לחשב ערך נטו': 'No realised benefit value has been measured, so a net value cannot be calculated',
+  'לא נמצא בית עסק בשם הזה': 'No merchant found by that name',
+  'לא נמצאה במאגר הטבה מתועדת לבית העסק הזה': 'No benefit recorded in the dataset for this merchant',
+  'לא נמצאה במאגר הטבה מתועדת לכרטיסים שלכם': 'No benefit recorded in the dataset for your cards',
+  'לא פורסם דמי כרטיס חודשיים שחלים על הכרטיס הזה': 'No monthly card fee applying to this card is published',
+  'לא פורסם מספר טלפון מאומת לחברה הזאת': 'No verified phone number is published for this company',
+  'לא פורסם ערוץ וואטסאפ מאומת לחברה הזאת': 'No verified WhatsApp channel is published for this company',
+  'לא פורסם שווי מספרי להטבה הזאת': 'No numeric value is published for this benefit',
+  'לא פורסם תאריך סיום': 'No end date is published',
+  'מהיעד': 'Of the target',
+  'מהכרטיסים שלך': 'of your cards',
+  'מחשבון ריבית ועלות אשראי': 'Interest and credit-cost calculator',
+  'מטבע חוץ': 'Foreign currency',
+  'מסונן לכרטיס': 'Filtered to card',
+  'מסתיימות בקרוב': 'Ending soon',
+  'מסתיימת בקרוב': 'Ending soon',
+  'מעל היעד שהגדרת': 'Over the target you set',
+  'מקור': 'Source',
+  'משא ומתן על דמי הכרטיס': 'Negotiate the card fee',
+  'מתקרבים ליעד': 'Approaching the target',
+  'נמדד לפי ההתחייבויות החודשיות שלך והרכישות שרשמת החודש. האפליקציה אינה מחוברת לחשבון הבנק ואינה רואה חיובים שלא הוזנו.': 'Measured from your monthly obligations and the purchases you logged this month. The app is not connected to your bank account and does not see charges that were not entered.',
+  'נסיעות וטיסות': 'Travel and flights',
+  'נקודות ומועדון': 'Points and club',
+  'סגירה': 'Close',
+  'סכום בשקלים, או ריק כדי לבטל יעד': 'An amount in shekels, or empty to clear the target',
+  'עמלות ופטורים': 'Fees and exemptions',
+  'ערך נטו לחודש': 'Net value per month',
+  'פתיחת אפשרויות מול חברת האשראי': 'Open options for contacting the card company',
+  'פתיחת וואטסאפ עם הטקסט': 'Open WhatsApp with the text',
+  'צריך סכום חיובי בשקלים': 'A positive amount in shekels is required',
+  'קיימת הטבה מתועדת לבית העסק הזה, אך היא אינה משויכת לאף כרטיס במאגר': 'A benefit is recorded for this merchant, but it is not linked to any card in the dataset',
+  'שווי': 'Value',
+  'שווי הטבות שמומש': 'Realised benefit value',
+  'שילוב הטבות': 'Combining benefits',
+  'שמירת יעד ההוצאה': 'Save the spending target',
+  'תוקף לא ידוע': 'Validity unknown',
+
+  /* -----------------------------------------------------------------------------------------
+     THE UNIFIED PRODUCT UPGRADE - Merchant Radar, the Negotiation Hub, Card DNA's Bottom Line,
+     the Command Center budget, the dedicated Settings screen and the Benefits Hub.
+
+     Every string here is one a surface renders through a literal t('...'). The
+     localization-polish gate compares this map's key set against the other language's and fails
+     on any key present in one and absent from the other, so these two blocks are added and
+     edited together.
+     ----------------------------------------------------------------------------------------- */
+  'אישור ומעבר לפרטי הכרטיס': 'Confirm and continue to the card details',
+  'בחירה מודרכת של כרטיס': 'Guided card selection',
+  'בחירת בנק': 'Choose a bank',
+  'בחירת חברת אשראי': 'Choose a card company',
+  'בחירת כרטיס': 'Choose a card',
+  'בלי מועדון או תוכנית': 'No club or programme',
+  'המשך לסיכום': 'Continue to the summary',
+  'חיפוש בכרטיסים של המנפיק': 'Search this issuer\'s cards',
+  'כרטיס בנקאי': 'Bank-issued card',
+  'כרטיס חוץ בנקאי': 'Non-bank card',
+  'כרטיס שהונפק דרך הבנק שלך': 'A card issued through your bank',
+  'כרטיס שהונפק ישירות על ידי חברת אשראי': 'A card issued directly by a card company',
+  'לא נמצא כרטיס מתאים אצל המנפיק הזה': 'No matching card was found for this issuer',
+  'מועדון או תוכנית': 'Club or programme',
+  'מנפיק': 'Issuer',
+  'סוג הכרטיס': 'Card type',
+  'סיכום לפני שמירה': 'Summary before saving',
+  'רק מועדונים שיש להם קשר מתועד לכרטיס הזה': 'Only clubs with a recorded link to this card',
+  'רשת': 'Network',
+  'רשת התשלומים לא אושרה במאגר': 'The payment network is not confirmed in the dataset',
+
+  /* -----------------------------------------------------------------------------------------
+     THE UNIFIED PRODUCT UPGRADE - Merchant Radar, the Negotiation Hub, Card DNA's Bottom Line,
+     the Command Center budget, the dedicated Settings screen and the Benefits Hub.
+
+     Every string here is one a surface renders through a literal t('...'). The
+     localization-polish gate compares this map's key set against the other language's and fails
+     on any key present in one and absent from the other, so these two blocks are added and
+     edited together.
+     ----------------------------------------------------------------------------------------- */
+  'איזה כרטיס זה?': 'Which card is this?',
+  'אישור זהות הכרטיס': 'Confirm the card\'s identity',
+  'הכרטיס הזה אינו מקושר למוצר מהקטלוג, ולכן אין לו עמלות או הטבות מתועדות.': 'This card is not linked to a catalog product, so it has no recorded fees or benefits.',
+  'הכרטיס הזה נוצר לפני שהאפליקציה עבדה מול קטלוג. אישור הזהות יקשר אותו לעמלות ולהטבות המתועדות.': 'This card was created before the app worked against a catalog. Confirming its identity links it to the recorded fees and benefits.',
 };

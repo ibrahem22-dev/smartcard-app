@@ -53,6 +53,7 @@ const draft = (over: Partial<CheckInputDraft> = {}): CheckInputDraft => ({
   category: null,
   installments: null,
   cardId: null,
+  merchantId: null,
   ...over,
 });
 

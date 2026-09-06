@@ -354,6 +354,36 @@
       "why": "THE SAME PREDECESSOR-LINT ARTEFACT ALLOW-CROSSSET-RESOLVER RECORDS, and the third criterion to meet it after ALLOW-LEARN-SEAM-IMPORT and ALLOW-DATA-PRIVACY-SEAM-IMPORT. R3 names src/authority/** because that was the boundary directory when this lint was adopted; the rule in force is D2, and reaching the boundary THROUGH its modules is the arrangement D2 exists to make possible rather than a violation of it. What is imported is stalenessReading, which holds no pack bytes: it takes a rate date and an EXPLICIT asOf and returns an age. That explicitness is the whole point of C10 - the criterion s declared control is clock-bypass, \"pin the staleness clock to now\", so a screen that could not be handed its clock could not be falsified. The alternative, letting the screen read the clock itself, is exactly what the criterion forbids. Scoped to CheckInputScreen.tsx BY NAME, so a second screen reaching for the staleness seam is still UNACCOUNTED and has to be argued on its own. The successor boundary gate, lint-boundaries, is green on this import at 5 rules and 0 violations - it is only the predecessor lint that objects.",
       "reviewedBy": "MDC C10 / OQ-MDC-007",
       "reviewedAt": "2026-09-01"
+    },
+    {
+      "id": "ALLOW-MERCHANT-TAXONOMY-PACK-READ",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/data/adapter/(merchantDirectory\\.ts|__tests__/merchantDirectory\\.test\\.ts)$",
+      "message": "raw dataset '[^']*packs/taxonomy/pack\\.json' imported outside",
+      "why": "THE SAME PREDECESSOR-LINT ARTEFACT ALLOW-LEARN-CONTENT-PACK-READ RECORDS, one pack later. R3 names src/authority/** because that was the boundary directory when this lint was adopted and src/data/adapter/** did not exist yet; the rule in force is D2, and merchantDirectory.ts is INSIDE data/adapter/**. It is the only module in the app that names the taxonomy pack, it opens it through the published adapter's openTaxonomySlices rather than reading rows itself, and every consumer reaches it through the src/authority/merchantAuthority.ts seam. The test file is included because it derives its expectations from the shipped rows - the five Owner-named checkout chips are asserted BY ID against the real pack, which is what makes 'the chip resolves to a real merchant' falsifiable instead of a fixture agreeing with itself. Scoped to the two files BY NAME, so a third module opening the taxonomy pack is still UNACCOUNTED.",
+      "reviewedBy": "MDC Merchant Radar / OQ-MDC-007",
+      "reviewedAt": "2026-09-06"
+    },
+    {
+      "id": "ALLOW-MERCHANT-BENEFITS-PACK-READ",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/data/adapter/(merchantBenefits\\.ts|benefitEligibility\\.ts|__tests__/(merchantBenefits|benefitEligibility)\\.test\\.ts)$",
+      "message": "raw dataset '[^']*packs/benefits/pack\\.json' imported outside",
+      "why": "ALLOW-LEARN-CONTENT-PACK-READ states the principle: the rule in force is D2, and these modules are INSIDE data/adapter/**. They are the app's only readers of the benefits pack, they open it through the published adapter's openBenefitsSlices, and they exist to produce an HONEST ABSENCE - the shipped corpus links a benefit to a merchant on six rows out of seven hundred, and the point of the module is to say which of three different nothings that is rather than to work around it. Consumers reach them through src/authority/merchantAuthority.ts and src/authority/benefitAuthority.ts. The test files are included because they assert the absence against the real pack; asserting it against a fixture would let the corpus change without anything noticing. Scoped BY NAME.",
+      "reviewedBy": "MDC Merchant Radar / Benefits Hub / OQ-MDC-007",
+      "reviewedAt": "2026-09-06"
+    },
+    {
+      "id": "ALLOW-ISSUER-CONTACT-PACK-READ",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/data/adapter/(issuerContacts\\.ts|__tests__/issuerContacts\\.test\\.ts)$",
+      "message": "raw dataset '[^']*packs/content/pack\\.json' imported outside",
+      "why": "ALLOW-LEARN-CONTENT-PACK-READ already permits this pack for the Learn seam; this is the second reader of it and the same argument, scoped BY NAME. issuerContacts.ts is INSIDE data/adapter/**, opens the pack through the published adapter's openContentSlices, and is the Negotiation Hub's only source of a dialable number. It exists precisely so that no number is ever typed into a screen: every digit it returns arrives with the issuer page it was captured from, the date, the verbatim quote and the verification status, and a value it cannot parse yields NO channel rather than a guess. The test file is included because it pins the numbers BY VALUE against the shipped rows and asserts the three unverified candidate numbers the campaign directive supplied are ABSENT - an assertion that only means something against the real pack.",
+      "reviewedBy": "MDC Negotiation Hub / OQ-MDC-007",
+      "reviewedAt": "2026-09-06"
     }
   ],
   "$closedNote": [

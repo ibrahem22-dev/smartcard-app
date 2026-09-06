@@ -45,6 +45,23 @@ export interface UserProfile {
    */
   readonly commitmentCapIls?: number;
 
+  /**
+   * ₪ monthly spending target the user set for themselves — the Command Center's budget.
+   *
+   * NOT `commitmentCapIls` UNDER ANOTHER NAME. The cap is a ceiling on what the user will OBLIGE
+   * themselves to each month and it is measured against income by the load engine. The target is
+   * what they mean to SPEND this month, and it is measured against the outflow the app can actually
+   * see. One number serving both questions would put a figure the user set for one of them on the
+   * surface that answers the other.
+   *
+   * Optional, and it stays optional: no target is a real state, and a default written into the
+   * vault would be the app's opinion wearing the user's provenance.
+   *
+   * Classified `vault` in `src/store/p5UserState.ts`, which criterion `U1`'s gate checks against
+   * this declaration in both directions.
+   */
+  readonly monthlyBudgetTargetIls?: number;
+
   /** Unix epoch ms. */
   readonly createdAt: number;
   readonly updatedAt: number;

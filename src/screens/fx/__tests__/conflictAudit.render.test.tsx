@@ -96,6 +96,7 @@ const result = runPurchaseCheck({
   category: null,
   installments: null,
   cardId: null,
+  merchantId: null,
 }, {
   monthlyIncomeIls: provenanced(10_000, 'USER'),
   commitments: [],

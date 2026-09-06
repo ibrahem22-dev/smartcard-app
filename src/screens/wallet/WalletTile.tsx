@@ -25,6 +25,7 @@ import {
 } from './tileElements';
 import type { WalletTileElementId } from './tileElements';
 import { isForeignAmount, tileChipFor } from './tileDiscipline';
+import { IssuerNegotiationSheet } from './IssuerNegotiationSheet';
 import { WaiverBadge } from './WaiverBadge';
 import { WalletBestForChips } from './WalletBestForChips';
 import { WalletLimitBar } from './WalletLimitBar';
@@ -95,6 +96,9 @@ export function WalletTile({ card }: WalletTileProps): React.ReactElement {
   const { t } = useTranslation();
   const { amount, money } = useMoney();
   const navigation = useNavigation<WalletNavigation>();
+  /* Declared before the early return, because a hook after a conditional return is a hook that
+     runs on some renders and not others. */
+  const [negotiationOpen, setNegotiationOpen] = React.useState<boolean>(false);
 
   if (card === undefined) {
     return <View />;
@@ -211,7 +215,14 @@ export function WalletTile({ card }: WalletTileProps): React.ReactElement {
       case 'waiver-badge':
         return (
           <View key={id} testID={testID}>
-            <WaiverBadge card={card} />
+            {/* THE BADGE BECAME A DOOR. It still counts down and still schedules nothing; what
+                changed is that a waiver about to lapse now leads somewhere the holder can act. */}
+            <WaiverBadge card={card} onPress={(): void => setNegotiationOpen(true)} />
+            <IssuerNegotiationSheet
+              card={card}
+              onClose={(): void => setNegotiationOpen(false)}
+              visible={negotiationOpen}
+            />
           </View>
         );
       case 'best-for-chips':

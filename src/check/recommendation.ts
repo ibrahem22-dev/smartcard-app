@@ -75,26 +75,64 @@ export interface VerdictRunnerUp {
   readonly deltaFromBestIls?: ProvenancedNumber;
 }
 
+/**
+ * WHY THERE IS NO RECOMMENDATION — the four different nothings, kept apart.
+ *
+ * Until this existed the Verdict simply omitted the block, and the four sentences below all
+ * rendered as the same silence. They are not the same statement and only one of them is about the
+ * user's wallet being short of something:
+ *
+ *   · `NO_CARDS`        — the vault holds no card, so there is nothing to rank;
+ *   · `NO_AVAILABLE_CARD` — every card the user holds is inactive;
+ *   · `NOT_PRICEABLE`   — the cards are ranked on cost and this purchase costs the same on all of
+ *                          them. A true, useful sentence, and NOT a failure;
+ *   · `COST_UNKNOWN`    — the engine could not resolve a cost for the available cards and reported
+ *                          them in `unknownCostCards` rather than pricing them at zero.
+ *
+ * The screen renders the difference. Collapsing them would eventually let the app say "we could
+ * not work it out" about a purchase where the honest answer is "it makes no difference".
+ */
+export type RecommendationAbsence =
+  | 'NO_CARDS'
+  | 'NO_AVAILABLE_CARD'
+  | 'NOT_PRICEABLE'
+  | 'COST_UNKNOWN';
+
+/**
+ * WHAT PRICED THE RANKING.
+ *
+ * Carried so the surface can say what the recommendation is ABOUT rather than presenting a bare
+ * winner. `installment-interest` means "cheapest for this installment plan", which is a narrower
+ * and more truthful claim than "best card".
+ */
+export type RecommendationBasis = 'installment-interest' | 'supplied-cost';
+
 export interface ComposedRecommendation {
   readonly recommendation?: VerdictRecommendation;
   readonly runnerUp?: VerdictRunnerUp;
+  /** Present exactly when `recommendation` is absent, and it says which kind of absent. */
+  readonly absence?: RecommendationAbsence;
+  /** Present exactly when `recommendation` is present. */
+  readonly basis?: RecommendationBasis;
 }
 
 /**
  * Compose what the Verdict screen is handed, from one scoring result and one verdict.
  *
- * Returns an EMPTY object rather than a placeholder when the engine ranked nothing — no cards, no
- * resolvable costs, or every card unavailable. The screen's own comment already says an absent
- * recommendation means the block is omitted rather than invented, and that stays true: what changes
- * is that the absence is now the engine's answer instead of the loop's silence.
+ * Returns NO RECOMMENDATION — and the reason for it — rather than a placeholder when the engine
+ * ranked nothing: no cards, every card unavailable, nothing priceable, or costs it could not
+ * resolve. The screen's own comment already says an absent recommendation means the block is
+ * omitted rather than invented, and that stays true. What changed is that the absence is now the
+ * engine's answer instead of the loop's silence, and that it is SAID rather than left as a gap.
  */
 export const composeRecommendation = (
   scoring: ScoringResult | null,
   cards: readonly EngineCard[],
   verdict: PurchaseVerdict,
+  basis?: RecommendationBasis,
 ): ComposedRecommendation => {
   const best = scoring?.ranked[0];
-  if (best === undefined) return {};
+  if (best === undefined) return { absence: absenceFrom(scoring, cards, basis) };
 
   const nameOf = (cardId: string): string =>
     cards.find((c) => c.cardId === cardId)?.displayName ?? cardId;
@@ -108,10 +146,12 @@ export const composeRecommendation = (
   };
 
   const second = scoring?.ranked[1];
-  if (second === undefined) return { recommendation };
+  const priced: RecommendationBasis = basis ?? 'supplied-cost';
+  if (second === undefined) return { recommendation, basis: priced };
 
   return {
     recommendation,
+    basis: priced,
     runnerUp: {
       cardId: second.cardId,
       displayName: nameOf(second.cardId),
@@ -120,4 +160,28 @@ export const composeRecommendation = (
         : {}),
     },
   };
+};
+
+/**
+ * WHICH NOTHING THIS IS, READ OFF THE ENGINE'S OWN REPORT — never guessed from the empty ranking.
+ *
+ * `scoreCards` already publishes `unavailableCards` and `unknownCostCards`, so the reason an empty
+ * ranking is empty is a fact the engine stated rather than an inference this file makes. The order
+ * matters: an unpriced available card is a more specific statement than "nothing is priceable",
+ * and reporting the general case over the specific one would lose the reason.
+ */
+const absenceFrom = (
+  scoring: ScoringResult | null,
+  cards: readonly EngineCard[],
+  basis: RecommendationBasis | undefined,
+): RecommendationAbsence => {
+  if (cards.length === 0 || scoring === null) return 'NO_CARDS';
+  if (scoring.unavailableCards.length === cards.length) return 'NO_AVAILABLE_CARD';
+  /* AN ABSENT BASIS IS NOT AN UNRESOLVED COST. When no lane priced this purchase, every available
+     card reaches the engine unpriced and lands in `unknownCostCards` — which would read as "we
+     could not work out what your cards cost" when the truth is that this purchase costs the same
+     on all of them. The caller says whether it attempted a price; only then is an unpriced card a
+     resolution failure. */
+  if (basis === undefined) return 'NOT_PRICEABLE';
+  return scoring.unknownCostCards.length > 0 ? 'COST_UNKNOWN' : 'NOT_PRICEABLE';
 };

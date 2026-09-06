@@ -26,6 +26,7 @@ const draft: CheckInputDraft = {
   category: null,
   installments: null,
   cardId: null,
+  merchantId: null,
 };
 
 const profile = (over: Partial<UserProfile> = {}): UserProfile => ({

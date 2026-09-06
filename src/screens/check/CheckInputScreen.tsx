@@ -5,7 +5,9 @@ import { AppText } from '../../components/AppText';
 import { ProvenanceChip } from '../../components/ProvenanceChip';
 import { chipStateFor } from '../../components/provenanceChipState';
 import { stalenessReading } from '../../data/adapter/fxStaleness';
-import { RtlButton, RtlRow, RtlScreen } from '../../components/rtl';
+import { MerchantRadar } from './MerchantRadar';
+import type { MerchantAdvice } from '../../check/merchantRadar';
+import { RtlButton, RtlRow, RtlScreen, RtlScrollView } from '../../components/rtl';
 import { useMoney } from '../../hooks/useMoney';
 import { TABULAR_NUMERALS } from '../../utils/money';
 import { useTranslation } from '../../hooks/useTranslation';
@@ -33,6 +35,17 @@ export interface CheckInputDraft {
   readonly category: PurchaseCategory | null;
   readonly installments: number | null;
   readonly cardId: string | null;
+  /**
+   * WHERE THE USER IS SHOPPING — a canonical `merch:*` id from the taxonomy pack, or `null`.
+   *
+   * A CANONICAL ID AND NOT A TYPED NAME. A free-text merchant would be a second merchant
+   * vocabulary living beside the estate's, and the first thing it would do is disagree with it:
+   * `רמי לוי` and `Rami Levy stores` are one shop, and only the pack knows that. The search field
+   * resolves what the user typed to an id, or resolves nothing and leaves this `null`.
+   *
+   * `null` is a first-class state — the Check flow never required a merchant and still does not.
+   */
+  readonly merchantId: string | null;
 }
 
 export interface CheckInputOwnedCard {
@@ -64,6 +77,22 @@ export interface CheckInputScreenProps {
    * Quiet benefit hint. Present only when a real match exists. Absent: no chip.
    */
   readonly benefitHint?: CheckInputBenefitHint;
+  /**
+   * MERCHANT RADAR'S ANSWER, RESOLVED BY THE ROUTE — criterion B1.
+   *
+   * The screen owns which shop is selected, because that is UI state. It does not own what the
+   * selection MEANS: joining a merchant to a benefit and a benefit to a card is composition, and a
+   * surface that did it would be holding recommendation logic. So the route hands in a resolver
+   * built from `merchantAdvice()` and this screen calls it.
+   *
+   * Absent: the radar still selects merchants and shows no answer, which is what every render
+   * suite that predates the radar mounts.
+   */
+  readonly resolveMerchantAdvice?: (merchantId: string) => MerchantAdvice | null;
+  /** Canonical ids this profile checked recently, most recent first. */
+  readonly recentMerchantIds?: readonly string[];
+  /** Told when a merchant is chosen, so the route can record it as recent. Never called with null. */
+  readonly onMerchantChosen?: (merchantId: string) => void;
 }
 
 const CURRENCIES: readonly Currency[] = Object.values(Currency);
@@ -109,6 +138,9 @@ export function CheckInputScreen({
   ownedCards,
   fxReference,
   benefitHint,
+  resolveMerchantAdvice,
+  recentMerchantIds,
+  onMerchantChosen,
 }: CheckInputScreenProps): React.ReactElement {
   const { t } = useTranslation();
   const { money } = useMoney();
@@ -120,6 +152,7 @@ export function CheckInputScreen({
   const [installmentCount, setInstallmentCount] = useState<number>(2);
   const [cardId, setCardId] = useState<string | null>(null);
   const [cardPickerOpen, setCardPickerOpen] = useState<boolean>(false);
+  const [merchantId, setMerchantId] = useState<string | null>(null);
 
   const amount = useMemo((): number | null => parseTypedAmount(typedAmount), [typedAmount]);
   const canCheck = amount !== null;
@@ -154,13 +187,46 @@ export function CheckInputScreen({
       category,
       installments: installmentsMode ? installmentCount : null,
       cardId,
+      merchantId,
     });
-  }, [amount, cardId, category, currency, installmentCount, installmentsMode, onCheck]);
+  }, [amount, cardId, category, currency, installmentCount, installmentsMode, merchantId, onCheck]);
+
+  const chooseMerchant = useCallback((chosen: string | null): void => {
+    setMerchantId(chosen);
+    if (chosen !== null) onMerchantChosen?.(chosen);
+  }, [onMerchantChosen]);
+
+  const merchantAnswer = useMemo(
+    (): MerchantAdvice | null =>
+      merchantId === null || resolveMerchantAdvice === undefined
+        ? null
+        : resolveMerchantAdvice(merchantId),
+    [merchantId, resolveMerchantAdvice],
+  );
 
   return (
     <RtlScreen className={SURFACE.page} safe>
+      {/* THE SCREEN SCROLLS NOW, AND IT HAS TO.
+          Check Input was a single non-scrolling card: amount, keypad, currency, categories, plan,
+          card picker and the submit button just fitted a tall phone. Merchant Radar sits above all
+          of it, and on the emulator the submit button went below the fold with no way to reach it —
+          the flow's only exit, unreachable. Found by driving the built APK rather than by a render
+          test, which mounts a tree with no viewport and cannot see a control fall off a screen. */}
+      <RtlScrollView
+        contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
+        keyboardShouldPersistTaps="handled"
+      >
       <View className={`m-3 rounded-lg border p-4 ${SURFACE.card} ${BORDER.hairline}`}>
         <AppText className={`text-lg font-extrabold ${TEXT.heading}`}>{t('בדיקת רכישה')}</AppText>
+
+        {/* THE SHOP COMES FIRST. It is optional and it is at the top, because the person using this
+            is standing at a till and the shop is the one thing they already know. */}
+        <MerchantRadar
+          advice={merchantAnswer}
+          onSelect={chooseMerchant}
+          selectedMerchantId={merchantId}
+          {...(recentMerchantIds === undefined ? {} : { recentMerchantIds })}
+        />
 
         <AppText className={`mt-4 text-sm font-bold ${TEXT.body}`}>{t('סכום הרכישה')}</AppText>
         <TextInput
@@ -413,6 +479,7 @@ export function CheckInputScreen({
           testID="check-input-submit"
         />
       </View>
+      </RtlScrollView>
     </RtlScreen>
   );
 }

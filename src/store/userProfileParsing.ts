@@ -62,6 +62,12 @@ export function isUserProfile(value: unknown): value is UserProfile {
     isOptionalString(value.phoneNumber) &&
     (value.dangerThreshold === undefined ||
       isFiniteNumber(value.dangerThreshold)) &&
+    isOptionalFiniteNumber(value.commitmentCapIls) &&
+    /* A corrupt budget target must not reach Home as a denominator. A record that carries a
+       non-numeric one is rejected whole, like every other malformed field here, rather than
+       having the field quietly dropped — a partially trusted profile is the thing this guard
+       exists to refuse. */
+    isOptionalFiniteNumber(value.monthlyBudgetTargetIls) &&
     (value.payday === undefined || isPaydayCapture(value.payday))
   );
 }

@@ -8,6 +8,7 @@ const draft = (overrides: Partial<CheckInputDraft> = {}): CheckInputDraft => ({
   category: null,
   installments: null,
   cardId: null,
+  merchantId: null,
   ...overrides,
 });
 

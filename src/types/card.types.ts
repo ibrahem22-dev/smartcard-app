@@ -94,7 +94,44 @@ export interface CardFeeInfo {
  */
 export interface CardProduct {
   readonly cardProductId: string;
+  /**
+   * THE LEGACY PRESENTATION-TIER ISSUER KEY — three values, and it is not canonical identity.
+   *
+   * It predates the canonical catalog and drives theme colour, card artwork and the legacy
+   * benefits vocabulary. It cannot express the estate's model: 303 of 378 current products are
+   * issued by one of THIRTEEN BANKS and merely OPERATED by a card company, and `org:amex-il` is a
+   * fourth card company this enum has no member for.
+   *
+   * `issuerOrgId` below is the canonical answer to "whose card is this". Every consumer added from
+   * the canonical campaign onward reads that; this field is kept so the existing surfaces that
+   * switch on it keep compiling and keep looking right.
+   */
   readonly issuer: CardIssuer;
+  /**
+   * WHOSE CARD IT IS — the canonical `org:*` id, from the catalog.
+   *
+   * Present on a card the user picked from the catalog and on a legacy card the reconciler could
+   * resolve. ABSENT means the product is not a catalog row (a manually described card) or the
+   * reconciler refused to guess between candidates — and absent is a first-class state, because a
+   * canonical id nobody verified is worse than none.
+   */
+  readonly issuerOrgId?: string;
+  /**
+   * WHICH CARD COMPANY RUNS IT — canonical, and deliberately a SEPARATE key from the issuer.
+   *
+   * The `org:amex-il` catalog row states the reason verbatim: Amex-IL and Isracard *"are NOT
+   * disjoint issuers — any filter or join that assumes disjointness is wrong"*, and yet they
+   * *"carry genuinely different fee terms (e.g. FX 2.9% vs 2.5%) and must not be merged into one
+   * fee scope."* Every tariff join in this app is issuer × operator for that reason.
+   */
+  readonly operatingCardCompanyId?: string;
+  /**
+   * The canonical `net:*` ids the estate's network string resolves to. Empty or absent where the
+   * estate wrote `UNKNOWN`, `NOT_CONFIRMED` or `MULTI_NETWORK_SEE_VARIANTS`; never defaulted.
+   */
+  readonly networkIds?: readonly string[];
+  /** The estate's own product classification, verbatim. NOT a tier — the estate models no tier. */
+  readonly productType?: string;
   readonly network: CardNetwork;
   readonly currency: Currency;
   /** Roles this product is capable of filling (capability tags). May be empty. */
@@ -132,6 +169,15 @@ export interface UserCard {
   readonly foreignCurrencyType?: ForeignCurrencyType;
   readonly bankFxCommission?: number;
   readonly cardIssuanceDate?: string;
+  /**
+   * Programmes and clubs the USER said this card carries, as canonical node ids.
+   *
+   * On the UserCard rather than the product, because two people holding the same product can be in
+   * different clubs — the product says which programmes are COMPATIBLE, and this says which the
+   * holder actually has. Empty means none chosen; absent means the question was never asked, which
+   * is the state every card created before the guided flow is in.
+   */
+  readonly programmeNodeIds?: readonly string[];
 }
 
 /**
@@ -165,6 +211,16 @@ export interface EngineCard {
   readonly foreignCurrencyType?: ForeignCurrencyType;
   readonly bankFxCommission?: number;
   readonly cardIssuanceDate?: string;
+  /** Canonical issuer id, from the product. See `CardProduct.issuerOrgId`. */
+  readonly issuerOrgId?: string;
+  /** Canonical operating card company id, from the product. */
+  readonly operatingCardCompanyId?: string;
+  /** Canonical `net:*` ids, from the product. */
+  readonly networkIds?: readonly string[];
+  /** The estate's product classification, from the product. */
+  readonly productType?: string;
+  /** Programmes the holder said this card carries, from the user card. */
+  readonly programmeNodeIds?: readonly string[];
 }
 
 /**
@@ -205,6 +261,13 @@ export function composeEngineCard(user: UserCard, product: CardProduct): EngineC
       : {}),
     ...(user.bankFxCommission !== undefined ? { bankFxCommission: user.bankFxCommission } : {}),
     ...(user.cardIssuanceDate !== undefined ? { cardIssuanceDate: user.cardIssuanceDate } : {}),
+    ...(product.issuerOrgId !== undefined ? { issuerOrgId: product.issuerOrgId } : {}),
+    ...(product.operatingCardCompanyId !== undefined
+      ? { operatingCardCompanyId: product.operatingCardCompanyId }
+      : {}),
+    ...(product.networkIds !== undefined ? { networkIds: product.networkIds } : {}),
+    ...(product.productType !== undefined ? { productType: product.productType } : {}),
+    ...(user.programmeNodeIds !== undefined ? { programmeNodeIds: user.programmeNodeIds } : {}),
   };
 }
 
@@ -231,6 +294,7 @@ export function splitEngineCard(card: EngineCard): { user: UserCard; product: Ca
       : {}),
     ...(card.bankFxCommission !== undefined ? { bankFxCommission: card.bankFxCommission } : {}),
     ...(card.cardIssuanceDate !== undefined ? { cardIssuanceDate: card.cardIssuanceDate } : {}),
+    ...(card.programmeNodeIds !== undefined ? { programmeNodeIds: card.programmeNodeIds } : {}),
   };
   const product: CardProduct = {
     cardProductId,
@@ -246,6 +310,12 @@ export function splitEngineCard(card: EngineCard): { user: UserCard; product: Ca
     ...(card.bankName !== undefined ? { bankName: card.bankName } : {}),
     ...(card.cardRates !== undefined ? { cardRates: card.cardRates } : {}),
     ...(card.cardFee !== undefined ? { cardFee: card.cardFee } : {}),
+    ...(card.issuerOrgId !== undefined ? { issuerOrgId: card.issuerOrgId } : {}),
+    ...(card.operatingCardCompanyId !== undefined
+      ? { operatingCardCompanyId: card.operatingCardCompanyId }
+      : {}),
+    ...(card.networkIds !== undefined ? { networkIds: card.networkIds } : {}),
+    ...(card.productType !== undefined ? { productType: card.productType } : {}),
   };
   return { user, product };
 }

@@ -4,10 +4,13 @@ import { createNativeStackNavigator, type NativeStackScreenProps } from '@react-
 import { CheckInputScreen } from '../../screens/check/CheckInputScreen';
 import { CheckVerdictScreen } from '../../screens/check/CheckVerdictScreen';
 import { verdictPropsFromDraft } from '../../check/checkLoop';
+import { merchantAdvice } from '../../check/merchantRadar';
 import { classifyCollection } from '../../store/hydration';
 import { useActivityStore } from '../../store/useActivityStore';
 import { useCardsStore } from '../../store/useCardsStore';
 import { useLoansStore } from '../../store/useLoansStore';
+import { useProfileStore } from '../../store/useProfileStore';
+import { useRecentMerchantsStore } from '../../store/useRecentMerchantsStore';
 import { useUserStore } from '../../store/useUserStore';
 import type { CheckStackParamList } from '../types';
 
@@ -18,15 +21,40 @@ type VerdictProps = NativeStackScreenProps<CheckStackParamList, 'CheckVerdict'>;
 
 function CheckInputRoute({ navigation }: InputProps): React.ReactElement {
   const entries = useCardsStore((s) => s.entries);
+  /* THE COMPOSED ENGINE VIEW, for the same reason the Verdict route reads it: the merchant join
+     needs `cardProductId`, which the {cardId, displayName} projection for the picker drops. */
+  const cards = useCardsStore((s) => s.cards);
+  const recentMerchantIds = useRecentMerchantsStore((s) => s.recent);
+  const recordRecentMerchant = useRecentMerchantsStore((s) => s.record);
+  const activeProfileId = useProfileStore((s) => s.activeProfile?.id);
   const ownedCards = entries.map((entry) => ({
     cardId: entry.user.cardId,
     displayName: entry.user.displayName,
   }));
+
+  /* CRITERION B1: the route composes, the screen renders. `merchantAdvice` joins the merchant to
+     the estate's benefits and to this wallet; nothing on the surface does any part of that. */
+  const resolveMerchantAdvice = React.useCallback(
+    (merchantId: string) => merchantAdvice(merchantId, cards),
+    [cards],
+  );
+
+  const onMerchantChosen = React.useCallback(
+    (merchantId: string): void => {
+      if (activeProfileId === undefined) return;
+      recordRecentMerchant(activeProfileId, merchantId);
+    },
+    [activeProfileId, recordRecentMerchant],
+  );
+
   return (
     <CheckInputScreen
       onCheck={(draft): void => {
         navigation.navigate('CheckVerdict', { draft });
       }}
+      onMerchantChosen={onMerchantChosen}
+      recentMerchantIds={recentMerchantIds}
+      resolveMerchantAdvice={resolveMerchantAdvice}
       {...(ownedCards.length > 0 ? { ownedCards } : {})}
     />
   );

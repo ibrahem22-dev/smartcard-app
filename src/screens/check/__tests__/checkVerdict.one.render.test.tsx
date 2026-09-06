@@ -32,6 +32,7 @@ const draft = (amount: number): CheckInputDraft => ({
   category: null,
   installments: null,
   cardId: null,
+  merchantId: null,
 });
 
 const context = (overrides: Partial<PurchaseCheckContext> = {}): PurchaseCheckContext => ({

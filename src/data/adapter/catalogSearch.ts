@@ -103,6 +103,19 @@ export function catalogCardRows(): readonly Row[] {
   return pack.units['cards'] ?? [];
 }
 
+/**
+ * EVERY CATALOG UNIT, FOR THE ONE MODULE THAT JOINS THEM — `cardCatalog.ts`.
+ *
+ * D2 permits exactly one importer of a pack file, and in this directory that importer is this
+ * module for the catalog. `cardCatalog.ts` needs issuers, networks, clubs, programmes, edges,
+ * fees, waivers, exceptions and interest as well as cards, and a second `import catalogJson` there
+ * would be a second reader of the same bytes. So the units are handed over here rather than opened
+ * twice: one file names the pack, and the joining lives in the file whose subject is the join.
+ */
+export function openVerifiedCatalog(): Readonly<Record<string, readonly Row[]>> {
+  return pack.units;
+}
+
 /** Shipped conflicts stay behind the catalog adapter instead of exposing the raw pack JSON. */
 export function shippedCatalogConflicts(): readonly PackConflict[] {
   return pack.conflicts;

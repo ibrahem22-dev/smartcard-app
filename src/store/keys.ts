@@ -19,6 +19,13 @@ export const MMKV_KEYS = {
   profilePinVerifier: (id: string): string => `profile_${id}:pin_verifier`,
   profileLoans: (id: string): string => `profile_${id}:loans`,
   profileActivity: (id: string): string => `profile_${id}:activity`,
+  /**
+   * The five shops this profile last checked, as canonical `merch:*` ids and nothing else.
+   *
+   * Profile-scoped like every other vault record, so it is wiped with the profile by
+   * `deleteAllProfileKeys`, which sweeps the whole `profile_<id>:` prefix.
+   */
+  profileRecentMerchants: (id: string): string => `profile_${id}:recent_merchants`,
   profileCardNotificationIds: (profileId: string, cardId: string): string =>
     `profile_${profileId}:notif_${cardId}`,
   profileCardBillingNotificationIds: (profileId: string, cardId: string): string =>

@@ -8,10 +8,11 @@ import { CardsScreen } from '../../screens/CardsScreen';
 import { CardDnaScreen } from '../../screens/cardDna/CardDnaScreen';
 import { InterestCalculatorScreen } from '../../screens/InterestCalculatorScreen';
 import { FxCompareFromCardDna } from '../../screens/fx/FxCompareFromCardDna';
-import { NotYetSurface } from '../../components/NotYetSurface';
+import { BenefitsHubScreen } from '../../screens/benefits/BenefitsHubScreen';
 import { SegmentedTab } from '../SegmentedTab';
 import { BOTTOM_NAVIGATION } from '../ia';
 import type { WalletStackParamList } from '../types';
+import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 /**
  * C11 — THE CardEdit ROUTE IS GONE, AND WITH IT THE LAST MOUNT OF THE LEGACY SCREEN.
@@ -59,16 +60,34 @@ function WalletRoot(): React.ReactElement {
       segments={WALLET?.segments ?? []}
       testID="wallet-segments"
       render={(segment): React.ReactElement =>
-        segment === 'Cards' ? (
-          <CardsScreen />
-        ) : (
-          <NotYetSurface
-            ownedBy="V1.x — Benefits Hub (spec §26; P5 contract §17)"
-            testID="wallet-benefits-not-yet"
-            title="הטבות"
-          />
-        )
+        /* THE BENEFITS SEGMENT IS BUILT. It rendered an evidenced empty state naming V1.x as its
+           owner, because spec §26 and P5 contract §17 deferred the Benefits Hub. The Owner's scope
+           addendum authorises it now, by name, and this is the same screen the CardDetail route
+           opens scoped to one card — one Hub, two entry points, no second benefit list. */
+        segment === 'Cards' ? <CardsScreen /> : <BenefitsHubScreen />
       }
+    />
+  );
+}
+
+/**
+ * CARD DNA'S ROUTE, WRAPPED — so the screen keeps a structural navigation prop.
+ *
+ * `CardDnaScreen` declares `navigate` as `(route, params?) => void` over three literal route names
+ * rather than importing React Navigation's generics, which is what lets every render suite mount
+ * it with a plain object. The wrapper is the one place the two shapes meet.
+ */
+function CardDetailRoute({ navigation, route }: NativeStackScreenProps<WalletStackParamList, 'CardDetail'>): React.ReactElement {
+  return (
+    <CardDnaScreen
+      navigation={{
+        navigate: (target, params): void => {
+          if (target === 'CardDnaFxCompare') navigation.navigate('CardDnaFxCompare');
+          else if (target === 'InterestCalculator') navigation.navigate('InterestCalculator', params ?? {});
+          else navigation.navigate('BenefitsHub', params ?? {});
+        },
+      }}
+      route={route}
     />
   );
 }
@@ -78,7 +97,7 @@ export function WalletStack(): React.ReactElement {
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen component={WalletRoot} name="WalletRoot" options={{ title: 'Wallet' }} />
       <Stack.Screen component={AddCardScreen} name="AddCard" options={{ title: 'Add Card' }} />
-      <Stack.Screen component={CardDnaScreen} name="CardDetail" options={{ title: 'Card' }} />
+      <Stack.Screen component={CardDetailRoute} name="CardDetail" options={{ title: 'Card' }} />
       <Stack.Screen
         component={InterestCalculatorScreen}
         name="InterestCalculator"
@@ -88,6 +107,11 @@ export function WalletStack(): React.ReactElement {
         component={FxCompareFromCardDna}
         name="CardDnaFxCompare"
         options={{ title: 'FX Compare' }}
+      />
+      <Stack.Screen
+        component={BenefitsHubScreen}
+        name="BenefitsHub"
+        options={{ title: 'Benefits' }}
       />
     </Stack.Navigator>
   );

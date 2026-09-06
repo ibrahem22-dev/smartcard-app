@@ -61,6 +61,7 @@ const draft = (g: Gen): CheckInputDraft => ({
   category: null,
   installments: g.installments,
   cardId: null,
+  merchantId: null,
 });
 
 const context = (g: Gen): PurchaseCheckContext => {
@@ -195,6 +196,7 @@ describe('Check Verdict — R3: pill and panel never disagree (generated inputs)
         category: null,
         installments: 1,
         cardId: null,
+        merchantId: null,
       },
       {
         monthlyIncomeIls: { value: 10_000, provenance: 'USER' },
@@ -212,6 +214,7 @@ describe('Check Verdict — R3: pill and panel never disagree (generated inputs)
         category: null,
         installments: 1,
         cardId: null,
+        merchantId: null,
       },
       {
         monthlyIncomeIls: { value: 10_000, provenance: 'USER' },

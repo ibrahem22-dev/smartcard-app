@@ -15,6 +15,8 @@ import {
 } from '../../types/card.types';
 import { Currency } from '../../types/purchase.types';
 import { catalogCardRows, isCurrentCatalogProduct } from './catalogSearch';
+import { catalogProductById } from './cardCatalog';
+import { cardFeeProfileFor } from './cardFeeProfile';
 
 export type WizardCardInput = {
   readonly displayName: string;
@@ -27,6 +29,8 @@ export type WizardCardInput = {
   readonly foreignTransactionFee?: number;
   readonly catalogCardId?: string;
   readonly unknownClub?: boolean;
+  /** Programme/club node ids the user selected in the guided flow. Absent: never asked. */
+  readonly programmeNodeIds?: readonly string[];
 };
 
 export type VaultCardWrite = {
@@ -76,6 +80,28 @@ export function writeWizardCard(input: WizardCardInput): VaultCardWrite {
       ? ISSUER_DEFAULT_NETWORK[input.issuer]
       : networkFromCatalog(input.catalogCardId, input.issuer);
 
+  /* CANONICAL IDENTITY, WHERE THE CATALOG HAS IT — the addendum's §3 requirement.
+     A catalog pick keeps the estate's own issuer, operator, network ids and product type, so every
+     later question about this card (its fee, its programmes, its benefits, whom to phone) is asked
+     of a canonical id and never of a display name. A manually described card carries none of them,
+     and that absence is what marks it for reconciliation rather than a guessed id. */
+  const canonical =
+    input.catalogCardId === undefined ? undefined : catalogProductById(input.catalogCardId);
+
+  /* THE FX COMMISSION COMES FROM THE PACK, NOT FROM THE USER — the defect the addendum names.
+     `costs.fxCommissionPct` is VERIFIED and USABLE on all 378 current products, resolved per card
+     by the pipeline including the card-level exceptions. Storing what the user typed while that
+     figure sat in the bundle is what made the app appear not to bind fees at all. The user's own
+     figure is still honoured when there is no catalog row to read. */
+  const catalogFx =
+    input.catalogCardId === undefined
+      ? undefined
+      : cardFeeProfileFor(input.catalogCardId)?.fxCommissionPct.single;
+  const foreignTransactionFee =
+    catalogFx !== undefined && catalogFx.unit === 'PERCENT'
+      ? catalogFx.value / 100
+      : input.foreignTransactionFee ?? Number.NaN;
+
   const user: UserCard = {
     cardId,
     cardProductId,
@@ -92,6 +118,7 @@ export function writeWizardCard(input: WizardCardInput): VaultCardWrite {
     primaryRole: null,
     ...(input.last4.length > 0 ? { last4: input.last4 } : {}),
     ...(input.unknownClub === true ? { unknownClub: true } : {}),
+    ...(input.programmeNodeIds === undefined ? {} : { programmeNodeIds: input.programmeNodeIds }),
   };
 
   const product: CardProduct = {
@@ -102,9 +129,19 @@ export function writeWizardCard(input: WizardCardInput): VaultCardWrite {
     roleTags: [],
     rewardCategories: [],
     cashbackRate: 0,
-    foreignTransactionFee: input.foreignTransactionFee ?? Number.NaN,
+    foreignTransactionFee,
     supportsInstallments: false,
     annualFee: 0,
+    ...(canonical === undefined
+      ? {}
+      : {
+        issuerOrgId: canonical.issuerOrgId,
+        networkIds: canonical.networkIds,
+        ...(canonical.operatingCardCompanyId === undefined
+          ? {}
+          : { operatingCardCompanyId: canonical.operatingCardCompanyId }),
+        ...(canonical.productType === undefined ? {} : { productType: canonical.productType }),
+      }),
   };
 
   return { user, product };

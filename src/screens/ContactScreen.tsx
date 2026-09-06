@@ -5,6 +5,10 @@ import { AppText } from '../components/AppText';
 import { RtlRow, RtlScreen, RtlScrollView } from '../components/rtl';
 import { useTheme } from '../hooks/useTheme';
 import { useTranslation } from '../hooks/useTranslation';
+import {
+  negotiationContactFor,
+  ISSUER_ORG_IDS,
+} from '../authority/issuerContactAuthority';
 import type { IssuerContact, ProblemType } from '../types/contact.types';
 import { ACCENT, BORDER, SURFACE, TEXT } from '../theme/tokens';
 
@@ -18,11 +22,28 @@ const PROBLEM_OPTIONS: readonly {
   { id: 'general_question', label: 'שאלה כללית' },
 ];
 
-const ISSUER_CONTACTS: readonly IssuerContact[] = [
-  { name: 'Max', phone: '1-800-000-020' },
-  { name: 'Isracard', phone: '1-800-444-006' },
-  { name: 'CAL', phone: '1-800-225-525' },
-];
+/**
+ * THE THREE CARD COMPANIES, FROM THE SHIPPED CONTENT PACK — not from this file.
+ *
+ * This list used to be three hardcoded numbers: `1-800-000-020`, `1-800-444-006`,
+ * `1-800-225-525`. None of them is in the canonical corpus, and the corpus disagrees with all
+ * three — it records max on `03-6178888`, CAL on `03-5726444` and Isracard on `*6272`, each
+ * captured from the issuer's own contact page on 2026-08-19 and carrying `VERIFIED_OFFICIAL`.
+ * Three numbers nobody could source, on a screen whose entire purpose is to be dialled.
+ *
+ * They are read through the same authority the Negotiation Hub uses, so the two surfaces cannot
+ * print different numbers for one issuer, and an organisation the corpus does not publish a
+ * number for is shown WITHOUT a call button rather than with a plausible one.
+ */
+const ISSUER_CONTACTS: readonly IssuerContact[] = Object.values(ISSUER_ORG_IDS)
+  .map((orgId) => negotiationContactFor(orgId))
+  .filter((contact): contact is NonNullable<typeof contact> => contact !== undefined)
+  .map((contact): IssuerContact => ({
+    name: contact.legalNameHe ?? contact.legalNameEn ?? contact.orgId,
+    phone: contact.phone?.display ?? '',
+    ...(contact.phone === undefined ? {} : { telUri: contact.phone.uri }),
+    ...(contact.sourceUrl === undefined ? {} : { sourceUrl: contact.sourceUrl }),
+  }));
 
 const SCRIPTS: Record<ProblemType, readonly [string, string]> = {
   wrong_charge: [
@@ -43,8 +64,14 @@ const SCRIPTS: Record<ProblemType, readonly [string, string]> = {
   ],
 };
 
-function getTelUrl(phone: string): string {
-  return `tel:${phone.replace(/-/g, '')}`;
+/**
+ * The dial URI, from the authority that built it.
+ *
+ * It used to be assembled here by stripping hyphens, which cannot express an Israeli `*NNNN`
+ * service line — `tel:6272` reaches nobody. The URI now travels with the number.
+ */
+function getTelUrl(issuer: IssuerContact): string | undefined {
+  return issuer.telUri;
 }
 
 export function ContactScreen(): React.ReactElement {
@@ -103,11 +130,17 @@ export function ContactScreen(): React.ReactElement {
               >
                 {issuer.name}
               </AppText>
-              <AppText
-                className={`mt-1 text-base font-extrabold ${ACCENT.text}`}
-              >
-                {issuer.phone}
-              </AppText>
+              {issuer.phone === '' ? (
+                <AppText className={`mt-1 text-sm ${TEXT.secondary}`}>
+                  {t('לא פורסם מספר טלפון מאומת לחברה הזאת')}
+                </AppText>
+              ) : (
+                <AppText
+                  className={`mt-1 text-base font-extrabold ${ACCENT.text}`}
+                >
+                  {issuer.phone}
+                </AppText>
+              )}
 
               <View className={`mt-3 rounded-lg p-3 ${SURFACE.sunken}`}>
                 <AppText
@@ -127,11 +160,12 @@ export function ContactScreen(): React.ReactElement {
                 </AppText>
               </View>
 
+              {getTelUrl(issuer) === undefined ? null : (
               <Pressable
                 accessibilityLabel={`${t('התקשר עכשיו')} — ${issuer.name}`}
                 accessibilityRole="button"
                 className={`mt-3 min-h-[48px] items-center justify-center rounded-lg ${SURFACE.inverse}`}
-                onPress={(): Promise<void> => Linking.openURL(getTelUrl(issuer.phone))}
+                onPress={(): Promise<void> => Linking.openURL(getTelUrl(issuer) as string)}
               >
                 <AppText
                   className={`text-center text-sm font-extrabold ${TEXT.inverse}`}
@@ -139,6 +173,12 @@ export function ContactScreen(): React.ReactElement {
                   {t('התקשר עכשיו')}
                 </AppText>
               </Pressable>
+              )}
+              {issuer.sourceUrl === undefined ? null : (
+                <AppText className={`mt-2 text-xs ${TEXT.muted}`}>
+                  {`${t('מקור')}: ${issuer.sourceUrl}`}
+                </AppText>
+              )}
             </View>
           ))}
         </View>

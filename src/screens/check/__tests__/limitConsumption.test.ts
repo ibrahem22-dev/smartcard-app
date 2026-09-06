@@ -39,6 +39,7 @@ const draft: CheckInputDraft = {
   category: null,
   installments: null,
   cardId: 'card-a',
+  merchantId: null,
 };
 
 const vaultCards = [vaultCard({ cardId: 'card-a', framework: { creditLimit: 10_000, currentBalance: 0 } })];

@@ -75,9 +75,25 @@ export type WalletStackParamList = {
   WalletRoot: undefined;
   AddCard: undefined;
   CardDetail: { cardId: string };
+  /**
+   * THE INTEREST CALCULATOR, PROMOTED OUT OF MORE.
+   *
+   * It is a fact about ONE CARD's rate, and it lived three taps away under More with no card in
+   * scope. It opens from Card DNA now and carries the card's id, so the screen can offer that
+   * card's own published rate instead of an empty field. The More registration is gone: two routes
+   * to one screen is two places a rate can arrive from.
+   */
   InterestCalculator: { cardId?: string } | undefined;
   /** P4 X1: Card DNA's entry point for the canonical FX Compare sheet. DNA content is P5. */
   CardDnaFxCompare: undefined;
+  /**
+   * THE BENEFITS HUB — Wallet's Benefits segment, and a route of its own.
+   *
+   * The segment is where a user browses everything; the ROUTE is how Card DNA opens the same Hub
+   * scoped to one card. One screen, two entry points, no second benefit list. Authorised by the
+   * Owner's scope addendum, which supersedes the V1.x deferral for this feature by name.
+   */
+  BenefitsHub: { cardId?: string } | undefined;
 };
 
 /**
@@ -90,7 +106,24 @@ export type PlanStackParamList = {
 
 /** MORE tab stack — Spec §4's fifth item. Was "Settings"; the spec names it More. */
 export type MoreStackParamList = {
+  /**
+   * MORE IS A FEATURE HUB NOW, NOT THE SETTINGS SCREEN.
+   *
+   * `MoreRoot` used to mount `SettingsScreen`, so "more" and "settings" were one place and the
+   * product had nowhere to put a preference that was not also a feature. The Owner's directive
+   * separates them: settings-like controls move to `Settings`, and More keeps the tools —
+   * Learn, the glossary, issuer contact, importing existing installments.
+   */
   MoreRoot: undefined;
+  /**
+   * THE DEDICATED SETTINGS EXPERIENCE.
+   *
+   * Registered here rather than as a sixth tab because criterion A1 fixes the navigation bar at
+   * five items and the spec's bar has no Settings in it. Its PRIMARY entry is the gear on Home —
+   * a top-level account area, which is what the directive asks for — and it is reachable from More
+   * as well, because a control that exists in exactly one place is a control somebody cannot find.
+   */
+  Settings: undefined;
   Learn: undefined;
   DataPrivacy: undefined;
   /** V9 — the local crash log the user can inspect and copy (MDC-OBSERVABILITY option 1). */
@@ -99,7 +132,6 @@ export type MoreStackParamList = {
   Contact: undefined;
   Glossary: undefined;
   InstallmentImport: undefined;
-  InterestCalculator: { cardId?: string } | undefined;
   /** DEV-ONLY diagnostics (PHASE-7 device evidence). Registered under __DEV__ exclusively. */
   EngineProbe: undefined;
   // Deferred (DECISIONS_DEFERRED.md #9/#12): screen files retained and typed,

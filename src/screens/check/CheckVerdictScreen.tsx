@@ -23,7 +23,11 @@ import type { ConvertedAmount } from '../../engines/currency';
 import type { FxComparison } from '../../engines/fx';
 import type { ProvenancedNumber } from '../../engines/provenance';
 import type { ReasonTrace } from '../../engines/reasonTrace';
-import type { RecommendationEmphasis } from '../../check/recommendation';
+import type {
+  RecommendationAbsence,
+  RecommendationBasis,
+  RecommendationEmphasis,
+} from '../../check/recommendation';
 import type { ImpactBullet, PurchaseVerdict, PurchaseVerdictResult } from '../../engines/verdict';
 import type { SemanticRole } from '../../theme/tokens';
 import { ACCENT, BORDER, ROLE_SURFACE, ROLE_TEXT, SURFACE, TEXT } from '../../theme/tokens';
@@ -89,6 +93,23 @@ export interface CheckVerdictScreenProps {
     readonly emphasis?: RecommendationEmphasis;
     readonly reasons?: ReasonTrace;
   };
+  /**
+   * WHAT PRICED THE RANKING. Painted beside the hero so the claim is the narrow one the engine can
+   * support — "cheapest for this installment plan" rather than an unqualified "best card".
+   */
+  readonly recommendationBasis?: RecommendationBasis;
+  /**
+   * WHY THERE IS NO RECOMMENDATION — and it is rendered, not swallowed.
+   *
+   * The block used to be simply omitted, which made four different facts look like one silence:
+   * no cards, no active card, nothing about this purchase that differs between cards, and costs
+   * the engine could not resolve. Only one of those is about the user's wallet being short of
+   * something, and only one of them is a gap in the data rather than an answer.
+   *
+   * Absent (with no recommendation either) keeps the pre-existing behaviour every render suite
+   * that predates this mounts: nothing is painted and nothing is invented.
+   */
+  readonly recommendationAbsence?: RecommendationAbsence;
   /**
    * Spec §9 runner-up. `deltaFromBestIls` is painted only when the scoring
    * engine supplied it. Absent field: no delta, never a surface subtraction.
@@ -245,6 +266,8 @@ export function CheckVerdictScreen({
   result,
   contextLine,
   recommendation,
+  recommendationBasis,
+  recommendationAbsence,
   runnerUp,
   fxBlock,
   fxComparison,
@@ -388,6 +411,16 @@ export function CheckVerdictScreen({
                 {t('הטובה לרכישה הזו')}
               </AppText>
             )}
+            {/* THE CLAIM, NARROWED TO WHAT PRICED IT. "Best card" is a bigger sentence than the
+                engine said; "cheapest for this installment plan" is the sentence it said. */}
+            {recommendationBasis === 'installment-interest' ? (
+              <AppText
+                className={`text-xs ${TEXT.secondary}`}
+                testID="check-verdict-recommendation-basis"
+              >
+                {t('הדירוג לפי הריבית על פריסת התשלומים הזאת')}
+              </AppText>
+            ) : null}
             <CardTile
               nickname={recommendation.displayName}
               nicknameTestID="check-verdict-recommendation-tile"
@@ -437,6 +470,30 @@ export function CheckVerdictScreen({
                 ))}
               </View>
             )}
+          </View>
+        ) : recommendationAbsence !== undefined ? (
+          <View className="mt-4 gap-1" testID="check-verdict-recommendation-absent">
+            <AppText
+              className={`text-sm font-bold ${TEXT.body}`}
+              testID="check-verdict-recommendation-absent-headline"
+            >
+              {t('אין המלצת כרטיס לרכישה הזו')}
+            </AppText>
+            {/* EACH REASON IS ITS OWN LITERAL t(). A helper returning a source string for
+                t(variable) would be invisible to the i18n coverage suite and would fall back to
+                Hebrew in Arabic and English with every gate still green. */}
+            <AppText
+              className={`text-xs ${TEXT.secondary}`}
+              testID="check-verdict-recommendation-absent-reason"
+            >
+              {recommendationAbsence === 'NO_CARDS'
+                ? t('אין כרטיסים בכספת, ולכן אין מה לדרג')
+                : recommendationAbsence === 'NO_AVAILABLE_CARD'
+                  ? t('כל הכרטיסים בכספת אינם פעילים')
+                  : recommendationAbsence === 'NOT_PRICEABLE'
+                    ? t('הרכישה הזו עולה אותו דבר בכל הכרטיסים שלך, ולכן אין כרטיס מועדף')
+                    : t('לא ניתן היה לחשב את העלות של הכרטיסים שלך לרכישה הזו')}
+            </AppText>
           </View>
         ) : null}
         {runnerUp ? (

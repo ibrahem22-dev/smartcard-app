@@ -61,6 +61,7 @@ const draft: CheckInputDraft = {
   category: null,
   installments: 1,
   cardId: null,
+  merchantId: null,
 };
 
 const result = runPurchaseCheck(draft, {

@@ -99,6 +99,19 @@ export interface P5UserProfileFields {
    * is what a suggested value would be DERIVED from, by the load engine, never stored as if chosen.
    */
   readonly commitmentCapIls?: number;
+  /**
+   * ₪ monthly spending target the user set for themselves — the Command Center's budget.
+   *
+   * A SEPARATE FIELD FROM `commitmentCapIls`, and deliberately: a commitment cap is a ceiling on
+   * what the user will OBLIGE themselves to monthly, and a budget target is what they mean to SPEND
+   * this month. Home's load bar measures the first against income; the budget bar measures planned
+   * outflow against this. Folding them into one number would make one of the two surfaces show a
+   * figure the user set for the other question.
+   *
+   * Optional and it stays optional. No target is a real state and the app has no opinion to store
+   * in its place.
+   */
+  readonly monthlyBudgetTargetIls?: number;
 }
 
 /** The declared table. The gate compares it against the type above and against `MMKV_KEYS`. */
@@ -110,6 +123,26 @@ export const P5_USER_STATE: readonly P5StateField[] = [
     where: 'UserProfile, persisted under MMKV_KEYS.profileUser(profileId)',
     why: 'J1 and H3 — the editable absolute ₪ cap. It is the user\'s own financial preference, so it '
       + 'goes to the encrypted vault through the store (U2) and may never reach track() (U3, spec §18-A).',
+  },
+  {
+    field: 'monthlyBudgetTargetIls',
+    class: 'vault',
+    home: 'user-profile',
+    where: 'UserProfile, persisted under MMKV_KEYS.profileUser(profileId)',
+    why: 'The Command Center budget target the Owner authorised. It is a figure the user typed about '
+      + 'their own money, so it goes to the encrypted vault through the store (U2) and may never reach '
+      + 'track() (U3, spec §18-A). It sits beside dangerThreshold and commitmentCapIls, which are '
+      + 'already exactly this shape, rather than in a new store.',
+  },
+  {
+    field: 'profileRecentMerchants',
+    class: 'vault',
+    home: 'mmkv-key',
+    where: 'MMKV_KEYS.profileRecentMerchants(profileId) — a profile-scoped record in the encrypted vault',
+    why: 'The Merchant Radar checkout shortcut. It holds canonical merch:* ids and nothing else — no '
+      + 'amount, no date, no card — so it cannot become a spending history, but WHERE somebody shops is '
+      + 'still theirs: vault, through the store (U2), never through track() (U3), wiped with the profile '
+      + 'by deleteAllProfileKeys.',
   },
   {
     field: 'profileCardOverrides',

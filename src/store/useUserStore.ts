@@ -73,6 +73,16 @@ interface UserState {
   setCommitmentCapIls(amount: number): void;
 
   /**
+   * Set — or clear — the monthly budget target, stamping updatedAt.
+   *
+   * `null` CLEARS IT, and that is a distinct act from setting zero. A zero target is a user saying
+   * "I intend to spend nothing this month"; a cleared one is a user with no target, which is the
+   * state a fresh profile is in and the state Home renders its unset prompt for. A setter that
+   * could only write a number would have made "no target" unreachable once one was set.
+   */
+  setMonthlyBudgetTargetIls(amount: number | null): void;
+
+  /**
    * Zero in-memory state and delete the MMKV record.
    * Called on vault wipe / logout. Tolerates an already-locked or
    * already-wiped vault — MMKV delete is best-effort in that case.
@@ -200,6 +210,34 @@ export const useUserStore = create<UserState>()((set) => ({
       const updated: UserProfile = {
         ...state.profile,
         commitmentCapIls: amount,
+        updatedAt: Date.now(),
+      };
+      const storage = keyVault.getEncryptedStorage();
+      const activeProfileId = storage.getString(MMKV_KEYS.activeProfileId);
+      if (activeProfileId === undefined) {
+        throw new Error('ACTIVE_PROFILE_REQUIRED');
+      }
+      storage.set(
+        MMKV_KEYS.profileUser(activeProfileId),
+        JSON.stringify(updated),
+      );
+      return { profile: updated };
+    });
+  },
+
+  setMonthlyBudgetTargetIls(amount: number | null) {
+    set((state) => {
+      if (state.profile === null) {
+        return {};
+      }
+      /* A non-finite or negative target is refused rather than stored. Home divides by it. */
+      if (amount !== null && (!Number.isFinite(amount) || amount < 0)) {
+        return {};
+      }
+      const { monthlyBudgetTargetIls: _cleared, ...rest } = state.profile;
+      const updated: UserProfile = {
+        ...rest,
+        ...(amount === null ? {} : { monthlyBudgetTargetIls: amount }),
         updatedAt: Date.now(),
       };
       const storage = keyVault.getEncryptedStorage();

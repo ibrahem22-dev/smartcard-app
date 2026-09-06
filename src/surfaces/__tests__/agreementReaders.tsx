@@ -141,7 +141,7 @@ export function readVerdictImpactStrip(ctx: SurfaceContext): PaintedNumber {
   if (prospective === undefined) return NO_POPULATION;
   const amount = prospective.monthlyAmountIls.value;
   const props = verdictPropsFromDraft(
-    { amount, currency: Currency.ILS, category: null, installments: 1, cardId: prospective.linkedCardId ?? null },
+    { amount, currency: Currency.ILS, category: null, installments: 1, cardId: prospective.linkedCardId ?? null, merchantId: null },
     vaultInput(ctx),
   );
   const tree = render(wrap(<CheckVerdictScreen {...props} />));
@@ -200,6 +200,7 @@ export function readVerdictLoadRatio(ctx: SurfaceContext): PaintedNumber {
       category: null,
       installments: 1,
       cardId: prospective.linkedCardId ?? null,
+      merchantId: null,
     },
     vaultInput(ctx),
   );
@@ -325,7 +326,7 @@ export function readCardDnaWhenBestChips(ctx: SurfaceContext): PaintedRanking {
  */
 export function readCheckRecommendation(ctx: SurfaceContext): PaintedRanking {
   const props = verdictPropsFromDraft(
-    { amount: 1_200, currency: Currency.ILS, category: null, installments: 1, cardId: null },
+    { amount: 1_200, currency: Currency.ILS, category: null, installments: 1, cardId: null, merchantId: null },
     vaultInput(ctx),
   );
   /* NO VERDICT AT ALL IS NOT A SILENT RECOMMENDATION. A context with no income produces no pill,

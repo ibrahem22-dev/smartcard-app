@@ -17,6 +17,7 @@ import type { CheckVerdictScreenProps } from '../screens/check/CheckVerdictScree
 import { loadCardsFromVault } from './activityMapper';
 import { commitmentState, type CommitmentReadiness } from './commitmentInput';
 import { composeRecommendation } from './recommendation';
+import { purchaseCosts } from './purchaseCostLane';
 import { scoreFromVault } from './scoringInput';
 import { purchaseContextFromProfile } from './incomeAnchor';
 import { runPurchaseCheck } from './runPurchaseCheck';
@@ -133,11 +134,29 @@ export function verdictPropsFromDraft(
      `composeRecommendation` reads its `ranked` array without re-ordering it. The user's chosen card
      is deliberately not passed: a ranking that moved with the user's pick would be the second
      ranking path A1's negative control exists to catch. */
+  /* THE MISSING HALF OF OQ-P5-002, SUPPLIED — see `purchaseCostLane.ts`.
+     The composition was repaired in August and the ranking was still empty on every device,
+     because `scoringCosts` had no producer and an engine handed no priced card ranks none. The
+     lane prices what is honestly priceable about THIS purchase — the installment interest each
+     card's own published rate implies — and says NOT_PRICEABLE, rather than zero, when a purchase
+     costs the same on every card the user holds.
+
+     AN EXPLICITLY SUPPLIED COST STILL WINS. A caller that priced the wallet itself (the A1
+     agreement property is the one that does) is not overridden by a lane it did not ask for. */
+  const costLane = purchaseCosts(draft, input.cards);
+  const scoringCosts = input.scoringCosts
+    ?? (costLane.basis === 'NOT_PRICEABLE' ? undefined : costLane.costs);
+  const basis = input.scoringCosts
+    ? ('supplied-cost' as const)
+    : costLane.basis === 'INSTALLMENT_INTEREST'
+      ? ('installment-interest' as const)
+      : undefined;
+
   const scoring = scoreFromVault({
     cards: input.cards,
-    ...(input.scoringCosts ? { scoringCosts: input.scoringCosts } : {}),
+    ...(scoringCosts ? { scoringCosts } : {}),
   });
-  const advice = composeRecommendation(scoring, input.cards, result.verdict);
+  const advice = composeRecommendation(scoring, input.cards, result.verdict, basis);
 
   const loadCards = loadCardsFromVault(
     input.cards.map((c) => ({ cardId: c.cardId, creditLimit: c.framework.creditLimit })),
@@ -177,6 +196,8 @@ export function verdictPropsFromDraft(
     result,
     contextLine,
     ...(advice.recommendation ? { recommendation: advice.recommendation } : {}),
+    ...(advice.basis ? { recommendationBasis: advice.basis } : {}),
+    ...(advice.absence ? { recommendationAbsence: advice.absence } : {}),
     ...(advice.runnerUp ? { runnerUp: advice.runnerUp } : {}),
     ...(position
       ? { impactStrip: { availableAfterPurchaseIls: position.availableAfterChangesIls } }

@@ -67,6 +67,7 @@ const draft: CheckInputDraft = {
   category: null,
   installments: null,
   cardId: CARD_ID,
+  merchantId: null,
 };
 
 const profile: UserProfile = {
