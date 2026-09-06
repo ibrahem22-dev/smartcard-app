@@ -1,0 +1,449 @@
+{
+  "$comment": "Written by tools/p3/all.mjs. Every step decided on printed output; acceptance requires every step green.",
+  "sha": "83c8a1e54bbe0dca108936f3c45d8e35fd79baf2",
+  "worktreeDirty": true,
+  "node": "v20.20.2",
+  "acceptanceRun": false,
+  "ok": false,
+  "noFailures": false,
+  "failed": [
+    "gate:boi-lane",
+    "gate:boi-offline",
+    "gate:boi-provenance",
+    "gate:boi-refusals",
+    "gate:boi-staleness",
+    "gate:conversion-downgrade",
+    "gate:engine-fx",
+    "gate:engine-load",
+    "gate:engine-risk",
+    "gate:engine-scoring",
+    "gate:engine-verdict",
+    "gate:full-universe",
+    "gate:honesty-engine",
+    "gate:one-number",
+    "gate:quote-unit"
+  ],
+  "skipped": [],
+  "notImplemented": [],
+  "gatesMissing": [],
+  "gatesNotRequired": [],
+  "gatesRequired": 25,
+  "contractVersion": "1.0-PROPOSED",
+  "steps": [
+    {
+      "step": "typecheck",
+      "ok": true,
+      "skipped": false,
+      "ms": 6738,
+      "decidedOn": "output",
+      "line": "TYPECHECK OK",
+      "processStatus": 0,
+      "tail": "TYPECHECK OK"
+    },
+    {
+      "step": "lint",
+      "ok": true,
+      "skipped": false,
+      "ms": 3491,
+      "decidedOn": "output",
+      "line": "LINT OK",
+      "processStatus": 0,
+      "tail": "LINT OK"
+    },
+    {
+      "step": "suite",
+      "ok": true,
+      "skipped": false,
+      "ms": 131683,
+      "decidedOn": "output",
+      "line": "Tests:       1323 passed, 1323 total",
+      "processStatus": 0,
+      "tail": "PASS render src/components/__tests__/NamedRecordRender.render.test.tsx (14.421 s)\nPASS render src/screens/plan/__tests__/commitments.render.test.tsx (14.361 s)\nPASS render src/screens/check/__tests__/checkVerdict.fx.render.test.tsx (14.17 s)\n\nTest Suites: 171 passed, 171 total\nTests:       1323 passed, 1323 total\nSnapshots:   0 total\nTime:        130.516 s"
+    },
+    {
+      "step": "scenarios",
+      "ok": true,
+      "skipped": false,
+      "ms": 3832,
+      "decidedOn": "output",
+      "line": "SCENARIOS OK",
+      "processStatus": 0,
+      "tail": "Test Suites: 1 passed, 1 total\nTests:       23 passed, 23 total\nSnapshots:   0 total\nTime:        2.904 s\nRan all test suites matching /src\\\\engines\\\\__tests__\\\\p3-scenarios.test.ts/i.\n\nSCENARIOS OK — 23 of 23\nSCENARIOS OK"
+    },
+    {
+      "step": "gate:adapter-no-conversion",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "X2"
+      ],
+      "ms": 10,
+      "decidedOn": "output",
+      "line": "ADAPTER-NO-CONVERSION OK",
+      "processStatus": null,
+      "tail": "src\\data\\adapter\\packs\\fx-rates\\snapshot.json: no per-one field in 15369 shipped bytes\n26 file(s) scanned under src/data/adapter, src/data/fx: no quoteUnit arithmetic, no minted per-one field\nengine holds exactly one dividing site"
+    },
+    {
+      "step": "gate:boi-calendar",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "A2"
+      ],
+      "ms": 3288,
+      "decidedOn": "output",
+      "line": "BOI-CALENDAR OK",
+      "processStatus": null,
+      "tail": "src/data/fx/publicationCalendar.ts states MON-FRI with Friday published, over the adapter's own isBusinessDay\nTests:       8 passed, 8 total\nnegative control (banking-week trap): watched in the suite — Sunday/Saturday refuse, Friday publishes"
+    },
+    {
+      "step": "gate:boi-lane",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "A4"
+      ],
+      "ms": 23,
+      "decidedOn": "output",
+      "line": "FAILED — src/data/fx/__tests__/liveFetch.test.ts: did not pass: \"fetches and validates an episode end to end over an injected transport\" · src/data/fx/__tests__/liveFetch.test.ts: did not pass: \"retries a 5xx once and refuses after the second failure with HTTP_STATUS\" · src/data/fx/__tests__/liveFetch.test.ts: did not pass: \"does NOT retry a 4xx — asking again will not help\" · src/data/fx/__tests__/lane.test.ts: did not pass: \"a device with no live and no cached rate lands on BUNDLED — the cold start\" · src/data/fx/__tests__/lane.test.ts: did not pass: \"a successful fetch outranks the bundle — LIVE wins at once\" · src/data/fx/__tests__/lane.test.ts: did not pass: \"a PREVIOUS session’s cached success also outranks the bundle\" · src/data/fx/__tests__/lane.test.ts: did not pass: \"bundled participates only until the first success: cache beats bundle even stale-ish\" · src/data/fx/__tests__/lane.test.ts: did not pass: \"a USER rate outranks everything, including this session’s live fetch (OD-23b)\" · src/data/fx/__tests__/lane.test.ts: did not pass: \"the memory cache round-trips an episode: write on success, read on the next session\"",
+      "processStatus": null,
+      "tail": "liveFetch.test.ts — (no summary)\nlane.test.ts — (no summary)"
+    },
+    {
+      "step": "gate:boi-offline",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "A7"
+      ],
+      "ms": 10,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"a currency outside every lane yields COMPARISON_INCOMPLETE, not zero\" · did not pass: \"an empty cache behaves like no cache — the cold start still resolves via BUNDLED\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:boi-provenance",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "A5"
+      ],
+      "ms": 11,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"the resolved resolution names the lane: LIVE for today’s fetch, BUNDLED for the cold start\" · did not pass: \"a LIVE rate carrying fallbackOnly:true is REFUSED by the boundary’s own lane check\" · did not pass: \"every produced LIVE rate is ESTIMATE — a reference rate is never inherited into certainty\". A5's negative control is the impostor case: a LIVE rate wearing fallbackOnly:true must be refused, and a control that has never fired is not a control",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:boi-refusals",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "A6"
+      ],
+      "ms": 11,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"JPY arriving per-1 is REFUSED — the silent divide that turns 934.85 into 93,485\" · did not pass: \"USD arriving per-100 is REFUSED too — the refusal fires in both directions\" · did not pass: \"a non-positive or non-finite published rate is refused\" · did not pass: \"a row without an ISO lastUpdate is refused — a rate whose age cannot be computed\" · did not pass: \"an HTML error page is NOT_JSON, never a partial accept\" · did not pass: \"an empty publication is SHAPE-refused, not zero rates to convert with\" · did not pass: \"one refused row refuses the whole episode — no partial accept, no silent drop\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:boi-staleness",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "A3"
+      ],
+      "ms": 16,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"a Saturday probe also lands on Friday\" · did not pass: \"a publication day resolves to itself\" · did not pass: \"a malformed date answers undefined rather than inventing a day\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:conversion-downgrade",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "X3"
+      ],
+      "ms": 10,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"CONTROL: a VERIFIED-provenance input still produces an ESTIMATE output — never inherited\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:engine-fx",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "N3"
+      ],
+      "ms": 11,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"ranks cards ascending by effective cost — markup and fixed fee included\" · did not pass: \"an exact issuer x operator row beats the issuer default\" · did not pass: \"an excepted operator receives NO default — the row does not reach it\" · did not pass: \"below the cited threshold the advisory fires and savings claims are suppressed\" · did not pass: \"a foreign ATM figure on a minor currency is labelled a floor, on the entry itself\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:engine-load",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "N4"
+      ],
+      "ms": 12,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"divides current plus prospective monthly obligations by income\" · did not pass: \"classifies the exact 25, 35 and 50 percent threshold boundaries\" · did not pass: \"computes available limit as limit minus active holds minus logged purchases\" · did not pass: \"a prospective limit hold is the total hold and reports whether it fits\" · did not pass: \"paid early removes the monthly obligation and frees its linked-card hold immediately\" · did not pass: \"early payoff is recalculated before a prospective obligation and hold\" · did not pass: \"every numeric output carries canonical provenance and the result carries a reason trace\" · did not pass: \"refuses invalid income, ids, links, holds, UNKNOWN values and malformed thresholds\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:engine-risk",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "N5"
+      ],
+      "ms": 10,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"groups same-date billing events into a deterministic billing cluster\" · did not pass: \"applies salary on its stated date and reports pressure through the next salary\" · did not pass: \"assigns per-day risk from the projected balance, danger floor and clustering\" · did not pass: \"returns unknown daily risk instead of inventing an omitted optional balance\" · did not pass: \"returns wait until billing only when ending obligations make projected load safe\" · did not pass: \"distinguishes no wait needed from billing that cannot make load safe\" · did not pass: \"treats an entered zero balance as data and supports leap-day UTC projections\" · did not pass: \"projects an entered negative balance as critical rather than rejecting overdraft\" · did not pass: \"every numeric output carries canonical provenance and the result carries a reason trace\" · did not pass: \"refuses invalid ranges, dates, duplicates, invalid amounts, UNKNOWN values and zero income\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:engine-scoring",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "N1"
+      ],
+      "ms": 9,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"ranks available cards by effective cost and returns score, trace and deltas\" · did not pass: \"benefits are optional: omission and an empty list produce identical ranking\" · did not pass: \"an optional matched benefit changes effective cost without changing the input shape\" · did not pass: \"unavailable cards never rank and receive no fabricated numeric output\" · did not pass: \"an unmodified cost keeps the provenance it arrived with — a derivation alone earns ESTIMATE\" · did not pass: \"when the comparison suppresses deltas, scored deltas are omitted entirely\" · did not pass: \"a card with no resolved cost lands in unknownCostCards, never ranked\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:engine-verdict",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "N2"
+      ],
+      "ms": 11,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"returns good to go at or below the safe threshold with no risk flags\" · did not pass: \"returns caution above the safe threshold through the hard threshold\" · did not pass: \"returns dont buy now only above the hard threshold from load alone\" · did not pass: \"a soft risk flag returns caution even when load is safe\" · did not pass: \"a hard risk flag returns dont buy now and outranks billing relief\" · did not pass: \"returns wait until billing passes with the date when that event makes load safe\" · did not pass: \"pill verdict and Financial Impact are returned by one computation with shared figures\" · did not pass: \"every numeric output carries canonical provenance and the result carries a reason trace\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:engines-pure",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "N6"
+      ],
+      "ms": 13,
+      "decidedOn": "output",
+      "line": "ENGINES-PURE OK",
+      "processStatus": null,
+      "tail": "population     6 MVP module(s) from src/engines/mvpEngines.ts\nwalked         every LOCAL import transitively; UI bare specifiers and .tsx refused\nresult         zero UI imports across the engine graph"
+    },
+    {
+      "step": "gate:full-universe",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "S3"
+      ],
+      "ms": 11,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"scores the full current-product universe through FX + scoring\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:honesty-engine",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "T3"
+      ],
+      "ms": 11,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"walks every MVP engine output and finds only wrapped or declared-bare numbers\" · did not pass: \"a bare undeclared number fails the honesty walk\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:interval-rankability",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "K3"
+      ],
+      "ms": 56,
+      "decidedOn": "output",
+      "line": "INTERVAL-RANKABILITY OK",
+      "processStatus": null,
+      "tail": "seam            src/data/adapter/conflictRender.ts: imports intervalRankabilityOf from the adapter, calls it\nadapter         installed build declares intervalRankabilityOf (46 declaration files inspected)\npopulation      262 file(s): 0 package bypass(es), 0 classifier shape(s), 2 file(s) touching rankability"
+    },
+    {
+      "step": "gate:no-magic-numbers",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "G11"
+      ],
+      "ms": 108,
+      "decidedOn": "output",
+      "line": "NO-MAGIC-NUMBERS OK",
+      "processStatus": null,
+      "tail": "scanned        every runtime src file through P2 rule-4 detection\nallowlisted    47 human-reviewed exception(s) with reasons on file\nengines        0 declared, cited constant(s) — the widened allowance\ncitations      0 §-section number(s) in strings, not figures"
+    },
+    {
+      "step": "gate:no-rederivation",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "G10"
+      ],
+      "ms": 76,
+      "decidedOn": "output",
+      "line": "NO-REDERIVATION OK — 8 of 8 interfaces",
+      "processStatus": null,
+      "tail": "  IF-7  not re-derived  The compatibility matrices\n        lives in: adapter (D4, OB-5)\n  IF-8  not re-derived  EXPECTED_DATASET_ID and the trust store\n        lives in: compiled in (OB-4)\n\n  controls        8 of 8 checks watched to fire · recorded 2026-08-25T21:19:14.274Z"
+    },
+    {
+      "step": "gate:ob3-ob6-prohibitions",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "K2"
+      ],
+      "ms": 47,
+      "decidedOn": "output",
+      "line": "OB3-OB6-PROHIBITIONS OK",
+      "processStatus": null,
+      "tail": "                checked in he · ar · en, because the sentence a Hebrew reader sees is\n                the one that matters to them\nmembers named   (none — the app does not yet consume conflicts)\n\nThe prohibition is in force before its subject arrives, which is the only order in\n                which a prohibition is ever obeyed."
+    },
+    {
+      "step": "gate:one-number",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "N7"
+      ],
+      "ms": 11,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"derives the universe from the shipped packs - every current product times every snapshot currency\" · did not pass: \"compareAbroad returns identical output for identical inputs across the whole universe\" · did not pass: \"the ranked best agrees with an independent convertToIls derivation at every currency\" · did not pass: \"scoreCards yields one ranking for identical inputs across the universe\" · did not pass: \"verdict load and risk return identical results for repeated identical calls\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:provenance-on-numbers",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "T2"
+      ],
+      "ms": 3,
+      "decidedOn": "output",
+      "line": "PROVENANCE-ON-NUMBERS OK",
+      "processStatus": null,
+      "tail": "vocabulary     USER / VERIFIED / ESTIMATE / UNKNOWN (mirror tools/p2/provenance-chip.json agrees)\npopulation     6 of 6 MVP module(s) carry provenance"
+    },
+    {
+      "step": "gate:quote-unit",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "X1"
+      ],
+      "ms": 11,
+      "decidedOn": "output",
+      "line": "FAILED — did not pass: \"50,000 JPY at the shipped rate converts to 934.85 ILS — not 93,485.00\" · did not pass: \"perOne normalises per-100 AND per-10 quotations through one function\" · did not pass: \"CONTROL: with the divide removed, 50,000 JPY reads 93,485.00 — a factor of exactly one hundred\"",
+      "processStatus": null,
+      "tail": "(no summary)"
+    },
+    {
+      "step": "gate:reason-trace",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "T1"
+      ],
+      "ms": 4,
+      "decidedOn": "output",
+      "line": "REASON-TRACE OK",
+      "processStatus": null,
+      "tail": "schema          src/engines/reasonTrace.ts: versioned, steps, trace, builders present\npopulation      6 MVP engine module(s) from src/engines/mvpEngines.ts (+ 19 other file(s) on disk)\nlegacy          13 pre-P3 module(s), out of T-scope pending P4 rewiring (PD-P3-006): src/engines/benefitsMatcher.ts, src/engines/billingSchedule.ts, src/engines/cardRoleEngine.ts, src/engines/cashflowRadar.ts …\nconsuming       6 of 6 MVP module(s) consume the schema"
+    },
+    {
+      "step": "gate:scenarios-in-ci",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "S4"
+      ],
+      "ms": 1,
+      "decidedOn": "output",
+      "line": "SCENARIOS-IN-CI OK",
+      "processStatus": null,
+      "tail": ".github/workflows/ci.yml: the 23-scenario battery is its own CI step;\nnpm run p3:scenarios captured and \"SCENARIOS OK — 23 of 23\" asserted present\n(FRESH evidence for this criterion comes from the next green CI run at closure)."
+    }
+  ]
+}
