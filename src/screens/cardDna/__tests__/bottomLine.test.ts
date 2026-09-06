@@ -30,8 +30,8 @@ describe('card DNA bottom line', () => {
     expect(reading.state).toBe('FEE_NEEDS_LEVEL');
     expect(reading.monthlyFee).toBeUndefined();
     expect(reading.netMonthlyValueIls).toBeUndefined();
-    expect(reading.feeCandidates.length).toBeGreaterThan(1);
-    for (const candidate of reading.feeCandidates) {
+    expect(reading.feeRows.length).toBeGreaterThan(1);
+    for (const candidate of reading.feeRows) {
       expect(candidate.levels.length).toBeGreaterThan(0);
     }
   });
@@ -60,7 +60,7 @@ describe('card DNA bottom line', () => {
     const single = allCatalogProducts().find((p) => {
       const fee = cardFeeProfileFor(p.cardId)?.cardFee;
       if (fee === undefined) return false;
-      const monthly = fee.candidates.filter((c) => /חודש|monthly/i.test(c.frequency ?? ''));
+      const monthly = fee.publishedRows.filter((c) => /חודש|monthly/i.test(c.frequency ?? ''));
       const distinct = new Set(monthly.map((c) => `${c.value}|${c.unit}`));
       return distinct.size === 1 && monthly[0]?.unit === 'ILS';
     });
@@ -84,7 +84,7 @@ describe('card DNA bottom line', () => {
 
   it('treats a zero realised value as a fact and not as an absence', () => {
     const single = allCatalogProducts().find((p) => {
-      const monthly = (cardFeeProfileFor(p.cardId)?.cardFee.candidates ?? [])
+      const monthly = (cardFeeProfileFor(p.cardId)?.cardFee.publishedRows ?? [])
         .filter((c) => /חודש|monthly/i.test(c.frequency ?? ''));
       return new Set(monthly.map((c) => `${c.value}|${c.unit}`)).size === 1 && monthly[0]?.unit === 'ILS';
     });

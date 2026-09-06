@@ -36,7 +36,7 @@ export {
   unbindableNamedFeeRowCount,
   type CardFeeProfile,
   type FeeAbsenceReason,
-  type FeeCandidate,
+  type PublishedFeeRow,
   type FeeEvidenceState,
   type FeeReading,
   type WaiverReading,

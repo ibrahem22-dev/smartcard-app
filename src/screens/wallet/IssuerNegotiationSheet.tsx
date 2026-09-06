@@ -258,7 +258,7 @@ export function IssuerNegotiationSheet({
             <View className="mt-3 gap-2">
               {contact?.phone === undefined ? (
                 <AppText className={`text-xs ${ROLE_TEXT.advisory}`} testID="issuer-negotiation-no-phone">
-                  {t('לא פורסם מספר טלפון מאומת לחברה הזאת')}
+                  {t('לא פורסם מספר טלפון רשמי לחברה הזאת')}
                 </AppText>
               ) : (
                 <Pressable
@@ -276,7 +276,7 @@ export function IssuerNegotiationSheet({
 
               {contact?.whatsapp === undefined ? (
                 <AppText className={`text-xs ${TEXT.muted}`} testID="issuer-negotiation-no-whatsapp">
-                  {t('לא פורסם ערוץ וואטסאפ מאומת לחברה הזאת')}
+                  {t('לא פורסם ערוץ וואטסאפ רשמי לחברה הזאת')}
                 </AppText>
               ) : (
                 <Pressable

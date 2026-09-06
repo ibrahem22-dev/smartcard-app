@@ -240,6 +240,7 @@ export function SettingsScreen({
             <>
               <AppText
                 className={`mb-2 text-xs ${TEXT.secondary}`}
+                style={TABULAR_NUMERALS}
                 testID="settings-budget-current"
               >
                 {profile.monthlyBudgetTargetIls === undefined

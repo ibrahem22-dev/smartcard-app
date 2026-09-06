@@ -33,7 +33,7 @@
  */
 import {
   cardFeeProfileFor,
-  type FeeCandidate,
+  type PublishedFeeRow,
   type FeeReading,
 } from '../../authority/cardCatalogAuthority';
 import {
@@ -58,9 +58,9 @@ export type BottomLineState =
 export interface BottomLineReading {
   readonly state: BottomLineState;
   /** The single monthly fee, when exactly one is bindable. Never one of several. */
-  readonly monthlyFee?: FeeCandidate;
+  readonly monthlyFee?: PublishedFeeRow;
   /** Every candidate the tariff publishes for this card's scope, when they differ. */
-  readonly feeCandidates: readonly FeeCandidate[];
+  readonly feeRows: readonly PublishedFeeRow[];
   /** The whole fee reading, so a surface can show the evidence without a second lookup. */
   readonly feeReading?: FeeReading;
   /** Benefits the estate evidences for this exact product and that are not expired or upcoming. */
@@ -93,7 +93,7 @@ export interface BottomLineInput {
 }
 
 /** Only a monthly charge belongs in a monthly net value. The estate writes the period in words. */
-function isMonthly(candidate: FeeCandidate): boolean {
+function isMonthly(candidate: PublishedFeeRow): boolean {
   const frequency = candidate.frequency ?? '';
   return /חודש|monthly/i.test(frequency);
 }
@@ -103,7 +103,7 @@ export function bottomLineFor(input: BottomLineInput): BottomLineReading {
   if (productId === undefined || productId === '') {
     return {
       state: 'NOT_A_CANONICAL_PRODUCT',
-      feeCandidates: [],
+      feeRows: [],
       showableBenefits: [],
       evidencedBenefits: [],
     };
@@ -118,43 +118,43 @@ export function bottomLineFor(input: BottomLineInput): BottomLineReading {
   if (profile === undefined) {
     return {
       state: 'NOT_A_CANONICAL_PRODUCT',
-      feeCandidates: [],
+      feeRows: [],
       showableBenefits,
       evidencedBenefits,
     };
   }
 
   const fee = profile.cardFee;
-  const monthlyCandidates = fee.candidates.filter(isMonthly);
+  const monthlyRows = fee.publishedRows.filter(isMonthly);
 
-  if (fee.state === 'NOT_AVAILABLE' || monthlyCandidates.length === 0) {
+  if (fee.state === 'NOT_AVAILABLE' || monthlyRows.length === 0) {
     return {
       state: 'FEE_UNKNOWN',
-      feeCandidates: [],
+      feeRows: [],
       feeReading: fee,
       showableBenefits,
       evidencedBenefits,
     };
   }
 
-  const distinct = new Set(monthlyCandidates.map((c) => `${c.value}|${c.unit}`));
+  const distinct = new Set(monthlyRows.map((c) => `${c.value}|${c.unit}`));
   if (distinct.size > 1) {
     return {
       state: 'FEE_NEEDS_LEVEL',
-      feeCandidates: monthlyCandidates,
+      feeRows: monthlyRows,
       feeReading: fee,
       showableBenefits,
       evidencedBenefits,
     };
   }
 
-  const monthlyFee = monthlyCandidates[0] as FeeCandidate;
+  const monthlyFee = monthlyRows[0] as PublishedFeeRow;
   const realised = input.realisedBenefitValueIls;
   if (realised === undefined || !Number.isFinite(realised) || monthlyFee.unit !== 'ILS') {
     return {
       state: 'FEE_ONLY',
       monthlyFee,
-      feeCandidates: monthlyCandidates,
+      feeRows: monthlyRows,
       feeReading: fee,
       showableBenefits,
       evidencedBenefits,
@@ -165,7 +165,7 @@ export function bottomLineFor(input: BottomLineInput): BottomLineReading {
   return {
     state: 'AVAILABLE',
     monthlyFee,
-    feeCandidates: monthlyCandidates,
+    feeRows: monthlyRows,
     feeReading: fee,
     showableBenefits,
     evidencedBenefits,

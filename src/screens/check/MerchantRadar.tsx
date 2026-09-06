@@ -224,7 +224,7 @@ function MerchantAnswer({
     return (
       <View className="gap-1" testID="merchant-radar-answer-verified">
         <AppText className={`text-sm font-extrabold ${ACCENT.text}`}>
-          {t('הטבה מאומתת בבית העסק')}
+          {t('הטבה מתועדת בבית העסק')}
         </AppText>
         {advice.usableBenefits.map((benefit) => (
           <AppText
@@ -242,7 +242,7 @@ function MerchantAnswer({
   return (
     <View className="gap-1" testID="merchant-radar-answer-absent">
       <AppText className={`text-sm font-bold ${ROLE_TEXT.advisory}`} testID="merchant-radar-absent-headline">
-        {t('אין המלצה מאומתת לבית העסק הזה כרגע')}
+        {t('אין הטבה מתועדת לבית העסק הזה כרגע')}
       </AppText>
       <AppText className={`text-xs ${TEXT.secondary}`} testID="merchant-radar-absent-reason">
         {advice.absence === 'NOT_LINKED_TO_A_CARD'

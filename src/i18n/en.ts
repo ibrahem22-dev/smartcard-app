@@ -1221,8 +1221,8 @@ export const enBySource: Readonly<Record<string, string>> = {
      edited together.
      ----------------------------------------------------------------------------------------- */
   'אין במאגר פרטי קשר לחברה שהנפיקה את הכרטיס הזה': 'The dataset holds no contact details for the company that issued this card',
+  'אין הטבה מתועדת לבית העסק הזה כרגע': 'No recorded benefit for this merchant right now',
   'אין הטבות בקטגוריה הזאת': 'No benefits in this category',
-  'אין המלצה מאומתת לבית העסק הזה כרגע': 'No verified recommendation for this merchant right now',
   'אין המלצת כרטיס לרכישה הזו': 'No card recommendation for this purchase',
   'אין כרטיסים בכספת, ולכן אין מה לדרג': 'There are no cards in the vault, so there is nothing to rank',
   'אין ערך נטו חודשי שאפשר להציג': 'No monthly net value can be shown',
@@ -1243,7 +1243,7 @@ export const enBySource: Readonly<Record<string, string>> = {
   'הוגדר יעד, אך אין עדיין נתונים למדוד מולו': 'A target is set, but there is nothing to measure against it yet',
   'הוסיפו כרטיס כדי לראות אילו הטבות מגיעות לכם': 'Add a card to see the benefits available to you',
   'החלף': 'Change',
-  'הטבה מאומתת בבית העסק': 'Verified benefit at this merchant',
+  'הטבה מתועדת בבית העסק': 'Recorded benefit at this merchant',
   'הטבות זמינות': 'Available benefits',
   'הטבות מתועדות לכרטיס הזה': 'Benefits recorded for this card',
   'הטקסט הועתק': 'Text copied',
@@ -1284,8 +1284,8 @@ export const enBySource: Readonly<Record<string, string>> = {
   'לא נמצאה במאגר הטבה מתועדת לבית העסק הזה': 'No benefit recorded in the dataset for this merchant',
   'לא נמצאה במאגר הטבה מתועדת לכרטיסים שלכם': 'No benefit recorded in the dataset for your cards',
   'לא פורסם דמי כרטיס חודשיים שחלים על הכרטיס הזה': 'No monthly card fee applying to this card is published',
-  'לא פורסם מספר טלפון מאומת לחברה הזאת': 'No verified phone number is published for this company',
-  'לא פורסם ערוץ וואטסאפ מאומת לחברה הזאת': 'No verified WhatsApp channel is published for this company',
+  'לא פורסם מספר טלפון רשמי לחברה הזאת': 'No official phone number is published for this company',
+  'לא פורסם ערוץ וואטסאפ רשמי לחברה הזאת': 'No official WhatsApp channel is published for this company',
   'לא פורסם שווי מספרי להטבה הזאת': 'No numeric value is published for this benefit',
   'לא פורסם תאריך סיום': 'No end date is published',
   'מהיעד': 'Of the target',
@@ -1314,7 +1314,6 @@ export const enBySource: Readonly<Record<string, string>> = {
   'שווי הטבות שמומש': 'Realised benefit value',
   'שילוב הטבות': 'Combining benefits',
   'שמירת יעד ההוצאה': 'Save the spending target',
-  'תוקף לא ידוע': 'Validity unknown',
 
   /* -----------------------------------------------------------------------------------------
      THE UNIFIED PRODUCT UPGRADE - Merchant Radar, the Negotiation Hub, Card DNA's Bottom Line,

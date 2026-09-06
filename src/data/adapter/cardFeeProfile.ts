@@ -61,7 +61,7 @@ export type FeeAbsenceReason =
   | 'CONFLICTED';
 
 /** One published figure, with everything needed to show where it came from. */
-export interface FeeCandidate {
+export interface PublishedFeeRow {
   readonly value: number;
   readonly unit: string;
   readonly frequency?: string;
@@ -87,10 +87,10 @@ export interface FeeReading {
   /** The estate's own field name, e.g. `CARD_FEE`. Never shown raw to a consumer. */
   readonly field: string;
   readonly state: FeeEvidenceState;
-  /** Present only when exactly one candidate survives — the VERIFIED lane. */
-  readonly single?: FeeCandidate;
-  /** Every candidate in scope, in the pack's order. Empty when there is no row at all. */
-  readonly candidates: readonly FeeCandidate[];
+  /** Present only when exactly one distinct figure survives — the VERIFIED lane. */
+  readonly single?: PublishedFeeRow;
+  /** Every published row in scope, in the pack's order. Empty when there is no row at all. */
+  readonly publishedRows: readonly PublishedFeeRow[];
   readonly reason?: FeeAbsenceReason;
 }
 
@@ -164,7 +164,7 @@ function candidateFromAmount(
     readonly discounts?: readonly string[];
     readonly notes?: readonly string[];
   } = {},
-): FeeCandidate | null {
+): PublishedFeeRow | null {
   const value = numberOf(amount, 'value');
   if (value === undefined) return null;
   return {
@@ -204,20 +204,20 @@ function candidateFromAmount(
 function readingFromCardCost(field: string, costs: Row | undefined): FeeReading {
   const amount = record(costs?.[field]);
   if (amount === undefined) {
-    return { field, state: 'NOT_AVAILABLE', candidates: [], reason: 'NO_PUBLISHED_ROW' };
+    return { field, state: 'NOT_AVAILABLE', publishedRows: [], reason: 'NO_PUBLISHED_ROW' };
   }
   const candidate = candidateFromAmount(amount);
   if (candidate === null) {
     /* `obtainable: false` with a `reason` is the estate saying it looked and there is nothing —
        which is a different statement from "no row", and never a zero. */
-    return { field, state: 'NOT_AVAILABLE', candidates: [], reason: 'NO_VALUE_PUBLISHED' };
+    return { field, state: 'NOT_AVAILABLE', publishedRows: [], reason: 'NO_VALUE_PUBLISHED' };
   }
   const usable = candidate.consumabilityVerdict === 'USABLE' && candidate.chip === 'VERIFIED';
   return {
     field,
     state: usable ? 'VERIFIED' : 'CONDITIONAL',
     single: candidate,
-    candidates: [candidate],
+    publishedRows: [candidate],
     ...(usable ? {} : { reason: 'CONFLICTED' as const }),
   };
 }
@@ -254,10 +254,10 @@ function readingFromTariff(field: string, product: CatalogProduct): FeeReading {
     (row) => text(row, 'field') === field && feeRowApplies(row, product),
   );
   if (rows.length === 0) {
-    return { field, state: 'NOT_AVAILABLE', candidates: [], reason: 'NO_PUBLISHED_ROW' };
+    return { field, state: 'NOT_AVAILABLE', publishedRows: [], reason: 'NO_PUBLISHED_ROW' };
   }
 
-  const candidates: FeeCandidate[] = [];
+  const published: PublishedFeeRow[] = [];
   for (const row of rows) {
     const amount = record(row['value']);
     if (amount === undefined) continue;
@@ -272,18 +272,18 @@ function readingFromTariff(field: string, product: CatalogProduct): FeeReading {
       ...(text(row, 'labelEn') === undefined ? {} : { labelEn: text(row, 'labelEn') as string }),
       ...(text(row, 'labelAr') === undefined ? {} : { labelAr: text(row, 'labelAr') as string }),
     });
-    if (candidate !== null) candidates.push(candidate);
+    if (candidate !== null) published.push(candidate);
   }
 
-  if (candidates.length === 0) {
-    return { field, state: 'NOT_AVAILABLE', candidates: [], reason: 'NO_VALUE_PUBLISHED' };
+  if (published.length === 0) {
+    return { field, state: 'NOT_AVAILABLE', publishedRows: [], reason: 'NO_VALUE_PUBLISHED' };
   }
 
   /* IDENTICAL FIGURES ARE ONE ANSWER, NOT SEVERAL. Several rows can publish the same value under
      different level labels; that is one fee stated several times and the user should see one. */
-  const distinct = new Set(candidates.map((c) => `${c.value}|${c.unit}|${c.frequency ?? ''}`));
+  const distinct = new Set(published.map((c) => `${c.value}|${c.unit}|${c.frequency ?? ''}`));
   if (distinct.size === 1) {
-    const single = candidates[0] as FeeCandidate;
+    const single = published[0] as PublishedFeeRow;
     const conditional =
       single.consumabilityVerdict !== 'USABLE'
       || single.chip !== 'VERIFIED'
@@ -293,14 +293,14 @@ function readingFromTariff(field: string, product: CatalogProduct): FeeReading {
       field,
       state: conditional ? 'CONDITIONAL' : 'VERIFIED',
       single,
-      candidates,
+      publishedRows: published,
       ...(conditional ? { reason: 'CONFLICTED' as const } : {}),
     };
   }
 
   /* SEVERAL DIFFERENT FIGURES, and the difference is a card LEVEL the estate models on no field.
      The set is returned whole so the surface can show every one with its own label. */
-  return { field, state: 'CONDITIONAL', candidates, reason: 'LEVEL_NOT_MODELLED' };
+  return { field, state: 'CONDITIONAL', publishedRows: published, reason: 'LEVEL_NOT_MODELLED' };
 }
 
 function waiversFor(product: CatalogProduct): readonly WaiverReading[] {

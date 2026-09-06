@@ -46,7 +46,7 @@ export interface ReconciliationReading {
   /** The product it already resolves to. Present only in the resolved state. */
   readonly product?: CatalogProduct;
   /** Products the user could be asked to choose between. Never adopted automatically. */
-  readonly candidates: readonly CatalogProduct[];
+  readonly catalogMatches: readonly CatalogProduct[];
   /** Why the reading is what it is, for a surface that wants to explain itself. */
   readonly reason:
     | 'PRODUCT_ID_IS_A_CURRENT_CATALOG_ROW'
@@ -62,6 +62,17 @@ export interface ReconcilableCard {
   readonly displayName: string;
   readonly issuer: CardIssuer;
 }
+
+/**
+ * Word separators inside a name, written as escapes rather than as raw characters.
+ *
+ * The characters are the same ones: maqaf, apostrophe, double quote, backtick, geresh, gershayim,
+ * hyphen, en dash, em dash, underscore, slash, backslash, full stop, comma, brackets. Written raw,
+ * the class contains a quote character, and any scanner reading this file for string literals —
+ * the i18n audit does — sees a quote open, runs to the next one, and reports the geresh inside as
+ * untranslated Hebrew reaching a reader. It never reached one; it is punctuation in a regex.
+ */
+const SEPARATORS = /[\u05be\u0027\u0022\u0060\u05f3\u05f4\u002d\u2013\u2014\u005f\u002f\u005c\u002e\u002c()[\]]+/g;
 
 /**
  * The legacy enum's three values as canonical OPERATOR ids.
@@ -81,7 +92,7 @@ const normalize = (value: string): string =>
   value
     .toLowerCase()
     .normalize('NFC')
-    .replace(/[־'"`׳״\-–—_/\\.,()[\]]+/g, ' ')
+    .replace(SEPARATORS, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 
@@ -104,7 +115,7 @@ export function reconcileCard(card: ReconcilableCard): ReconciliationReading {
       return {
         state: 'CANONICALLY_RESOLVED',
         product,
-        candidates: [],
+        catalogMatches: [],
         reason: 'PRODUCT_ID_IS_A_CURRENT_CATALOG_ROW',
       };
     }
@@ -114,13 +125,13 @@ export function reconcileCard(card: ReconcilableCard): ReconciliationReading {
   if (needle === '') {
     return {
       state: 'UNRESOLVED',
-      candidates: [],
+      catalogMatches: [],
       reason: stored === undefined ? 'NO_CATALOG_PRODUCT_MATCHES' : 'PRODUCT_ID_IS_NOT_A_CATALOG_ROW',
     };
   }
 
   const operators = new Set(OPERATORS_FOR_LEGACY_ISSUER[card.issuer]);
-  const candidates = allCatalogProducts().filter((product) => {
+  const matches = allCatalogProducts().filter((product) => {
     /* Narrow by operator where the estate recorded one. A product with no recorded operator is
        still a candidate: an absent operator is not a statement that it is a different company's. */
     if (
@@ -133,15 +144,15 @@ export function reconcileCard(card: ReconcilableCard): ReconciliationReading {
     return publishedNames(product).some((name) => normalize(name) === needle);
   });
 
-  return candidates.length === 0
+  return matches.length === 0
     ? {
       state: 'UNRESOLVED',
-      candidates: [],
+      catalogMatches: [],
       reason: 'NO_CATALOG_PRODUCT_MATCHES',
     }
     : {
       state: 'AMBIGUOUS',
-      candidates,
+      catalogMatches: matches,
       reason: 'NAME_MATCHES_CATALOG_PRODUCTS',
     };
 }

@@ -102,18 +102,28 @@ function FamilyLabel({ family }: { readonly family: BenefitFilter }): React.Reac
   );
 }
 
-function ValidityLine({ row }: { readonly row: EligibleBenefit }): React.ReactElement {
+function ValidityLine({ row }: { readonly row: EligibleBenefit }): React.ReactElement | null {
   const { t } = useTranslation();
+
+  /* THE UNKNOWN CASE WEARS THE ONE SHARED CHIP, NOT A SENTENCE THIS SCREEN INVENTED.
+     `isCurrentlyShowable` admits ACTIVE, EXPIRING_SOON and UNKNOWN only, so this branch is exactly
+     "the pack published no dates for this benefit" — the UNKNOWN provenance state. A2 says that
+     state has one definition, and a second wording of it here would be a second badge. */
+  if (row.validity === 'UNKNOWN') {
+    return (
+      <ProvenanceChip
+        testID={`benefits-hub-validity-${row.benefit.benefitId}`}
+        view={{ chip: 'UNKNOWN', stale: false }}
+      />
+    );
+  }
+
   return (
     <AppText
       className={`text-xs ${row.validity === 'EXPIRING_SOON' ? ROLE_TEXT.advisory : TEXT.muted}`}
       testID={`benefits-hub-validity-${row.benefit.benefitId}`}
     >
-      {row.validity === 'EXPIRING_SOON'
-        ? t('מסתיימת בקרוב')
-        : row.validity === 'ACTIVE'
-          ? t('בתוקף')
-          : t('תוקף לא ידוע')}
+      {row.validity === 'EXPIRING_SOON' ? t('מסתיימת בקרוב') : t('בתוקף')}
     </AppText>
   );
 }

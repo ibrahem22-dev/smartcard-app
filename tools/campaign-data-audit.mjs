@@ -229,6 +229,71 @@ for (const [k, v] of Object.entries(famCounts).sort((a, b) => b[1] - a[1])) {
 }
 say('');
 
+say('## SECTION 24 - MERCHANT AND ISSUER VERIFICATION TABLES');
+say('');
+say('### The five checkout merchants the Owner named');
+say('');
+say('| canonical id | HE | AR | EN | aliases | category | provenance | verification | merchant-specific recommendation possible? | fallback |');
+say('| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |');
+const wanted = ['merch:shufersal', 'merch:carrefour', 'merch:rami-levy-stores', 'merch:super-pharm', 'merch:sonol'];
+const merchById = Object.fromEntries(taxonomy.merchants.map((m) => [m.merchantId, m]));
+for (const id of wanted) {
+  const m = merchById[id];
+  if (!m) { say('| ' + id + ' | NOT IN PACK |||||||||'); continue; }
+  const linked = benefits.benefits.filter((b) => (b.eligibleMerchantIds ?? []).includes(id));
+  const linkedToCard = linked.filter((b) => (b.cardIds ?? []).length > 0);
+  const possible = linkedToCard.length > 0 ? 'yes - ' + linkedToCard.length + ' benefit(s) name a card' : 'NO';
+  const why = linked.length === 0
+    ? 'no benefit in the corpus names this merchant'
+    : linkedToCard.length === 0
+      ? linked.length + ' benefit(s) name it and none names a card'
+      : '-';
+  say('| ' + id + ' | ' + (m.nameHe ?? '(none)') + ' | ' + (m.nameAr ?? '(evidenced absence)') + ' | ' +
+    (m.nameEn ?? '(none)') + ' | ' + (m.aliases ?? []).length + ' | ' + (m.canonicalCategory ?? '-') + ' | ' +
+    (m.provenanceChip ?? '-') + ' | ' + (m.verificationStatus ?? '-') + ' | ' + possible + ' | ' + why + ' |');
+}
+say('');
+say('Fallback behaviour for all five: the radar states that no verified merchant-specific');
+say('recommendation is currently available, names WHICH of the three absences applies, and offers');
+say('the full purchase check, whose recommendation is explicitly labelled general rather than');
+say('merchant-specific.');
+say('');
+say('### Issuer negotiation contacts');
+say('');
+say('| org | published customer-service value | phone action | WhatsApp action | verification | source |');
+say('| --- | --- | --- | --- | --- | --- |');
+const NUMBER_TOKEN = /(\*\d{3,5}|\+972[-\s]?\d[-\s]?\d{7}|0\d{1,2}-?\d{7})/;
+const WA = /whats\s*app/i;
+const SEGMENT = new RegExp('[;' + String.fromCharCode(10) + ']');
+for (const orgId of ['org:max', 'org:cal', 'org:isracard', 'org:amex-il']) {
+  const row = content.contacts.find((c) => c.orgId === orgId);
+  const cs = row && row.customerServicePhone;
+  const value = cs && cs.value ? cs.value : '(none published)';
+  let phone = '-';
+  let wa = '-';
+  for (const seg of String(value).split(SEGMENT)) {
+    const tok = (NUMBER_TOKEN.exec(seg) || [])[1];
+    if (!tok) continue;
+    if (WA.test(seg)) { if (wa === '-') wa = 'https://wa.me/ from ' + tok; }
+    else if (phone === '-') phone = 'tel:' + tok;
+  }
+  say('| ' + orgId + ' | ' + value + ' | ' + phone + ' | ' + wa + ' | ' +
+    ((cs && cs.verificationStatus) || '-') + ' | ' + ((cs && cs.sourceUrl) || '-') + ' |');
+}
+say('');
+say('### The three Owner-supplied candidate numbers');
+say('');
+say('| candidate | Owner said | corpus says | shipped? |');
+say('| --- | --- | --- | --- |');
+const corpusText = JSON.stringify(content.contacts);
+for (const [cand, org] of [['*6969', 'org:max'], ['*4554', 'org:cal'], ['*6464', 'org:isracard']]) {
+  const row = content.contacts.find((c) => c.orgId === org);
+  const published = row && row.customerServicePhone && row.customerServicePhone.value;
+  say('| ' + cand + ' | ' + org + ' | ' + (published || '(none)') +
+    ' | NO - the string ' + cand + ' occurs ' + (corpusText.split(cand).length - 1) + ' times in the corpus |');
+}
+say('');
+
 mkdirSync(join(ROOT, 'reports', 'campaign'), { recursive: true });
 writeFileSync(join(ROOT, 'reports', 'campaign', 'CANONICAL_DATA_AUDIT.md'), out.join('\n') + '\n');
 console.log(out.join('\n'));

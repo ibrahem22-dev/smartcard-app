@@ -111,11 +111,11 @@ export function BottomLineCard({ reading }: BottomLineCardProps): React.ReactEle
       ) : null}
 
       {reading.state === 'FEE_NEEDS_LEVEL' ? (
-        <View className="gap-1" testID="card-dna-bottom-line-fee-candidates">
+        <View className="gap-1" testID="card-dna-bottom-line-fee-rows">
           <AppText className={`text-xs font-bold ${TEXT.body}`}>
             {t('הסכומים שהתעריפון מפרסם לכרטיסים מהסוג הזה')}
           </AppText>
-          {reading.feeCandidates.map((candidate, index) => (
+          {reading.feeRows.map((candidate, index) => (
             <AppText
               accessibilityValue={{ text: String(candidate.value) }}
               className={`text-xs ${TEXT.secondary}`}

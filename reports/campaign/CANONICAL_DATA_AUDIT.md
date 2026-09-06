@@ -145,3 +145,37 @@ Benefit families the app groups the estate benefitType vocabulary into, over the
 | credit | 30 | 5 |
 | insurance | 10 | 2 |
 
+## SECTION 24 - MERCHANT AND ISSUER VERIFICATION TABLES
+
+### The five checkout merchants the Owner named
+
+| canonical id | HE | AR | EN | aliases | category | provenance | verification | merchant-specific recommendation possible? | fallback |
+| --- | --- | --- | --- | --- | --- | --- | --- | --- | --- |
+| merch:shufersal | שופרסל בע"מ | شوفرسال | Shufersal | 6 | GROCERY | VERIFIED | CORROBORATED | NO | no benefit in the corpus names this merchant |
+| merch:carrefour | קרפור | كارفور | Carrefour | 4 | GROCERY | VERIFIED | SINGLE_SOURCE | NO | no benefit in the corpus names this merchant |
+| merch:rami-levy-stores | רמי לוי | (evidenced absence) | Rami Levy stores | 3 | GROCERY | UNKNOWN | UNKNOWN_AFTER_RESEARCH | NO | no benefit in the corpus names this merchant |
+| merch:super-pharm | סופר פארם | سوبير فارم | Super-Pharm | 4 | PHARMACY_HEALTH_BEAUTY | VERIFIED | SINGLE_SOURCE | NO | 1 benefit(s) name it and none names a card |
+| merch:sonol | סונול | سونول | Sonol | 1 | FUEL | VERIFIED | SINGLE_SOURCE | NO | no benefit in the corpus names this merchant |
+
+Fallback behaviour for all five: the radar states that no verified merchant-specific
+recommendation is currently available, names WHICH of the three absences applies, and offers
+the full purchase check, whose recommendation is explicitly labelled general rather than
+merchant-specific.
+
+### Issuer negotiation contacts
+
+| org | published customer-service value | phone action | WhatsApp action | verification | source |
+| --- | --- | --- | --- | --- | --- |
+| org:max | 03-6178888 (טלפון); 054-5408881 (WhatsApp) | tel:03-6178888 | https://wa.me/ from 054-5408881 | VERIFIED_OFFICIAL | https://www.max.co.il/contactus |
+| org:cal | 03-5726444 (טלפון); 03-5725111 (WhatsApp) | tel:03-5726444 | https://wa.me/ from 03-5725111 | VERIFIED_OFFICIAL | https://www.cal-online.co.il/service-and-support/calservices/ |
+| org:isracard | *6272 | tel:*6272 | - | VERIFIED_OFFICIAL | https://marketing.isracard.co.il/clubs/contact-us/ |
+| org:amex-il | *2639; WhatsApp 054-3920491 | tel:*2639 | https://wa.me/ from 054-3920491 | VERIFIED_OFFICIAL | https://marketing.americanexpress.co.il/cards-clubs/contact-us/ |
+
+### The three Owner-supplied candidate numbers
+
+| candidate | Owner said | corpus says | shipped? |
+| --- | --- | --- | --- |
+| *6969 | org:max | 03-6178888 (טלפון); 054-5408881 (WhatsApp) | NO - the string *6969 occurs 0 times in the corpus |
+| *4554 | org:cal | 03-5726444 (טלפון); 03-5725111 (WhatsApp) | NO - the string *4554 occurs 0 times in the corpus |
+| *6464 | org:isracard | *6272 | NO - the string *6464 occurs 0 times in the corpus |
+

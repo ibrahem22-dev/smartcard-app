@@ -50,14 +50,6 @@
     },
     {
       "file": "src/screens/SettingsScreen.tsx",
-      "literal": "0.15",
-      "identifier": null,
-      "why": "AN OPACITY, as above.",
-      "reviewedBy": "WP-2.4",
-      "reviewedAt": "2026-08-24"
-    },
-    {
-      "file": "src/screens/SettingsScreen.tsx",
       "literal": "0.3",
       "identifier": null,
       "why": "AN OPACITY, passed to withOpacity() for the bank divider colour.",

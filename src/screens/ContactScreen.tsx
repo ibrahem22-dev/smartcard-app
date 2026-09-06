@@ -132,7 +132,7 @@ export function ContactScreen(): React.ReactElement {
               </AppText>
               {issuer.phone === '' ? (
                 <AppText className={`mt-1 text-sm ${TEXT.secondary}`}>
-                  {t('לא פורסם מספר טלפון מאומת לחברה הזאת')}
+                  {t('לא פורסם מספר טלפון רשמי לחברה הזאת')}
                 </AppText>
               ) : (
                 <AppText

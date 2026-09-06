@@ -68,7 +68,7 @@ describe('card fee profile', () => {
         if (reading.state === 'NOT_AVAILABLE' && reading.single !== undefined) {
           zeroed.push(`${product.cardId}:${reading.field}`);
         }
-        if (reading.state === 'NOT_AVAILABLE' && reading.candidates.length > 0) {
+        if (reading.state === 'NOT_AVAILABLE' && reading.publishedRows.length > 0) {
           zeroed.push(`${product.cardId}:${reading.field}:candidates`);
         }
       }
@@ -92,10 +92,10 @@ describe('card fee profile', () => {
     const profile = cardFeeProfileFor('card:amex-il:adif-american-express');
     expect(profile?.cardFee.state).toBe('CONDITIONAL');
     expect(profile?.cardFee.reason).toBe('LEVEL_NOT_MODELLED');
-    expect((profile?.cardFee.candidates.length ?? 0)).toBeGreaterThan(1);
+    expect((profile?.cardFee.publishedRows.length ?? 0)).toBeGreaterThan(1);
     /* Each candidate names the tariff's own level labels, so the user can recognise their card. */
-    expect(profile?.cardFee.candidates.some((c) => c.levels.includes('Blue'))).toBe(true);
-    expect(profile?.cardFee.candidates.some((c) => c.levels.includes('Platinum'))).toBe(true);
+    expect(profile?.cardFee.publishedRows.some((c) => c.levels.includes('Blue'))).toBe(true);
+    expect(profile?.cardFee.publishedRows.some((c) => c.levels.includes('Platinum'))).toBe(true);
     /* And no single figure is presented as THE fee. */
     expect(profile?.cardFee.single).toBeUndefined();
   });
@@ -105,7 +105,7 @@ describe('card fee profile', () => {
     const named = unbindableNamedFeeRowCount('org:leumi');
     expect(named).toBeGreaterThanOrEqual(0);
     const profile = cardFeeProfileFor('card:leumi:leumi-first-credit-card');
-    for (const candidate of profile?.cardFee.candidates ?? []) {
+    for (const candidate of profile?.cardFee.publishedRows ?? []) {
       /* Every bound candidate came from an operator-scoped or issuer-wide row, so its evidence
          is a tariff scope rather than a card name. */
       expect(candidate.sourceLabel ?? candidate.registryId).toBeDefined();

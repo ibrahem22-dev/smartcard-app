@@ -137,7 +137,7 @@ export function CardReconciliationPrompt({
               </Pressable>
             </RtlRow>
             <ScrollView contentContainerStyle={{ paddingBottom: 16 }}>
-              {reading.candidates.map((candidate) => (
+              {reading.catalogMatches.map((candidate) => (
                 <Pressable
                   accessibilityLabel={productDisplayName(candidate, lang)}
                   accessibilityRole="button"

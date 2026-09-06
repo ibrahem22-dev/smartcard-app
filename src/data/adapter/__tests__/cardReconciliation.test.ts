@@ -24,7 +24,7 @@ describe('card reconciliation', () => {
     expect(reading.state).toBe('CANONICALLY_RESOLVED');
     expect(reading.reason).toBe('PRODUCT_ID_IS_A_CURRENT_CATALOG_ROW');
     expect(reading.product?.cardId).toBe('card:max:skymax');
-    expect(reading.candidates).toEqual([]);
+    expect(reading.catalogMatches).toEqual([]);
   });
 
   it('offers a name match as AMBIGUOUS and never adopts it', () => {
@@ -38,7 +38,7 @@ describe('card reconciliation', () => {
     });
     expect(reading.state).toBe('AMBIGUOUS');
     expect(reading.reason).toBe('NAME_MATCHES_CATALOG_PRODUCTS');
-    expect(reading.candidates.map((c) => c.cardId)).toContain('card:max:skymax');
+    expect(reading.catalogMatches.map((c) => c.cardId)).toContain('card:max:skymax');
     /* Even a UNIQUE match is offered rather than taken. */
     expect(reading.product).toBeUndefined();
   });
@@ -52,7 +52,7 @@ describe('card reconciliation', () => {
     });
     expect(reading.state).toBe('UNRESOLVED');
     expect(reading.reason).toBe('NO_CATALOG_PRODUCT_MATCHES');
-    expect(reading.candidates).toEqual([]);
+    expect(reading.catalogMatches).toEqual([]);
   });
 
   it('reports UNRESOLVED, not a crash, for an empty display name', () => {
@@ -73,7 +73,7 @@ describe('card reconciliation', () => {
       displayName: amex.nameHe ?? 'מועדון עדיף',
       issuer: CardIssuer.Isracard,
     });
-    expect(asIsracard.candidates.map((c) => c.cardId)).toContain(amex.cardId);
+    expect(asIsracard.catalogMatches.map((c) => c.cardId)).toContain(amex.cardId);
 
     const asMax = reconcileCard({
       cardId: 'v1',
@@ -81,7 +81,7 @@ describe('card reconciliation', () => {
       displayName: amex.nameHe ?? 'מועדון עדיף',
       issuer: CardIssuer.Max,
     });
-    expect(asMax.candidates.map((c) => c.cardId)).not.toContain(amex.cardId);
+    expect(asMax.catalogMatches.map((c) => c.cardId)).not.toContain(amex.cardId);
   });
 
   it('matches a name whose punctuation differs from the catalog spelling', () => {
@@ -92,7 +92,7 @@ describe('card reconciliation', () => {
       cardId: 'v1', cardProductId: 'manual:abc', displayName: '  ' + name.toLowerCase() + ' ',
       issuer: CardIssuer.Max,
     });
-    expect(reading.candidates.map((c) => c.cardId)).toContain('card:max:skymax');
+    expect(reading.catalogMatches.map((c) => c.cardId)).toContain('card:max:skymax');
   });
 
   it('classifies a whole vault and keeps every card', () => {

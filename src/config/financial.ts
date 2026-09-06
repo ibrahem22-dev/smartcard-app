@@ -169,3 +169,17 @@ export const BILLING_DAY_MAX = 31;
 
 /** Product policy: keep one year of monthly card-billing reminders scheduled ahead. */
 export const BILLING_REMINDER_WINDOW_MONTHS = 12;
+
+/**
+ * WHERE THE COMMAND CENTER'S BUDGET BAR STARTS SAYING "APPROACHING".
+ *
+ * A fraction of the user's OWN monthly target, not a rule about their money: nothing is blocked,
+ * refused or recommended on the strength of it, and the bar reads the same colour band either
+ * side of it. It lives here because it is still a threshold, and the P3 rule is that a threshold
+ * has one home — the same reason `PURCHASE_GATE_RULES` does not carry its ratios in the screen
+ * that paints them.
+ *
+ * It is deliberately NOT one of the load engine's bands. Those compare obligations to INCOME and
+ * carry a financial opinion; this compares outflow to a figure the user typed.
+ */
+export const BUDGET_APPROACHING_FRACTION = 0.8;

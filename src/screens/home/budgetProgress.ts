@@ -34,14 +34,21 @@
  * are a presentation of the ratio and not a financial rule: nothing is blocked, refused or
  * recommended on the strength of them.
  */
+import { BUDGET_APPROACHING_FRACTION } from '../../config/financial';
 import type { FinancialLoadResult } from '../../engines/load';
 import type { LoggedPurchase } from '../../types/activity.types';
 
 /** How the bar reads. Bands are presentation; no decision is taken on them. */
 export type BudgetBand = 'no-target' | 'on-track' | 'approaching' | 'over';
 
-/** Fraction of the target at which the bar starts saying "approaching". */
-export const APPROACHING_FRACTION = 0.8;
+/**
+ * Fraction of the target at which the bar starts saying "approaching".
+ *
+ * RE-EXPORTED, NOT DECLARED. It is a threshold, and a threshold has one home — `config/financial.ts`
+ * — which is what the P3 no-magic-numbers rule is about. The name stays here so a reader of this
+ * file can see what the band means without following the import.
+ */
+export const APPROACHING_FRACTION = BUDGET_APPROACHING_FRACTION;
 
 export interface BudgetProgressInput {
   /** ₪ target the user set, or `undefined` when they have not set one. */

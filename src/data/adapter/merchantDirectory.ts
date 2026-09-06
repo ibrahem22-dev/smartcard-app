@@ -89,6 +89,17 @@ function merchantIndex(): Map<string, MerchantView> {
 }
 
 /**
+ * Word separators inside a name, written as escapes rather than as raw characters.
+ *
+ * The characters are the same ones: maqaf, apostrophe, double quote, backtick, geresh, gershayim,
+ * hyphen, en dash, em dash, underscore, slash, backslash, full stop, comma, brackets. Written raw,
+ * the class contains a quote character, and any scanner reading this file for string literals —
+ * the i18n audit does — sees a quote open, runs to the next one, and reports the geresh inside as
+ * untranslated Hebrew reaching a reader. It never reached one; it is punctuation in a regex.
+ */
+const SEPARATORS = /[\u05be\u0027\u0022\u0060\u05f3\u05f4\u002d\u2013\u2014\u005f\u002f\u005c\u002e\u002c()[\]]+/g;
+
+/**
  * Normalisation for matching only — never for display.
  *
  * Case folded, NFC composed, whitespace collapsed, and Hebrew/Arabic diacritics dropped so that a
@@ -101,7 +112,7 @@ export function normalizeMerchantText(value: string): string {
     .toLowerCase()
     .normalize('NFC')
     .replace(/[֑-ׇً-ْٰ]/g, '')
-    .replace(/[־'"`׳״\-–—_/\\.,()[\]]+/g, ' ')
+    .replace(SEPARATORS, ' ')
     .replace(/\s+/g, ' ')
     .trim();
 }
