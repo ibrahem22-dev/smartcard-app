@@ -93,7 +93,7 @@ export function HomeBillingCluster({ context }: HomeBillingClusterProps): React.
 
       {clusters.map((cluster) => (
         <Pressable
-          accessibilityLabel={`${t('חיובים שמתרכזים באותו יום')} ${ltrNumerals(cluster.date)}`}
+          accessibilityLabel={t('חיובים שמתרכזים באותו יום — {{date}}', { date: ltrNumerals(cluster.date) })}
           accessibilityRole="link"
           className="min-h-[48px] justify-center"
           key={cluster.date}

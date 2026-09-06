@@ -26,11 +26,16 @@
  */
 import { create } from 'zustand';
 
+import { RECENT_MERCHANT_LIMIT } from '../config/lists';
 import { keyVault } from '../security/keyVault';
 import { MMKV_KEYS } from './keys';
 
-/** The bound. Five is what fits a chip row without scrolling at a checkout. */
-export const RECENT_MERCHANT_LIMIT = 5;
+/**
+ * The bound, RE-EXPORTED rather than declared. It is a list length and its one home is
+ * `config/lists.ts`; the name stays here so a reader of this file sees what bounds the list
+ * without following the import.
+ */
+export { RECENT_MERCHANT_LIMIT };
 
 /** A canonical merchant id, as the taxonomy pack spells them. Nothing else is stored. */
 const MERCHANT_ID = /^merch:[a-z0-9][a-z0-9-]{0,80}$/;

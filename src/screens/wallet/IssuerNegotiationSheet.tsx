@@ -262,7 +262,7 @@ export function IssuerNegotiationSheet({
                 </AppText>
               ) : (
                 <Pressable
-                  accessibilityLabel={`${t('התקשרות')} ${contact.phone.display}`}
+                  accessibilityLabel={t('התקשרות אל {{number}}', { number: contact.phone.display })}
                   accessibilityRole="button"
                   className={`min-h-[48px] items-center justify-center rounded-lg border ${BORDER.hairline} ${SURFACE.sunken}`}
                   onPress={(): void => open((contact.phone as { uri: string }).uri)}

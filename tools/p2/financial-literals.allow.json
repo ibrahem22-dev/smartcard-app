@@ -263,30 +263,6 @@
       "why": "A WORK-PACKAGE LABEL inside a section title string (BOI lane (WP-7.2)), not a number about money.",
       "reviewedBy": "PHASE-8 boundary reconciliation (ox-alpha@opencode)",
       "reviewedAt": "2026-08-26"
-    },
-    {
-      "file": "src/data/adapter/merchantDirectory.ts",
-      "literal": "8",
-      "identifier": "DEFAULT_SEARCH_LIMIT",
-      "why": "A LIST BOUND, not a rate. It caps how many merchant rows a search hands a screen so a one-letter query cannot return all 266. If it were wrong the user would see more or fewer chips; no figure about their money changes, and no arithmetic uses it.",
-      "reviewedBy": "MDC Merchant Radar",
-      "reviewedAt": "2026-09-06"
-    },
-    {
-      "file": "src/screens/check/MerchantRadar.tsx",
-      "literal": "6",
-      "identifier": "SEARCH_LIMIT",
-      "why": "A LIST BOUND for the checkout search results, for the same reason as DEFAULT_SEARCH_LIMIT. Six is what fits above the fold at a till. Wrong, it shows a longer or shorter list; it can tell the user nothing false about their money.",
-      "reviewedBy": "MDC Merchant Radar",
-      "reviewedAt": "2026-09-06"
-    },
-    {
-      "file": "src/store/useRecentMerchantsStore.ts",
-      "literal": "5",
-      "identifier": "RECENT_MERCHANT_LIMIT",
-      "why": "A LIST BOUND: how many recent shops are remembered. It is also a PRIVACY ceiling - the shorter the list the less it records - and it is deliberately small for that reason. It participates in no calculation.",
-      "reviewedBy": "MDC Merchant Radar",
-      "reviewedAt": "2026-09-06"
     }
   ],
   "$knownMirror": [

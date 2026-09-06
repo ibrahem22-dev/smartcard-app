@@ -29,6 +29,7 @@ import {
   type PackDocument,
 } from '@smartcard/data-authority-adapter';
 
+import { MERCHANT_SEARCH_RESULT_LIMIT } from '../../config/lists';
 import taxonomyPackJson from './packs/taxonomy/pack.json';
 
 import { EXPECTED_DATASET_ID } from './datasetId';
@@ -180,7 +181,7 @@ export interface MerchantSearchOptions {
   readonly limit?: number;
 }
 
-const DEFAULT_SEARCH_LIMIT = 8;
+const DEFAULT_SEARCH_LIMIT = MERCHANT_SEARCH_RESULT_LIMIT;
 
 /**
  * Substring search over every published name and alias, in canonical pack order.

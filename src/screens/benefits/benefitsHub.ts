@@ -84,7 +84,14 @@ export interface BenefitsHubReading {
   readonly emptiness?: 'NO_CARDS' | 'NO_EVIDENCED_BENEFITS' | 'FILTER_EMPTY';
 }
 
-/** Text a benefit can be searched by: its own titles, its description, and its merchants' names. */
+/**
+ * Text a benefit can be searched by: its own titles and its merchants' names.
+ *
+ * NOT the pack's `description`. It is an English-only research annotation about the source rather
+ * than consumer copy, no surface renders it (see BenefitsHubScreen), and searching a field the user
+ * cannot see returns rows for words that appear nowhere on their screen — which reads as a bug and
+ * leaks the annotation's vocabulary besides.
+ */
 function haystack(row: EligibleBenefit, language: MerchantNameLanguage): string {
   const merchantNames = (row.benefit.eligibleMerchantIds ?? [])
     .map(merchantById)
@@ -94,7 +101,6 @@ function haystack(row: EligibleBenefit, language: MerchantNameLanguage): string 
     row.benefit.titleHe,
     row.benefit.titleEn,
     row.benefit.titleAr,
-    row.benefit.description,
     ...merchantNames,
   ]
     .filter((part): part is string => typeof part === 'string')

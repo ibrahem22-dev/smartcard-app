@@ -12,7 +12,6 @@ import { BenefitsHubScreen } from '../../screens/benefits/BenefitsHubScreen';
 import { SegmentedTab } from '../SegmentedTab';
 import { BOTTOM_NAVIGATION } from '../ia';
 import type { WalletStackParamList } from '../types';
-import type { NativeStackScreenProps } from '@react-navigation/native-stack';
 
 /**
  * C11 — THE CardEdit ROUTE IS GONE, AND WITH IT THE LAST MOUNT OF THE LEGACY SCREEN.
@@ -71,33 +70,26 @@ function WalletRoot(): React.ReactElement {
 }
 
 /**
- * CARD DNA'S ROUTE, WRAPPED — so the screen keeps a structural navigation prop.
+ * CARD DNA IS MOUNTED DIRECTLY, AND THE WRAPPER THAT BRIEFLY STOOD HERE IS GONE.
  *
- * `CardDnaScreen` declares `navigate` as `(route, params?) => void` over three literal route names
- * rather than importing React Navigation's generics, which is what lets every render suite mount
- * it with a plain object. The wrapper is the one place the two shapes meet.
+ * `CardDnaScreen` declares `navigate` structurally — `(route, params?) => void` over three literal
+ * route names — rather than importing React Navigation's generics, which is what lets every render
+ * suite mount it with a plain object. Widening it from one route name to three raised the question
+ * of whether React Navigation's own navigation object still satisfies it. It does: all three names
+ * are routes of THIS stack, so the compiler accepts the assignment and no adapter is needed.
+ *
+ * A wrapper component was written for it and then deleted. It was not free: `surfaces-pure` and
+ * `card-dna-layout` both read this file, one resolving the CardDetail component's IMPORT and the
+ * other asserting the stack reaches `CardDnaScreen` — and a locally declared wrapper satisfied
+ * neither honestly. The two gates disagreeing was the signal that the indirection had no reason to
+ * exist, not that they needed teaching.
  */
-function CardDetailRoute({ navigation, route }: NativeStackScreenProps<WalletStackParamList, 'CardDetail'>): React.ReactElement {
-  return (
-    <CardDnaScreen
-      navigation={{
-        navigate: (target, params): void => {
-          if (target === 'CardDnaFxCompare') navigation.navigate('CardDnaFxCompare');
-          else if (target === 'InterestCalculator') navigation.navigate('InterestCalculator', params ?? {});
-          else navigation.navigate('BenefitsHub', params ?? {});
-        },
-      }}
-      route={route}
-    />
-  );
-}
-
 export function WalletStack(): React.ReactElement {
   return (
     <Stack.Navigator screenOptions={{ headerShown: false }}>
       <Stack.Screen component={WalletRoot} name="WalletRoot" options={{ title: 'Wallet' }} />
       <Stack.Screen component={AddCardScreen} name="AddCard" options={{ title: 'Add Card' }} />
-      <Stack.Screen component={CardDetailRoute} name="CardDetail" options={{ title: 'Card' }} />
+      <Stack.Screen component={CardDnaScreen} name="CardDetail" options={{ title: 'Card' }} />
       <Stack.Screen
         component={InterestCalculatorScreen}
         name="InterestCalculator"

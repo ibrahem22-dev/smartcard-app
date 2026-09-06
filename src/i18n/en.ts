@@ -1358,4 +1358,6 @@ export const enBySource: Readonly<Record<string, string>> = {
   'אישור זהות הכרטיס': 'Confirm the card\'s identity',
   'הכרטיס הזה אינו מקושר למוצר מהקטלוג, ולכן אין לו עמלות או הטבות מתועדות.': 'This card is not linked to a catalog product, so it has no recorded fees or benefits.',
   'הכרטיס הזה נוצר לפני שהאפליקציה עבדה מול קטלוג. אישור הזהות יקשר אותו לעמלות ולהטבות המתועדות.': 'This card was created before the app worked against a catalog. Confirming its identity links it to the recorded fees and benefits.',
+  'התקשרות אל {{number}}': 'Call {{number}}',
+  'חיובים שמתרכזים באותו יום — {{date}}': 'Charges clustering on the same day — {{date}}',
 };

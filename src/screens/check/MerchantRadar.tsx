@@ -1,4 +1,5 @@
 import React, { useCallback, useMemo, useState } from 'react';
+import { MERCHANT_RADAR_RESULT_LIMIT } from '../../config/lists';
 import { Pressable, TextInput, View } from 'react-native';
 
 import { AppText } from '../../components/AppText';
@@ -61,7 +62,7 @@ export interface MerchantRadarProps {
   readonly recentMerchantIds?: readonly string[];
 }
 
-const SEARCH_LIMIT = 6;
+const SEARCH_LIMIT = MERCHANT_RADAR_RESULT_LIMIT;
 
 function nameLanguage(language: string): MerchantNameLanguage {
   return language === 'ar' ? 'ar' : language === 'en' ? 'en' : 'he';

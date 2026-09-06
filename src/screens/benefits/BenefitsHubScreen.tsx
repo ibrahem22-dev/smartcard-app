@@ -336,9 +336,15 @@ export function BenefitsHubScreen({
 
               {open ? (
                 <View className="gap-1" testID={`benefits-hub-detail-${row.benefit.benefitId}`}>
-                  {row.benefit.description === undefined ? null : (
-                    <AppText className={`text-xs ${TEXT.body}`}>{row.benefit.description}</AppText>
-                  )}
+                  {/* THE PACK'S `description` IS NOT RENDERED, AND THIS IS WHY.
+                      It reads as consumer copy and is not: it is the research team's own note about
+                      the SOURCE, in English only, beside Hebrew and Arabic titles — "the merchant-to-
+                      rate mapping is not text-extractable", "referenced at marketing level only",
+                      "the redemption portal is login-gated". PD-MDC-082 removed exactly this class of
+                      leak from the Learn screen one artifact ago; putting it back on a new screen
+                      would be the same defect with a different testID. The consumer text is the
+                      three titles, and `benefitTitle` above renders them. Nothing is deleted from
+                      the pack; the field is read by no surface. */}
                   {row.benefit.value === undefined ? (
                     <AppText className={`text-xs ${TEXT.muted}`}>
                       {t('לא פורסם שווי מספרי להטבה הזאת')}

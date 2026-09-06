@@ -68,6 +68,45 @@ const POPULATION = 'src/surfaces/__tests__/derivedPopulation.ts';
  * rather than a folder somebody skipped. If a screen is ever mounted at that route, it lands under
  * src/screens and the sweep sees it.
  */
+/*
+ * DATA IS NOT A MODULE — the walk follows TypeScript, and here is why that is a scope statement
+ * rather than a convenience.
+ *
+ * This gate MEASURES SOURCE. Its sentinel counts "P5 module(s) WALKED from the five routes", and
+ * every green it has ever produced was a statement about the app's CODE: no screen, hook, adapter
+ * or component reachable from the five routes offers a login, an account, an OTP or an email field.
+ *
+ * On 2026-09-06 the walk reached a shipped data pack for the first time. It had not changed; the
+ * app had. Benefits Hub, Merchant Radar and the Negotiation Hub bind real canonical data, so
+ * `packs/benefits`, `packs/taxonomy`, `packs/catalog` and `packs/content` entered the graph — and
+ * `resolveSpecifier` tries the bare path before the .ts candidates, so a `pack.json` resolved like
+ * a module and had its whole text read for four regular expressions.
+ *
+ * It matched. The estate's research annotations say things like "the redemption portal is
+ * login-gated" and "the individual self-service screen is a login shell", because that is what the
+ * researcher found on the ISSUER's website. Read as code that is a login affordance; read as what
+ * it is, it is a sentence about somebody else's website, sitting in a `description` field.
+ *
+ * TWO THINGS FOLLOW, AND THE SECOND IS THE IMPORTANT ONE.
+ *
+ * 1. The walk now follows .ts and .tsx only. U5's question is what a SURFACE offers, and a JSON
+ *    string offers nothing by itself — what a data file can do is be RENDERED, and whether it is
+ *    rendered is a fact about code, which is what this gate reads. Scanning the data for the four
+ *    words answers a question nobody asked: the benefits pack would fail U5 for describing an
+ *    issuer's login page even if no line of the app could ever print it.
+ *
+ * 2. The scan was not wrong to be alarmed. Following it found a REAL DEFECT, of exactly the class
+ *    PD-MDC-082 removed from the Learn screen one artifact ago: `BenefitsHubScreen` was rendering
+ *    the benefits pack's `description` — English-only research prose, beside Hebrew and Arabic
+ *    titles, saying things like "the merchant-to-rate mapping is not text-extractable". That render
+ *    is gone, the field is in no surface's search index either, and
+ *    `src/screens/benefits/__tests__/benefitsHubNoPackProse.render.test.tsx` fails if it returns.
+ *
+ * The general question — what, if anything, should statically police pack TEXT reaching a reader,
+ * now that surfaces bind canonical data — is raised on the Owner queue as OQ-MDC-033 and recorded
+ * as a flagged provisional decision. It is a question about a new class of check, not about U5,
+ * whose own claim is unchanged and still measured over every module the five routes reach.
+ */
 const NOT_OURS = ['src/check/', 'src/screens/check/', 'src/screens/fx/', 'src/screens/addCard/', 'src/screens/onboarding/', 'src/navigation/'];
 
 /** The four U5 names, each with why it is on the list. */
@@ -178,6 +217,8 @@ export const run = async ({ root }) => {
     for (const m of stripComments(src).matchAll(/from\s+'(\.[^']*)'/g)) {
       const t = resolveSpecifier(file, m[1]);
       if (!t) { unresolved.push(key + ' → ' + m[1]); continue; }
+      /* DATA IS NOT A MODULE — see DATA IS NOT A MODULE above. */
+      if (!/\.tsx?$/.test(t)) continue;
       queue.push(t);
     }
   }
