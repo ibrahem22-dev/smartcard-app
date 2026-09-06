@@ -127,7 +127,7 @@ describe('MDC C6 — Learn reads and renders the shipped content pack', () => {
     expect(api.getByTestId('learn-tab-contacts').props.accessibilityValue?.text).toBe(String(derivedByUnit.get('contacts')));
   });
 
-  it('renders every glossary Arabic status and every evidenced note', () => {
+  it('renders every glossary Arabic status and keeps the pack research notes off the surface', () => {
     const api = mount();
     const statuses = LEARN_CONTENT.glossary.filter(row => row.arabicStatus !== undefined);
     const verificationStatuses = LEARN_CONTENT.glossary.filter(row => row.verificationStatus !== undefined);
@@ -135,9 +135,13 @@ describe('MDC C6 — Learn reads and renders the shipped content pack', () => {
 
     expect(api.getAllByTestId(/-arabic-status$/)).toHaveLength(statuses.length);
     expect(api.getAllByTestId(/-verification$/)).toHaveLength(verificationStatuses.length);
-    expect(api.getAllByTestId(/-notes$/)).toHaveLength(notes.length);
+    // PD-MDC-082 — `notes` is the estate's research annotation, kept in the pack and read by the adapter,
+    // never shown to a user. The population must be non-empty or this assertion proves nothing.
+    expect(notes.length).toBeGreaterThan(0);
+    expect(api.queryAllByTestId(/-notes$/)).toHaveLength(0);
+    const glossaryRendered = allText(api);
     for (const row of notes) {
-      expect(String(api.getByTestId(`learn-glossary-row-${row.termId}-notes`).props.children)).toContain(row.notes ?? '');
+      expect(glossaryRendered).not.toContain(row.notes ?? '');
     }
     expectSpecificDistinctLabels(
       api,
@@ -181,20 +185,26 @@ describe('MDC C6 — Learn reads and renders the shipped content pack', () => {
     );
   });
 
-  it('renders contact lifecycle plus sourced-value verification and notes without provenance labels', () => {
+  it('renders contact lifecycle plus sourced-value verification without notes or provenance labels', () => {
     const api = mount();
     fireEvent.press(api.getByTestId('learn-tab-contacts'));
     const values = LEARN_CONTENT.contacts.flatMap(sourcedValues);
     const verified = values.filter(value => value.verificationStatus !== undefined);
     const noted = values.filter(value => value.note !== undefined);
-    const visibleEvidence = values.flatMap(value => [value.value, value.note]
-      .filter((item): item is string => item !== undefined && item.length > 0));
+    const visibleEvidence = values.map(value => value.value)
+      .filter((item): item is string => item !== undefined && item.length > 0);
     const provenanceFields = ['sourceLabel', 'sourceUrl', 'quote'] as const;
 
     expect(api.getAllByTestId(/-lifecycle$/)).toHaveLength(LEARN_CONTENT.contacts.length);
     expect(api.getAllByTestId(/-verification$/)).toHaveLength(verified.length);
-    expect(api.getAllByTestId(/-note$/)).toHaveLength(noted.length);
+    // PD-MDC-082 — a sourced value's `note` is provenance working, not consumer copy: one of them puts raw
+    // HTML on the screen. The published value and its verification status stay; the note does not.
+    expect(noted.length).toBeGreaterThan(0);
+    expect(api.queryAllByTestId(/-note$/)).toHaveLength(0);
     const rendered = allText(api);
+    for (const value of noted) {
+      expect(rendered).not.toContain(value.note ?? '');
+    }
     expectSpecificDistinctLabels(
       api,
       LEARN_CONTENT.contacts.map(row => ({

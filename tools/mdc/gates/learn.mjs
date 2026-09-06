@@ -26,9 +26,9 @@ const SUITE = 'src/data/adapter/__tests__/learnSurface.render.test.tsx';
 const REQUIRED_CASES = [
   'reads glossary, rights and contacts through the adapter',
   'derives rendered counts from adapter slices and agrees with declared and actual pack rows',
-  'renders every glossary Arabic status and every evidenced note',
+  'renders every glossary Arabic status and keeps the pack research notes off the surface',
   'renders every right caveat and verification status',
-  'renders contact lifecycle plus sourced-value verification and notes without provenance labels',
+  'renders contact lifecycle plus sourced-value verification without notes or provenance labels',
   'renders N_A as not applicable and never as the pack-authored unknown status',
 ];
 
@@ -162,6 +162,28 @@ export const run = async () => {
     }
   }
   clauses.push(`no declared pack count is asserted as data across ${sourcePopulation.length} Learn source file(s)`);
+
+  /*
+   * PD-MDC-082 — THE PACK'S RESEARCH ANNOTATIONS ARE NOT A CONSUMER SURFACE.
+   *
+   * `notes` (glossary) and `note` (a contact's sourced value) are the estate's working record: why a value
+   * was accepted, what was not re-verified, which internal status applied. They are written in the pack
+   * authors' vocabulary and in English regardless of the UI language. Rendering them showed users sentences
+   * like "…makes it a YOUR_VALUE input rather than something this estate can publish" and, on one contact
+   * row, raw HTML. The fields stay in the pack and the adapter still carries them; the screen must not print
+   * them. This clause reads the screen source rather than trusting the render tests alone, so the surface
+   * cannot come back by accident.
+   */
+  const screenSource = sources.get(SCREEN)?.stripped ?? '';
+  const noteRenders = [
+    [/\btestID=\{`\$\{rowId\}-notes`\}/, 'a glossary row renders `notes` (testID `<row>-notes`)'],
+    [/\btestID=\{`\$\{fieldId\}-note`\}/, "a contact's sourced value renders `note` (testID `<field>-note`)"],
+    [/\{\s*note:\s*(?:term\.notes|value\.note)\s*\}/, 'the screen interpolates a pack note into a visible string'],
+  ];
+  for (const [pattern, message] of noteRenders) {
+    if (pattern.test(screenSource)) problems.push(`${rel(SCREEN)}: ${message} — PD-MDC-082 keeps pack research annotations off the consumer surface`);
+  }
+  clauses.push('no pack research annotation (glossary `notes`, contact `note`) is rendered by the screen');
 
   const jest = requireJestCases(ROOT, SUITE, REQUIRED_CASES, ['--runInBand']);
   if (jest.problems.length > 0) {

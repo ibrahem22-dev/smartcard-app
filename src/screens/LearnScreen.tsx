@@ -170,11 +170,17 @@ function GlossaryRows({ language, t }: { readonly language: string; readonly t: 
                 {t('מצב אימות: {{status}}', { status: verificationLabel(term.verificationStatus, t) })}
               </StatusText>
             ) : null}
-            {term.notes !== undefined ? (
-              <AppText className={`mt-2 text-sm leading-6 ${TEXT.secondary}`} testID={`${rowId}-notes`}>
-                {t('הערה: {{note}}', { note: term.notes })}
-              </AppText>
-            ) : null}
+            {/*
+              PD-MDC-082 — THE PACK'S `notes` ARE NOT A CONSUMER SURFACE.
+              `notes` on a glossary term is the estate's own research annotation: why a value was accepted,
+              what could not be verified, which internal status applied. It is written for the people who
+              build the pack, in their vocabulary, and it is English even where the UI is Hebrew or Arabic.
+              Rendering it put sentences like "…makes it a YOUR_VALUE input rather than something this
+              estate can publish" in front of users, in all three languages, on the screen's default tab.
+              The field is preserved in the pack and is still read by the adapter; it is simply not shown.
+              Consumer-facing evidence stays: the definition, the Arabic term status, and the verification
+              status all still render.
+            */}
           </View>
         );
       })}
@@ -231,11 +237,13 @@ function ContactValue({ field, rowId, t, value }: {
           {t('מצב אימות: {{status}}', { status: sourcedVerificationLabel(value.verificationStatus, t) })}
         </StatusText>
       ) : null}
-      {value.note !== undefined ? (
-        <AppText className={`mt-1 text-sm leading-6 ${TEXT.secondary}`} testID={`${fieldId}-note`}>
-          {t('הערה: {{note}}', { note: value.note })}
-        </AppText>
-      ) : null}
+      {/*
+        PD-MDC-082, same rule on a contact's sourced value. These notes are provenance working: "Corroborated
+        by the tel: link in the site header: <a href=\"tel:*2639\" …>", "Carried from the canonical
+        organisation spine; NOT re-verified…", "RESOLVES the earlier NOT_PUBLISHED". One of them puts raw
+        HTML on the screen. 131 such fields shipped. The published value and its verification status remain;
+        the working note does not.
+      */}
     </View>
   );
 }
