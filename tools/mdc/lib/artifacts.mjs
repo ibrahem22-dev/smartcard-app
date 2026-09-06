@@ -22,6 +22,14 @@ import { join } from 'node:path';
 const RECORDS = {
   'STAGE-2': { file: 'STAGE2-ARTIFACT/00-FREEZE-AND-BUILD.txt', apk: /\n\s*sha256\s+([0-9a-f]{64})/, bundle: /index\.android\.bundle[^\n]*?([0-9a-f]{64})/ },
   'STAGE-3': { file: 'STAGE3-ARTIFACT/00-BUILD.txt', apk: /app-release\.apk sha256\s+([0-9a-f]{64})/, bundle: /index\.android\.bundle sha256\s+([0-9a-f]{64})/ },
+  // PD-MDC-083 — the CURRENT artifact, under OQ-MDC-030 option 3(c). A DEVICE row's CURRENT ASSURANCE
+  // must name "the artifact sha256 hashed on the device and the observation taken on it", so the campaign
+  // keeps one more committed record: the artifact the assurance runs observe. It is an addition — the two
+  // stage records are untouched, and a build that appears in NO record is still 'unrecorded' and still
+  // fails every gate. Its second effect is intended: once the current build is recorded, a historical
+  // gate bound to STAGE-2 classifies it 'later' and states it, instead of failing on a fact about the
+  // record rather than the code (the defect PD-MDC-070 was written to end).
+  CURRENT: { file: 'CURRENT-ARTIFACT/00-BUILD.txt', apk: /app-release\.apk sha256\s+([0-9a-f]{64})/, bundle: /index\.android\.bundle sha256\s+([0-9a-f]{64})/ },
 };
 
 export function recordedArtifacts(campaignDir) {
@@ -60,6 +68,12 @@ export function bindToRecordedArtifact({ campaignDir, apkPath, hostSha, stage, l
     else { status = 'unrecorded'; problems.push(`the APK on disk (${now.slice(0, 12)}) is not any recorded artifact — an unrecorded build`); }
   } else {
     problems.push('the release APK is not on disk to re-verify the binding');
+  }
+  // PD-MDC-083 — an assurance is stricter than a historical run, never looser. A CURRENT assurance is a
+  // statement about the artifact that is on the device NOW, so 'later' and 'absent' are not good enough:
+  // host, device and on-disk must be one sha, and it must be the sha the CURRENT record names.
+  if (stage === 'CURRENT' && status !== 'frozen') {
+    problems.push(`a CURRENT assurance requires the artifact on disk to be the one the evidence measured (status ${status})`);
   }
   return { problems, clauses, status, now, records };
 }

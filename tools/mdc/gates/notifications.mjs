@@ -69,6 +69,7 @@ import { fileURLToPath } from 'node:url';
 
 import { fail, okOverPopulation } from '../lib/report.mjs';
 import { stripCommentsAndStrings } from '../lib/source.mjs';
+import { bindToRecordedArtifact } from '../lib/artifacts.mjs';
 
 export const SENTINEL = 'NOTIFICATIONS OK';
 export const FAILURE_SENTINEL = 'NOTIFICATIONS FAILED';
@@ -77,9 +78,21 @@ export const MEASURES = 'device';
 const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..', '..', '..');
 const CAMPAIGN_DIR = join(ROOT, '..', 'smartcard-data-pipeline', 'campaign-master');
-const EVIDENCE_DIR = join(CAMPAIGN_DIR, 'evidence', 'external', 'C4');
+
+/*
+ * PD-MDC-083 — ASSURANCE MODE. OQ-MDC-030 option 3 lets a row carry a CURRENT ASSURANCE beside its
+ * immutable receipt. For a DEVICE row that assurance must be "the observation taken on the current
+ * artifact", so this gate can be pointed at a CURRENT evidence directory instead of its historical one:
+ *   MDC_ASSURE_EVIDENCE_C4 = <dir>   →  read that directory, and bind to the CURRENT artifact record.
+ * With the variable unset the gate is byte-for-byte what it was: same directory, same stage, same output.
+ * Assurance mode is strictly stricter — the CURRENT binding additionally requires host == device ==
+ * on-disk (tools/mdc/lib/artifacts.mjs). Nothing here writes to the historical evidence.
+ */
+const ASSURE_DIR = process.env.MDC_ASSURE_EVIDENCE_C4 || null;
+const EVIDENCE_DIR = ASSURE_DIR || join(CAMPAIGN_DIR, 'evidence', 'external', 'C4');
 const CAPTURES = join(EVIDENCE_DIR, 'captures');
 const EVIDENCE_FILE = join(EVIDENCE_DIR, 'EVIDENCE.txt');
+const APK = join(ROOT, 'android', 'app', 'build', 'outputs', 'apk', 'release', 'app-release.apk');
 
 const rel = (p) => relative(ROOT, p).split('\\').join('/');
 const read = (p) => readFileSync(p, 'utf8');
@@ -198,6 +211,14 @@ export const run = async () => {
   }
   if (/android-37\.2-beta3/.test(evidence)) {
     problems.push('the evidence names the beta system image; behavioural evidence must come from the stable image');
+  }
+  // PD-MDC-083 — in assurance mode the observation must be of the artifact that is on disk NOW, and that
+  // artifact must be the one the CURRENT record names. The historical run is untouched: with
+  // MDC_ASSURE_EVIDENCE_C4 unset none of this executes.
+  if (ASSURE_DIR) {
+    const artifact = bindToRecordedArtifact({ campaignDir: CAMPAIGN_DIR, apkPath: APK, hostSha: apkSha, stage: 'CURRENT' });
+    problems.push(...artifact.problems);
+    clauses.push(...artifact.clauses);
   }
   clauses.push(`bound to APK ${(apkSha || '').slice(0, 12)} hashed on the device`);
 

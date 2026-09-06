@@ -58,7 +58,18 @@ const HERE = dirname(fileURLToPath(import.meta.url));
 const ROOT = join(HERE, '..', '..', '..');
 /* The established way an app gate reaches campaign records — the same relative hop
    tools/p2/gates/holiday-calendar.mjs uses for the pipeline's authority documents. */
-const EVIDENCE_DIR = join(ROOT, '..', 'smartcard-data-pipeline', 'campaign-master', 'evidence', 'external', 'C9');
+
+/*
+ * PD-MDC-083 — ASSURANCE MODE. OQ-MDC-030 option 3 lets a row carry a CURRENT ASSURANCE beside its
+ * immutable receipt. For a DEVICE row that assurance must be "the observation taken on the current
+ * artifact", so this gate can be pointed at a CURRENT evidence directory instead of its historical one:
+ *   MDC_ASSURE_EVIDENCE_C9 = <dir>   →  read that directory, and bind to the CURRENT artifact record.
+ * With the variable unset the gate is byte-for-byte what it was: same directory, same stage, same output.
+ * Assurance mode is strictly stricter — the CURRENT binding additionally requires host == device ==
+ * on-disk (tools/mdc/lib/artifacts.mjs). Nothing here writes to the historical evidence.
+ */
+const ASSURE_DIR = process.env.MDC_ASSURE_EVIDENCE_C9 || null;
+const EVIDENCE_DIR = ASSURE_DIR || join(ROOT, '..', 'smartcard-data-pipeline', 'campaign-master', 'evidence', 'external', 'C9');
 const CAPTURES_DIR = join(EVIDENCE_DIR, 'captures');
 const EVIDENCE_FILE = join(EVIDENCE_DIR, 'EVIDENCE.txt');
 const APK = join(ROOT, 'android', 'app', 'build', 'outputs', 'apk', 'release', 'app-release.apk');
@@ -196,7 +207,7 @@ export const run = async () => {
   /* 6. The APK the run bound itself to should still be the one on disk, when it is on disk. */
   // PD-MDC-070: bound to STAGE-2's committed artifact record; the APK on disk may be a later stage's recorded build.
   {
-    const artifact = bindToRecordedArtifact({ campaignDir: join(EVIDENCE_DIR, '..', '..', '..'), apkPath: APK, hostSha, stage: 'STAGE-2' });
+    const artifact = bindToRecordedArtifact({ campaignDir: join(EVIDENCE_DIR, '..', '..', '..'), apkPath: APK, hostSha, stage: ASSURE_DIR ? 'CURRENT' : 'STAGE-2' });
     problems.push(...artifact.problems); clauses.push(...artifact.clauses);
   }
 
