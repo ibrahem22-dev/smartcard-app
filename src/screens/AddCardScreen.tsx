@@ -27,7 +27,7 @@ import type { WalletStackParamList } from '../navigation/types';
 import { useCardsStore } from '../store/useCardsStore';
 import { ACCENT, BORDER, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
 import { CardIssuer } from '../types/card.types';
-import { parseAmount } from '../utils/parseAmount';
+import { parseAmount, parseAmountAllowingZero } from '../utils/parseAmount';
 
 type AddCardNavigation = NativeStackNavigationProp<WalletStackParamList, 'AddCard'>;
 
@@ -187,7 +187,8 @@ export function AddCardScreen(): React.ReactElement {
 
   function saveCard(): void {
     const creditLimit = parseAmount(creditLimitText);
-    const currentBalance = parseAmount(currentBalanceText);
+    /* Zero is a real balance on a card nobody has used yet — see parseAmountAllowingZero. */
+    const currentBalance = parseAmountAllowingZero(currentBalanceText);
     const fee = parseFeePercent(feePercentText);
     const billingDay =
       billingDayText.trim() === '' ? undefined : parseDayOfMonth(billingDayText);
