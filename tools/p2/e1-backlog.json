@@ -384,6 +384,36 @@
       "why": "ALLOW-LEARN-CONTENT-PACK-READ already permits this pack for the Learn seam; this is the second reader of it and the same argument, scoped BY NAME. issuerContacts.ts is INSIDE data/adapter/**, opens the pack through the published adapter's openContentSlices, and is the Negotiation Hub's only source of a dialable number. It exists precisely so that no number is ever typed into a screen: every digit it returns arrives with the issuer page it was captured from, the date, the verbatim quote and the verification status, and a value it cannot parse yields NO channel rather than a guess. The test file is included because it pins the numbers BY VALUE against the shipped rows and asserts the three unverified candidate numbers the campaign directive supplied are ABSENT - an assertion that only means something against the real pack.",
       "reviewedBy": "MDC Negotiation Hub / OQ-MDC-007",
       "reviewedAt": "2026-09-06"
+    },
+    {
+      "id": "ALLOW-PACK-TEXT-ADVERSARY",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/data/adapter/__tests__/(internalPackText\\.ts|consumerProjection\\.test\\.ts)$",
+      "message": "raw dataset '[^']*packs/[^']*' imported outside",
+      "why": "THE ADVERSARY'S WORD LIST MUST BE THE SHIPPED MATERIAL, AND NOTHING HERE REACHES RUNTIME. internalPackText.ts is a test helper (jest matches *.test.ts, so it is not a suite) and consumerProjection.test.ts is a suite; neither is on the App import graph and Metro bundles neither. They open the four packs to collect the values packTextRegister.json classifies as INTERNAL, so the boundary tests search the rendered tree for the strings the ARTIFACT carries rather than for a fixture somebody wrote to pass. A fixture would go stale the first time the estate reworded a note and would then be green over nothing. Same ground as ALLOW-RENDER-FIXTURE: R3 protects provenance on reference reads at RUNTIME, and this is a test read. The files live under src/data/adapter/** because D2 allows only that directory to open a pack file at all.",
+      "reviewedBy": "artifact #9 technical closure",
+      "reviewedAt": "2026-09-07"
+    },
+    {
+      "id": "ALLOW-PACK-TEXT-REGISTER",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/data/adapter/(__tests__/internalPackText\\.ts|consumerProjection\\.ts)$",
+      "message": "raw dataset '[^']*packTextRegister\\.json' imported outside",
+      "why": "A CLASSIFICATION REGISTER, NOT A REFERENCE READ. R3 exists so every reference read carries its provenance, tier and lastUpdated — a rate, a fee, a card. packTextRegister.json holds no fact about anybody's money: it maps each prose PATH in the shipped packs to the rule that makes it safe for a reader, or the reason it is not. It is data rather than a TypeScript literal for the same reason the brand tokens are (ALLOW-BRAND-TOKENS-DATA): one file has to be read by the app, by a jest helper and by tools/mdc/gates/pack-text-boundary.mjs, which is plain Node and cannot import TypeScript. Two copies of that list would be two answers to 'may a reader see this field'.",
+      "reviewedBy": "artifact #9 technical closure",
+      "reviewedAt": "2026-09-07"
+    },
+    {
+      "id": "ALLOW-PACK-TEXT-ADVERSARY-SEAM",
+      "disposition": "ALLOWED",
+      "rule": "R3",
+      "file": "^src/screens/(__tests__/packTextSurfaces\\.render\\.test\\.tsx|benefits/__tests__/benefitsHubNoPackProse\\.render\\.test\\.tsx)$",
+      "message": "pack module '[^']*data/adapter/__tests__/internalPackText' imported outside",
+      "why": "THE ADVERSARIAL SUITES HAVE TO REACH THE MATERIAL, AND THIS IS THE ONE DOOR TO IT. Both suites render a surface and assert that no internal pack value appears in the tree; the values come from internalPackText.ts, which is the only module allowed to open a pack for that purpose (ALLOW-PACK-TEXT-ADVERSARY). The alternative is for each suite to import the packs itself, which is four more R3 findings and four copies of the classification rule. Nothing here reaches runtime: both files are jest suites, neither is on the App import graph, and Metro bundles neither. Same ground as ALLOW-LEARN-CONTENT-PACK-READ, which already lets one render suite reach the content pack through the adapter.",
+      "reviewedBy": "artifact #9 technical closure",
+      "reviewedAt": "2026-09-07"
     }
   ],
   "$closedNote": [
