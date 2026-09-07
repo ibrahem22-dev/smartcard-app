@@ -103,6 +103,21 @@ export function TabNavigator(): React.ReactElement {
     <View className="flex-1">
       <Tab.Navigator
         key={directionKey}
+        /*
+         * THE APP OPENS ON HOME, AND IN HEBREW IT DID NOT.
+         *
+         * React Navigation defaults `initialRouteName` to its FIRST child, and the children are
+         * rendered from `tabOrder` — which `getTabsForDirection` REVERSES for RTL so the bar reads
+         * right-to-left. In Hebrew and Arabic that made More the first child, so every unlock landed
+         * the reader on the More list instead of the Command Center. Confirmed on artifact #8:
+         * after unlocking, the screen read "עוד · הגדרות · לומדים…" and Home rendered only when the
+         * Home tab was tapped.
+         *
+         * The order and the landing screen are different facts and this separates them. It also
+         * takes a whole leg out of cold start — V3 measured `homeTabToHomeMs` as its own step
+         * precisely because Home was not what came up.
+         */
+        initialRouteName="Home"
         screenOptions={({ route }): BottomTabNavigationOptions => ({
           headerShown: false,
           tabBarActiveTintColor: CHROME.accent,

@@ -77,7 +77,7 @@ describe('issuer contacts', () => {
       if (contact?.phone === undefined) continue;
       expect(contact.verificationStatus).toBeDefined();
       expect(contact.accessedAt).toBeDefined();
-      expect(contact.sourceUrl ?? contact.quote).toBeDefined();
+      expect(contact.sourceUrl).toBeDefined();
       /* The channel names the sentence it was read out of, not just the digits. */
       expect(contact.phone.raw).toContain(contact.phone.display);
     }

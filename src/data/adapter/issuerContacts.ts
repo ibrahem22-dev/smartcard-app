@@ -40,11 +40,19 @@ import {
 
 import contentPackJson from './packs/content/pack.json';
 
+import { projectContact, type ContactConsumerView } from './consumerProjection';
+
 import { CardIssuer } from '../../types/card.types';
 import { EXPECTED_DATASET_ID } from './datasetId';
 import { assertPinnedAdapter } from './index';
 
-export type IssuerContactRow = AdapterContact;
+/**
+ * The reader-facing contact row. A PROJECTION: every `SourcedValue` field is reduced to the
+ * published value and its citation, and the research record beside it — the `quote` it was read
+ * from, the analyst's `note` about the issuer's website, the `sourceLabel` of the document — is
+ * dropped at the boundary. See consumerProjection.ts.
+ */
+export type IssuerContactRow = ContactConsumerView;
 
 /**
  * THE THREE CARD ISSUERS THIS APP MODELS, AS CANONICAL ORGANISATION IDS.
@@ -69,7 +77,9 @@ function readContacts(): readonly IssuerContactRow[] {
     assertPinnedAdapter();
     contactsMemo = openContentSlices(contentPack, {
       expectedDatasetId: EXPECTED_DATASET_ID,
-    }).contacts.all();
+    })
+      .contacts.all()
+      .map(projectContact);
   }
   return contactsMemo;
 }
@@ -113,8 +123,17 @@ export interface IssuerNegotiationContact {
   readonly verificationStatus?: string;
   readonly sourceUrl?: string;
   readonly accessedAt?: string;
-  /** The verbatim quote the value was read from, where the estate kept one. */
-  readonly quote?: string;
+  /*
+   * THE PACK'S `quote` IS NOT HERE, AND WAS.
+   *
+   * `content.contacts.*.quote` is a MIXED field: for `customerServicePhone` its 15 values are the
+   * issuer's own Hebrew sentence, and for `arabicSiteUrl` and `complaintsEmail` several are the
+   * analyst describing an absence in English — "no Arabic link in the served markup", "e-mail
+   * rendered through an anti-scrape obfuscator". One field, two kinds of text, and no way for a
+   * surface to tell which it holds. It was carried onto this row and rendered by nothing; carrying
+   * it kept a leak one keystroke away for no gain. The citation a reader is offered is `sourceUrl`
+   * and `accessedAt`, which the Negotiation Hub prints.
+   */
   /** Present when no channel could be derived, saying why. */
   readonly absence?: 'NO_PUBLISHED_VALUE' | 'NO_PARSEABLE_NUMBER';
 }
@@ -235,7 +254,6 @@ export function negotiationContactFor(orgId: string): IssuerNegotiationContact |
       : { verificationStatus: service.verificationStatus }),
     ...(service?.sourceUrl === undefined ? {} : { sourceUrl: service.sourceUrl }),
     ...(service?.accessedAt === undefined ? {} : { accessedAt: service.accessedAt }),
-    ...(service?.quote === undefined ? {} : { quote: service.quote }),
     ...(absence === undefined ? {} : { absence }),
   };
 }

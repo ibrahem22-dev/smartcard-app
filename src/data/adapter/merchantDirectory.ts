@@ -32,10 +32,17 @@ import {
 import { MERCHANT_SEARCH_RESULT_LIMIT } from '../../config/lists';
 import taxonomyPackJson from './packs/taxonomy/pack.json';
 
+import { projectMerchant, type MerchantConsumerView } from './consumerProjection';
+
 import { EXPECTED_DATASET_ID } from './datasetId';
 import { assertPinnedAdapter } from './index';
 
-export type MerchantView = AdapterMerchant;
+/**
+ * The reader-facing merchant. A PROJECTION, not `AdapterMerchant`: the raw row carries
+ * `canonicalCategoryBasis` and the Arabic-name research wave's own `nameArEvidence.quote`, neither
+ * of which is consumer copy. See consumerProjection.ts.
+ */
+export type MerchantView = MerchantConsumerView;
 
 /** The reader's language, for choosing which of the estate's published names to show. */
 export type MerchantNameLanguage = 'he' | 'ar' | 'en';

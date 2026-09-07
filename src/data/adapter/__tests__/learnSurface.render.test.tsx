@@ -87,7 +87,19 @@ const mount = (): RenderAPI => {
   return render(<LearnScreen />);
 };
 
-const sourcedValues = (contact: (typeof LEARN_CONTENT.contacts)[number]): readonly SourcedValue[] =>
+/**
+ * The RAW rows, read straight from the adapter slice.
+ *
+ * `LEARN_CONTENT` is a PROJECTION now (consumerProjection.ts): `notes`, `note`, `quote` and
+ * `sourceLabel` are dropped at the boundary and cannot be read off it. That is the repair, and it
+ * is also why this suite has to reach past it — an assertion that the screen does not render a
+ * field the type no longer has would prove nothing at all. These are the shipped values, and the
+ * screen is searched for them.
+ */
+const rawGlossary = adapterSlices.glossary.all();
+const rawContacts = adapterSlices.contacts.all();
+
+const sourcedValues = (contact: (typeof rawContacts)[number]): readonly SourcedValue[] =>
   Object.values(contact).filter((value): value is SourcedValue =>
     typeof value === 'object'
       && value !== null
@@ -131,7 +143,7 @@ describe('MDC C6 — Learn reads and renders the shipped content pack', () => {
     const api = mount();
     const statuses = LEARN_CONTENT.glossary.filter(row => row.arabicStatus !== undefined);
     const verificationStatuses = LEARN_CONTENT.glossary.filter(row => row.verificationStatus !== undefined);
-    const notes = LEARN_CONTENT.glossary.filter(row => row.notes !== undefined);
+    const notes = rawGlossary.filter(row => row.notes !== undefined);
 
     expect(api.getAllByTestId(/-arabic-status$/)).toHaveLength(statuses.length);
     expect(api.getAllByTestId(/-verification$/)).toHaveLength(verificationStatuses.length);
@@ -188,7 +200,7 @@ describe('MDC C6 — Learn reads and renders the shipped content pack', () => {
   it('renders contact lifecycle plus sourced-value verification without notes or provenance labels', () => {
     const api = mount();
     fireEvent.press(api.getByTestId('learn-tab-contacts'));
-    const values = LEARN_CONTENT.contacts.flatMap(sourcedValues);
+    const values = rawContacts.flatMap(sourcedValues);
     const verified = values.filter(value => value.verificationStatus !== undefined);
     const noted = values.filter(value => value.note !== undefined);
     const visibleEvidence = values.map(value => value.value)

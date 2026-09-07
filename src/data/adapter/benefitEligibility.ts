@@ -41,10 +41,17 @@ import {
 
 import benefitsPackJson from './packs/benefits/pack.json';
 
+import { projectBenefit, type BenefitConsumerView } from './consumerProjection';
+
 import { EXPECTED_DATASET_ID } from './datasetId';
 import { assertPinnedAdapter } from './index';
 
-export type BenefitView = AdapterBenefit;
+/**
+ * The reader-facing benefit. NOT `AdapterBenefit`, and the difference is the whole point:
+ * the raw row carries `description`, an English-only research annotation that the Benefits Hub
+ * rendered underneath Hebrew titles until the unified upgrade removed it. See consumerProjection.ts.
+ */
+export type BenefitView = BenefitConsumerView;
 
 const benefitsPack = benefitsPackJson as PackDocument;
 
@@ -56,7 +63,9 @@ function readAllBenefits(): readonly BenefitView[] {
     assertPinnedAdapter();
     benefitsMemo = openBenefitsSlices(benefitsPack, {
       expectedDatasetId: EXPECTED_DATASET_ID,
-    }).benefits.all();
+    })
+      .benefits.all()
+      .map(projectBenefit);
   }
   return benefitsMemo;
 }

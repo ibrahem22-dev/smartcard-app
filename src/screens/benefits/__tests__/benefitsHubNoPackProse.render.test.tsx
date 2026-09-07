@@ -42,6 +42,7 @@ import { useCardsStore } from '../../../store/useCardsStore';
 import { useLanguageStore } from '../../../store/useLanguageStore';
 import { CardIssuer, CardNetwork, type EngineCard } from '../../../types/card.types';
 import { Currency } from '../../../types/purchase.types';
+import { internalPackText } from '../../../data/adapter/__tests__/internalPackText';
 
 const TODAY = '2026-09-06';
 const PRODUCT = 'card:max:skymax';
@@ -77,6 +78,16 @@ const wrap = (node: React.ReactElement): React.ReactElement => (
   </SafeAreaProvider>
 );
 
+/**
+ * THE POPULATION COMES FROM THE PACK, NOT FROM THE VIEW — and it has to.
+ *
+ * `BenefitView` is a PROJECTION now (consumerProjection.ts) and `description` is not on it, so this
+ * suite cannot read the descriptions off the rows the Hub receives; that is the repair working. It
+ * reads them out of the SHIPPED pack instead, which is also the stronger test: it searches the
+ * rendered tree for the exact strings the artifact carries, whatever the boundary does with them.
+ */
+const descriptions = internalPackText('benefits.benefits.description');
+
 describe('the Benefits Hub renders no pack annotation', () => {
   beforeEach(() => {
     act(() => { useLanguageStore.getState().setLanguageChoice('he'); });
@@ -84,23 +95,10 @@ describe('the Benefits Hub renders no pack annotation', () => {
   });
 
   it('has a non-empty population of descriptions to be wrong about', () => {
-    const descriptions = eligibleBenefitsForCards(
-      [{ cardId: 'v1', cardProductId: PRODUCT }],
-      TODAY,
-    )
-      .map((row) => row.benefit.description)
-      .filter((d): d is string => typeof d === 'string' && d.trim() !== '');
     expect(descriptions.length).toBeGreaterThan(0);
   });
 
   it('prints none of them, with every row expanded', () => {
-    const descriptions = eligibleBenefitsForCards(
-      [{ cardId: 'v1', cardProductId: PRODUCT }],
-      TODAY,
-    )
-      .map((row) => row.benefit.description)
-      .filter((d): d is string => typeof d === 'string' && d.trim() !== '');
-
     const tree = render(wrap(<BenefitsHubScreen todayIso={TODAY} />));
     const toggles = tree.queryAllByTestId(/^benefits-hub-row-.*-toggle$/);
     expect(toggles.length).toBeGreaterThan(0);

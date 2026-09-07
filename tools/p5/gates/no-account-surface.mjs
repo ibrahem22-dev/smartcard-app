@@ -102,10 +102,37 @@ const POPULATION = 'src/surfaces/__tests__/derivedPopulation.ts';
  *    is gone, the field is in no surface's search index either, and
  *    `src/screens/benefits/__tests__/benefitsHubNoPackProse.render.test.tsx` fails if it returns.
  *
- * The general question — what, if anything, should statically police pack TEXT reaching a reader,
- * now that surfaces bind canonical data — is raised on the Owner queue as OQ-MDC-033 and recorded
- * as a flagged provisional decision. It is a question about a new class of check, not about U5,
- * whose own claim is unchanged and still measured over every module the five routes reach.
+ * ─────────────────────────────────────────────────────────────────────────────────────────────
+ * NO LONGER PROVISIONAL — PD-MDC-084 IS SUPERSEDED BY A DEDICATED INSTRUMENT
+ *
+ * Point 1 above was recorded as a FLAGGED PROVISIONAL DECISION (PD-MDC-084) because it closed a
+ * hole without answering the question the hole exposed: with the walk following code only, NOTHING
+ * statically policed pack TEXT reaching a reader. That is no longer true, and the exception is
+ * therefore no longer provisional — not because it was re-argued, but because the gap it left is
+ * now covered by an instrument built for it:
+ *
+ *   tools/mdc/gates/pack-text-boundary.mjs      a census of every prose path in the four shipped
+ *                                               packs, each classified consumer-safe (with the rule
+ *                                               that makes it safe) or internal-only (with the
+ *                                               reason). An unclassified path fails, so a new pack
+ *                                               field cannot be rendered before somebody decides.
+ *   src/data/adapter/consumerProjection.ts      the structural half: a surface receives a PROJECTION
+ *                                               built from an explicit field list, not the raw row.
+ *                                               `export type BenefitView = AdapterBenefit` — the
+ *                                               shape that made both leaks possible — is now a gate
+ *                                               failure.
+ *   .../packTextSurfaces.render.test.tsx        the runtime half: the six canonical surfaces are
+ *                                               rendered and searched for the internal values the
+ *                                               shipped artifact actually carries.
+ *
+ * That division is the point. U5 asks what a SURFACE OFFERS and reads code, because an affordance
+ * is a fact about code. The pack-text boundary asks what a READER SEES and reads data and the
+ * projection between them. One gate answering both questions is what produced the false alarm.
+ *
+ * The general question stays on the Owner queue as OQ-MDC-033: the instrument above is this
+ * session's engineering answer, and whether it is the RIGHT policy — what must be classified, by
+ * whom, and what happens when the estate ships a field nobody can classify — is the Owner's to
+ * rule. U5's own claim is unchanged and still measured over every module the five routes reach.
  */
 const NOT_OURS = ['src/check/', 'src/screens/check/', 'src/screens/fx/', 'src/screens/addCard/', 'src/screens/onboarding/', 'src/navigation/'];
 
