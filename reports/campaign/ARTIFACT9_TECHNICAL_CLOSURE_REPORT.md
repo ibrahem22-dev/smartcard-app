@@ -407,7 +407,7 @@ or an optional route **is counsel's question and is not answered anywhere in thi
 | typecheck | **OK** |
 | lint (`--max-warnings=0`) | **OK** |
 | app test suite | **1,507 tests / 191 suites — all green** |
-| **P2** | `P2-ALL OK` — 46 gates over 44 required, 0 failed |
+| **P2** | **44 of 44 required gates green** over 46 present. The ladder's own `repos-in-sync` step reports red at the moment it runs, and the reason is bookkeeping rather than a finding: the ladder writes `reports/p2/<sha>.json` and then that step reads the tree and reports the file it just wrote as uncommitted. Verified separately — with both repos clean and pushed, `repos-in-sync` returns `ok`. The honest sentence is *"44 of 44 required gates green; the ladder cannot print `P2-ALL OK` in the same run that writes its own report"* |
 | **P3** | `P3-ALL OK` — every step green |
 | **P4** | `P4-ALL OK` — every step green |
 | **P5** | `P5-ALL OK` — every step green |
