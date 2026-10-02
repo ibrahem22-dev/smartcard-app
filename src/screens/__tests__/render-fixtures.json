@@ -1,0 +1,25 @@
+{
+  "$comment": [
+    "SCREENS THAT CANNOT RENDER WITHOUT AN INPUT THE HARNESS MUST NOT INVENT.",
+    "",
+    "The render harness gives every screen the context the app gives it — AuthProvider, a real",
+    "navigator, an unlocked vault. It deliberately passes EMPTY route params, because filling them",
+    "with plausible values would be inventing the screen's inputs, and a screen that renders only",
+    "because the harness guessed its parameters has not been shown to render: it has been shown to",
+    "render one guess.",
+    "",
+    "A screen listed here is REPORTED, never skipped and never hidden. Every entry must name the",
+    "criterion or work package that will clear it, so the register cannot become somewhere to put a",
+    "screen nobody wants to fix. `p2:gate -- render-harness` prints every entry on every run.",
+    "",
+    "AN ENTRY IS CLEARED by giving the screen a real fixture — a committed params file a reviewer",
+    "can read — not by deleting the line.",
+    "",
+    "THE REGISTER IS CURRENTLY EMPTY. DecisionScreen was its only entry; WP-2.3 removed the two",
+    "invented scores and the canned per-verdict reasons from that screen (D6) and supplied the",
+    "fixture at __tests__/fixtures/DecisionScreen.params.json, which is exactly what the entry said",
+    "would clear it. The empty array is kept rather than the key being dropped: an absent register",
+    "and an empty one are different claims, and only one of them says \"nothing is waiting\"."
+  ],
+  "requiresFixture": []
+}

@@ -15,12 +15,25 @@ import DateTimePicker, {
 
 import { AppText } from '../components/AppText';
 import { RtlRow, RtlScrollView } from '../components/rtl';
+import {
+  BILLING_DAY_MAX,
+  BILLING_DAY_MIN,
+  CARD_MONTHLY_FEE_MAX_ILS,
+  CONSUMER_CREDIT_ANNUAL_RATE_MAX_PCT,
+  CREDIT_LIMIT_MAX_ILS,
+  DISCOUNT_PERCENT_MAX,
+  MONETARY_MAX_ILS,
+  TRANSFER_FX_COMMISSION_MAX_PCT,
+} from '../config/financial';
 import { useAppDirection } from '../hooks/useAppDirection';
-import { useCardDatabaseRates } from '../hooks/useCardRatesDatabase';
+import { useMoney } from '../hooks/useMoney';
+import { TABULAR_NUMERALS } from '../utils/money';
+import { resolveDatabaseRates } from '../authority/noSource';
 import { useTranslation } from '../hooks/useTranslation';
-import type { CardsStackParamList } from '../navigation/types';
+import type { WalletStackParamList } from '../navigation/types';
 import { scheduleDiscountReminders } from '../services/notificationScheduler';
 import { useCardsStore } from '../store/useCardsStore';
+import { ACCENT, BORDER, CHROME, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
 import {
   CardIssuer,
   type CardFeeInfo,
@@ -30,7 +43,7 @@ import {
 } from '../types/card.types';
 
 type CardDetailScreenProps = NativeStackScreenProps<
-  CardsStackParamList,
+  WalletStackParamList,
   'CardDetail'
 >;
 
@@ -96,14 +109,15 @@ function parseBounded(value: string, min: number, max: number): number | null {
 }
 
 const INPUT_CLASS =
-  'min-h-[48px] rounded-lg border border-slate-300 bg-white px-4 text-base text-slate-900 dark:border-neutral-700 dark:bg-dark-surface dark:text-white';
-const LABEL_CLASS = 'mb-1 mt-3 text-sm font-bold text-slate-700 dark:text-slate-200';
+  `min-h-[48px] rounded-lg border px-4 text-base ${BORDER.hairline} ${SURFACE.card} ${TEXT.heading}`;
+const LABEL_CLASS = `mb-1 mt-3 text-sm font-bold ${TEXT.body}`;
 
 export function CardDetailScreen({
   navigation,
   route,
 }: CardDetailScreenProps): React.ReactElement {
   const { t } = useTranslation();
+  const { money } = useMoney();
   const { textAlign, writingDirection } = useAppDirection();
   const card = useCardsStore(state =>
     state.cards.find(c => c.cardId === route.params.cardId),
@@ -111,7 +125,7 @@ export function CardDetailScreen({
   const updateCard = useCardsStore(state => state.updateCard);
 
   const rates: CardRates | undefined = card?.cardRates;
-  const databaseRates = useCardDatabaseRates(card);
+  const databaseRates = resolveDatabaseRates(card);
   const fee: CardFeeInfo | undefined = card?.cardFee;
 
   // --- editable state (initialized from the card) ---
@@ -199,11 +213,11 @@ export function CardDetailScreen({
   if (card === undefined) {
     return (
       <SafeAreaView
-        className="flex-1 bg-slate-50 dark:bg-app-dark"
+        className={`flex-1 ${SURFACE.page}`}
         edges={['top', 'bottom']}
       >
         <View className="flex-1 items-center justify-center p-5">
-          <AppText className="text-base text-slate-500 dark:text-slate-300">
+          <AppText className={`text-base ${TEXT.muted}`}>
             {t('הכרטיס לא נמצא')}
           </AppText>
         </View>
@@ -212,8 +226,8 @@ export function CardDetailScreen({
   }
 
   const effectiveFeePreview = ((): number | null => {
-    const original = parseBounded(feeOriginal, 0, 999_999);
-    const discount = parseBounded(feeDiscount, 0, 100);
+    const original = parseBounded(feeOriginal, 0, MONETARY_MAX_ILS);
+    const discount = parseBounded(feeDiscount, 0, DISCOUNT_PERCENT_MAX);
     if (original === null || discount === null) return null;
     return Math.round(original * (1 - discount / 100) * 100) / 100;
   })();
@@ -222,8 +236,8 @@ export function CardDetailScreen({
     if (card === undefined) return;
     setSaved(false);
 
-    const billing = parseBounded(billingDay, 1, 31);
-    const limit = parseBounded(creditLimit, 0, 9_999_999);
+    const billing = parseBounded(billingDay, BILLING_DAY_MIN, BILLING_DAY_MAX);
+    const limit = parseBounded(creditLimit, 0, CREDIT_LIMIT_MAX_ILS);
     if (billing === null || limit === null) {
       setSaveError(t('יום חיוב (1–31) וסכום מסגרת חייבים להיות תקינים.'));
       return;
@@ -236,11 +250,11 @@ export function CardDetailScreen({
     };
 
     if (hasRates) {
-      const credit = parseBounded(creditRate, 0, 30);
-      const installment = parseBounded(installmentRate, 0, 30);
-      const cardLoan = parseBounded(cardLoanRate, 0, 30);
-      const fx = parseBounded(fxCommission, 0, 10);
-      const mFee = parseBounded(monthlyFee, 0, 9_999);
+      const credit = parseBounded(creditRate, 0, CONSUMER_CREDIT_ANNUAL_RATE_MAX_PCT);
+      const installment = parseBounded(installmentRate, 0, CONSUMER_CREDIT_ANNUAL_RATE_MAX_PCT);
+      const cardLoan = parseBounded(cardLoanRate, 0, CONSUMER_CREDIT_ANNUAL_RATE_MAX_PCT);
+      const fx = parseBounded(fxCommission, 0, TRANSFER_FX_COMMISSION_MAX_PCT);
+      const mFee = parseBounded(monthlyFee, 0, CARD_MONTHLY_FEE_MAX_ILS);
       const hasInvalidEnteredRate =
         (creditRate.trim() !== '' && credit === null) ||
         (installmentRate.trim() !== '' && installment === null) ||
@@ -278,7 +292,7 @@ export function CardDetailScreen({
       if (parsedForeignCurrency !== undefined) {
         updates = { ...updates, foreignCurrencyType: parsedForeignCurrency };
       }
-      const parsedBankFx = parseBounded(bankFx, 0, 10);
+      const parsedBankFx = parseBounded(bankFx, 0, TRANSFER_FX_COMMISSION_MAX_PCT);
       if (parsedBankFx !== null) {
         updates = { ...updates, bankFxCommission: parsedBankFx };
       }
@@ -297,8 +311,8 @@ export function CardDetailScreen({
       };
     }
 
-    const original = parseBounded(feeOriginal, 0, 999_999);
-    const discount = parseBounded(feeDiscount, 0, 100);
+    const original = parseBounded(feeOriginal, 0, MONETARY_MAX_ILS);
+    const discount = parseBounded(feeDiscount, 0, DISCOUNT_PERCENT_MAX);
     if (original === null || discount === null) {
       setSaveError(t('אחוז ההנחה חייב להיות בין 0 ל-100 ודמי הכרטיס חייבים להיות תקינים.'));
       return;
@@ -344,7 +358,7 @@ export function CardDetailScreen({
 
   return (
     <SafeAreaView
-      className="flex-1 bg-slate-50 dark:bg-app-dark"
+      className={`flex-1 ${SURFACE.page}`}
       edges={['top', 'bottom']}
     >
       <KeyboardAvoidingView
@@ -357,10 +371,10 @@ export function CardDetailScreen({
         >
           <View className="w-full gap-1 p-5">
             {/* Header */}
-            <AppText className="text-2xl font-black text-slate-900 dark:text-white">
+            <AppText className={`text-2xl font-black ${TEXT.heading}`}>
               {card.displayName}
             </AppText>
-            <AppText className="text-base text-slate-600 dark:text-slate-300">
+            <AppText className={`text-base ${TEXT.secondary}`}>
               {t(ISSUER_LABELS[card.issuer])} ·{' '}
               {card.bankName === undefined ? t('מועדון רגיל') : t(card.bankName)} ·{' '}
               {t('מסתיים ב-{{last4}}', { last4: card.last4 })}
@@ -385,11 +399,11 @@ export function CardDetailScreen({
             />
 
             {/* Rates */}
-            <AppText className="mt-5 text-lg font-extrabold text-slate-900 dark:text-white">
+            <AppText className={`mt-5 text-lg font-extrabold ${TEXT.heading}`}>
               {t('שיעורי ריבית ועמלות')}
             </AppText>
             {rates === undefined && databaseRates !== null ? (
-              <AppText className="mt-1 text-sm font-bold text-blue-700 dark:text-blue-300">
+              <AppText className={`mt-1 text-sm font-bold ${ACCENT.text}`}>
                 {t('ערכים ממאגר תעריפי הכרטיסים')}
               </AppText>
             ) : null}
@@ -397,10 +411,10 @@ export function CardDetailScreen({
             {!hasRates ? (
               <Pressable
                 accessibilityRole="button"
-                className="mt-2 min-h-[48px] items-center justify-center rounded-lg border border-blue-300 bg-blue-50 px-4 dark:border-blue-900 dark:bg-blue-950"
+                className={`mt-2 min-h-[48px] items-center justify-center rounded-lg border px-4 ${ACCENT.borderSubtle} ${ACCENT.surface}`}
                 onPress={(): void => setHasRates(true)}
               >
-                <AppText className="text-center text-base font-extrabold text-blue-700 dark:text-blue-200">
+                <AppText className={`text-center text-base font-extrabold ${ACCENT.text}`}>
                   {t('הוסף שיעורי ריבית')}
                 </AppText>
               </Pressable>
@@ -412,7 +426,7 @@ export function CardDetailScreen({
                   keyboardType="decimal-pad"
                   onChangeText={setCreditRate}
                   placeholder={t('לא פורסם — הזן ידנית')}
-                  placeholderTextColor="#94A3B8"
+                  placeholderTextColor={CHROME.subtle}
                   style={inputStyle}
                   value={creditRate}
                 />
@@ -422,7 +436,7 @@ export function CardDetailScreen({
                   keyboardType="decimal-pad"
                   onChangeText={setInstallmentRate}
                   placeholder={t('לא פורסם — הזן ידנית')}
-                  placeholderTextColor="#94A3B8"
+                  placeholderTextColor={CHROME.subtle}
                   style={inputStyle}
                   value={installmentRate}
                 />
@@ -432,7 +446,7 @@ export function CardDetailScreen({
                   keyboardType="decimal-pad"
                   onChangeText={setCardLoanRate}
                   placeholder={t('לא פורסם — הזן ידנית')}
-                  placeholderTextColor="#94A3B8"
+                  placeholderTextColor={CHROME.subtle}
                   style={inputStyle}
                   value={cardLoanRate}
                 />
@@ -453,7 +467,7 @@ export function CardDetailScreen({
                   value={monthlyFee}
                 />
 
-                <AppText className="mt-2 text-xs text-slate-500 dark:text-slate-400">
+                <AppText className={`mt-2 text-xs ${TEXT.muted}`}>
                   {t('המידע מוצג לנוחות — בדוק מול חברת הכרטיסים. עודכן: {{date}}', {
                     date:
                       rates?.lastUpdated ??
@@ -465,7 +479,7 @@ export function CardDetailScreen({
             )}
 
             {/* Card fee / discount */}
-            <AppText className="mt-5 text-lg font-extrabold text-slate-900 dark:text-white">
+            <AppText className={`mt-5 text-lg font-extrabold ${TEXT.heading}`}>
               {t('הנחת דמי כרטיס')}
             </AppText>
             <AppText className={LABEL_CLASS}>{t('דמי כרטיס מקוריים (₪)')}</AppText>
@@ -485,16 +499,15 @@ export function CardDetailScreen({
               value={feeDiscount}
             />
             {effectiveFeePreview !== null ? (
-              <AppText className="mt-1 text-sm font-bold text-slate-700 dark:text-slate-200">
-                {t('דמי כרטיס בפועל: {{amount}} ₪', {
-                  amount: effectiveFeePreview.toLocaleString('he-IL', {
-                    maximumFractionDigits: 2,
-                  }),
-                })}
+              <AppText
+                className={`mt-1 text-sm font-bold ${TEXT.body}`}
+                style={TABULAR_NUMERALS}
+              >
+                {t('דמי כרטיס בפועל: {{amount}}', { amount: money(effectiveFeePreview) })}
               </AppText>
             ) : null}
             <RtlRow className="mt-3 min-h-[48px] items-center justify-between">
-              <AppText className="me-3 flex-1 text-base text-slate-700 dark:text-slate-200">
+              <AppText className={`me-3 flex-1 text-base ${TEXT.body}`}>
                 {t('לא ידוע — תזכיר שנתי')}
               </AppText>
               <Switch
@@ -513,10 +526,10 @@ export function CardDetailScreen({
                 </AppText>
                 <Pressable
                   accessibilityRole="button"
-                  className="min-h-[48px] justify-center rounded-lg border border-slate-300 bg-white px-4 shadow-sm dark:border-neutral-700 dark:bg-dark-surface"
+                  className={`min-h-[48px] justify-center rounded-lg border px-4 shadow-sm ${BORDER.hairline} ${SURFACE.card}`}
                   onPress={(): void => setShowDatePicker(true)}
                 >
-                  <AppText className="text-base text-slate-900 dark:text-white">
+                  <AppText className={`text-base ${TEXT.heading}`}>
                     {feeEndDate === ''
                       ? t('בחר תאריך')
                       : feeEndDate}
@@ -542,11 +555,11 @@ export function CardDetailScreen({
             ) : null}
 
             {/* Foreign-currency account */}
-            <AppText className="mt-5 text-lg font-extrabold text-slate-900 dark:text-white">
+            <AppText className={`mt-5 text-lg font-extrabold ${TEXT.heading}`}>
               {t('חשבון מט"ח')}
             </AppText>
             <RtlRow className="mt-2 min-h-[48px] items-center justify-between">
-              <AppText className="text-base text-slate-700 dark:text-slate-200">
+              <AppText className={`text-base ${TEXT.body}`}>
                 {t('כרטיס מחובר לחשבון מט"ח')}
               </AppText>
               <Switch onValueChange={setHasForeignAccount} value={hasForeignAccount} />
@@ -559,7 +572,7 @@ export function CardDetailScreen({
                   className={INPUT_CLASS}
                   onChangeText={setForeignCurrency}
                   placeholder="USD"
-                  placeholderTextColor="#94A3B8"
+                  placeholderTextColor={CHROME.subtle}
                   style={inputStyle}
                   value={foreignCurrency}
                 />
@@ -581,42 +594,42 @@ export function CardDetailScreen({
               className={INPUT_CLASS}
               onChangeText={setIssuanceDate}
               placeholder="2024-01-01"
-              placeholderTextColor="#94A3B8"
+              placeholderTextColor={CHROME.subtle}
               style={inputStyle}
               value={issuanceDate}
             />
 
             {saveError !== null ? (
-              <AppText className="mt-3 text-sm font-bold text-red-600 dark:text-red-300">
+              <AppText className={`mt-3 text-sm font-bold ${ROLE_TEXT.danger}`}>
                 {saveError}
               </AppText>
             ) : null}
             {saved ? (
-              <AppText className="mt-3 text-sm font-bold text-green-700 dark:text-green-300">
+              <AppText className={`mt-3 text-sm font-bold ${ROLE_TEXT.positive}`}>
                 {t('הפרטים נשמרו ✓')}
               </AppText>
             ) : null}
 
             <Pressable
               accessibilityRole="button"
-              className="mt-4 min-h-[50px] items-center justify-center rounded-lg bg-blue-600"
+              className={`mt-4 min-h-[50px] items-center justify-center rounded-lg ${ACCENT.solid}`}
               onPress={(): void => {
                 void handleSave();
               }}
             >
-              <AppText className="text-center text-base font-extrabold text-white">
+              <AppText className={`text-center text-base font-extrabold ${TEXT.onAccent}`}>
                 {t('שמור שינויים')}
               </AppText>
             </Pressable>
 
             <Pressable
               accessibilityRole="button"
-              className="mt-3 min-h-[50px] items-center justify-center rounded-lg border border-blue-300 bg-blue-50 px-4 dark:border-blue-900 dark:bg-blue-950"
+              className={`mt-3 min-h-[50px] items-center justify-center rounded-lg border px-4 ${ACCENT.borderSubtle} ${ACCENT.surface}`}
               onPress={(): void =>
                 navigation.navigate('InterestCalculator', { cardId: card.cardId })
               }
             >
-              <AppText className="text-center text-base font-extrabold text-blue-700 dark:text-blue-200">
+              <AppText className={`text-center text-base font-extrabold ${ACCENT.text}`}>
                 {t('מחשבון ריבית')}
               </AppText>
             </Pressable>

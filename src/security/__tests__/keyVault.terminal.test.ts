@@ -98,7 +98,7 @@ jest.mock('react-native-mmkv', () => {
 });
 
 jest.mock(
-  '@noble/ciphers/aes',
+  '@noble/ciphers/aes.js',
   () => ({
     gcm: () => ({
       encrypt: (plaintext: Uint8Array) => plaintext,
@@ -109,7 +109,7 @@ jest.mock(
 );
 
 jest.mock(
-  '@noble/hashes/argon2',
+  '@noble/hashes/argon2.js',
   () => ({
     argon2idAsync: mockArgon2idAsync,
   }),

@@ -21,12 +21,35 @@ import { create } from 'zustand';
 import { keyVault } from '../security/keyVault';
 import type { UserProfile } from '../types/user.types';
 import { MMKV_KEYS } from './keys';
+import {
+  HYDRATING,
+  NOT_HYDRATED,
+  describeHydrationError,
+  hydrated,
+  hydrationFailed,
+  type HydrationState,
+} from './hydration';
+import { parseStoredProfile } from './userProfileParsing';
+
+// DR-012 finding 2: parse validation lives in `userProfileParsing.ts`, which
+// imports no native module and is therefore reachable from tests.
+export { isUserProfile, parseStoredProfile } from './userProfileParsing';
 
 // ---------------------------------------------------------------------------
 
 interface UserState {
   /** null until hydrate() is called after vault unlock. */
   profile: UserProfile | null;
+
+  /**
+   * DR-012 finding 1: whether `profile` reflects storage yet.
+   *
+   * `profile: null` alone is ambiguous between "not hydrated" and "no profile
+   * exists" — the same defect already fixed in useCardsStore and
+   * useProfileStore. This store was missed. Consumers must branch on this
+   * rather than treating a null profile as a user with no financial state.
+   */
+  hydration: HydrationState;
 
   /**
    * Populate in-memory state from encrypted MMKV.
@@ -46,6 +69,9 @@ interface UserState {
   /** Update current balance in-place, stamping updatedAt. */
   updateBalance(amount: number): void;
 
+  /** Set the user's absolute monthly commitment cap, stamping updatedAt. */
+  setCommitmentCapIls(amount: number): void;
+
   /**
    * Zero in-memory state and delete the MMKV record.
    * Called on vault wipe / logout. Tolerates an already-locked or
@@ -58,26 +84,47 @@ interface UserState {
 
 export const useUserStore = create<UserState>()((set) => ({
   profile: null,
+  hydration: NOT_HYDRATED,
 
   hydrate() {
-    const handle = keyVault.getEncryptedStorage();
-    const activeProfileId = handle.getString(MMKV_KEYS.activeProfileId);
-    if (activeProfileId === undefined) {
-      set({ profile: null });
-      return;
+    set({ hydration: HYDRATING });
+    try {
+      const handle = keyVault.getEncryptedStorage();
+      const activeProfileId = handle.getString(MMKV_KEYS.activeProfileId);
+      if (activeProfileId === undefined) {
+        // No active profile is a KNOWN empty result, not a failure.
+        set({ profile: null, hydration: hydrated(new Date().toISOString()) });
+        return;
+      }
+      const profile = parseStoredProfile(
+        handle.getString(MMKV_KEYS.profileUser(activeProfileId)),
+      );
+      set({ profile, hydration: hydrated(new Date().toISOString()) });
+    } catch (error: unknown) {
+      // getEncryptedStorage() throws while the vault is LOCKED (AUTH-07).
+      // Recording the failure keeps a locked vault distinguishable from a
+      // user who has entered no financial state.
+      set({
+        profile: null,
+        hydration: hydrationFailed(describeHydrationError(error)),
+      });
     }
-    const raw = handle.getString(MMKV_KEYS.profileUser(activeProfileId));
-    set({
-      profile: raw === undefined ? null : (JSON.parse(raw) as UserProfile),
-    });
   },
 
   hydrateProfile(profileId: string) {
-    const handle = keyVault.getEncryptedStorage();
-    const raw = handle.getString(MMKV_KEYS.profileUser(profileId));
-    set({
-      profile: raw === undefined ? null : (JSON.parse(raw) as UserProfile),
-    });
+    set({ hydration: HYDRATING });
+    try {
+      const handle = keyVault.getEncryptedStorage();
+      const profile = parseStoredProfile(
+        handle.getString(MMKV_KEYS.profileUser(profileId)),
+      );
+      set({ profile, hydration: hydrated(new Date().toISOString()) });
+    } catch (error: unknown) {
+      set({
+        profile: null,
+        hydration: hydrationFailed(describeHydrationError(error)),
+      });
+    }
   },
 
   persistProfile(profileId: string) {
@@ -145,8 +192,38 @@ export const useUserStore = create<UserState>()((set) => ({
     });
   },
 
+  setCommitmentCapIls(amount: number) {
+    set((state) => {
+      if (state.profile === null) {
+        return {};
+      }
+      const updated: UserProfile = {
+        ...state.profile,
+        commitmentCapIls: amount,
+        updatedAt: Date.now(),
+      };
+      const storage = keyVault.getEncryptedStorage();
+      const activeProfileId = storage.getString(MMKV_KEYS.activeProfileId);
+      if (activeProfileId === undefined) {
+        throw new Error('ACTIVE_PROFILE_REQUIRED');
+      }
+      storage.set(
+        MMKV_KEYS.profileUser(activeProfileId),
+        JSON.stringify(updated),
+      );
+      return { profile: updated };
+    });
+  },
+
   clearProfile() {
-    // Zero memory unconditionally.
-    set({ profile: null });
+    // Zero memory unconditionally. A deliberate clear is a KNOWN empty state,
+    // not an unloaded one.
+    //
+    // NOTE (DR-012 finding 3, NOT fixed here): the header comment on this file
+    // states clearProfile() also deletes the MMKV record. It does not. That
+    // touches logout/wipe behaviour, which SECURITY_AUTH_BASELINE.md §5 puts
+    // behind a Security Agent review gate, so it is left for that review
+    // rather than changed here.
+    set({ profile: null, hydration: hydrated(new Date().toISOString()) });
   },
 }));

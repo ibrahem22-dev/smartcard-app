@@ -1,0 +1,613 @@
+{
+  "$comment": [
+    "DERIVED FROM campaign-p4/P4_COMPLETION_CONTRACT.md by campaign-p4/bin/p4-required-gates.mjs.",
+    "Do not hand-edit: regenerate. This is a MIRROR, and it ships with its parity check —",
+    "`node bin/p4-required-gates.mjs --check` refuses on drift (contract section 2 rule 7).",
+    "It exists so the app can answer \"does every gate the contract requires exist?\" in a fresh",
+    "clone and in CI, where the pipeline repository is not present. Deriving the gate list from",
+    "tools/p4/gates/*.mjs answers \"did everything I have pass?\" — a different question, and the",
+    "one that lets a ladder close green over a gate nobody wrote."
+  ],
+  "contractVersion": "1.0-DRAFT",
+  "criteriaCount": 66,
+  "generatedBy": "campaign-p4/bin/p4-required-gates.mjs",
+  "gates": [
+    {
+      "gate": "activity-stays-local",
+      "sentinel": "ACTIVITY-STAYS-LOCAL OK",
+      "criteria": [
+        "L4"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "L4",
+          "control": "pass an activity record to the analytics boundary and watch it refuse"
+        }
+      ]
+    },
+    {
+      "gate": "benefit-hint",
+      "sentinel": "BENEFIT-HINT OK",
+      "criteria": [
+        "C5"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "C5",
+          "control": "render the hint with no matching benefit and watch the gate fail"
+        }
+      ]
+    },
+    {
+      "gate": "card-identity-split",
+      "sentinel": "CARD-IDENTITY-SPLIT OK",
+      "criteria": [
+        "M6"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "M6",
+          "control": "add an artworkUrl field to UserCard and watch the gate fail"
+        }
+      ]
+    },
+    {
+      "gate": "card-tile-render",
+      "sentinel": "CARD-TILE-RENDER OK",
+      "criteria": [
+        "M5"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "M5",
+          "control": "render a tile from a hard-coded image path instead of the resolver and watch the gate fail"
+        }
+      ]
+    },
+    {
+      "gate": "catalog-reach",
+      "sentinel": "CATALOG-REACH OK",
+      "criteria": [
+        "W2"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "check-input-contract",
+      "sentinel": "CHECK-INPUT-CONTRACT OK",
+      "criteria": [
+        "C1"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "check-input-taps",
+      "sentinel": "CHECK-INPUT-TAPS OK",
+      "criteria": [
+        "C2"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "club-resolver",
+      "sentinel": "CLUB-RESOLVER OK",
+      "criteria": [
+        "W3"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "finish-setup",
+      "sentinel": "FINISH-SETUP OK",
+      "criteria": [
+        "O4"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "fx-activation",
+      "sentinel": "FX-ACTIVATION OK",
+      "criteria": [
+        "C4"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "fx-compare-explainer",
+      "sentinel": "FX-COMPARE-EXPLAINER OK",
+      "criteria": [
+        "X4"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "fx-compare-honesty",
+      "sentinel": "FX-COMPARE-HONESTY OK",
+      "criteria": [
+        "X3"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "X3",
+          "control": "label the reference rate as the real cost and watch the gate fail"
+        }
+      ]
+    },
+    {
+      "gate": "fx-compare-identical",
+      "sentinel": "FX-COMPARE-IDENTICAL OK",
+      "criteria": [
+        "R4"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "fx-compare-rows",
+      "sentinel": "FX-COMPARE-ROWS OK",
+      "criteria": [
+        "X2"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "fx-compare-single",
+      "sentinel": "FX-COMPARE-SINGLE OK",
+      "criteria": [
+        "X1"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "X1",
+          "control": "add a second implementation for one entry point and watch the gate fail"
+        }
+      ]
+    },
+    {
+      "gate": "impact-and-freshness",
+      "sentinel": "IMPACT-AND-FRESHNESS OK",
+      "criteria": [
+        "D7"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "income-anchor",
+      "sentinel": "INCOME-ANCHOR OK",
+      "criteria": [
+        "O5"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "installments-stepper",
+      "sentinel": "INSTALLMENTS-STEPPER OK",
+      "criteria": [
+        "C3"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "C3",
+          "control": "render the stepper in one-payment mode and watch the gate fail"
+        }
+      ]
+    },
+    {
+      "gate": "last4-stays-local",
+      "sentinel": "LAST4-STAYS-LOCAL OK",
+      "criteria": [
+        "W7"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "W7",
+          "control": "pass a UserCard carrying last4 to track() and watch the analytics boundary refuse it"
+        }
+      ]
+    },
+    {
+      "gate": "legacy-surfaces-absent",
+      "sentinel": "LEGACY-SURFACES-ABSENT OK",
+      "criteria": [
+        "B2"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "B2",
+          "control": "re-register the legacy stack on any route and watch the gate fail"
+        }
+      ]
+    },
+    {
+      "gate": "limit-consumption",
+      "sentinel": "LIMIT-CONSUMPTION OK",
+      "criteria": [
+        "L2"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "loop-provenance",
+      "sentinel": "LOOP-PROVENANCE OK",
+      "criteria": [
+        "R5"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "match-score-demoted",
+      "sentinel": "MATCH-SCORE-DEMOTED OK",
+      "criteria": [
+        "D4"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "D4",
+          "control": "promote Match Score to the hero slot and watch the gate fail"
+        }
+      ]
+    },
+    {
+      "gate": "no-account-surface",
+      "sentinel": "NO-ACCOUNT-SURFACE OK",
+      "criteria": [
+        "O2"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "no-card-credentials",
+      "sentinel": "NO-CARD-CREDENTIALS OK",
+      "criteria": [
+        "W6"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "W6",
+          "control": "add a sixteen-digit card-number field to the wizard and watch the gate fail"
+        }
+      ]
+    },
+    {
+      "gate": "no-magic-numbers",
+      "sentinel": "NO-MAGIC-NUMBERS OK",
+      "criteria": [
+        "B3"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "no-rederivation",
+      "sentinel": "NO-REDERIVATION OK",
+      "criteria": [
+        "B4"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "onboarding-flow",
+      "sentinel": "ONBOARDING-FLOW OK",
+      "criteria": [
+        "O1"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "O1",
+          "control": "make the income step unskippable and watch the gate fail"
+        }
+      ]
+    },
+    {
+      "gate": "onboarding-honesty",
+      "sentinel": "ONBOARDING-HONESTY OK",
+      "criteria": [
+        "O3"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "one-verdict",
+      "sentinel": "ONE-VERDICT OK",
+      "criteria": [
+        "D2"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "D2",
+          "control": "derive the pill from a second code path and watch the property fail"
+        }
+      ]
+    },
+    {
+      "gate": "pill-panel-agree",
+      "sentinel": "PILL-PANEL-AGREE OK",
+      "criteria": [
+        "R3"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "R3",
+          "control": "perturb one path's threshold and watch the property fail"
+        }
+      ]
+    },
+    {
+      "gate": "purchase-logging",
+      "sentinel": "PURCHASE-LOGGING OK",
+      "criteria": [
+        "L1"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "runner-up",
+      "sentinel": "RUNNER-UP OK",
+      "criteria": [
+        "D5"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "surfaces-pure",
+      "sentinel": "SURFACES-PURE OK",
+      "criteria": [
+        "B1"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "B1",
+          "control": "compute a threshold comparison inside a screen component and watch the gate fail"
+        }
+      ]
+    },
+    {
+      "gate": "verdict-fx-block",
+      "sentinel": "VERDICT-FX-BLOCK OK",
+      "criteria": [
+        "D6"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "verdict-history",
+      "sentinel": "VERDICT-HISTORY OK",
+      "criteria": [
+        "L3"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "verdict-layout",
+      "sentinel": "VERDICT-LAYOUT OK",
+      "criteria": [
+        "D3"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "verdict-provenance",
+      "sentinel": "VERDICT-PROVENANCE OK",
+      "criteria": [
+        "D8"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "D8",
+          "control": "render one bare number and watch the sweep fail"
+        }
+      ]
+    },
+    {
+      "gate": "verdict-states",
+      "sentinel": "VERDICT-STATES OK",
+      "criteria": [
+        "D1"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "wizard-adapter-only",
+      "sentinel": "WIZARD-ADAPTER-ONLY OK",
+      "criteria": [
+        "W5"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "wizard-provenance",
+      "sentinel": "WIZARD-PROVENANCE OK",
+      "criteria": [
+        "W4"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "W4",
+          "control": "render a catalog prefill as an Estimate chip and watch the gate fail"
+        }
+      ]
+    }
+  ],
+  "nonGateCriteria": [
+    {
+      "id": "I1",
+      "sentinel": "P4-INTAKE OK",
+      "flags": []
+    },
+    {
+      "id": "I2",
+      "sentinel": "P4-INTAKE ASSUMPTIONS OK",
+      "flags": []
+    },
+    {
+      "id": "Q1",
+      "sentinel": "P4-QUALIFY OK",
+      "flags": []
+    },
+    {
+      "id": "Q2",
+      "sentinel": "P4-QUALIFY REFUSAL OK",
+      "flags": []
+    },
+    {
+      "id": "B5",
+      "sentinel": "P4-ADRS OK",
+      "flags": []
+    },
+    {
+      "id": "B6",
+      "sentinel": "P4-DEFERRED OK",
+      "flags": []
+    },
+    {
+      "id": "B7",
+      "sentinel": "P4-DECISION-LOG OK",
+      "flags": []
+    },
+    {
+      "id": "B8",
+      "sentinel": "P4-HANDOFF OK",
+      "flags": []
+    },
+    {
+      "id": "B9",
+      "sentinel": "P4-REPOS OK",
+      "flags": []
+    },
+    {
+      "id": "B10",
+      "sentinel": "P4-ADJUDICATION OK",
+      "flags": []
+    },
+    {
+      "id": "B11",
+      "sentinel": "P4-LEDGER VERIFY OK",
+      "flags": []
+    },
+    {
+      "id": "W1",
+      "sentinel": "ADD-CARD-60S OK",
+      "flags": [
+        "DEVICE"
+      ]
+    },
+    {
+      "id": "R1",
+      "sentinel": "TIME-TO-VERDICT OK",
+      "flags": [
+        "DEVICE"
+      ]
+    },
+    {
+      "id": "R2",
+      "sentinel": "AIRPLANE-LOOP OK",
+      "flags": [
+        "DEVICE"
+      ]
+    },
+    {
+      "id": "R6",
+      "sentinel": "LOOP-RTL OK",
+      "flags": [
+        "DEVICE"
+      ]
+    },
+    {
+      "id": "M1",
+      "sentinel": "MEDIA-RESOLVES OK",
+      "flags": []
+    },
+    {
+      "id": "M2",
+      "sentinel": "MEDIA-DETERMINISTIC OK",
+      "flags": []
+    },
+    {
+      "id": "M3",
+      "sentinel": "MEDIA-RIGHTS OK",
+      "flags": []
+    },
+    {
+      "id": "M4",
+      "sentinel": "MEDIA-ASSETS OK",
+      "flags": []
+    },
+    {
+      "id": "V1",
+      "sentinel": "P4-ALL OK",
+      "flags": []
+    },
+    {
+      "id": "V2",
+      "sentinel": "P4-ALL OK",
+      "flags": [
+        "FRESH"
+      ]
+    },
+    {
+      "id": "V3",
+      "sentinel": "P4-ALL OK",
+      "flags": [
+        "FRESH"
+      ]
+    },
+    {
+      "id": "V4",
+      "sentinel": "REAL-ARTIFACTS OK",
+      "flags": [
+        "FRESH"
+      ]
+    },
+    {
+      "id": "V5",
+      "sentinel": "DEVICE-LOOP OK",
+      "flags": [
+        "DEVICE"
+      ]
+    },
+    {
+      "id": "V6",
+      "sentinel": "P4-CLOSURE-MIRROR OK",
+      "flags": []
+    }
+  ]
+}

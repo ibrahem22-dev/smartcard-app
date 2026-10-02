@@ -1,0 +1,1233 @@
+{
+  "schemaVersion": "smartcard.app.fx-abroad.v1",
+  "datasetVersion": "app-consumable.fx-abroad.v2.0.0",
+  "productionApproved": true,
+  "generatedFrom": "_curated_release_v2_2026-07-27/app_consumable_fx_abroad_v2.json",
+  "cardCount": 34,
+  "cards": {
+    "max-max-back-total": {
+      "cardId": "max-max-back-total",
+      "issuer": "max",
+      "cardName": "MAX Back Total",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon-maxback-total-new.pdf",
+          "hash": "880bc088d570d13e"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon-maxback-total-new.pdf",
+          "hash": "880bc088d570d13e"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 22,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon-maxback-total-new.pdf",
+          "hash": "880bc088d570d13e"
+        }
+      }
+    },
+    "max-maxback-crypto": {
+      "cardId": "max-maxback-crypto",
+      "issuer": "max",
+      "cardName": "MAXBack CRYPTO",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon-maxback-crypto.pdf",
+          "hash": "6cef14901b854524"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon-maxback-crypto.pdf",
+          "hash": "6cef14901b854524"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 22,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon-maxback-crypto.pdf",
+          "hash": "6cef14901b854524"
+        }
+      }
+    },
+    "max-dreamcard-vip": {
+      "cardId": "max-dreamcard-vip",
+      "issuer": "max",
+      "cardName": "DREAMCARD VIP",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_dc.pdf",
+          "hash": "d8435775a265ced0"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_dc.pdf",
+          "hash": "d8435775a265ced0"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 22,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_dc.pdf",
+          "hash": "d8435775a265ced0"
+        }
+      }
+    },
+    "max-max-first": {
+      "cardId": "max-max-first",
+      "issuer": "max",
+      "cardName": "FIRST",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 2,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_first.pdf",
+          "hash": "dc0df41473bee81a"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 2,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_first.pdf",
+          "hash": "dc0df41473bee81a"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 22,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_first.pdf",
+          "hash": "dc0df41473bee81a"
+        }
+      }
+    },
+    "max-behatsdaa": {
+      "cardId": "max-behatsdaa",
+      "issuer": "max",
+      "cardName": "בהצדעה",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_beatzdaa.pdf",
+          "hash": "372b2472a9a7a10a"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_beatzdaa.pdf",
+          "hash": "372b2472a9a7a10a"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 22,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_beatzdaa.pdf",
+          "hash": "372b2472a9a7a10a"
+        }
+      }
+    },
+    "max-max-executive": {
+      "cardId": "max-max-executive",
+      "issuer": "max",
+      "cardName": "MAX Executive",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_executive.pdf",
+          "hash": "351d75a3ddefe6d5"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_executive.pdf",
+          "hash": "351d75a3ddefe6d5"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 22,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_executive.pdf",
+          "hash": "351d75a3ddefe6d5"
+        }
+      }
+    },
+    "max-kranot": {
+      "cardId": "max-kranot",
+      "issuer": "max",
+      "cardName": "קרנות",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon-kranot-new.pdf",
+          "hash": "d54933fdb344318c"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon-kranot-new.pdf",
+          "hash": "d54933fdb344318c"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 22,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon-kranot-new.pdf",
+          "hash": "d54933fdb344318c"
+        }
+      }
+    },
+    "max-mymax": {
+      "cardId": "max-mymax",
+      "issuer": "max",
+      "cardName": "MyMAX",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon-mymax.pdf",
+          "hash": "6f210fab23e43ad0"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon-mymax.pdf",
+          "hash": "6f210fab23e43ad0"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 22,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon-mymax.pdf",
+          "hash": "6f210fab23e43ad0"
+        }
+      }
+    },
+    "max-max-1824": {
+      "cardId": "max-max-1824",
+      "issuer": "max",
+      "cardName": "MAX 1824",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon-1824-club-new.pdf",
+          "hash": "1b3577f07b615d99"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon-1824-club-new.pdf",
+          "hash": "1b3577f07b615d99"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 22,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon-1824-club-new.pdf",
+          "hash": "1b3577f07b615d99"
+        }
+      }
+    },
+    "max-reut": {
+      "cardId": "max-reut",
+      "issuer": "max",
+      "cardName": "רעות תקני לי",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_executive.pdf",
+          "hash": "351d75a3ddefe6d5"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_executive.pdf",
+          "hash": "351d75a3ddefe6d5"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 22,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_executive.pdf",
+          "hash": "351d75a3ddefe6d5"
+        }
+      }
+    },
+    "max-i-need-it": {
+      "cardId": "max-i-need-it",
+      "issuer": "max",
+      "cardName": "כזה אני רוצה I Need It",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_executive.pdf",
+          "hash": "351d75a3ddefe6d5"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_executive.pdf",
+          "hash": "351d75a3ddefe6d5"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 22,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_executive.pdf",
+          "hash": "351d75a3ddefe6d5"
+        }
+      }
+    },
+    "max-max-business": {
+      "cardId": "max-max-business",
+      "issuer": "max",
+      "cardName": "MAX Business",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_business.pdf",
+          "hash": "503872e5321d3238"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_business.pdf",
+          "hash": "503872e5321d3238"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 22,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_business.pdf",
+          "hash": "503872e5321d3238"
+        }
+      }
+    },
+    "max-wincard-plus": {
+      "cardId": "max-wincard-plus",
+      "issuer": "max",
+      "cardName": "WINCARD+",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_wincard.pdf",
+          "hash": "184e65eac8f640b4"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_wincard.pdf",
+          "hash": "184e65eac8f640b4"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 22,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_wincard.pdf",
+          "hash": "184e65eac8f640b4"
+        }
+      }
+    },
+    "max-max-pinukim": {
+      "cardId": "max-max-pinukim",
+      "issuer": "max",
+      "cardName": "MAX פינוקים",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_pinukimcard.pdf",
+          "hash": "ee3eb739762370ec"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_pinukimcard.pdf",
+          "hash": "ee3eb739762370ec"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 22,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_pinukimcard.pdf",
+          "hash": "ee3eb739762370ec"
+        }
+      }
+    },
+    "max-all-club-business": {
+      "cardId": "max-all-club-business",
+      "issuer": "max",
+      "cardName": "ALL CLUB Business",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon-allclubs-business.pdf",
+          "hash": "9bbaab01c7c60300"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon-allclubs-business.pdf",
+          "hash": "9bbaab01c7c60300"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 22,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon-allclubs-business.pdf",
+          "hash": "9bbaab01c7c60300"
+        }
+      }
+    },
+    "max-hebrew-university-alumni": {
+      "cardId": "max-hebrew-university-alumni",
+      "issuer": "max",
+      "cardName": "בוגרי האוניברסיטה העברית",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_executive.pdf",
+          "hash": "351d75a3ddefe6d5"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_executive.pdf",
+          "hash": "351d75a3ddefe6d5"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 22,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_executive.pdf",
+          "hash": "351d75a3ddefe6d5"
+        }
+      }
+    },
+    "max-max-back": {
+      "cardId": "max-max-back",
+      "issuer": "max",
+      "cardName": "MAX BACK",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_maxback.pdf",
+          "hash": "9434628ceddc51f7"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_maxback.pdf",
+          "hash": "9434628ceddc51f7"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 22,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2025-11-01",
+        "source": {
+          "url": "https://www.max.co.il/api/umbraco/getImage?imageName=taarifon_maxback.pdf",
+          "hash": "9434628ceddc51f7"
+        }
+      }
+    },
+    "card-amex-platinacard": {
+      "cardId": "card-amex-platinacard",
+      "issuer": "isracard",
+      "cardName": "American Express Platinum",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 2.5,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-07-01",
+        "source": {
+          "url": "https://he.americanexpress.co.il/globalassets/pdf/taarifonhatsavjan26.pdf",
+          "hash": "cf35ff91806c74f2"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3.5,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-07-01",
+        "source": {
+          "url": "https://he.americanexpress.co.il/globalassets/pdf/taarifonhatsavjan26.pdf",
+          "hash": "cf35ff91806c74f2"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 19,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2026-07-01",
+        "source": {
+          "url": "https://he.americanexpress.co.il/globalassets/pdf/taarifonhatsavjan26.pdf",
+          "hash": "cf35ff91806c74f2"
+        }
+      }
+    },
+    "cal-365-vip": {
+      "cardId": "cal-365-vip",
+      "issuer": "cal",
+      "cardName": "Cal365 VIP",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 16,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      }
+    },
+    "cal-mastercard-generic": {
+      "cardId": "cal-mastercard-generic",
+      "issuer": "cal",
+      "cardName": "Mastercard",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 16,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      }
+    },
+    "cal-miles-and-more": {
+      "cardId": "cal-miles-and-more",
+      "issuer": "cal",
+      "cardName": "Miles & More",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 16,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      }
+    },
+    "cal-mycal": {
+      "cardId": "cal-mycal",
+      "issuer": "cal",
+      "cardName": "My Cal",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 16,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      }
+    },
+    "cal-visa-generic": {
+      "cardId": "cal-visa-generic",
+      "issuer": "cal",
+      "cardName": "Visa",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 16,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      }
+    },
+    "cal-diners-club": {
+      "cardId": "cal-diners-club",
+      "issuer": "cal",
+      "cardName": "Diners Club",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 16,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      }
+    },
+    "cal-fixnet": {
+      "cardId": "cal-fixnet",
+      "issuer": "cal",
+      "cardName": "CalFixnet",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 16,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      }
+    },
+    "cal-paybox": {
+      "cardId": "cal-paybox",
+      "issuer": "cal",
+      "cardName": "PayBox",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 16,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      }
+    },
+    "cal-cashcal-hno": {
+      "cardId": "cal-cashcal-hno",
+      "issuer": "cal",
+      "cardName": "CashCal H&O",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 16,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      }
+    },
+    "cal-diners-extra-home": {
+      "cardId": "cal-diners-extra-home",
+      "issuer": "cal",
+      "cardName": "Diners Extra Home",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 16,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      }
+    },
+    "cal-yesh": {
+      "cardId": "cal-yesh",
+      "issuer": "cal",
+      "cardName": "יש",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 16,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      }
+    },
+    "cal-carrefour": {
+      "cardId": "cal-carrefour",
+      "issuer": "cal",
+      "cardName": "Carrefour club",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 16,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      }
+    },
+    "cal-shufersal-visa": {
+      "cardId": "cal-shufersal-visa",
+      "issuer": "cal",
+      "cardName": "שופרסל Visa",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 16,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      }
+    },
+    "cal-shufersal-shop-and-fly": {
+      "cardId": "cal-shufersal-shop-and-fly",
+      "issuer": "cal",
+      "cardName": "שופרסל SHOP&FLY",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 16,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2026-06-01",
+        "source": {
+          "url": "https://www.cal-online.co.il/media/ma5oflaj/amlot.pdf",
+          "hash": "d487571d28cbde0b"
+        }
+      }
+    },
+    "card-amex-cashback": {
+      "cardId": "card-amex-cashback",
+      "issuer": "isracard",
+      "cardName": "American Express CashBack Premium",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 2.5,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-07-01",
+        "source": {
+          "url": "https://he.americanexpress.co.il/globalassets/pdf/taarifonhatsavjan26.pdf",
+          "hash": "cf35ff91806c74f2"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3.5,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-07-01",
+        "source": {
+          "url": "https://he.americanexpress.co.il/globalassets/pdf/taarifonhatsavjan26.pdf",
+          "hash": "cf35ff91806c74f2"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 19,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2026-07-01",
+        "source": {
+          "url": "https://he.americanexpress.co.il/globalassets/pdf/taarifonhatsavjan26.pdf",
+          "hash": "cf35ff91806c74f2"
+        }
+      }
+    },
+    "card-amex-flycard": {
+      "cardId": "card-amex-flycard",
+      "issuer": "isracard",
+      "cardName": "American Express FLY CARD PREMIUM",
+      "tier": "A",
+      "fxPurchasePct": {
+        "value": 1.25,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-07-01",
+        "source": {
+          "url": "https://he.americanexpress.co.il/globalassets/pdf/taarifonhatsavjan26.pdf",
+          "hash": "cf35ff91806c74f2"
+        }
+      },
+      "fxCashWithdrawalForeign": {
+        "value": 3.5,
+        "unit": "percent",
+        "currency": null,
+        "effectiveFrom": "2026-07-01",
+        "source": {
+          "url": "https://he.americanexpress.co.il/globalassets/pdf/taarifonhatsavjan26.pdf",
+          "hash": "cf35ff91806c74f2"
+        }
+      },
+      "withdrawalSameCurrency": {
+        "value": 19,
+        "unit": "ils",
+        "currency": "ILS",
+        "effectiveFrom": "2026-07-01",
+        "source": {
+          "url": "https://he.americanexpress.co.il/globalassets/pdf/taarifonhatsavjan26.pdf",
+          "hash": "cf35ff91806c74f2"
+        }
+      }
+    }
+  }
+}

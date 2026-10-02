@@ -1,0 +1,740 @@
+{
+  "$comment": "Written by tools/p4/all.mjs. Every step decided on printed output; acceptance requires every step green.",
+  "sha": "d624b3024c3e8b23b83fa5b7b70fc3f572a44337",
+  "worktreeDirty": false,
+  "node": "v20.20.2",
+  "acceptanceRun": true,
+  "ok": true,
+  "verdict": "OK",
+  "noFailures": true,
+  "failed": [],
+  "skipped": [],
+  "notImplemented": [],
+  "gatesMissing": [],
+  "gatesNotRequired": [
+    "media-deterministic",
+    "media-resolves"
+  ],
+  "gatesRequired": 41,
+  "contractVersion": "1.0-DRAFT",
+  "steps": [
+    {
+      "step": "typecheck",
+      "ok": true,
+      "skipped": false,
+      "ms": 5837,
+      "decidedOn": "output",
+      "line": "TYPECHECK OK",
+      "processStatus": 0,
+      "tail": "TYPECHECK OK"
+    },
+    {
+      "step": "lint",
+      "ok": true,
+      "skipped": false,
+      "ms": 3033,
+      "decidedOn": "output",
+      "line": "LINT OK",
+      "processStatus": 0,
+      "tail": "LINT OK"
+    },
+    {
+      "step": "suite",
+      "ok": true,
+      "skipped": false,
+      "ms": 61249,
+      "decidedOn": "output",
+      "line": "Tests:       1226 passed, 1226 total",
+      "processStatus": 0,
+      "tail": "PASS render src/screens/check/__tests__/checkVerdict.impact.render.test.tsx (26.335 s)\nPASS render src/screens/check/__tests__/purchaseLogging.render.test.tsx (27.223 s)\nTest Suites: 157 passed, 157 total\nTests:       1226 passed, 1226 total\nSnapshots:   0 total\nTime:        60.144 s"
+    },
+    {
+      "step": "gate:activity-stays-local",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "L4"
+      ],
+      "measures": "unit+source",
+      "ms": 2499,
+      "decidedOn": "output",
+      "line": "ACTIVITY-STAYS-LOCAL OK",
+      "processStatus": null,
+      "tail": "src/analytics/track.ts refuses activityId after consent, without importing activity types\nsrc/analytics/__tests__/activityStaysLocal.test.ts · Tests:       3 passed, 3 total"
+    },
+    {
+      "step": "gate:benefit-hint",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "C5"
+      ],
+      "measures": "render",
+      "ms": 14927,
+      "decidedOn": "output",
+      "line": "BENEFIT-HINT OK",
+      "processStatus": null,
+      "tail": "src/screens/check/__tests__/checkInput.benefitHint.render.test.tsx mounts src/screens/check/CheckInputScreen.tsx:\n  · hint paints only a supplied match; omission invents nothing\nall 4 cases required BY NAME · Tests:       4 passed, 4 total"
+    },
+    {
+      "step": "gate:card-identity-split",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "M6"
+      ],
+      "measures": "source",
+      "ms": 2,
+      "decidedOn": "output",
+      "line": "CARD-IDENTITY-SPLIT OK",
+      "processStatus": null,
+      "tail": "UserCard        src/types/card.types.ts — product reference + optional last4 + local state; no artwork, no product facts\nCardProduct     src/types/card.types.ts — shared facts; no user state\nCardEntry       src/store/useCardsStore.ts — persists user + product, not a mixed card\ninterface CardInput is absent (composed engine view may alias EngineCard)"
+    },
+    {
+      "step": "gate:card-tile-render",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "M5"
+      ],
+      "measures": "render",
+      "ms": 14761,
+      "decidedOn": "output",
+      "line": "CARD-TILE-RENDER OK",
+      "processStatus": null,
+      "tail": "src/components/__tests__/CardTile.render.test.tsx mounts src/components/CardTile.tsx:\n  · resolver surface + nickname; mask from last4 alone; omit is normal; no Image path\nall 4 cases required BY NAME · Tests:       4 passed, 4 total"
+    },
+    {
+      "step": "gate:catalog-reach",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "W2"
+      ],
+      "measures": "unit+render",
+      "ms": 18921,
+      "decidedOn": "output",
+      "line": "CATALOG-REACH OK",
+      "processStatus": null,
+      "tail": "src/data/adapter/catalogSearch.ts derives CURRENT products through CardsAdapter; search hits every one\nreached 378 / 378\nsrc/data/adapter/__tests__/catalogSearch.test.ts · Tests:       4 passed, 4 total\nsrc/screens/__tests__/addCard.catalog.render.test.tsx mounts src/screens/AddCardScreen.tsx as search-first with a generic path · Tests:       3 passed, 3 total"
+    },
+    {
+      "step": "gate:check-input-contract",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "C1"
+      ],
+      "measures": "render",
+      "ms": 15151,
+      "decidedOn": "output",
+      "line": "CHECK-INPUT-CONTRACT OK",
+      "processStatus": null,
+      "tail": "  · the shekel is selected on the first frame, with no user action, and travels with the draft\n  · zero, negative, non-numeric and empty amounts are all refused — nothing leaves the screen\n  · a positive amount alone produces a usable input: no category, no installments, no card\n  · the refusal returns when the field is cleared, and every currency the type defines renders\n  · nothing numeric is on screen but the amount the person typed (contract §5 B1, spec §20)\nall 8 cases required BY NAME · Tests:       8 passed, 8 total"
+    },
+    {
+      "step": "gate:check-input-taps",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "C2"
+      ],
+      "measures": "render",
+      "ms": 14766,
+      "decidedOn": "output",
+      "line": "CHECK-INPUT-TAPS OK",
+      "processStatus": null,
+      "tail": "src/screens/check/__tests__/checkInput.taps.render.test.tsx mounts src/screens/check/CheckInputScreen.tsx:\n  · currency switcher, custom keypad, category chips, collapsed card picker\n  · a check with optionals completes in four taps plus the amount; optionals stay optional\nall 4 cases required BY NAME · Tests:       4 passed, 4 total"
+    },
+    {
+      "step": "gate:club-resolver",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "W3"
+      ],
+      "measures": "unit+render",
+      "ms": 18155,
+      "decidedOn": "output",
+      "line": "CLUB-RESOLVER OK",
+      "processStatus": null,
+      "tail": "src/data/adapter/clubResolver.ts derives CURRENT clubs; three questions identify one or end unknown\nsrc/data/adapter/__tests__/clubResolver.test.ts · Tests:       4 passed, 4 total\nsrc/screens/addCard/__tests__/clubResolver.render.test.tsx mounts three questions · Tests:       3 passed, 3 total"
+    },
+    {
+      "step": "gate:finish-setup",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "O4"
+      ],
+      "measures": "render",
+      "ms": 15779,
+      "decidedOn": "output",
+      "line": "FINISH-SETUP OK",
+      "processStatus": null,
+      "tail": "src/screens/__tests__/finishSetup.render.test.tsx measures O4 on the RENDERED Home surface:\n  · empty skip list paints no card\n  · skipped income / add-card / security appear; language never does\n  · dismiss hides the card and the hide survives remount\nall 4 cases required BY NAME · Tests:       4 passed, 4 total"
+    },
+    {
+      "step": "gate:fx-activation",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "C4"
+      ],
+      "measures": "render",
+      "ms": 14999,
+      "decidedOn": "output",
+      "line": "FX-ACTIVATION OK",
+      "processStatus": null,
+      "tail": "src/screens/check/__tests__/checkInput.fx.render.test.tsx mounts src/screens/check/CheckInputScreen.tsx:\n  · shekel omits the lane; foreign paints the supplied BOI rate+date; missing reference invents nothing\nall 4 cases required BY NAME · Tests:       4 passed, 4 total"
+    },
+    {
+      "step": "gate:fx-compare-explainer",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "X4"
+      ],
+      "measures": "render",
+      "ms": 14684,
+      "decidedOn": "output",
+      "line": "FX-COMPARE-EXPLAINER OK",
+      "processStatus": null,
+      "tail": "src/screens/fx/__tests__/fxCompare.explainer.render.test.tsx mounts src/screens/fx/FxCompareSheet.tsx:\n  · expander paints winner quote fields and that quote's reason-trace steps\nall 4 cases required BY NAME · Tests:       4 passed, 4 total"
+    },
+    {
+      "step": "gate:fx-compare-honesty",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "X3"
+      ],
+      "measures": "render",
+      "ms": 14243,
+      "decidedOn": "output",
+      "line": "FX-COMPARE-HONESTY OK",
+      "processStatus": null,
+      "tail": "src/screens/fx/__tests__/fxCompare.honesty.render.test.tsx mounts src/screens/fx/FxCompareSheet.tsx:\n  · BOI reference is a neutral chip; dashed Estimate is separate; settlement caveat present\nall 4 cases required BY NAME · Tests:       4 passed, 4 total"
+    },
+    {
+      "step": "gate:fx-compare-identical",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "R4"
+      ],
+      "measures": "render",
+      "ms": 14390,
+      "decidedOn": "output",
+      "line": "FX-COMPARE-IDENTICAL OK",
+      "processStatus": null,
+      "tail": "src/screens/fx/__tests__/fxCompare.identical.render.test.tsx compares the two entry points as rendered trees:\n  · populated comparison and empty mount are byte-identical across entries\nall 2 cases required BY NAME · Tests:       2 passed, 2 total"
+    },
+    {
+      "step": "gate:fx-compare-rows",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "X2"
+      ],
+      "measures": "render",
+      "ms": 14246,
+      "decidedOn": "output",
+      "line": "FX-COMPARE-ROWS OK",
+      "processStatus": null,
+      "tail": "src/screens/fx/__tests__/fxCompare.rows.render.test.tsx mounts src/screens/fx/FxCompareSheet.tsx with compareAbroad output:\n  · ranked ascending; unknown unranked; floor reason painted; no invented delta\nall 4 cases required BY NAME · Tests:       4 passed, 4 total"
+    },
+    {
+      "step": "gate:fx-compare-single",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "X1"
+      ],
+      "measures": "render",
+      "ms": 14154,
+      "decidedOn": "output",
+      "line": "FX-COMPARE-SINGLE OK",
+      "processStatus": null,
+      "tail": "src/screens/fx/__tests__/fxCompare.single.render.test.tsx · both entries re-export src/screens/fx/FxCompareSheet.tsx\n  · Check Verdict mounts FxCompareFromCheckVerdict; WalletStack registers CardDnaFxCompare\nall 4 cases required BY NAME · Tests:       4 passed, 4 total"
+    },
+    {
+      "step": "gate:impact-and-freshness",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "D7"
+      ],
+      "measures": "render",
+      "ms": 14530,
+      "decidedOn": "output",
+      "line": "IMPACT-AND-FRESHNESS OK",
+      "processStatus": null,
+      "tail": "src/screens/check/__tests__/checkVerdict.impact.render.test.tsx mounts src/screens/check/CheckVerdictScreen.tsx with evaluateFinancialLoad output (the N4 engine):\n  · strip paints availableAfterChangesIls; a limit−holds−logged subtraction is the BEFORE figure\n  · freshness footer carries the informational-only disclaimer; omitting the strip invents nothing\nall 4 cases required BY NAME · Tests:       4 passed, 4 total"
+    },
+    {
+      "step": "gate:income-anchor",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "O5"
+      ],
+      "measures": "artifact",
+      "ms": 2541,
+      "decidedOn": "output",
+      "line": "INCOME-ANCHOR OK",
+      "processStatus": null,
+      "tail": "src/screens/check/__tests__/incomeAnchor.test.ts proves O5: vault parse → mapper → evaluatePurchaseVerdict:\n  · income and payday round-trip; nextPayday is an ISO date from the chip\n  · skipped income returns no context — never a fabricated zero\n  · halving vault income doubles the engine projected load ratio\nall 4 cases required BY NAME · Tests:       4 passed, 4 total"
+    },
+    {
+      "step": "gate:installments-stepper",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "C3"
+      ],
+      "measures": "render",
+      "ms": 14855,
+      "decidedOn": "output",
+      "line": "INSTALLMENTS-STEPPER OK",
+      "processStatus": null,
+      "tail": "src/screens/check/__tests__/checkInput.stepper.render.test.tsx mounts src/screens/check/CheckInputScreen.tsx:\n  · stepper only in installments mode; preview is live amount ÷ count\nall 4 cases required BY NAME · Tests:       4 passed, 4 total"
+    },
+    {
+      "step": "gate:last4-stays-local",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "W7"
+      ],
+      "measures": "unit+source",
+      "ms": 2489,
+      "decidedOn": "output",
+      "line": "LAST4-STAYS-LOCAL OK",
+      "processStatus": null,
+      "tail": "src/analytics/track.ts refuses last4 after consent, without importing UserCard\nsrc/types/profileShare.types.ts keeps TransferCard.last4 as the authorised user-initiated export\nsrc/analytics/__tests__/last4StaysLocal.test.ts · Tests:       3 passed, 3 total"
+    },
+    {
+      "step": "gate:legacy-surfaces-absent",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "B2"
+      ],
+      "measures": "source",
+      "ms": 6,
+      "decidedOn": "output",
+      "line": "LEGACY-SURFACES-ABSENT OK",
+      "processStatus": null,
+      "tail": "  legacy symbol absent from navigation code · PurchaseGateScreen\n  legacy symbol absent from navigation code · DecisionScreen\n  check modal   CheckModal → CheckStack from src/navigation/stacks/CheckStack · in src/navigation/AuthenticatedNavigator.tsx\n  param list    CheckModal: NavigatorScreenParams<CheckStackParamList>\n  check route   registered · typed: yes · CheckInput\n  check route   registered · typed: yes · CheckVerdict"
+    },
+    {
+      "step": "gate:limit-consumption",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "L2"
+      ],
+      "measures": "unit+render",
+      "ms": 17148,
+      "decidedOn": "output",
+      "line": "LIMIT-CONSUMPTION OK",
+      "processStatus": null,
+      "tail": "src/check/checkLoop.ts feeds logged purchases into evaluateFinancialLoad; the strip is availableAfterChangesIls\nsrc/screens/check/__tests__/limitConsumption.test.ts · Tests:       2 passed, 2 total\nsrc/screens/check/__tests__/limitConsumption.render.test.tsx · Tests:       2 passed, 2 total"
+    },
+    {
+      "step": "gate:loop-provenance",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "R5"
+      ],
+      "measures": "render",
+      "ms": 14761,
+      "decidedOn": "output",
+      "line": "LOOP-PROVENANCE OK",
+      "processStatus": null,
+      "tail": "src/screens/check/__tests__/loopProvenance.render.test.tsx mounts Check Input, Check Verdict, FX Compare and CardTile and walks the trees:\n  · every accessibilityValue numeric claim has a chip in its parent group\n  · generated tiles wear no collected attribution; a CLEARED above-generated fixture does\n  · planting a bare number is detected as bare\nall 6 cases required BY NAME · Tests:       6 passed, 6 total"
+    },
+    {
+      "step": "gate:match-score-demoted",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "D4"
+      ],
+      "measures": "render",
+      "ms": 14996,
+      "decidedOn": "output",
+      "line": "MATCH-SCORE-DEMOTED OK",
+      "processStatus": null,
+      "tail": "src/screens/check/__tests__/checkVerdict.matchScore.render.test.tsx mounts src/screens/check/CheckVerdictScreen.tsx with scoreCards output (the N1 engine):\n  · Match Score chip paints that object's score; the hero is Best for this purchase\n  · chip is text-xs, not a heading size; explainer is present; omission does not invent a score\nall 5 cases required BY NAME · Tests:       5 passed, 5 total"
+    },
+    {
+      "step": "gate:media-deterministic",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "M2"
+      ],
+      "measures": "source",
+      "ms": 2783,
+      "decidedOn": "output",
+      "line": "MEDIA-DETERMINISTIC OK",
+      "processStatus": null,
+      "tail": "src/media/resolveMedia.ts has no network or nondeterministic call\nsrc/media/__tests__/resolveMedia.test.ts same subject + same set → same tier and assetId, order-independent\nTests:       7 passed, 7 total"
+    },
+    {
+      "step": "gate:media-resolves",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "M1"
+      ],
+      "measures": "artifact",
+      "ms": 2555,
+      "decidedOn": "output",
+      "line": "MEDIA-RESOLVES OK",
+      "processStatus": null,
+      "tail": "resolved 1486 / 1486\nsrc/media/__tests__/resolveMedia.test.ts ran the app resolver over the derived population, empty media set included\nTests:       7 passed, 7 total"
+    },
+    {
+      "step": "gate:no-account-surface",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "O2"
+      ],
+      "measures": "render",
+      "ms": 15901,
+      "decidedOn": "output",
+      "line": "NO-ACCOUNT-SURFACE OK",
+      "processStatus": null,
+      "tail": "src/screens/onboarding/__tests__/onboarding.account.render.test.tsx sweeps the RENDERED onboarding flow (contract §2 rule 9):\n  · population 1 onboarding screen(s) derived from src/screens/onboarding\n  · language, income, add-card and security frames carry no login/account/OTP/email copy\n  · no TextInput on the flow asks for email, password or OTP\nall 6 cases required BY NAME · Tests:       6 passed, 6 total"
+    },
+    {
+      "step": "gate:no-card-credentials",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "W6"
+      ],
+      "measures": "source+render",
+      "ms": 15399,
+      "decidedOn": "output",
+      "line": "NO-CARD-CREDENTIALS OK",
+      "processStatus": null,
+      "tail": "src/screens/AddCardScreen.tsx last4 is maxLength 4; no PAN/CVV/PIN/expiry field, type or validator\nsrc/types/card.types.ts UserCard carries optional last4, not a credential\nsrc/screens/__tests__/addCard.credentials.render.test.tsx · Tests:       2 passed, 2 total"
+    },
+    {
+      "step": "gate:no-magic-numbers",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "B3"
+      ],
+      "measures": "source",
+      "ms": 118,
+      "decidedOn": "output",
+      "line": "NO-MAGIC-NUMBERS OK",
+      "processStatus": null,
+      "tail": "scanned        every runtime src file through P2 rule-4 detection\nallowlisted    47 human-reviewed exception(s) with reasons on file\nengines        0 declared, cited constant(s)\ncitations      0 §-section / WP-id number(s) in strings, not figures"
+    },
+    {
+      "step": "gate:no-rederivation",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "B4"
+      ],
+      "measures": "source",
+      "ms": 80,
+      "decidedOn": "output",
+      "line": "NO-REDERIVATION OK",
+      "processStatus": null,
+      "tail": "  IF-7  not re-derived  The compatibility matrices\n        lives in: adapter (D4, OB-5)\n  IF-8  not re-derived  EXPECTED_DATASET_ID and the trust store\n        lives in: compiled in (OB-4)\n\n  controls        8 of 8 checks watched to fire · recorded 2026-08-25T21:19:14.274Z"
+    },
+    {
+      "step": "gate:onboarding-flow",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "O1"
+      ],
+      "measures": "render",
+      "ms": 15048,
+      "decidedOn": "output",
+      "line": "ONBOARDING-FLOW OK",
+      "processStatus": null,
+      "tail": "src/screens/onboarding/__tests__/onboarding.flow.render.test.tsx mounts src/screens/onboarding/OnboardingScreen.tsx and measures O1 on the RENDERED surface:\n  · language is first; English / עברית / العربية rows; device language preselected\n  · language Skip confirms device language — it is not an unconfirmed skip\n  · income, add-card and security follow in spec order and each has a skip control\nall 8 cases required BY NAME · Tests:       8 passed, 8 total"
+    },
+    {
+      "step": "gate:onboarding-honesty",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "O3"
+      ],
+      "measures": "render",
+      "ms": 15426,
+      "decidedOn": "output",
+      "line": "ONBOARDING-HONESTY OK",
+      "processStatus": null,
+      "tail": "src/screens/onboarding/__tests__/onboarding.honesty.render.test.tsx measures O3 on the RENDERED surface against spec §18-A:\n  · every step states why data is asked and where it stays\n  · income uses the spec §6 line verbatim\n  · add-card and security use the scoped claim; the retired OD-11 sentence is absent\nall 4 cases required BY NAME · Tests:       4 passed, 4 total"
+    },
+    {
+      "step": "gate:one-verdict",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "D2"
+      ],
+      "measures": "render",
+      "ms": 15123,
+      "decidedOn": "output",
+      "line": "ONE-VERDICT OK",
+      "processStatus": null,
+      "tail": "src/screens/check/__tests__/checkVerdict.one.render.test.tsx mounts src/screens/check/CheckVerdictScreen.tsx with engine-produced results (the B1 seam):\n  · pill testID is result.verdict; each panel bullet claims the same object's number\n  · Stitch sample (4100 on 10000 income, 0.41 vs 0.35) renders caution, not Good to go\n  · Good to go is refused whenever the rendered load is above the result's safe ratio\nall 5 cases required BY NAME · Tests:       5 passed, 5 total"
+    },
+    {
+      "step": "gate:pill-panel-agree",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "R3"
+      ],
+      "measures": "render",
+      "ms": 14941,
+      "decidedOn": "output",
+      "line": "PILL-PANEL-AGREE OK",
+      "processStatus": null,
+      "tail": "src/screens/check/__tests__/checkVerdict.agree.render.test.tsx mounts src/screens/check/CheckVerdictScreen.tsx over a generated population (the B1 seam):\n  · painted pill equals result.verdict AND the pill reconstructed from the painted load\n  · reconstruction uses that result's own safe/hard ratios unless PERTURBED_SAFE is set\n  · Stitch (0.41 vs 0.35) is inside the generated set\nall 3 cases required BY NAME · Tests:       3 passed, 3 total"
+    },
+    {
+      "step": "gate:purchase-logging",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "L1"
+      ],
+      "measures": "unit+render",
+      "ms": 16972,
+      "decidedOn": "output",
+      "line": "PURCHASE-LOGGING OK",
+      "processStatus": null,
+      "tail": "src/screens/check/CheckVerdictScreen.tsx primary action writes through writeLoggedPurchase → useActivityStore.logPurchase\nsrc/screens/check/__tests__/purchaseLogging.test.ts · Tests:       3 passed, 3 total\nsrc/screens/check/__tests__/purchaseLogging.render.test.tsx · Tests:       1 passed, 1 total"
+    },
+    {
+      "step": "gate:runner-up",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "D5"
+      ],
+      "measures": "render",
+      "ms": 14409,
+      "decidedOn": "output",
+      "line": "RUNNER-UP OK",
+      "processStatus": null,
+      "tail": "src/screens/check/__tests__/checkVerdict.runnerUp.render.test.tsx mounts src/screens/check/CheckVerdictScreen.tsx with scoreCards output (the N1 engine):\n  · delta paints deltaFromBestIls when present; omission paints no number\n  · no second ranked card omits the row; the claimed figure is the engine field\nall 4 cases required BY NAME · Tests:       4 passed, 4 total"
+    },
+    {
+      "step": "gate:surfaces-pure",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "B1"
+      ],
+      "measures": "source",
+      "ms": 13,
+      "decidedOn": "output",
+      "line": "SURFACES-PURE OK",
+      "processStatus": null,
+      "tail": "seam           src/check/runPurchaseCheck.ts · one evaluatePurchaseVerdict( call\nsurfaces       75 file(s) under src/screens, src/components — no engine call, no threshold arithmetic\nengines        19 file(s) under src/engines — no artwork/media field"
+    },
+    {
+      "step": "gate:verdict-fx-block",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "D6"
+      ],
+      "measures": "render",
+      "ms": 14823,
+      "decidedOn": "output",
+      "line": "VERDICT-FX-BLOCK OK",
+      "processStatus": null,
+      "tail": "src/screens/check/__tests__/checkVerdict.fx.render.test.tsx mounts src/screens/check/CheckVerdictScreen.tsx with compareAbroad output (the N3 engine):\n  · shekel omits the block; foreign paints rate, date, fee and estimated ILS from the quote\n  · the block ends in the compare-sheet link (the sheet itself is PHASE-3 / X1)\nall 4 cases required BY NAME · Tests:       4 passed, 4 total"
+    },
+    {
+      "step": "gate:verdict-history",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "L3"
+      ],
+      "measures": "unit",
+      "ms": 2508,
+      "decidedOn": "output",
+      "line": "VERDICT-HISTORY OK",
+      "processStatus": null,
+      "tail": "src/check/activityMapper.ts queryVerdictHistory is the substrate; src/store/useActivityStore.ts records and queries\nsrc/screens/check/__tests__/verdictHistory.test.ts · Tests:       2 passed, 2 total"
+    },
+    {
+      "step": "gate:verdict-layout",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "D3"
+      ],
+      "measures": "render",
+      "ms": 14298,
+      "decidedOn": "output",
+      "line": "VERDICT-LAYOUT OK",
+      "processStatus": null,
+      "tail": "src/screens/check/__tests__/checkVerdict.layout.render.test.tsx mounts src/screens/check/CheckVerdictScreen.tsx and reads testIDs in document order:\n  · pill, then context line (user-entered amount · category · plan), then Financial Impact\n  · later §9 blocks, if already present, remain below the panel\nall 3 cases required BY NAME · Tests:       3 passed, 3 total"
+    },
+    {
+      "step": "gate:verdict-provenance",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "D8"
+      ],
+      "measures": "render",
+      "ms": 14511,
+      "decidedOn": "output",
+      "line": "VERDICT-PROVENANCE OK",
+      "processStatus": null,
+      "tail": "src/screens/check/__tests__/checkVerdict.provenance.render.test.tsx mounts src/screens/check/CheckVerdictScreen.tsx and walks the rendered tree:\n  · every accessibilityValue numeric claim has a shared ProvenanceChip in its parent group\n  · the population is the fully populated verdict; a runner-up with no delta is not a claim\nall 4 cases required BY NAME · Tests:       4 passed, 4 total"
+    },
+    {
+      "step": "gate:verdict-states",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "D1"
+      ],
+      "measures": "render",
+      "ms": 14379,
+      "decidedOn": "output",
+      "line": "VERDICT-STATES OK",
+      "processStatus": null,
+      "tail": "src/screens/check/__tests__/checkVerdict.states.render.test.tsx mounts src/screens/check/CheckVerdictScreen.tsx with engine-produced results (the B1 seam):\n  · four states, each icon + word + colour role from the token module\n  · accessibility label carries the word, so colour is never the only carrier\n  · wait uses slate/neutral, matching spec §9 and A8\nall 6 cases required BY NAME · Tests:       6 passed, 6 total"
+    },
+    {
+      "step": "gate:wizard-adapter-only",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "W5"
+      ],
+      "measures": "unit+source",
+      "ms": 2605,
+      "decidedOn": "output",
+      "line": "WIZARD-ADAPTER-ONLY OK",
+      "processStatus": null,
+      "tail": "src/data/adapter/wizardVault.ts writes UserCard + CardProduct; catalog ids stay catalog ids; generic is local\nsrc/screens/AddCardScreen.tsx calls writeWizardCard then addVaultEntry — no pack.json / packStore / createManualCard\nsrc/data/adapter/__tests__/wizardVault.test.ts · Tests:       3 passed, 3 total"
+    },
+    {
+      "step": "gate:wizard-provenance",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": false,
+      "criteria": [
+        "W4"
+      ],
+      "measures": "unit+render",
+      "ms": 18177,
+      "decidedOn": "output",
+      "line": "WIZARD-PROVENANCE OK",
+      "processStatus": null,
+      "tail": "src/data/adapter/wizardProvenance.ts maps catalog prefills to VERIFIED and unknowns to ESTIMATE from the Data Contract vocabulary\nsrc/data/adapter/__tests__/wizardProvenance.test.ts · Tests:       3 passed, 3 total\nsrc/screens/__tests__/addCard.provenance.render.test.tsx mounts catalog Verified vs unknown Estimate · Tests:       3 passed, 3 total"
+    }
+  ]
+}

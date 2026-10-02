@@ -4,6 +4,7 @@
 // key material, KDF, vault state, lockout counter, or network dependency.
 
 import * as LocalAuthentication from 'expo-local-authentication';
+import { APP_NAME } from '../config/identity';
 
 import {
   keyVault,
@@ -38,7 +39,9 @@ export async function authenticateWithBiometrics(): Promise<AuthResult> {
   }
 
   const prompt = await LocalAuthentication.authenticateAsync({
-    promptMessage: 'Unlock SmartCard',
+    // OD-2: the product name lives in identity.json. A biometric prompt is the worst place for
+    // a stale name — it is the moment a user is asked to trust the app.
+    promptMessage: `Unlock ${APP_NAME}`,
     cancelLabel: 'Cancel',
     disableDeviceFallback: false,
   });

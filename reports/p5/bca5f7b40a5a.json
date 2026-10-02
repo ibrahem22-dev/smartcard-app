@@ -1,0 +1,896 @@
+{
+  "$comment": "Written by tools/p5/all.mjs. Every step decided on printed output; acceptance requires every step green.",
+  "sha": "bca5f7b40a5a78c97c8d6d660200b6b7ee03ff0a",
+  "worktreeDirty": false,
+  "node": "v20.20.2",
+  "acceptanceRun": false,
+  "ok": false,
+  "verdict": "INCOMPLETE",
+  "noFailures": true,
+  "failed": [],
+  "skipped": [],
+  "notImplemented": [],
+  "gatesMissing": [
+    "gate:accessibility-labels",
+    "gate:accessibility-static",
+    "gate:agreement-population",
+    "gate:analytics-barrier",
+    "gate:best-for-chips",
+    "gate:caches-agree",
+    "gate:caches-local",
+    "gate:calendar-grid",
+    "gate:calendar-markers",
+    "gate:calendar-scope-guard",
+    "gate:card-dna-active-now",
+    "gate:card-dna-costs",
+    "gate:card-dna-footer",
+    "gate:card-dna-gives",
+    "gate:card-dna-layout",
+    "gate:card-dna-when-best",
+    "gate:commitments-groups",
+    "gate:commitments-row",
+    "gate:commitments-scope-guard",
+    "gate:commitments-summary",
+    "gate:conflicted-value",
+    "gate:day-sheet",
+    "gate:home-billing-and-cta",
+    "gate:home-hero",
+    "gate:home-hero-honesty",
+    "gate:home-load-bar",
+    "gate:home-no-suggestions",
+    "gate:home-risk-strip",
+    "gate:no-account-surface",
+    "gate:no-magic-numbers",
+    "gate:no-rederivation",
+    "gate:one-limit",
+    "gate:one-load",
+    "gate:one-risk",
+    "gate:one-scoring",
+    "gate:override-durability",
+    "gate:override-write",
+    "gate:paid-early",
+    "gate:placeholder-surfaces-absent",
+    "gate:state-classification",
+    "gate:surfaces-pure",
+    "gate:vault-only",
+    "gate:waiver-badge",
+    "gate:wallet-limit-bar",
+    "gate:wallet-render-discipline",
+    "gate:wallet-tile"
+  ],
+  "gatesNotRequired": [],
+  "gatesRequired": 46,
+  "contractVersion": "1.0-DRAFT",
+  "agreement": {
+    "gates": [
+      "one-scoring",
+      "one-load",
+      "one-risk",
+      "one-limit",
+      "caches-agree"
+    ],
+    "present": [
+      "gate:caches-agree",
+      "gate:one-limit",
+      "gate:one-load",
+      "gate:one-risk",
+      "gate:one-scoring"
+    ],
+    "green": false,
+    "$comment": "Contract §16 test 2 is a separate test from test 1 because agreement is the one thing P5 exists to prove. A report that cannot say which steps were the agreement properties cannot support it."
+  },
+  "steps": [
+    {
+      "step": "typecheck",
+      "ok": true,
+      "skipped": false,
+      "ms": 4706,
+      "decidedOn": "output",
+      "line": "TYPECHECK OK",
+      "processStatus": 0,
+      "tail": "TYPECHECK OK"
+    },
+    {
+      "step": "lint",
+      "ok": true,
+      "skipped": false,
+      "ms": 2515,
+      "decidedOn": "output",
+      "line": "LINT OK",
+      "processStatus": 0,
+      "tail": "LINT OK"
+    },
+    {
+      "step": "suite",
+      "ok": true,
+      "skipped": false,
+      "ms": 70714,
+      "decidedOn": "output",
+      "line": "Tests:       959 passed, 959 total",
+      "processStatus": 0,
+      "tail": "PASS render src/screens/onboarding/__tests__/onboarding.flow.render.test.tsx (24.009 s)\nPASS render src/screens/addCard/__tests__/clubResolver.render.test.tsx (25.648 s)\nTest Suites: 120 passed, 120 total\nTests:       959 passed, 959 total\nSnapshots:   0 total\nTime:        69.682 s"
+    },
+    {
+      "step": "gate:accessibility-labels",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "R4"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by R4, no tools/p5/gates/accessibility-labels.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:accessibility-static",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "R3"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by R3, no tools/p5/gates/accessibility-static.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:agreement-population",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "A6"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by A6, no tools/p5/gates/agreement-population.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:analytics-barrier",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "U3"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by U3, no tools/p5/gates/analytics-barrier.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:best-for-chips",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "W4"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by W4, no tools/p5/gates/best-for-chips.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:caches-agree",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "A5"
+      ],
+      "measures": null,
+      "agreement": true,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by A5, no tools/p5/gates/caches-agree.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:caches-local",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "U4"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by U4, no tools/p5/gates/caches-local.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:calendar-grid",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "K1"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by K1, no tools/p5/gates/calendar-grid.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:calendar-markers",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "K2"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by K2, no tools/p5/gates/calendar-markers.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:calendar-scope-guard",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "K4"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by K4, no tools/p5/gates/calendar-scope-guard.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:card-dna-active-now",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "N7"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by N7, no tools/p5/gates/card-dna-active-now.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:card-dna-costs",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "N2"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by N2, no tools/p5/gates/card-dna-costs.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:card-dna-footer",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "N8"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by N8, no tools/p5/gates/card-dna-footer.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:card-dna-gives",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "N5"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by N5, no tools/p5/gates/card-dna-gives.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:card-dna-layout",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "N1"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by N1, no tools/p5/gates/card-dna-layout.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:card-dna-when-best",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "N6"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by N6, no tools/p5/gates/card-dna-when-best.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:commitments-groups",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "J2"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by J2, no tools/p5/gates/commitments-groups.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:commitments-row",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "J3"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by J3, no tools/p5/gates/commitments-row.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:commitments-scope-guard",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "J5"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by J5, no tools/p5/gates/commitments-scope-guard.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:commitments-summary",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "J1"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by J1, no tools/p5/gates/commitments-summary.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:conflicted-value",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "N9"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by N9, no tools/p5/gates/conflicted-value.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:day-sheet",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "K3"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by K3, no tools/p5/gates/day-sheet.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:home-billing-and-cta",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "H5"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by H5, no tools/p5/gates/home-billing-and-cta.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:home-hero",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "H1"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by H1, no tools/p5/gates/home-hero.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:home-hero-honesty",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "H2"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by H2, no tools/p5/gates/home-hero-honesty.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:home-load-bar",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "H3"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by H3, no tools/p5/gates/home-load-bar.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:home-no-suggestions",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "H6"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by H6, no tools/p5/gates/home-no-suggestions.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:home-risk-strip",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "H4"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by H4, no tools/p5/gates/home-risk-strip.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:no-account-surface",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "U5"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by U5, no tools/p5/gates/no-account-surface.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:no-magic-numbers",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "B3"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by B3, no tools/p5/gates/no-magic-numbers.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:no-rederivation",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "B4"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by B4, no tools/p5/gates/no-rederivation.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:one-limit",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "A4"
+      ],
+      "measures": null,
+      "agreement": true,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by A4, no tools/p5/gates/one-limit.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:one-load",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "A2"
+      ],
+      "measures": null,
+      "agreement": true,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by A2, no tools/p5/gates/one-load.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:one-risk",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "A3"
+      ],
+      "measures": null,
+      "agreement": true,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by A3, no tools/p5/gates/one-risk.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:one-scoring",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "A1"
+      ],
+      "measures": null,
+      "agreement": true,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by A1, no tools/p5/gates/one-scoring.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:override-durability",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "N4"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by N4, no tools/p5/gates/override-durability.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:override-write",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "N3"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by N3, no tools/p5/gates/override-write.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:paid-early",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "J4"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by J4, no tools/p5/gates/paid-early.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:placeholder-surfaces-absent",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "B2"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by B2, no tools/p5/gates/placeholder-surfaces-absent.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:state-classification",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "U1"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by U1, no tools/p5/gates/state-classification.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:surfaces-pure",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "B1"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by B1, no tools/p5/gates/surfaces-pure.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:vault-only",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "U2"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by U2, no tools/p5/gates/vault-only.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:waiver-badge",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "W3"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by W3, no tools/p5/gates/waiver-badge.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:wallet-limit-bar",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "W2"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by W2, no tools/p5/gates/wallet-limit-bar.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:wallet-render-discipline",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "W5"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by W5, no tools/p5/gates/wallet-render-discipline.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:wallet-tile",
+      "ok": false,
+      "skipped": false,
+      "notImplemented": false,
+      "missing": true,
+      "criteria": [
+        "W1"
+      ],
+      "measures": null,
+      "agreement": false,
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by W1, no tools/p5/gates/wallet-tile.mjs",
+      "processStatus": null,
+      "tail": ""
+    }
+  ]
+}

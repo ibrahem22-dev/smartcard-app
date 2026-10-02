@@ -1,0 +1,65 @@
+{
+  "$comment": [
+    "GENERATED — do not edit. Source of truth: authority/P1_TO_P2_HANDOFF.md §2, in the pipeline",
+    "repository. Regenerate with: node campaign-p2/bin/p2-interfaces.mjs",
+    "Parity is asserted by: node campaign-p2/bin/p2-interfaces.mjs --check, which runs in the",
+    "pipeline preflight. Criterion D4.",
+    "",
+    "The app gate tools/p2/gates/no-rederivation.mjs reads THIS file for its population, so the",
+    "eight are never hand-listed on the app side. A ninth interface appearing in the handoff makes",
+    "the parity check fail before it can quietly widen or narrow what the gate proves."
+  ],
+  "source": "authority/P1_TO_P2_HANDOFF.md §2",
+  "contractRequires": 8,
+  "count": 8,
+  "interfaces": [
+    {
+      "id": "IF-1",
+      "name": "The native fact and its quoteUnit",
+      "livesIn": "adapter (OD-23a)",
+      "reDerivingMeans": "performing, in a second place and with a second rounding rule, a conversion the pipeline deliberately does not perform"
+    },
+    {
+      "id": "IF-2",
+      "name": "The provenance chip and the consumability verdict",
+      "livesIn": "adapter (ADR-011)",
+      "reDerivingMeans": "a second grading vocabulary that disagrees with the packs' own"
+    },
+    {
+      "id": "IF-3",
+      "name": "intervalRankability",
+      "livesIn": "adapter (ADR-014, OB-3)",
+      "reDerivingMeans": "classifying a conflict axis without the estate, which is the evidence that decides it"
+    },
+    {
+      "id": "IF-4",
+      "name": "conflictRenderPlan",
+      "livesIn": "adapter (OD-9, OB-1)",
+      "reDerivingMeans": "inventing a winner where the pipeline refused to name one"
+    },
+    {
+      "id": "IF-5",
+      "name": "The canonical shipping resolver, one per pack set",
+      "livesIn": "src/shipping/ (B2)",
+      "reDerivingMeans": "an object computing its own shipping predicate — the exact defect S15 closed for stacking"
+    },
+    {
+      "id": "IF-6",
+      "name": "The composition map",
+      "livesIn": "src/pack/composition-map.ts",
+      "reDerivingMeans": "a reference the build does not check, found later by a harness instead of by the build that created it"
+    },
+    {
+      "id": "IF-7",
+      "name": "The compatibility matrices",
+      "livesIn": "adapter (D4, OB-5)",
+      "reDerivingMeans": "a load-time check replaced by prose nobody enforces"
+    },
+    {
+      "id": "IF-8",
+      "name": "EXPECTED_DATASET_ID and the trust store",
+      "livesIn": "compiled in (OB-4)",
+      "reDerivingMeans": "a check a pack can influence, which is not a check"
+    }
+  ]
+}

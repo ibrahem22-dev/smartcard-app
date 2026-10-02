@@ -5,6 +5,7 @@ import { AppText } from '../components/AppText';
 import { RtlScreen, RtlScrollView } from '../components/rtl';
 import { useTranslation } from '../hooks/useTranslation';
 import { en } from '../i18n/en';
+import { ACCENT, BORDER, SURFACE, TEXT } from '../theme/tokens';
 
 const GLOSSARY_TERMS = [
   {
@@ -85,16 +86,16 @@ export function GlossaryScreen(): React.ReactElement {
   }
 
   return (
-    <RtlScreen className="bg-slate-50 dark:bg-neutral-950">
+    <RtlScreen className={`${SURFACE.page}`}>
       <RtlScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}>
         <View className="w-full gap-4 px-5 py-6">
           <AppText
-            className="text-[26px] font-extrabold text-slate-900 dark:text-white"
+            className={`text-[26px] font-extrabold ${TEXT.heading}`}
           >
             {t('מילון פיננסי')}
           </AppText>
           <AppText
-            className="mb-1 text-sm leading-6 text-slate-600 dark:text-slate-300"
+            className={`mb-1 text-sm leading-6 ${TEXT.secondary}`}
           >
             {t(
               'הסברים כלליים למונחים נפוצים. המידע נועד להבנה בלבד ואינו ייעוץ פיננסי.',
@@ -107,16 +108,16 @@ export function GlossaryScreen(): React.ReactElement {
 
             return (
               <View
-                className="w-full rounded-xl border border-slate-200 bg-white p-4 dark:border-neutral-800 dark:bg-neutral-900"
+                className={`w-full rounded-xl border p-4 ${BORDER.subtle} ${SURFACE.card}`}
                 key={term.title}
               >
                 <AppText
-                  className="text-xl font-extrabold text-blue-700 dark:text-blue-400"
+                  className={`text-xl font-extrabold ${ACCENT.text}`}
                 >
                   {t(term.title, undefined, englishTerm?.title)}
                 </AppText>
                 <AppText
-                  className="mt-2 text-base leading-7 text-slate-700 dark:text-slate-200"
+                  className={`mt-2 text-base leading-7 ${TEXT.body}`}
                 >
                   {t(
                     term.explanation,
@@ -128,20 +129,20 @@ export function GlossaryScreen(): React.ReactElement {
                 <Pressable
                   accessibilityRole="button"
                   accessibilityState={{ expanded: isExpanded }}
-                  className="mt-3 min-h-[44px] items-center justify-center rounded-lg border border-blue-200 bg-blue-50 px-4 dark:border-blue-900 dark:bg-blue-950"
+                  className={`mt-3 min-h-[44px] items-center justify-center rounded-lg border px-4 ${ACCENT.borderSubtle} ${ACCENT.surface}`}
                   onPress={(): void => toggleTerm(term.title)}
                 >
                   <AppText
-                    className="text-center text-base font-extrabold text-blue-700 dark:text-blue-300"
+                    className={`text-center text-base font-extrabold ${ACCENT.text}`}
                   >
                     {t('כיצד זה משפיע עליך?')}
                   </AppText>
                 </Pressable>
 
                 {isExpanded ? (
-                  <View className="mt-3 rounded-lg bg-slate-100 p-3 dark:bg-neutral-800">
+                  <View className={`mt-3 rounded-lg p-3 ${SURFACE.sunken}`}>
                     <AppText
-                      className="text-sm leading-6 text-slate-700 dark:text-slate-200"
+                      className={`text-sm leading-6 ${TEXT.body}`}
                     >
                       {t(term.example, undefined, englishTerm?.example)}
                     </AppText>

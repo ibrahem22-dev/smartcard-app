@@ -1,0 +1,722 @@
+{
+  "$comment": "Written by tools/p2/all.mjs. Every step is decided on its printed output; a process status is recorded for the log and is never the decision. `acceptanceRun` is true only when nothing failed, nothing was skipped and nothing is unimplemented — a skipped or unwritten step can never read as green.",
+  "sha": "d1121147986552352492fd46a6d41a0b2b3ea8fe",
+  "worktreeDirty": false,
+  "node": "v20.20.2",
+  "acceptanceRun": false,
+  "ok": false,
+  "noFailures": false,
+  "failed": [
+    "lint"
+  ],
+  "skipped": [],
+  "notImplemented": [],
+  "gatesOnDisk": 2,
+  "gatesRequired": 44,
+  "gatesMissing": [
+    "a11y",
+    "adapter-consumption",
+    "adr-append-only",
+    "analytics-boundary",
+    "colour-semantics",
+    "conflicted-value",
+    "consent",
+    "decision-log",
+    "deferred-register",
+    "e1-backlog",
+    "engine-boundary-defects",
+    "fenced-surfaces",
+    "format-matrix",
+    "handoff-no-discovery",
+    "holiday-calendar",
+    "honesty",
+    "i18n-audit",
+    "identity-config",
+    "legacy-path-absent",
+    "lint-boundaries",
+    "nav",
+    "newarch",
+    "no-rederivation",
+    "ob-coverage",
+    "ob1-named-records",
+    "ob2-skew",
+    "ob3-ob6-prohibitions",
+    "ob4-refusals",
+    "ob4-unproven-three",
+    "ob5-fx-fallback",
+    "ob7-organisation-kinds",
+    "override-wins",
+    "provenance-chip",
+    "provenance-single-enum",
+    "real-artifacts",
+    "regression",
+    "release-gate",
+    "repos-in-sync",
+    "rtl",
+    "store-split",
+    "update-refusals",
+    "vault-crypto"
+  ],
+  "gatesNotRequired": [],
+  "contractVersion": "1.0-PROPOSED",
+  "steps": [
+    {
+      "step": "preflight",
+      "ok": true,
+      "skipped": false,
+      "ms": 630,
+      "decidedOn": "output",
+      "line": "PREFLIGHT OK — 7 of 7",
+      "processStatus": 0,
+      "tail": "  ok    binary: git            git version 2.55.0.windows.3\n  ok    binary: npm            10.8.2\n  ok    lockfile               package-lock.json v3, node_modules installed from it\n  ok    worktree clean         clean\n  ok    branch                 on wip/expo-57-working-tree\n  ok    not nested (OD-13)     C:/Users/ebrah/smartcard-app has no git repository above it\n\nPREFLIGHT OK — 7 of 7"
+    },
+    {
+      "step": "typecheck",
+      "ok": true,
+      "skipped": false,
+      "ms": 2946,
+      "decidedOn": "output",
+      "line": "TYPECHECK OK",
+      "processStatus": 0,
+      "tail": "TYPECHECK OK"
+    },
+    {
+      "step": "lint",
+      "ok": false,
+      "skipped": false,
+      "ms": 1821,
+      "decidedOn": "output",
+      "line": "LINT FAILED",
+      "processStatus": 1,
+      "tail": "C:\\Users\\ebrah\\smartcard-app\\src\\screens\\__tests__\\screens.render.test.tsx\n  82:9  error  Definition for rule 'import/no-dynamic-require' was not found  import/no-dynamic-require\n\n✖ 1 problem (1 error, 0 warnings)\n\nLINT FAILED — exit 1"
+    },
+    {
+      "step": "suite",
+      "ok": true,
+      "skipped": false,
+      "ms": 43925,
+      "decidedOn": "output",
+      "line": "Tests:       432 passed, 432 total",
+      "processStatus": 0,
+      "tail": "PASS unit src/authority/__tests__/wave1Integration.test.ts (25.627 s)\nPASS unit src/utils/__tests__/direction.test.ts (25.615 s)\nPASS render src/screens/__tests__/screens.render.test.tsx (16.283 s)\n\nTest Suites: 43 passed, 43 total\nTests:       432 passed, 432 total\nSnapshots:   0 total\nTime:        42.599 s"
+    },
+    {
+      "step": "gate:app-root",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "F1"
+      ],
+      "ms": 1726,
+      "decidedOn": "output",
+      "line": "APP-ROOT OK — history preserved",
+      "processStatus": null,
+      "tail": "nested under    nothing — this is a top-level root\norigin          https://github.com/ibrahem22-dev/smartcard-app.git\ncommits         55  from 34724481 (2026-06-21) to HEAD (2026-08-23)\nbranch          wip/expo-57-working-tree  ->  origin/wip/expo-57-working-tree\nfsck            no errors (1207 dangling objects, which are not errors)\nworktrees       4 (4 resolving to this root)"
+    },
+    {
+      "step": "gate:render-harness",
+      "ok": true,
+      "skipped": false,
+      "notImplemented": false,
+      "criteria": [
+        "E2"
+      ],
+      "ms": 16276,
+      "decidedOn": "output",
+      "line": "RENDER-HARNESS OK — 20 screens render (of 21; 1 awaiting a declared fixture)",
+      "processStatus": null,
+      "tail": "suite           Tests:       22 passed, 22 total\npopulation      21 screens, derived from src/screens/**/*.tsx\nrendered        20\nawaiting fixture 1\nfailed          0\n  awaits a fixture: src/screens/DecisionScreen.tsx — needs route.params.verdict — cleared by D6 / WP-2.3"
+    },
+    {
+      "step": "gate:a11y",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "A9"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by A9, no tools/p2/gates/a11y.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:adapter-consumption",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "D1"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by D1, no tools/p2/gates/adapter-consumption.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:adr-append-only",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "F9"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by F9, no tools/p2/gates/adr-append-only.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:analytics-boundary",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "B6"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by B6, no tools/p2/gates/analytics-boundary.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:colour-semantics",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "A8"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by A8, no tools/p2/gates/colour-semantics.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:conflicted-value",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "A3"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by A3, no tools/p2/gates/conflicted-value.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:consent",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "B8"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by B8, no tools/p2/gates/consent.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:decision-log",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "F11"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by F11, no tools/p2/gates/decision-log.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:deferred-register",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "F8"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by F8, no tools/p2/gates/deferred-register.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:e1-backlog",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "D7"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by D7, no tools/p2/gates/e1-backlog.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:engine-boundary-defects",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "D6"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by D6, no tools/p2/gates/engine-boundary-defects.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:fenced-surfaces",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "B9"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by B9, no tools/p2/gates/fenced-surfaces.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:format-matrix",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "C6"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by C6, no tools/p2/gates/format-matrix.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:handoff-no-discovery",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "F10"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by F10, no tools/p2/gates/handoff-no-discovery.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:holiday-calendar",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "C9"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by C9, no tools/p2/gates/holiday-calendar.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:honesty",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "E4"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by E4, no tools/p2/gates/honesty.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:i18n-audit",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "A7"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by A7, no tools/p2/gates/i18n-audit.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:identity-config",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "A10"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by A10, no tools/p2/gates/identity-config.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:legacy-path-absent",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "D3"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by D3, no tools/p2/gates/legacy-path-absent.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:lint-boundaries",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "B7",
+        "D2",
+        "D5"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by B7,D2,D5, no tools/p2/gates/lint-boundaries.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:nav",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "A1"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by A1, no tools/p2/gates/nav.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:newarch",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "F2"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by F2, no tools/p2/gates/newarch.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:no-rederivation",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "D4"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by D4, no tools/p2/gates/no-rederivation.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:ob-coverage",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "F7"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by F7, no tools/p2/gates/ob-coverage.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:ob1-named-records",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "A4"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by A4, no tools/p2/gates/ob1-named-records.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:ob2-skew",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "C4"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by C4, no tools/p2/gates/ob2-skew.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:ob3-ob6-prohibitions",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "D8"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by D8, no tools/p2/gates/ob3-ob6-prohibitions.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:ob4-refusals",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "C1"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by C1, no tools/p2/gates/ob4-refusals.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:ob4-unproven-three",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "C3"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by C3, no tools/p2/gates/ob4-unproven-three.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:ob5-fx-fallback",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "C8"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by C8, no tools/p2/gates/ob5-fx-fallback.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:ob7-organisation-kinds",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "A5"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by A5, no tools/p2/gates/ob7-organisation-kinds.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:override-wins",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "B4"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by B4, no tools/p2/gates/override-wins.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:provenance-chip",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "A2"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by A2, no tools/p2/gates/provenance-chip.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:provenance-single-enum",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "B5"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by B5, no tools/p2/gates/provenance-single-enum.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:real-artifacts",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "E6"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by E6, no tools/p2/gates/real-artifacts.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:regression",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "E3"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by E3, no tools/p2/gates/regression.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:release-gate",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "C7"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by C7, no tools/p2/gates/release-gate.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:repos-in-sync",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "F5"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by F5, no tools/p2/gates/repos-in-sync.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:rtl",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "A6"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by A6, no tools/p2/gates/rtl.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:store-split",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "B3"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by B3, no tools/p2/gates/store-split.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:update-refusals",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "C5"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by C5, no tools/p2/gates/update-refusals.mjs",
+      "processStatus": null,
+      "tail": ""
+    },
+    {
+      "step": "gate:vault-crypto",
+      "ok": false,
+      "skipped": false,
+      "missing": true,
+      "criteria": [
+        "B1"
+      ],
+      "ms": 0,
+      "decidedOn": "not run",
+      "line": "MISSING — required by B1, no tools/p2/gates/vault-crypto.mjs",
+      "processStatus": null,
+      "tail": ""
+    }
+  ]
+}

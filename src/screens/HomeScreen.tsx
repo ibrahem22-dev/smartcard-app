@@ -11,6 +11,23 @@ import { useTranslation } from '../hooks/useTranslation';
 import type { TabParamList } from '../navigation/types';
 import { useCardsStore } from '../store/useCardsStore';
 import { useProfileStore } from '../store/useProfileStore';
+import {
+  finishSetupIsVisible,
+  useFinishSetupStore,
+  type FinishSetupStep,
+} from '../store/useFinishSetupStore';
+import { ACCENT, BORDER, CHROME, ROLE_BORDER, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
+import { RAISED_ACTION_ROUTE } from '../navigation/ia';
+import { HomeHero } from './home/HomeHero';
+import { HomeLoadBar } from './home/HomeLoadBar';
+import { HomeRiskStrip } from './home/HomeRiskStrip';
+import { HomeUpcomingBilling } from './home/HomeUpcomingBilling';
+
+const FINISH_SETUP_LABELS: Readonly<Record<FinishSetupStep, string>> = {
+  income: 'השלם הכנסה ויום משכורת',
+  'add-card': 'הוסף את הכרטיס הראשון שלך',
+  security: 'הפעל זיהוי פנים או טביעת אצבע',
+};
 
 const DAILY_TIPS: readonly string[] = [
   'שלם ביום חיוב כדי למקסם את תקופת האשראי',
@@ -33,19 +50,38 @@ export function HomeScreen(): React.ReactElement {
   const navigation = useNavigation<NavigationProp<TabParamList>>();
   const cards = useCardsStore(state => state.cards);
   const activeProfile = useProfileStore(state => state.activeProfile);
+  const skipped = useFinishSetupStore(state => state.skipped);
+  const dismissed = useFinishSetupStore(state => state.dismissed);
+  const dismissFinishSetup = useFinishSetupStore(state => state.dismiss);
+  const showFinishSetup = finishSetupIsVisible(skipped, dismissed);
   const upcomingObligationsCount = cards.length;
 
   function handleCheckPurchase(): void {
-    navigation.navigate('PurchaseGate', { screen: 'PurchaseGateRoot' });
+    navigation.getParent()?.navigate(RAISED_ACTION_ROUTE);
   }
 
   return (
-    <RtlScreen safe className="bg-slate-50 dark:bg-app-dark">
+    <RtlScreen safe className={`${SURFACE.page}`}>
       <RtlScrollView
         contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}
         keyboardShouldPersistTaps="handled"
       >
         <View className="min-h-full w-full px-5 pb-28 pt-5">
+          <HomeHero />
+          <Pressable
+            accessibilityRole="button"
+            className={`mb-4 min-h-[50px] items-center justify-center rounded-lg ${ACCENT.solid}`}
+            onPress={handleCheckPurchase}
+            testID="home-check-cta"
+          >
+            <AppText className={`text-center text-base font-extrabold ${TEXT.onAccent}`}>
+              {t('בדוק רכישה')}
+            </AppText>
+          </Pressable>
+          <HomeLoadBar />
+          <HomeRiskStrip />
+          <HomeUpcomingBilling />
+
           <View
             className="mb-5 w-full"
             style={{ backgroundColor: theme.bankColor }}
@@ -56,7 +92,7 @@ export function HomeScreen(): React.ReactElement {
             />
             <AppText
               className="mt-2 text-base font-extrabold"
-              style={{ color: '#FFFFFF' }}
+              style={{ color: CHROME.white }}
             >
               {activeProfile?.displayName === 'פרופיל מקומי' ||
               activeProfile?.displayName === 'Local profile'
@@ -65,27 +101,57 @@ export function HomeScreen(): React.ReactElement {
             </AppText>
           </View>
 
-          <View className="rounded-lg border border-slate-300 bg-white p-[18px] dark:border-neutral-700 dark:bg-dark-surface">
+          {showFinishSetup ? (
+            <View
+              className={`mb-4 rounded-lg border p-[18px] ${ACCENT.borderSubtle} ${ACCENT.surface}`}
+              testID="home-finish-setup"
+            >
+              <AppText className={`text-lg font-extrabold ${TEXT.heading}`}>
+                {t('השלם הגדרה')}
+              </AppText>
+              {skipped.map(step => (
+                <AppText
+                  className={`mt-2 text-base font-bold ${TEXT.body}`}
+                  key={step}
+                  testID={`home-finish-setup-item-${step}`}
+                >
+                  {t(FINISH_SETUP_LABELS[step])}
+                </AppText>
+              ))}
+              <Pressable
+                accessibilityRole="button"
+                className={`mt-4 min-h-[44px] items-center justify-center rounded-lg border ${BORDER.hairline} ${SURFACE.card}`}
+                onPress={dismissFinishSetup}
+                testID="home-finish-setup-dismiss"
+              >
+                <AppText className={`text-center text-base font-extrabold ${TEXT.body}`}>
+                  {t('הסתר')}
+                </AppText>
+              </Pressable>
+            </View>
+          ) : null}
+
+          <View className={`rounded-lg border p-[18px] ${BORDER.hairline} ${SURFACE.card}`}>
             <AppText
-              className="text-lg font-extrabold text-slate-900 dark:text-white"
+              className={`text-lg font-extrabold ${TEXT.heading}`}
             >
               {t('טיפ היום')}
             </AppText>
             <AppText
-              className="mt-2 text-base leading-6 text-slate-700 dark:text-slate-200"
+              className={`mt-2 text-base leading-6 ${TEXT.body}`}
             >
               {t(getDailyTip())}
             </AppText>
           </View>
 
-          <View className="mt-4 rounded-lg border border-sky-200 bg-sky-50 p-[18px] dark:border-sky-900 dark:bg-sky-950">
+          <View className={`mt-4 rounded-lg border p-[18px] ${ACCENT.borderSubtle} ${ACCENT.surface}`}>
             <AppText
-              className="text-lg font-extrabold text-slate-900 dark:text-white"
+              className={`text-lg font-extrabold ${TEXT.heading}`}
             >
               {t('חיובים קרובים')}
             </AppText>
             <AppText
-              className="mt-2 text-base font-bold text-sky-700 dark:text-sky-200"
+              className={`mt-2 text-base font-bold ${ACCENT.text}`}
             >
               {upcomingObligationsCount === 0
                 ? t('אין חיובים קרובים 📅')
@@ -96,14 +162,14 @@ export function HomeScreen(): React.ReactElement {
           </View>
 
           <FeatureGate feature="InternationalTravel">
-            <View className="mt-4 rounded-lg border border-orange-200 bg-orange-50 p-[18px] opacity-45 dark:border-orange-900 dark:bg-orange-950">
+            <View className={`mt-4 rounded-lg border p-[18px] opacity-45 ${ROLE_BORDER.advisory} ${ROLE_SURFACE_BG.advisory}`}>
               <AppText
-                className="text-lg font-extrabold text-orange-800 dark:text-orange-200"
+                className={`text-lg font-extrabold ${ROLE_TEXT.advisory}`}
               >
                 {t('נוסעים לחו"ל? ✈️')}
               </AppText>
               <AppText
-                className="mt-2 text-[15px] leading-[22px] text-orange-800 dark:text-orange-200"
+                className={`mt-2 text-[15px] leading-[22px] ${ROLE_TEXT.advisory}`}
               >
                 {t(
                   'בקרוב תוכלו לבדוק מראש איזה כרטיס עדיף לנסיעות ולחיובים במט"ח.',
@@ -114,18 +180,6 @@ export function HomeScreen(): React.ReactElement {
         </View>
       </RtlScrollView>
 
-      {/* rtl-ok: full-width footer dock spans both edges intentionally */}
-      <View className="absolute bottom-0 left-0 right-0 border-t border-slate-200 bg-white p-4 dark:border-neutral-800 dark:bg-dark-surface">
-        <Pressable
-          accessibilityRole="button"
-          className="min-h-[50px] items-center justify-center rounded-lg bg-blue-600"
-          onPress={handleCheckPurchase}
-        >
-          <AppText className="text-center text-base font-extrabold text-white">
-            {t('בדוק רכישה')}
-          </AppText>
-        </Pressable>
-      </View>
     </RtlScreen>
   );
 }

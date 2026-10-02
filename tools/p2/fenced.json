@@ -1,0 +1,59 @@
+{
+  "$comment": [
+    "WHAT P2 FENCES, QUOTED FROM THE CONTRACT RATHER THAN SUMMARISED.",
+    "",
+    "Every entry carries the criterion that fences it and the contract's own words, so a reader can",
+    "check the list against the authority without holding both open. This is a DECLARED population,",
+    "not a derived one — the contract names these surfaces individually in prose, and there is no",
+    "machine-readable source to derive them from. That is stated plainly rather than dressed up: the",
+    "gates below derive REACHABILITY from the import graph, which is the part that can be derived.",
+    "",
+    "A path listed here must be BOTH absent from the runtime graph AND, where the contract says",
+    "removed, absent from disk. A package listed here must be absent from package.json dependencies",
+    "AND unreached by the graph."
+  ],
+  "b9": {
+    "criterion": "B9",
+    "contractText": "Paywall unmounted; Register/OTP removed; Supabase and RevenueCat archived out of the dependency manifest; dead routes (SavingsTracker, ProfileShare, Loans, Benefits) and their deps removed",
+    "sentinel": "FENCED OK — 0 reachable",
+    "modules": [
+      { "path": "src/screens/PaywallScreen.tsx", "what": "the subscription paywall", "requirement": "unmounted" },
+      { "path": "src/screens/auth/RegisterScreen.tsx", "what": "remote account creation", "requirement": "removed" },
+      { "path": "src/screens/auth/OTPVerifyScreen.tsx", "what": "email OTP verification", "requirement": "removed" },
+      { "path": "src/screens/SavingsTrackerScreen.tsx", "what": "dead route", "requirement": "removed" },
+      { "path": "src/screens/ProfileShareScreen.tsx", "what": "dead route — QR profile transfer", "requirement": "removed" },
+      { "path": "src/screens/LoansScreen.tsx", "what": "dead route", "requirement": "removed" },
+      { "path": "src/screens/BenefitsScreen.tsx", "what": "dead route", "requirement": "removed" },
+      { "path": "src/services/supabase.ts", "what": "Supabase client", "requirement": "removed" },
+      { "path": "src/services/revenueCat.ts", "what": "RevenueCat wrapper", "requirement": "removed" },
+      { "path": "src/services/revenueCatClient.ts", "what": "RevenueCat tier fetch", "requirement": "removed" }
+    ],
+    "packages": [
+      { "name": "@supabase/supabase-js", "what": "Supabase", "requirement": "archived out of the dependency manifest" },
+      { "name": "react-native-purchases", "what": "RevenueCat", "requirement": "archived out of the dependency manifest" },
+      { "name": "expo-camera", "what": "dep of ProfileShareScreen", "requirement": "removed" },
+      { "name": "react-native-qrcode-svg", "what": "dep of ProfileShareScreen", "requirement": "removed" }
+    ],
+    "archive": "docs/archive/P2_FENCED_SURFACES.md"
+  },
+  "d3": {
+    "criterion": "D3",
+    "contractText": "The legacy data path is gone: card_rates.json, fxAbroad.v2.json, fxAbroadCardMap.json out of runtime; useCardRatesDatabase.ts, useFxAbroad.ts, nonAuthorityDataAccess.ts removed; the DisabledDataAuthorityAdapter singleton removed",
+    "sentinel": "LEGACY-PATH OK — 0 reachable",
+    "outOfRuntime": [
+      { "path": "src/data/card_rates.json", "archivedTo": "docs/archive/data/card_rates.json" },
+      { "path": "src/data/fxAbroad.v2.json", "archivedTo": "docs/archive/data/fxAbroad.v2.json" },
+      { "path": "src/data/fxAbroadCardMap.json", "archivedTo": "docs/archive/data/fxAbroadCardMap.json" }
+    ],
+    "removed": [
+      { "path": "src/hooks/useCardRatesDatabase.ts" },
+      { "path": "src/hooks/useFxAbroad.ts" },
+      { "path": "src/authority/nonAuthorityDataAccess.ts" }
+    ],
+    "symbols": [
+      { "symbol": "DisabledDataAuthorityAdapter", "requirement": "the singleton is removed; the seam idea is kept in src/authority/noSource.ts" }
+    ],
+    "seam": "src/authority/noSource.ts",
+    "adr": "docs/adr/ADR-P2-001-legacy-data-path-removed.md"
+  }
+}

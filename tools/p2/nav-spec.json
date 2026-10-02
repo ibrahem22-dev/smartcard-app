@@ -1,0 +1,48 @@
+{
+  "$comment": [
+    "GENERATED — do not edit. Source of truth: authority/SMARTCARD_FINAL_PRODUCT_SPEC.md §4, in the",
+    "pipeline repository. Regenerate with: node campaign-p2/bin/p2-nav-spec.mjs",
+    "Parity asserted by: node campaign-p2/bin/p2-nav-spec.mjs --check, which runs in the pipeline",
+    "preflight. Criterion A1.",
+    "",
+    "tools/p2/gates/nav.mjs reads THIS file and compares the app route tree against it, so the five",
+    "names are never typed into the gate. \"Matches Spec §24 exactly\" is a claim about a document,",
+    "and a gate comparing the app against names somebody typed would be comparing it against that",
+    "person's reading of the document instead."
+  ],
+  "source": "authority/SMARTCARD_FINAL_PRODUCT_SPEC.md §4 FINAL NAVIGATION",
+  "items": [
+    {
+      "name": "HOME",
+      "raised": false
+    },
+    {
+      "name": "WALLET",
+      "raised": false
+    },
+    {
+      "name": "CHECK",
+      "raised": true
+    },
+    {
+      "name": "PLAN",
+      "raised": false
+    },
+    {
+      "name": "MORE",
+      "raised": false
+    }
+  ],
+  "segments": {
+    "WALLET": [
+      "Cards",
+      "Benefits"
+    ],
+    "PLAN": [
+      "Calendar",
+      "Commitments"
+    ]
+  },
+  "raisedOpensFullScreenModal": true,
+  "noTabHighlighted": true
+}

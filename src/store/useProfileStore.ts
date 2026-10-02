@@ -1,6 +1,7 @@
 import { create } from 'zustand';
 
 import { keyVault } from '../security/keyVault';
+import { useActivityStore } from './useActivityStore';
 import { useCardsStore } from './useCardsStore';
 import { useLoansStore } from './useLoansStore';
 import { useUserStore } from './useUserStore';
@@ -9,6 +10,14 @@ import type {
   ProfileLanguagePreference,
 } from '../types/profile.types';
 import { MMKV_KEYS } from './keys';
+import {
+  HYDRATING,
+  NOT_HYDRATED,
+  describeHydrationError,
+  hydrated,
+  hydrationFailed,
+  type HydrationState,
+} from './hydration';
 
 // CONFLICT: AGENTS.md currently says max profiles is 3; LOW-001 explicitly
 // requires aligning this store constant to 5.
@@ -19,6 +28,8 @@ const UUID_PATTERN =
 interface ProfileState {
   activeProfile: AppProfile | null;
   allProfiles: AppProfile[];
+  /** Whether `allProfiles`/`activeProfile` reflect storage yet. */
+  hydration: HydrationState;
   hydrate(): void;
   addProfile(profile: AppProfile): void;
   deleteProfile(id: string): void;
@@ -115,20 +126,42 @@ function resolveActiveProfile(
 export const useProfileStore = create<ProfileState>()((set, get) => ({
   activeProfile: null,
   allProfiles: [],
+  hydration: NOT_HYDRATED,
 
   hydrate() {
-    const storage = keyVault.getEncryptedStorage();
-    const allProfiles = readProfiles();
-    const activeProfile = resolveActiveProfile(
-      allProfiles,
-      storage.getString(MMKV_KEYS.activeProfileId),
-    );
+    set({ hydration: HYDRATING });
+    let allProfiles: AppProfile[];
+    let activeProfile: AppProfile | null;
+    try {
+      // keyVault.getEncryptedStorage() throws while the vault is locked
+      // (AUTH-07). Previously that propagated and left the store at its empty
+      // defaults, which every consumer then read as "this user has no
+      // profiles" rather than "we could not look".
+      const storage = keyVault.getEncryptedStorage();
+      allProfiles = readProfiles();
+      activeProfile = resolveActiveProfile(
+        allProfiles,
+        storage.getString(MMKV_KEYS.activeProfileId),
+      );
+    } catch (error: unknown) {
+      set({
+        allProfiles: [],
+        activeProfile: null,
+        hydration: hydrationFailed(describeHydrationError(error)),
+      });
+      return;
+    }
 
-    set({ allProfiles, activeProfile });
+    set({
+      allProfiles,
+      activeProfile,
+      hydration: hydrated(new Date().toISOString()),
+    });
     if (activeProfile !== null) {
       useUserStore.getState().hydrateProfile(activeProfile.id);
       useCardsStore.getState().hydrateProfile(activeProfile.id);
       useLoansStore.getState().hydrateProfile(activeProfile.id);
+      useActivityStore.getState().hydrateProfile(activeProfile.id);
     }
   },
 
@@ -246,6 +279,7 @@ export const useProfileStore = create<ProfileState>()((set, get) => ({
       useUserStore.getState().persistProfile(outgoingProfileId);
       useCardsStore.getState().persistProfile(outgoingProfileId);
       useLoansStore.getState().persistProfile(outgoingProfileId);
+      useActivityStore.getState().persistProfile(outgoingProfileId);
     }
 
     storage.set(MMKV_KEYS.activeProfileId, activeProfile.id);
@@ -253,9 +287,15 @@ export const useProfileStore = create<ProfileState>()((set, get) => ({
     useUserStore.getState().hydrateProfile(activeProfile.id);
     useCardsStore.getState().hydrateProfile(activeProfile.id);
     useLoansStore.getState().hydrateProfile(activeProfile.id);
+    useActivityStore.getState().hydrateProfile(activeProfile.id);
   },
 
   clearProfiles() {
-    set({ activeProfile: null, allProfiles: [] });
+    // A deliberate clear is a KNOWN empty state, not an unloaded one.
+    set({
+      activeProfile: null,
+      allProfiles: [],
+      hydration: hydrated(new Date().toISOString()),
+    });
   },
 }));

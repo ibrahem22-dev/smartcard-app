@@ -1,4 +1,8 @@
 import type { Loan, LoanImpact, LoanSummary } from '../types/loan.types';
+import {
+  LOAN_BURDEN_LOW_MAX_PCT_OF_INCOME,
+  LOAN_BURDEN_MODERATE_MAX_PCT_OF_INCOME,
+} from '../config/financial';
 
 function getRemainingMonths(loan: Loan): number {
   return Math.max(0, loan.totalMonths - loan.monthsPaid);
@@ -61,7 +65,11 @@ export function calculateLoanImpact(
 
   const percentOfIncome = (totalMonthlyObligations / monthlyIncome) * 100;
   const riskLevel =
-    percentOfIncome < 30 ? 'low' : percentOfIncome < 50 ? 'medium' : 'high';
+    percentOfIncome < LOAN_BURDEN_LOW_MAX_PCT_OF_INCOME
+      ? 'low'
+      : percentOfIncome < LOAN_BURDEN_MODERATE_MAX_PCT_OF_INCOME
+        ? 'medium'
+        : 'high';
 
   return {
     totalMonthlyObligations,

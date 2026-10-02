@@ -11,6 +11,12 @@ import type {
   TransferProfile,
 } from '../types/profileShare.types';
 import { Currency, PurchaseCategory } from '../types/purchase.types';
+import {
+  TRANSFER_RATE_MAX_PCT,
+  TRANSFER_FX_COMMISSION_MAX_PCT,
+  MONETARY_MIN_ILS,
+  MONETARY_MAX_ILS,
+} from '../config/financial';
 
 const ISSUERS: readonly string[] = Object.values(CardIssuer);
 
@@ -27,19 +33,19 @@ function isCardRates(value: unknown): value is CardRates {
     isRecord(value) &&
     isFiniteNumber(value.creditInterestRate) &&
     value.creditInterestRate >= 0 &&
-    value.creditInterestRate <= 30 &&
+    value.creditInterestRate <= TRANSFER_RATE_MAX_PCT &&
     isFiniteNumber(value.installmentInterestRate) &&
     value.installmentInterestRate >= 0 &&
-    value.installmentInterestRate <= 30 &&
+    value.installmentInterestRate <= TRANSFER_RATE_MAX_PCT &&
     isFiniteNumber(value.cardLoanInterestRate) &&
     value.cardLoanInterestRate >= 0 &&
-    value.cardLoanInterestRate <= 30 &&
+    value.cardLoanInterestRate <= TRANSFER_RATE_MAX_PCT &&
     isFiniteNumber(value.foreignExchangeCommission) &&
     value.foreignExchangeCommission >= 0 &&
-    value.foreignExchangeCommission <= 10 &&
+    value.foreignExchangeCommission <= TRANSFER_FX_COMMISSION_MAX_PCT &&
     isFiniteNumber(value.monthlyFee) &&
     value.monthlyFee >= 0 &&
-    value.monthlyFee <= 999_999 &&
+    value.monthlyFee <= MONETARY_MAX_ILS &&
     (value.source === 'db' || value.source === 'manual') &&
     typeof value.lastUpdated === 'string' &&
     /^\d{4}-\d{2}-\d{2}$/.test(value.lastUpdated)
@@ -63,8 +69,8 @@ function isTransferCard(value: unknown): value is TransferCard {
     value.billingDay >= 1 &&
     value.billingDay <= 31 &&
     isFiniteNumber(value.creditLimit) &&
-    value.creditLimit >= 0.01 &&
-    value.creditLimit <= 999_999 &&
+    value.creditLimit >= MONETARY_MIN_ILS &&
+    value.creditLimit <= MONETARY_MAX_ILS &&
     (value.cardRates === undefined || isCardRates(value.cardRates))
   );
 }

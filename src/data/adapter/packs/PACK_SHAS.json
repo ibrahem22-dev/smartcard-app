@@ -1,0 +1,116 @@
+{
+  "$comment": [
+    "THE REAL PACKS, AT THEIR MEASURED SHAS — Gate 7.",
+    "",
+    "Written by campaign-p2/bin/p2-pack-shas.mjs in the PIPELINE repository, from dist/packs.",
+    "Do not edit by hand: `--check` re-measures the files on disk in both repositories and fails",
+    "on any divergence, so an edit here is a lie that is caught rather than a fix.",
+    "",
+    "The sha is over BYTES. A checkout that translated line endings would change every one of",
+    "them, which is why the directory ships a .gitattributes marking it binary."
+  ],
+  "generatedBy": "campaign-p2/bin/p2-pack-shas.mjs",
+  "source": "dist/packs (pipeline)",
+  "sets": [
+    {
+      "set": "benefits",
+      "files": [
+        {
+          "file": "manifest.json",
+          "bytes": 2974,
+          "sha256": "86801425fd7a4a3bfe644ba37bf6a06d0aa3028e71c4222605053ad5047d7a30"
+        },
+        {
+          "file": "manifest.sig.json",
+          "bytes": 529,
+          "sha256": "419813d3c8ee301da6c1bae231001548c69aaa34347c5133c39c08e854cb2470"
+        },
+        {
+          "file": "pack.json",
+          "bytes": 899329,
+          "sha256": "03ba506348d9335fad3ab006e3cc31dd84bd581a973c91f29dcd6405d0649c07"
+        }
+      ]
+    },
+    {
+      "set": "catalog",
+      "files": [
+        {
+          "file": "manifest.json",
+          "bytes": 4748,
+          "sha256": "e15695ff6e6c2e08455c0a33e907073ef218a47fd1f137c41c939ee3fcf25a93"
+        },
+        {
+          "file": "manifest.sig.json",
+          "bytes": 528,
+          "sha256": "1d4170d01e73c37024ff0fb1093356dab305073ec3e6b0aae339a8f8833241ff"
+        },
+        {
+          "file": "pack.json",
+          "bytes": 3998347,
+          "sha256": "db49cde7e9251761240ee6b1ee8aefd016d74691de17f12be3fed67d8ce5e55a"
+        }
+      ]
+    },
+    {
+      "set": "content",
+      "files": [
+        {
+          "file": "manifest.json",
+          "bytes": 2963,
+          "sha256": "fec803ccdc77c52a7fb143069439560546355e50b1ee3bed945fd8f04a88e30f"
+        },
+        {
+          "file": "manifest.sig.json",
+          "bytes": 528,
+          "sha256": "8defc73f9f844dfe240d72ae8badaba1ff127f2c1488b1f2717bb6ed99dca6d6"
+        },
+        {
+          "file": "pack.json",
+          "bytes": 561546,
+          "sha256": "5eba1d06951eab849cb1e901f1a95ec93e090e9c703a8103f7a9eea8ec495730"
+        }
+      ]
+    },
+    {
+      "set": "fx-rates",
+      "files": [
+        {
+          "file": "manifest.json",
+          "bytes": 3103,
+          "sha256": "72ac3b3c3d9c45cd138ab68e16309547fc8abe63e6f3da3de8addb12ad15fa5e"
+        },
+        {
+          "file": "manifest.sig.json",
+          "bytes": 529,
+          "sha256": "d2d4b1ad9e180c0c1daa1e14c3d2065fc05acde1650a4a30f53524d5a105e54f"
+        },
+        {
+          "file": "snapshot.json",
+          "bytes": 15369,
+          "sha256": "fb8d85aa0f82ccf41c09cd8aca0afc92a7be07d4c8c95a59f43bb1adc55eeee3"
+        }
+      ]
+    },
+    {
+      "set": "taxonomy",
+      "files": [
+        {
+          "file": "manifest.json",
+          "bytes": 2995,
+          "sha256": "2e1b927adf0962d06151379b2d263120485a3fd6af332ed43ced1a5e96a64fa4"
+        },
+        {
+          "file": "manifest.sig.json",
+          "bytes": 529,
+          "sha256": "2531de0febddd9672679397fbbde39ec86b5ff22a8bf0c0b7a102608e84b8408"
+        },
+        {
+          "file": "pack.json",
+          "bytes": 206737,
+          "sha256": "41f58df798ce148a9db5c222867e87eda3423a5b174521fd8b36c7cc8632c55d"
+        }
+      ]
+    }
+  ]
+}

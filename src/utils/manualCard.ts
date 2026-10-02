@@ -20,7 +20,7 @@
 
 import * as Crypto from 'expo-crypto';
 
-import { CardIssuer, CardNetwork, type CardInput } from '../types/card.types';
+import { CardIssuer, CardNetwork, type EngineCard } from '../types/card.types';
 import { Currency } from '../types/purchase.types';
 
 export interface ManualCardInput {
@@ -36,6 +36,9 @@ export interface ManualCardInput {
   /** Fraction, e.g. 0.03 = 3%. Omit when unknown — stays unknown (NaN). */
   readonly foreignTransactionFee?: number;
   readonly bankName?: string;
+  /** Catalog cardId when the user picked a CURRENT product; omit on the generic path. */
+  readonly cardProductId?: string;
+  readonly unknownClub?: boolean;
 }
 
 // Metadata only: not read by the MVP Purchase Gate. Replaced by verified issuer
@@ -46,9 +49,11 @@ const ISSUER_DEFAULT_NETWORK: Record<CardIssuer, CardNetwork> = {
   [CardIssuer.Cal]: CardNetwork.Visa,
 };
 
-export function createManualCard(input: ManualCardInput): CardInput {
+export function createManualCard(input: ManualCardInput): EngineCard {
+  const cardId = Crypto.randomUUID();
   return {
-    cardId: Crypto.randomUUID(),
+    cardId,
+    cardProductId: input.cardProductId ?? 'manual:' + cardId,
     displayName: input.displayName,
     last4: input.last4,
     issuer: input.issuer,
@@ -71,5 +76,6 @@ export function createManualCard(input: ManualCardInput): CardInput {
     annualFee: 0,
     isActive: true,
     ...(input.bankName === undefined ? {} : { bankName: input.bankName }),
+    ...(input.unknownClub === true ? { unknownClub: true } : {}),
   };
 }

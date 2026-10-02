@@ -8,3 +8,4 @@ export {
   calculateCardLoan,
   calculateInstallmentInterest,
 } from './interestCalculator';
+export { rankCardsAbroad, type AbroadRanking } from './fxAbroadEngine';

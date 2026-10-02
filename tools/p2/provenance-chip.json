@@ -1,0 +1,62 @@
+{
+  "$comment": [
+    "GENERATED — do not edit. Source of truth: authority/SMARTCARD_DATA_CONTRACT.md §2, in the",
+    "pipeline repository. Regenerate with: node campaign-p2/bin/p2-provenance-chip.mjs",
+    "Parity asserted by --check, which runs in the pipeline preflight. Criteria A2 and B5.",
+    "",
+    "The contract calls this four-state vocabulary a PUBLISHED PRODUCT PROMISE: \"It MUST be exactly",
+    "these four states, not ad hoc variations. Adding or renaming one is a spec amendment.\"",
+    "",
+    "It also predicts, in writing, what happens without USER in the enum: \"the application",
+    "inevitably grows a second provenance enum for overrides\". The app had grown one, and the",
+    "campaign added a third spelling on top of it before this mirror existed."
+  ],
+  "source": "authority/SMARTCARD_DATA_CONTRACT.md §2.1 Layer B",
+  "chips": [
+    {
+      "chip": "USER",
+      "layerAStatuses": [],
+      "calculationSafe": true,
+      "mayRenderAsVerified": false,
+      "rendersAs": "Your value"
+    },
+    {
+      "chip": "VERIFIED",
+      "layerAStatuses": [
+        "VERIFIED_OFFICIAL",
+        "CORROBORATED",
+        "SINGLE_SOURCE"
+      ],
+      "calculationSafe": true,
+      "mayRenderAsVerified": true,
+      "rendersAs": null
+    },
+    {
+      "chip": "ESTIMATE",
+      "layerAStatuses": [
+        "DERIVED",
+        "DERIVED_FROM_OFFICIAL",
+        "ESTIMATED"
+      ],
+      "calculationSafe": true,
+      "mayRenderAsVerified": false,
+      "rendersAs": null
+    },
+    {
+      "chip": "UNKNOWN",
+      "layerAStatuses": [
+        "NOT_PUBLISHED",
+        "LOGIN_GATED",
+        "CUSTOMER_SPECIFIC",
+        "UNKNOWN",
+        "UNKNOWN_AFTER_RESEARCH"
+      ],
+      "calculationSafe": false,
+      "mayRenderAsVerified": false,
+      "rendersAs": null
+    }
+  ],
+  "staleIsModifier": true,
+  "userOutranks": true,
+  "userSurvivesPackUpdate": true
+}

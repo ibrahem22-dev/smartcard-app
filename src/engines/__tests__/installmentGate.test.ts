@@ -14,7 +14,9 @@ import {
 import { Currency, PurchaseCategory } from '../../types/purchase.types';
 import type { UserProfile } from '../../types/user.types';
 
-function makeUser(overrides: Partial<UserProfile> = {}): UserProfile {
+function makeUser(overrides: Partial<UserProfile> = {}): UserProfile & {
+  currentBalance: number;
+} {
   return {
     id: 'user-test',
     bankName: 'לאומי',

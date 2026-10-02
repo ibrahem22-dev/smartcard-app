@@ -1,0 +1,9 @@
+# THE PACKS ARE BYTES, NOT TEXT.
+#
+# Every pack carries a sha256 over its own body and a detached signature over its manifest. Git
+# normalising line endings on checkout would change those bytes and every signature in the set
+# would fail at once — on a fresh clone, on a colleague's Windows machine, on CI, and nowhere
+# that anybody was looking when the file was committed.
+#
+# Written by campaign-p2/bin/p2-pack-shas.mjs in the pipeline repository. Do not edit by hand.
+* -text

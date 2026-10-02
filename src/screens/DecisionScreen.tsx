@@ -10,8 +10,11 @@ import { FeatureGate } from '../components/FeatureGate';
 import { RtlRow, RtlScreen, RtlScrollView } from '../components/rtl';
 import { useTheme } from '../hooks/useTheme';
 import { useTranslation } from '../hooks/useTranslation';
+import { useMoney } from '../hooks/useMoney';
+import { TABULAR_NUMERALS } from '../utils/money';
 import type { PurchaseGateStackParamList } from '../navigation/types';
 import type { DecisionVerdict } from '../types/decision.types';
+import { BORDER, ROLE_BORDER, ROLE_SURFACE_BG, ROLE_TEXT, SURFACE, TEXT } from '../theme/tokens';
 
 type DecisionScreenProps = NativeStackScreenProps<
   PurchaseGateStackParamList,
@@ -25,123 +28,163 @@ const VERDICT_LABELS: Record<DecisionVerdict, string> = {
   wait_24h: 'המתן 24 שעות ⏳',
 };
 
-const VERDICT_REASONS: Record<DecisionVerdict, string> = {
-  approved: 'הרכישה נראית מתאימה לתזרים הנוכחי.',
-  warning: 'אפשר לבצע את הרכישה, אבל כדאי לשים לב למרווח הביטחון.',
-  blocked: 'הרכישה עלולה לסכן את התזרים או את מסגרת האשראי.',
-  wait_24h: 'הרכישה אינה דחופה ומומלץ להמתין לפני קבלת החלטה.',
-};
+/**
+ * D6 / WP-2.3 — THE CANNED PER-VERDICT REASONS ARE GONE.
+ *
+ * What used to be here: `VERDICT_FALLBACK_REASONS`, four sentences keyed by verdict —
+ * *"the purchase may endanger your cashflow"*, *"the purchase looks suitable for your current
+ * cashflow"*. A previous session had already stopped them overriding the engine's own reason, and
+ * left them as a fallback for when none arrived.
+ *
+ * THE FALLBACK IS THE DEFECT D6 NAMES. Those sentences are not copy about the app; they are
+ * **findings about the user's money**, written in the voice of an engine that did not produce them.
+ * A user cannot tell "the engine examined your cashflow and this is what it found" from "no engine
+ * reason arrived, so here is a plausible sentence for this verdict" — and the second reads exactly
+ * like the first.
+ *
+ * `P2_COMPLETION_CONTRACT.md` §1: **P2 renders facts and refusals.** Every derivation is P3. So
+ * when no reason arrives, the screen now says that no reason arrived. It is a worse sentence to
+ * read and a true one.
+ */
 
 const VERDICT_CLASSES: Record<DecisionVerdict, string> = {
-  approved: 'bg-green-100 border-green-600 dark:bg-green-950 dark:border-green-500',
-  warning: 'bg-amber-100 border-amber-600 dark:bg-amber-950 dark:border-amber-500',
-  blocked: 'bg-red-100 border-red-600 dark:bg-red-950 dark:border-red-500',
-  wait_24h: 'bg-orange-100 border-orange-500 dark:bg-orange-950 dark:border-orange-400',
+  approved: `${ROLE_SURFACE_BG.positive} ${ROLE_BORDER.positive}`,
+  warning: `${ROLE_SURFACE_BG.advisory} ${ROLE_BORDER.advisory}`,
+  blocked: `${ROLE_SURFACE_BG.danger} ${ROLE_BORDER.danger}`,
+  wait_24h: `${ROLE_SURFACE_BG.advisory} ${ROLE_BORDER.advisory}`,
 };
 
-function formatCommission(value: number): string {
-  return `${value.toLocaleString('he-IL', { maximumFractionDigits: 2 })}%`;
-}
+// formatCommission lived here. A7: one formatter — percent() from useMoney().
 
 export function DecisionScreen({
   navigation,
   route,
 }: DecisionScreenProps): React.ReactElement {
   const theme = useTheme();
+  const { percent } = useMoney();
   const { t } = useTranslation();
   const verdict = route.params.verdict;
   const fxComparison = route.params.fxComparison ?? [];
+  // §4: reasons come from the actual engine output. The canned per-verdict
+  // string is a fallback for the case where no reason was carried through.
+  const engineReason = route.params.reason;
+  const engineExchangeFeeWarning = route.params.exchangeFeeWarning;
+  const hasEngineReason = engineReason !== undefined && engineReason.trim() !== '';
+  // A refusal, not a substitute finding. See the D6 note above.
+  const reasonText = hasEngineReason
+    ? engineReason
+    : t('לא התקבל נימוק ממנוע ההחלטות עבור התוצאה הזו.');
 
   return (
-    <RtlScreen safe className="bg-slate-50 dark:bg-app-dark">
+    <RtlScreen safe className={`${SURFACE.page}`}>
       <RtlScrollView contentContainerStyle={{ flexGrow: 1, paddingBottom: 24 }}>
-      <View className="min-h-full w-full p-5 dark:bg-app-dark">
+      <View className={`min-h-full w-full p-5 ${SURFACE.pageDarkOnly}`}>
         <View
           className={`rounded-lg border p-5 ${VERDICT_CLASSES[verdict]}`}
           style={{ backgroundColor: theme.companyAccent }}
         >
           <AppText
-            className="text-3xl font-extrabold text-slate-900 dark:text-slate-50"
+            className={`text-3xl font-extrabold ${TEXT.heading}`}
             style={{ color: theme.bankColor }}
           >
             {t(VERDICT_LABELS[verdict])}
           </AppText>
           <AppText
-            className="mt-2.5 text-base leading-6 text-slate-800 dark:text-slate-100"
+            className={`mt-2.5 text-base leading-6 ${TEXT.heading}`}
           >
-            {t(VERDICT_REASONS[verdict])}
+            {reasonText}
           </AppText>
+          {engineExchangeFeeWarning === undefined ? null : (
+            <AppText
+              className={`mt-2 text-sm leading-5 ${TEXT.body}`}
+            >
+              {engineExchangeFeeWarning}
+            </AppText>
+          )}
         </View>
 
         <FeatureGate feature="ScoreSection">
-          <View className="mt-5 rounded-lg border border-slate-300 bg-white p-[18px] opacity-45 dark:border-neutral-700 dark:bg-dark-surface">
+          <View className={`mt-5 rounded-lg border p-[18px] opacity-45 ${BORDER.hairline} ${SURFACE.card}`}>
             <AppText
-              className="mb-3 text-lg font-extrabold text-slate-900 dark:text-slate-50"
+              className={`mb-3 text-lg font-extrabold ${TEXT.heading}`}
             >
               {t('ניקוד כרטיסים')}
             </AppText>
-            <RtlRow className="min-h-[38px] items-center justify-between border-t border-slate-200 dark:border-neutral-700">
-              <AppText
-                className="text-base text-slate-700 dark:text-slate-200"
-              >
-                {t('כרטיס מוביל')}
-              </AppText>
-              <AppText
-                className="text-base font-extrabold text-slate-900 dark:text-slate-50"
-              >
-                84/100
-              </AppText>
-            </RtlRow>
-            <RtlRow className="min-h-[38px] items-center justify-between border-t border-slate-200 dark:border-neutral-700">
-              <AppText
-                className="text-base text-slate-700 dark:text-slate-200"
-              >
-                {t('כרטיס חלופי')}
-              </AppText>
-              <AppText
-                className="text-base font-extrabold text-slate-900 dark:text-slate-50"
-              >
-                71/100
-              </AppText>
-            </RtlRow>
+            {/*
+              D6 / WP-2.3 — THE TWO INVENTED SCORES ARE GONE.
+
+              This block rendered "כרטיס מוביל 84/100" and "כרטיס חלופי 71/100" — two numbers with
+              no computation behind them anywhere in the codebase. They were inside a FeatureGate
+              marked 'soon', which dims the section and adds a "בקרוב" badge, AND STILL RENDERS THE
+              CHILDREN. So both figures were on screen, in a bold weight, next to the labels of real
+              cards.
+
+              A "coming soon" badge does not make a fabricated number honest. A reader sees 84/100
+              beside "leading card" and has been told something false about their own wallet.
+
+              A card score is an ENGINE OUTPUT. Contract §1 puts every derivation in P3, and the
+              feature registry itself says availableInPhase: 3. The section keeps its place and its
+              badge — the registry declares the feature and P2 is not deciding its future — but it
+              now states what it is waiting for instead of showing two numbers it made up.
+            */}
+            <AppText className={`text-base ${TEXT.body}`}>
+              {t('ניקוד הכרטיסים מגיע ממנוע ההחלטות, שאינו חלק מגרסה זו.')}
+            </AppText>
           </View>
         </FeatureGate>
 
         {fxComparison.length > 0 ? (
-          <View className="mt-5 rounded-lg border border-slate-300 bg-white p-[18px] dark:border-neutral-700 dark:bg-dark-surface">
-            <AppText className="mb-3 text-lg font-extrabold text-slate-900 dark:text-slate-50">
+          <View className={`mt-5 rounded-lg border p-[18px] ${BORDER.hairline} ${SURFACE.card}`}>
+            <AppText className={`mb-3 text-lg font-extrabold ${TEXT.heading}`}>
               {t('השוואת עמלות המרה')}
             </AppText>
             {fxComparison.map((rowItem, index): React.ReactElement => {
-              const isLowest = index === 0;
+              const isLowest = rowItem.verified && index === 0;
               return (
                 <RtlRow
                   className={`min-h-[44px] items-center justify-between rounded-md border px-2 ${
                     isLowest
-                      ? 'border-green-500 bg-green-50 shadow-sm dark:border-green-600 dark:bg-green-950'
-                      : 'border-transparent border-t-slate-200 dark:border-t-neutral-700'
+                      ? `shadow-sm ${ROLE_BORDER.positive} ${ROLE_SURFACE_BG.positive}`
+                      : `border-transparent ${BORDER.topHairline}`
                   }`}
                   key={rowItem.cardId}
                 >
-                  <AppText
-                    className={`text-base ${
-                      isLowest
-                        ? 'font-extrabold text-green-700 dark:text-green-200'
-                        : 'text-slate-700 dark:text-slate-200'
-                    }`}
-                  >
-                    {rowItem.displayName}
-                    {isLowest ? ` · ${t('הזול ביותר')}` : ''}
-                  </AppText>
-                  <AppText
-                    className={`text-base font-extrabold ${
-                      isLowest
-                        ? 'text-green-700 dark:text-green-200'
-                        : 'text-slate-900 dark:text-slate-50'
-                    }`}
-                  >
-                    {formatCommission(rowItem.commission)}
-                  </AppText>
+                  <View className="flex-1">
+                    <AppText
+                      className={`text-base ${
+                        isLowest
+                          ? `font-extrabold ${ROLE_TEXT.positive}`
+                          : `${TEXT.body}`
+                      }`}
+                    >
+                      {rowItem.displayName}
+                      {isLowest ? ` · ${t('הזול ביותר')}` : ''}
+                    </AppText>
+                    {rowItem.verified ? (
+                      <AppText className={`text-xs ${ROLE_TEXT.positive}`}>
+                        {t('מאומת')}
+                        {rowItem.effectiveFrom !== null
+                          ? ` · ${t('בתוקף מ־')} ${rowItem.effectiveFrom}`
+                          : ''}
+                      </AppText>
+                    ) : null}
+                  </View>
+                  {rowItem.commission !== null ? (
+                    <AppText
+                      className={`text-base font-extrabold ${
+                        isLowest
+                          ? `${ROLE_TEXT.positive}`
+                          : `${TEXT.heading}`
+                      }`}
+                      style={TABULAR_NUMERALS}
+                    >
+                      {percent(rowItem.commission)}
+                    </AppText>
+                  ) : (
+                    <AppText className={`text-sm ${TEXT.muted}`}>
+                      {t('טרם אומת')}
+                    </AppText>
+                  )}
                 </RtlRow>
               );
             })}
@@ -152,11 +195,11 @@ export function DecisionScreen({
 
         <Pressable
           accessibilityRole="button"
-          className="min-h-[50px] items-center justify-center rounded-lg bg-slate-900 dark:bg-slate-100"
+          className={`min-h-[50px] items-center justify-center rounded-lg ${SURFACE.inverse}`}
           onPress={(): void => navigation.navigate('Contact')}
         >
           <AppText
-            className="text-center text-base font-extrabold text-white dark:text-slate-900"
+            className={`text-center text-base font-extrabold ${TEXT.inverse}`}
           >
             {t('יש לך בעיה?')}
           </AppText>

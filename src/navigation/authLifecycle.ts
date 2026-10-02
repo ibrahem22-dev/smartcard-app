@@ -1,4 +1,5 @@
 import { keyVault } from '../security/keyVault';
+import { useActivityStore } from '../store/useActivityStore';
 import { useCardsStore } from '../store/useCardsStore';
 import { useLoansStore } from '../store/useLoansStore';
 import { useProfileStore } from '../store/useProfileStore';
@@ -19,6 +20,7 @@ export function clearInMemoryStores(): void {
   useUserStore.getState().clearProfile();
   useCardsStore.getState().clearCards();
   useLoansStore.getState().clearLoans();
+  useActivityStore.getState().clearActivity();
   useProfileStore.getState().clearProfiles();
 }
 

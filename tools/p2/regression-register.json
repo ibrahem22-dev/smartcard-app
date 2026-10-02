@@ -1,0 +1,71 @@
+{
+  "$comment": [
+    "THE INHERITED REGRESSION NET, AND WHAT LEFT IT — criterion E3.",
+    "",
+    "E3: \"The inherited regression net is green, OR every failure is a deliberate, ADR-recorded",
+    "consequence of a spec change. A GREEN SUITE AFTER A SPEC CHANGE IS TREATED AS MORE SUSPICIOUS",
+    "THAN A RED ONE.\"",
+    "",
+    "That sentence is why this file exists. The ordinary way a suite goes green after a spec change",
+    "is that somebody deleted the tests that failed — and a deletion and a repair look identical in",
+    "a summary line. The only thing that tells them apart is a record naming the ADR that",
+    "authorised it and what replaced it.",
+    "",
+    "The baseline was MEASURED, not remembered: the whole suite replayed in a worktree at the",
+    "commit before any P2 work touched this repository."
+  ],
+  "baseline": {
+    "at": "31de7bb",
+    "atSubject": "Session 06: Batch-1 cost model shipped, contract v1.2 and v1.3, OD-21 closed",
+    "suites": 42,
+    "tests": 410,
+    "measuredBy": "jest --ci replayed in a detached worktree at that commit",
+    "measuredAt": "2026-08-24",
+    "state": "all green"
+  },
+  "removed": [
+    {
+      "test": "src/authority/__tests__/DataAuthorityAdapter.test.ts",
+      "tests": 5,
+      "adr": "ADR-029",
+      "removedAt": "2026-08-24",
+      "state": "DELETED",
+      "why": "It tested the DataAuthorityAdapter singleton, which P2 criterion D3 requires gone: OD-20 makes the pipeline's adapter the only supported way to read a pack, and a local singleton over bundled JSON is the reimplementation OD-20 forbids in as many words.",
+      "replacedBy": "src/data/adapter/__tests__/adapterSeam.test.ts"
+    },
+    {
+      "test": "src/authority/__tests__/bundledDataNonAuthority.test.ts",
+      "tests": 4,
+      "adr": "ADR-029",
+      "removedAt": "2026-08-24",
+      "state": "DELETED",
+      "why": "It asserted that the app's bundled JSON was NOT authoritative — a true and useful statement about a path that no longer exists. The app now reads signed packs through the adapter, and the equivalent question is answered by verifying them.",
+      "replacedBy": "src/data/adapter/__tests__/realPacks.test.ts"
+    },
+    {
+      "test": "src/authority/__tests__/wave1Integration.test.ts",
+      "tests": 4,
+      "adr": "ADR-029",
+      "removedAt": "2026-08-24",
+      "state": "DELETED",
+      "why": "It exercised the legacy read path end to end, including card_rates.json and fxAbroad.v2.json, both of which D3 removed. An integration test of a deleted integration cannot be repaired, only replaced.",
+      "replacedBy": "src/data/adapter/__tests__/crossSetSkew.test.ts"
+    },
+    {
+      "test": "src/hooks/__tests__/useCardRatesDatabase.test.ts",
+      "tests": 4,
+      "adr": "ADR-029",
+      "removedAt": "2026-08-24",
+      "state": "DELETED",
+      "why": "It tested a hook over the local SQLite rates mirror. B3 splits storage into an encrypted vault and a pack store, and D2 forbids anything outside data/adapter/** from touching the DB driver, so the hook it tested is a shape the boundary rules now refuse.",
+      "replacedBy": "src/store/__tests__/overrideSurvivesPackUpdate.test.ts"
+    }
+  ],
+  "$closedNote": [
+    "17 tests left with those four files. Anything below 410 - 17 without a matching record is a",
+    "suite that lost tests nobody accounted for, and the `regression` gate fails on it.",
+    "",
+    "No entry is marked FAILING_DELIBERATELY. E3 permits a red suite only where every failure is",
+    "recorded here; today the suite is green and this register accounts only for deletions."
+  ]
+}

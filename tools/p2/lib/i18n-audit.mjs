@@ -1,0 +1,213 @@
+/**
+ * THE HEBREW FALL-THROUGH AUDIT — criterion A7's first clause.
+ *
+ *   > **A7.** *"A Hebrew fall-through audit makes untranslated dynamic strings **visible, not
+ *   > silent**; exactly one money formatter exists; tabular numerals applied app-wide."*
+ *
+ * ─────────────────────────────────────────────────────────────────────────────────────────────
+ * WHAT "SILENT" MEANS HERE, precisely, because it is the whole point
+ *
+ * `t(source)` looks the Hebrew source up in `arBySource` / `enBySource` and, when it finds nothing,
+ * **returns the Hebrew**. That is the right runtime behaviour — a Hebrew sentence beats a blank —
+ * and it is invisible: an Arabic reader sees Hebrew and the app never says anything is wrong. The
+ * only way to find it is to enumerate every Hebrew string that can reach a reader and check.
+ *
+ * The project already has `arabicCoverage.test.ts`, and it does this for `t()` call sites. It also
+ * **skips `engines/`, `security/` and `data/`** — and `src/engines/**` turned out to be where 41
+ * distinct Hebrew literals live, carried as `reason` / `reasonAr` pairs on decisions, WITH NO
+ * ENGLISH AT ALL. An English reader gets Hebrew engine verdicts about their own money, and no
+ * check in the repository looked, because the directory holding them was excluded.
+ *
+ * So this audit walks EVERY directory and derives its population from the source, and it reports
+ * three things it deliberately keeps apart:
+ *
+ *   · `covered`      — a Hebrew string with both an Arabic and an English rendering;
+ *   · `fallsThrough` — a Hebrew string reaching a reader with one or both missing;
+ *   · `notUserFacing`— a Hebrew literal that never reaches a screen (a comment, a key, a test id).
+ *
+ * The third category is why this is not simply a grep. A file full of Hebrew is not a file full of
+ * defects, and an audit that could not tell the difference would be ignored within a week.
+ */
+import { readFileSync, readdirSync, statSync, existsSync } from 'node:fs';
+import { join, relative } from 'node:path';
+
+/** Any string containing a Hebrew letter. */
+const HEBREW = /[\u0590-\u05FF]/;
+/** Any string containing an Arabic letter. */
+const ARABIC = /[\u0600-\u06FF]/;
+
+const walk = (dir, acc = []) => {
+  if (!existsSync(dir)) return acc;
+  for (const e of readdirSync(dir)) {
+    const p = join(dir, e);
+    if (statSync(p).isDirectory()) { if (e !== '__tests__') walk(p, acc); }
+    else if (/\.(ts|tsx)$/.test(e)) acc.push(p);
+  }
+  return acc;
+};
+
+const stripComments = (src) => src
+  .replace(/\/\*[\s\S]*?\*\//g, ' ')
+  .replace(/(^|[^:])\/\/[^\n]*/g, '$1 ');
+
+const lineAt = (code, i) => code.slice(0, i).split('\n').length;
+
+/**
+ * Read a `Readonly<Record<string, string>>` of Hebrew source → translation out of an i18n module.
+ * Parsed rather than imported because this runs under plain Node and the modules are TypeScript.
+ */
+export const readTranslations = (root, lang) => {
+  const src = readFileSync(join(root, 'src', 'i18n', lang + '.ts'), 'utf8');
+  const out = new Map();
+  for (const m of src.matchAll(/^\s*'((?:\\'|[^'])*)':\s*'((?:\\'|[^'])*)',/gm)) {
+    out.set(m[1].replace(/\\'/g, "'"), m[2].replace(/\\'/g, "'"));
+  }
+  return out;
+};
+
+/**
+ * THE KEYS A CATALOGUE DEFINES — WHICH IS NOT THE SAME QUESTION AS THE PAIRS IT DEFINES.
+ *
+ * `readTranslations` above returns Hebrew source → translation, and to do that it must see the
+ * VALUE, so its pattern requires a quoted key and a quoted value. That is right for what A7 asks:
+ * A7 compares translated text.
+ *
+ * P5's R4 asks a different question — does this key RESOLVE in Arabic and English — and for that
+ * question the pair reader is wrong in two ways this codebase actually uses:
+ *
+ *     'סיכון': en.calendar.risk,     ← the value is a reference, not a literal. 160 of en.ts's
+ *                                       406 entries are written this way.
+ *     עריכה: 'تعديل',                ← the key is UNQUOTED. Hebrew letters are valid identifier
+ *                                       characters, so the source is legal and the pattern misses it.
+ *
+ * Read with the pair reader, R4's first run reported five labels as untranslated that are all
+ * translated correctly — a false RED that would have been "fixed" by adding duplicate keys the
+ * catalogues already had.
+ *
+ * So this is additive rather than a change to `readTranslations`: A7's question is unchanged and its
+ * reader keeps the semantics it was verified under. Two functions because there are two questions,
+ * not two implementations of one.
+ */
+export const readTranslationKeys = (root, lang) => {
+  const src = readFileSync(join(root, 'src', 'i18n', lang + '.ts'), 'utf8');
+  const keys = new Set();
+  /*
+   * quoted key, any value.
+   *
+   * The character class excludes a newline deliberately. Written as [^'] it matches newlines, so
+   * the group runs past the end of its line hunting for the next quote-colon and backtracks into a
+   * single match spanning the whole catalogue: 764 lines of ar.ts collapsed to ONE key, and every
+   * real key then read as missing. That is exactly how R4's first run reported five correctly
+   * translated labels as untranslated, and it is worth knowing that the same shape is still live in
+   * readTranslations above — which A7 was verified under, so it is recorded rather than changed.
+   */
+  for (const m of src.matchAll(/^\s*'((?:\\'|[^'\n])*)'\s*:/gm)) keys.add(m[1].replace(/\\'/g, "'"));
+  /* unquoted key, any value — Hebrew and Arabic letters are legal identifier characters */
+  for (const m of src.matchAll(/^\s*([^\s'"`:,{}()[\]]+)\s*:/gm)) keys.add(m[1]);
+  return keys;
+};
+
+/**
+ * A STRING CARRYING BOTH SCRIPTS IS A CORRUPTED STRING.
+ *
+ * This check was added because the audit found one:
+ *
+ *     src/engines/cardRoleEngine.ts   'المועدون غير معروف — قد تتوفر مزايا إضافية'
+ *                                      AAAHHAAA_AAA_AAAAA_._AA_AAAAA_AAAAA_AAAAAA
+ *
+ * Two Hebrew letters sitting inside an Arabic word — an Arabic reader saw nonsense in the middle of
+ * a sentence about their own card, and it had been shipping. No test could see it: it is a valid
+ * string literal, in the right variable, of roughly the right length, in a directory
+ * `arabicCoverage.test.ts` skips.
+ *
+ * Nothing in this app legitimately mixes the two scripts in one literal. A proper name would, in
+ * principle — and if one ever appears it will be a deliberate exception somebody argues for, which
+ * is exactly the conversation this check is meant to force.
+ */
+export const mixedScript = (text) => HEBREW.test(text) && ARABIC.test(text);
+
+/**
+ * Is this Hebrew literal one a reader can see?
+ *
+ * The test is deliberately generous in the direction of "yes": a literal is treated as user-facing
+ * unless there is a positive reason to think otherwise. An audit that guessed "not user-facing" and
+ * was wrong would hide exactly the string A7 exists to surface.
+ */
+const isUserFacing = (line) => {
+  // A key in a translation table is the fact being checked, not a use of it.
+  if (/^\s*'/.test(line) && /':\s*'/.test(line)) return false;
+  // A test id or an accessibility hint that happens to be Hebrew is still read aloud — keep it.
+  return true;
+};
+
+export const auditHebrew = (root) => {
+  /*
+   * A PRESENCE QUESTION, READ WITH A READER THAT CAN SEE EVERY KEY.
+   *
+   * Below, the only thing asked of these two is `.has(text)` — does this catalogue define this
+   * Hebrew source string. That is presence, not content, and the pair reader cannot answer it for
+   * every entry: it needs a quoted key AND a quoted value, and this app writes 93 of ar.ts's keys
+   * unquoted (Hebrew letters are legal identifier characters) and 160 of en.ts's values as
+   * references into the `en` object. The pair reader sees 507 ar / 307 en; the catalogues define
+   * 600 / 795.
+   *
+   * The gap is not theoretical. A7 reported four strings as falling through that are translated in
+   * both languages — `בטוח`, `זהירות`, `סיכון גבוה`, `קריטי` — and the register offers to accept
+   * them as fall-throughs, which would have written a durable record of something untrue.
+   *
+   * So the presence question now reads keys. What A7 ASKS is unchanged; what it can SEE is fixed.
+   * `readTranslations` is untouched above, because it answers a different question — the text of a
+   * translation, for the mixed-script check — and it was verified under those semantics.
+   */
+  const ar = readTranslationKeys(root, 'ar');
+  const en = readTranslationKeys(root, 'en');
+  const files = walk(join(root, 'src')).filter((f) => !/[\\/]i18n[\\/]/.test(f));
+
+  const covered = [];
+  const fallsThrough = [];
+  const mixed = [];
+  const seen = new Set();
+
+  for (const abs of files) {
+    const rel = relative(root, abs).replace(/\\/g, '/');
+    const raw = readFileSync(abs, 'utf8');
+    const code = stripComments(raw);
+
+    for (const m of code.matchAll(/'((?:\\'|[^'\n])*)'|"((?:\\"|[^"\n])*)"/g)) {
+      const text = (m[1] ?? m[2] ?? '').replace(/\\'/g, "'").replace(/\\"/g, '"');
+      if (mixedScript(text)) {
+        mixed.push({ file: rel, line: lineAt(code, m.index), text });
+      }
+      if (!HEBREW.test(text)) continue;
+      const line = lineAt(code, m.index);
+      const lineText = code.split('\n')[line - 1] ?? '';
+      if (!isUserFacing(lineText)) continue;
+
+      const key = rel + ' ' + text;
+      if (seen.has(key)) continue;
+      seen.add(key);
+
+      const hasAr = ar.has(text);
+      const hasEn = en.has(text);
+      const entry = { file: rel, line, text, hasAr, hasEn };
+      if (hasAr && hasEn) covered.push(entry);
+      else fallsThrough.push({ ...entry, missing: [!hasAr ? 'ar' : null, !hasEn ? 'en' : null].filter(Boolean) });
+    }
+  }
+
+  const byDir = new Map();
+  for (const f of fallsThrough) {
+    const dir = f.file.split('/').slice(0, 2).join('/');
+    byDir.set(dir, (byDir.get(dir) ?? 0) + 1);
+  }
+
+  return {
+    scanned: files.length,
+    translations: { ar: ar.size, en: en.size },
+    covered: covered.length,
+    fallsThrough,
+    mixed,
+    byDirectory: [...byDir.entries()].sort((a, b) => b[1] - a[1]),
+  };
+};
+

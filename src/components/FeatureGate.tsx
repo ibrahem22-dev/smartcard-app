@@ -6,6 +6,7 @@ import { useAppDirection } from '../hooks/useAppDirection';
 import { useFeatureFlag } from '../hooks/useFeatureFlag';
 import { useTranslation } from '../hooks/useTranslation';
 import { INITIAL_FEATURE_STATUS } from '../types/feature.types';
+import { CHROME } from '../theme/tokens';
 
 export type FeatureGateProps = {
   feature: keyof typeof INITIAL_FEATURE_STATUS;
@@ -55,10 +56,10 @@ const styles = StyleSheet.create({
     paddingHorizontal: 10,
     paddingVertical: 4,
     borderRadius: 999,
-    backgroundColor: '#0F172A',
+    backgroundColor: CHROME.ink,
   },
   badgeText: {
-    color: '#FFFFFF',
+    color: CHROME.white,
     fontSize: 12,
     fontWeight: '700',
   },

@@ -1,0 +1,716 @@
+{
+  "$comment": [
+    "GENERATED from the ```criteria fence in P5_COMPLETION_CONTRACT.md by campaign-p5/bin/p5-required-gates.mjs.",
+    "Do not hand-edit. The ladder reads this to know what MUST exist, not just what happens to be here."
+  ],
+  "contractVersion": "1.0-DRAFT",
+  "criteriaCount": 71,
+  "generatedBy": "p5-required-gates.mjs",
+  "gates": [
+    {
+      "gate": "accessibility-labels",
+      "sentinel": "ACCESSIBILITY-LABELS OK",
+      "criteria": [
+        "R4"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "accessibility-static",
+      "sentinel": "ACCESSIBILITY-STATIC OK",
+      "criteria": [
+        "R3"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "R3",
+          "control": "make one risk dot colour-only and watch the gate fail"
+        }
+      ]
+    },
+    {
+      "gate": "agreement-population",
+      "sentinel": "AGREEMENT-POPULATION OK",
+      "criteria": [
+        "A6"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "analytics-barrier",
+      "sentinel": "ANALYTICS-BARRIER OK",
+      "criteria": [
+        "U3"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "U3",
+          "control": "pass a UserCard carrying last4 to track and watch the boundary refuse it"
+        }
+      ]
+    },
+    {
+      "gate": "best-for-chips",
+      "sentinel": "BEST-FOR-CHIPS OK",
+      "criteria": [
+        "W4"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "caches-agree",
+      "sentinel": "CACHES-AGREE OK",
+      "criteria": [
+        "A5"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "A5",
+          "control": "stale one cache entry behind an engine input change and watch the gate refuse to render it"
+        }
+      ]
+    },
+    {
+      "gate": "caches-local",
+      "sentinel": "CACHES-LOCAL OK",
+      "criteria": [
+        "U4"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "calendar-grid",
+      "sentinel": "CALENDAR-GRID OK",
+      "criteria": [
+        "K1"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "K1",
+          "control": "switch the grid to Monday-first and watch the gate fail"
+        }
+      ]
+    },
+    {
+      "gate": "calendar-markers",
+      "sentinel": "CALENDAR-MARKERS OK",
+      "criteria": [
+        "K2"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "calendar-scope-guard",
+      "sentinel": "CALENDAR-SCOPE-GUARD OK",
+      "criteria": [
+        "K4"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "K4",
+          "control": "plant a holiday table in the calendar's own data and watch the authority door refuse it"
+        }
+      ]
+    },
+    {
+      "gate": "card-dna-active-now",
+      "sentinel": "CARD-DNA-ACTIVE-NOW OK",
+      "criteria": [
+        "N7"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "card-dna-costs",
+      "sentinel": "CARD-DNA-COSTS OK",
+      "criteria": [
+        "N2"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "N2",
+          "control": "render one cost row with no provenance chip and watch the sweep fail"
+        }
+      ]
+    },
+    {
+      "gate": "card-dna-footer",
+      "sentinel": "CARD-DNA-FOOTER OK",
+      "criteria": [
+        "N8"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "card-dna-gives",
+      "sentinel": "CARD-DNA-GIVES OK",
+      "criteria": [
+        "N5"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "N5",
+          "control": "render a reward balance and watch the V2-plus scope gate refuse it"
+        }
+      ]
+    },
+    {
+      "gate": "card-dna-layout",
+      "sentinel": "CARD-DNA-LAYOUT OK",
+      "criteria": [
+        "N1"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "card-dna-when-best",
+      "sentinel": "CARD-DNA-WHEN-BEST OK",
+      "criteria": [
+        "N6"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "commitments-groups",
+      "sentinel": "COMMITMENTS-GROUPS OK",
+      "criteria": [
+        "J2"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "commitments-row",
+      "sentinel": "COMMITMENTS-ROW OK",
+      "criteria": [
+        "J3"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "commitments-scope-guard",
+      "sentinel": "COMMITMENTS-SCOPE-GUARD OK",
+      "criteria": [
+        "J5"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "commitments-summary",
+      "sentinel": "COMMITMENTS-SUMMARY OK",
+      "criteria": [
+        "J1"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "J1",
+          "control": "drop the absolute shekel cap and watch the gate fail"
+        }
+      ]
+    },
+    {
+      "gate": "conflicted-value",
+      "sentinel": "CONFLICTED-VALUE OK",
+      "criteria": [
+        "N9"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "N9",
+          "control": "render only the newer of two competing values and watch the gate fail"
+        }
+      ]
+    },
+    {
+      "gate": "day-sheet",
+      "sentinel": "DAY-SHEET OK",
+      "criteria": [
+        "K3"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "home-billing-and-cta",
+      "sentinel": "HOME-BILLING-AND-CTA OK",
+      "criteria": [
+        "H5"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "home-hero",
+      "sentinel": "HOME-HERO OK",
+      "criteria": [
+        "H1"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "home-hero-honesty",
+      "sentinel": "HOME-HERO-HONESTY OK",
+      "criteria": [
+        "H2"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "H2",
+          "control": "label the hero Verified and watch the gate fail"
+        }
+      ]
+    },
+    {
+      "gate": "home-load-bar",
+      "sentinel": "HOME-LOAD-BAR OK",
+      "criteria": [
+        "H3"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "home-no-suggestions",
+      "sentinel": "HOME-NO-SUGGESTIONS OK",
+      "criteria": [
+        "H6"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "H6",
+          "control": "add a suggestion card and watch the scope gate refuse it"
+        }
+      ]
+    },
+    {
+      "gate": "home-risk-strip",
+      "sentinel": "HOME-RISK-STRIP OK",
+      "criteria": [
+        "H4"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "H4",
+          "control": "remove the billing dates and watch the strip refuse to render a level it cannot know"
+        }
+      ]
+    },
+    {
+      "gate": "no-account-surface",
+      "sentinel": "NO-ACCOUNT-SURFACE OK",
+      "criteria": [
+        "U5"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "no-magic-numbers",
+      "sentinel": "NO-MAGIC-NUMBERS OK",
+      "criteria": [
+        "B3"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "no-rederivation",
+      "sentinel": "NO-REDERIVATION OK",
+      "criteria": [
+        "B4"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "one-limit",
+      "sentinel": "ONE-LIMIT OK",
+      "criteria": [
+        "A4"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "A4",
+          "control": "recompute the limit on one surface from limit minus holds and watch the property fail"
+        }
+      ]
+    },
+    {
+      "gate": "one-load",
+      "sentinel": "ONE-LOAD OK",
+      "criteria": [
+        "A2"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "A2",
+          "control": "perturb one surface's threshold and watch the property fail"
+        }
+      ]
+    },
+    {
+      "gate": "one-risk",
+      "sentinel": "ONE-RISK OK",
+      "criteria": [
+        "A3"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "A3",
+          "control": "shift one surface's window by a day and watch the property fail"
+        }
+      ]
+    },
+    {
+      "gate": "one-scoring",
+      "sentinel": "ONE-SCORING OK",
+      "criteria": [
+        "A1"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "A1",
+          "control": "derive a Best-For chip from a second ranking path and watch the property fail"
+        }
+      ]
+    },
+    {
+      "gate": "override-durability",
+      "sentinel": "OVERRIDE-DURABILITY OK",
+      "criteria": [
+        "N4"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "N4",
+          "control": "disable the override merge at read and watch the imported catalog value win"
+        }
+      ]
+    },
+    {
+      "gate": "override-write",
+      "sentinel": "OVERRIDE-WRITE OK",
+      "criteria": [
+        "N3"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "paid-early",
+      "sentinel": "PAID-EARLY OK",
+      "criteria": [
+        "J4"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "J4",
+          "control": "release the hold in the component instead of the engine and watch the purity gate and the one-limit property both fail"
+        }
+      ]
+    },
+    {
+      "gate": "placeholder-surfaces-absent",
+      "sentinel": "PLACEHOLDER-SURFACES-ABSENT OK",
+      "criteria": [
+        "B2"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "B2",
+          "control": "re-register one placeholder on any route and watch the gate fail"
+        }
+      ]
+    },
+    {
+      "gate": "state-classification",
+      "sentinel": "STATE-CLASSIFICATION OK",
+      "criteria": [
+        "U1"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "U1",
+          "control": "add an unclassified persisted field and watch the gate fail"
+        }
+      ]
+    },
+    {
+      "gate": "surfaces-pure",
+      "sentinel": "SURFACES-PURE OK",
+      "criteria": [
+        "B1"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "B1",
+          "control": "compute a load ratio inside the Home hero component and watch the gate fail"
+        }
+      ]
+    },
+    {
+      "gate": "vault-only",
+      "sentinel": "VAULT-ONLY OK",
+      "criteria": [
+        "U2"
+      ],
+      "flags": [],
+      "negativeControls": []
+    },
+    {
+      "gate": "waiver-badge",
+      "sentinel": "WAIVER-BADGE OK",
+      "criteria": [
+        "W3"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "W3",
+          "control": "colour the badge red and watch the semantic-colour gate fail"
+        }
+      ]
+    },
+    {
+      "gate": "wallet-limit-bar",
+      "sentinel": "WALLET-LIMIT-BAR OK",
+      "criteria": [
+        "W2"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "W2",
+          "control": "label the limit Verified and watch the gate fail"
+        }
+      ]
+    },
+    {
+      "gate": "wallet-render-discipline",
+      "sentinel": "WALLET-RENDER-DISCIPLINE OK",
+      "criteria": [
+        "W5"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "W5",
+          "control": "render a tile from a hard-coded image path instead of the resolver and watch the gate fail"
+        }
+      ]
+    },
+    {
+      "gate": "wallet-tile",
+      "sentinel": "WALLET-TILE OK",
+      "criteria": [
+        "W1"
+      ],
+      "flags": [],
+      "negativeControls": [
+        {
+          "criterion": "W1",
+          "control": "remove the role tag and watch the element sweep fail"
+        }
+      ]
+    }
+  ],
+  "nonGateCriteria": [
+    {
+      "id": "I1",
+      "command": "node bin/p5-intake.mjs",
+      "sentinel": "P5-INTAKE OK",
+      "flags": []
+    },
+    {
+      "id": "I2",
+      "command": "node bin/p5-intake.mjs --assumptions",
+      "sentinel": "P5-INTAKE ASSUMPTIONS OK",
+      "flags": []
+    },
+    {
+      "id": "Q1",
+      "command": "node bin/p5-qualify.mjs --status",
+      "sentinel": "P5-QUALIFY OK",
+      "flags": []
+    },
+    {
+      "id": "Q2",
+      "command": "node bin/p5-qualify.mjs --status --require-refusal",
+      "sentinel": "P5-QUALIFY REFUSAL OK",
+      "flags": []
+    },
+    {
+      "id": "B5",
+      "command": "node bin/p5-records.mjs --adrs",
+      "sentinel": "P5-ADRS OK",
+      "flags": []
+    },
+    {
+      "id": "B6",
+      "command": "node bin/p5-records.mjs --deferred",
+      "sentinel": "P5-DEFERRED OK",
+      "flags": []
+    },
+    {
+      "id": "B7",
+      "command": "node bin/p5-decide.mjs --check",
+      "sentinel": "P5-DECISION-LOG OK",
+      "flags": []
+    },
+    {
+      "id": "B8",
+      "command": "node bin/p5-records.mjs --handoff",
+      "sentinel": "P5-HANDOFF OK",
+      "flags": []
+    },
+    {
+      "id": "B9",
+      "command": "node bin/p5-records.mjs --repos",
+      "sentinel": "P5-REPOS OK",
+      "flags": []
+    },
+    {
+      "id": "B10",
+      "command": "node bin/p5-records.mjs --adjudication",
+      "sentinel": "P5-ADJUDICATION OK",
+      "flags": []
+    },
+    {
+      "id": "B11",
+      "command": "node bin/p5-ledger.mjs --verify",
+      "sentinel": "P5-LEDGER VERIFY OK",
+      "flags": []
+    },
+    {
+      "id": "B12",
+      "command": "node bin/p5-records.mjs --inherited-ladder",
+      "sentinel": "P5-INHERITED-LADDER OK",
+      "flags": []
+    },
+    {
+      "id": "R1",
+      "command": null,
+      "sentinel": "P5-RTL OK",
+      "flags": [
+        "DEVICE"
+      ]
+    },
+    {
+      "id": "R2",
+      "command": null,
+      "sentinel": "P5-CALENDAR-LOCALE OK",
+      "flags": [
+        "DEVICE"
+      ]
+    },
+    {
+      "id": "R5",
+      "command": null,
+      "sentinel": "P5-SURFACES-DEVICE OK",
+      "flags": [
+        "DEVICE"
+      ]
+    },
+    {
+      "id": "G1",
+      "command": "node bin/p5-lane-g.mjs --extraction",
+      "sentinel": "LANE-G EXTRACTION OK",
+      "flags": []
+    },
+    {
+      "id": "G2",
+      "command": "node bin/p5-lane-g.mjs --prohibitions",
+      "sentinel": "LANE-G PROHIBITIONS OK",
+      "flags": []
+    },
+    {
+      "id": "G3",
+      "command": "node bin/p5-lane-g.mjs --audit",
+      "sentinel": "LANE-G AUDIT OK",
+      "flags": []
+    },
+    {
+      "id": "G4",
+      "command": "node bin/p5-lane-g.mjs --coverage",
+      "sentinel": "LANE-G COVERAGE OK",
+      "flags": []
+    },
+    {
+      "id": "V1",
+      "command": "npm run p5:all --app",
+      "sentinel": "P5-ALL OK",
+      "flags": []
+    },
+    {
+      "id": "V2",
+      "command": null,
+      "sentinel": "P5-ALL OK",
+      "flags": [
+        "FRESH"
+      ]
+    },
+    {
+      "id": "V3",
+      "command": null,
+      "sentinel": "P5-ALL OK",
+      "flags": [
+        "FRESH"
+      ]
+    },
+    {
+      "id": "V4",
+      "command": null,
+      "sentinel": "REAL-ARTIFACTS OK",
+      "flags": [
+        "FRESH"
+      ]
+    },
+    {
+      "id": "V5",
+      "command": null,
+      "sentinel": "DEVICE-SURFACES OK",
+      "flags": [
+        "DEVICE"
+      ]
+    },
+    {
+      "id": "V6",
+      "command": "node bin/p5-closure.mjs --mirror-check",
+      "sentinel": "P5-CLOSURE-MIRROR OK",
+      "flags": []
+    }
+  ]
+}

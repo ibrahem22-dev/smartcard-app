@@ -1,0 +1,361 @@
+{
+  "$comment": [
+    "DERIVED FROM campaign-p3/P3_COMPLETION_CONTRACT.md by campaign-p3/bin/p3-required-gates.mjs.",
+    "Do not hand-edit: regenerate. This is a MIRROR; the pipeline compares it against the contract.",
+    "It exists so the app can answer \"does every gate the contract requires exist?\" in a fresh",
+    "clone and in CI, where the pipeline repository is not present. Deriving the gate list from",
+    "tools/p3/gates/*.mjs answers \"did everything I have pass?\" — a different question."
+  ],
+  "contractVersion": "1.0-PROPOSED",
+  "criteriaCount": 52,
+  "generatedBy": "campaign-p3/bin/p3-required-gates.mjs",
+  "gates": [
+    {
+      "gate": "adapter-no-conversion",
+      "sentinel": "ADAPTER-NO-CONVERSION OK",
+      "criteria": [
+        "X2"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "boi-calendar",
+      "sentinel": "BOI-CALENDAR OK",
+      "criteria": [
+        "A2"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "boi-lane",
+      "sentinel": "BOI-LANE OK",
+      "criteria": [
+        "A4"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "boi-offline",
+      "sentinel": "BOI-OFFLINE OK",
+      "criteria": [
+        "A7"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "boi-provenance",
+      "sentinel": "BOI-PROVENANCE OK",
+      "criteria": [
+        "A5"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "boi-refusals",
+      "sentinel": "BOI-REFUSALS OK",
+      "criteria": [
+        "A6"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "boi-staleness",
+      "sentinel": "BOI-STALENESS OK",
+      "criteria": [
+        "A3"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "conversion-downgrade",
+      "sentinel": "CONVERSION-DOWNGRADE OK",
+      "criteria": [
+        "X3"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "engine-fx",
+      "sentinel": "ENGINE-FX OK",
+      "criteria": [
+        "N3"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "engine-load",
+      "sentinel": "ENGINE-LOAD OK",
+      "criteria": [
+        "N4"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "engine-risk",
+      "sentinel": "ENGINE-RISK OK",
+      "criteria": [
+        "N5"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "engine-scoring",
+      "sentinel": "ENGINE-SCORING OK",
+      "criteria": [
+        "N1"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "engine-verdict",
+      "sentinel": "ENGINE-VERDICT OK",
+      "criteria": [
+        "N2"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "engines-pure",
+      "sentinel": "ENGINES-PURE OK",
+      "criteria": [
+        "N6"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "full-universe",
+      "sentinel": "FULL-UNIVERSE OK",
+      "criteria": [
+        "S3"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "honesty-engine",
+      "sentinel": "HONESTY-ENGINE OK",
+      "criteria": [
+        "T3"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "interval-rankability",
+      "sentinel": "INTERVAL-RANKABILITY OK",
+      "criteria": [
+        "K3"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "no-magic-numbers",
+      "sentinel": "NO-MAGIC-NUMBERS OK",
+      "criteria": [
+        "G11"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "no-rederivation",
+      "sentinel": "NO-REDERIVATION OK",
+      "criteria": [
+        "G10"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "ob3-ob6-prohibitions",
+      "sentinel": "OB3-OB6-PROHIBITIONS OK",
+      "criteria": [
+        "K2"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "one-number",
+      "sentinel": "ONE-NUMBER OK",
+      "criteria": [
+        "N7"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "provenance-on-numbers",
+      "sentinel": "PROVENANCE-ON-NUMBERS OK",
+      "criteria": [
+        "T2"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "quote-unit",
+      "sentinel": "QUOTE-UNIT OK",
+      "criteria": [
+        "X1"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "reason-trace",
+      "sentinel": "REASON-TRACE OK",
+      "criteria": [
+        "T1"
+      ],
+      "flags": []
+    },
+    {
+      "gate": "scenarios-in-ci",
+      "sentinel": "SCENARIOS-IN-CI OK",
+      "criteria": [
+        "S4"
+      ],
+      "flags": [
+        "FRESH"
+      ]
+    }
+  ],
+  "nonGateCriteria": [
+    {
+      "id": "G1",
+      "sentinel": "P3-BOUNDARY OK",
+      "flags": []
+    },
+    {
+      "id": "G2",
+      "sentinel": "P3-QUALIFY OK",
+      "flags": []
+    },
+    {
+      "id": "G3",
+      "sentinel": "P3-ADRS OK",
+      "flags": []
+    },
+    {
+      "id": "G4",
+      "sentinel": "P3-DEFERRED OK",
+      "flags": []
+    },
+    {
+      "id": "G5",
+      "sentinel": "P3-DECISION-LOG OK",
+      "flags": []
+    },
+    {
+      "id": "G6",
+      "sentinel": "P3-HANDOFF OK",
+      "flags": []
+    },
+    {
+      "id": "G7",
+      "sentinel": "P3-REPOS OK",
+      "flags": []
+    },
+    {
+      "id": "G8",
+      "sentinel": "P3-LEDGER VERIFY OK",
+      "flags": []
+    },
+    {
+      "id": "G9",
+      "sentinel": "P3-ADJUDICATION OK",
+      "flags": []
+    },
+    {
+      "id": "G12",
+      "sentinel": "P3-OBLIGATIONS OK",
+      "flags": []
+    },
+    {
+      "id": "Q1",
+      "sentinel": "P3-QUALIFY OK",
+      "flags": []
+    },
+    {
+      "id": "Q2",
+      "sentinel": "P3-QUALIFY REFUSAL OK",
+      "flags": []
+    },
+    {
+      "id": "A1",
+      "sentinel": "P3-BOI-SPEC OK",
+      "flags": []
+    },
+    {
+      "id": "A8",
+      "sentinel": "BOI-CONTROLS OK",
+      "flags": []
+    },
+    {
+      "id": "X4",
+      "sentinel": "ARITHMETIC-CONTROLS OK",
+      "flags": []
+    },
+    {
+      "id": "K1",
+      "sentinel": "CONFLICT-AXIS OK",
+      "flags": []
+    },
+    {
+      "id": "K4",
+      "sentinel": "CONFLICT-AXIS CENSUS OK",
+      "flags": []
+    },
+    {
+      "id": "H1",
+      "sentinel": "P3-HOLIDAYS OK",
+      "flags": []
+    },
+    {
+      "id": "H2",
+      "sentinel": "HOLIDAY-AUTHORITY OK",
+      "flags": []
+    },
+    {
+      "id": "S1",
+      "sentinel": "SCENARIOS OK — 23 of 23",
+      "flags": []
+    },
+    {
+      "id": "S2",
+      "sentinel": "P3-STANDINS RETIRED OK",
+      "flags": []
+    },
+    {
+      "id": "V1",
+      "sentinel": "P3-ALL OK",
+      "flags": []
+    },
+    {
+      "id": "V2",
+      "sentinel": "P3-ALL OK",
+      "flags": [
+        "FRESH"
+      ]
+    },
+    {
+      "id": "V3",
+      "sentinel": "P3-ALL OK",
+      "flags": [
+        "FRESH"
+      ]
+    },
+    {
+      "id": "V4",
+      "sentinel": "REAL-ARTIFACTS OK",
+      "flags": [
+        "FRESH"
+      ]
+    },
+    {
+      "id": "V5",
+      "sentinel": "DEVICE-ENGINE OK",
+      "flags": [
+        "DEVICE"
+      ]
+    },
+    {
+      "id": "V6",
+      "sentinel": "P3-CLOSURE-MIRROR OK",
+      "flags": []
+    }
+  ]
+}

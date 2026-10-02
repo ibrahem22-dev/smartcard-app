@@ -5,9 +5,14 @@
 // No React/RN/Expo/store/network imports — pure, synchronous, side-effect free.
 
 import type { AmortizationRow, InterestResult } from '../types/interest.types';
+import {
+  CONSUMER_CREDIT_ANNUAL_RATE_MIN_PCT,
+  CONSUMER_CREDIT_ANNUAL_RATE_MAX_PCT,
+} from '../config/financial';
 
-const RATE_MIN = 0; // % annual
-const RATE_MAX = 30; // % annual — Israeli legal max for consumer credit
+// D5 — the statutory ceiling is stated once, in config/financial.ts.
+const RATE_MIN = CONSUMER_CREDIT_ANNUAL_RATE_MIN_PCT;
+const RATE_MAX = CONSUMER_CREDIT_ANNUAL_RATE_MAX_PCT;
 const MONTHS_MIN = 1;
 const MONTHS_MAX = 360;
 

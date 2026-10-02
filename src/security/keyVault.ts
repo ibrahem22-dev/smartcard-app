@@ -26,12 +26,13 @@
 import * as SecureStore from 'expo-secure-store';
 import * as Crypto from 'expo-crypto';
 import { MMKV } from 'react-native-mmkv';
-import { gcm } from '@noble/ciphers/aes';
-import { argon2idAsync } from '@noble/hashes/argon2';
+import { gcm } from '@noble/ciphers/aes.js';
+import { argon2idAsync } from '@noble/hashes/argon2.js';
 
 import type { UserProfile } from '../types/user.types';
 import { MMKV_KEYS } from '../store/keys';
 import type { LockoutCaller, LockoutState } from './keyVault.types';
+import { APP_NAME, STORAGE_NAMESPACE } from '../config/identity';
 
 // --- Public contract (SEC-CONTRACT-001 ┬د8) -----------------------------------
 
@@ -257,12 +258,35 @@ const GCM_NONCE_BYTES = 12;
 const MAX_BACKOFF_FAILURES = 9;
 const PROFILE_ID_PATTERN =
   /^[0-9a-f]{8}-[0-9a-f]{4}-[1-8][0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/i;
-const MMKV_ID = 'smartcard.secure';
+/**
+ * THE ENCRYPTED VAULT'S STORE ID — from `storageNamespace`, deliberately NOT the slug.
+ *
+ * The A10 gate found this as the product slug scattered into source, and the finding was right
+ * about the string and wrong about what it means. Changing it does not rename anything: it points
+ * every existing install at a NEW, EMPTY encrypted store. The user's PIN, their cards and their
+ * profile do not move — they become unreachable, with no error, because an empty store is a valid
+ * store.
+ *
+ * `storageNamespace` exists so a rename can never do that. It reads the same as the slug today,
+ * which is exactly why it had to be a separate field.
+ */
+const MMKV_ID = `${STORAGE_NAMESPACE}.secure`;
 // CONFLICT: These legacy typed accessors retain their historical global key,
 // but the task forbids modifying existing keyVault behavior. Financial stores
 // no longer call them and use profile-scoped keys exclusively.
 const PROFILE_KEY = 'user.profile';
-const KEYCHAIN_SERVICE = 'smartcard.keyvault.v1';
+/**
+ * THE OS KEYCHAIN SERVICE NAME — the third and most severe of the identity-shaped strings.
+ *
+ * MMKV_ID orphans the vault store. This orphans the DEVICE KEYCHAIN ENTRY that holds the keys
+ that decrypt it. A rename that moved this would leave a user's data encrypted, present, and
+ * permanently unreadable — the app would not even know it had happened, because an absent keychain
+ * entry is indistinguishable from a fresh install.
+ *
+ * The `.v1` suffix is deliberate and stays: it is a schema version for the keychain entry itself,
+ * and it is the only part of this string that may ever legitimately change.
+ */
+const KEYCHAIN_SERVICE = `${STORAGE_NAMESPACE}.keyvault.v1`;
 
 // SecureStore item names.
 const SS = {
@@ -278,15 +302,47 @@ const SS = {
   setupPending: 'sc.setupPending', // fail-closed first-PIN setup marker
 } as const;
 
-// KWRAP-2 + KWRAP-3: auth-required + this-device-only. expo-secure-store maps
-// requireAuthentication ظْ iOS access-control (biometryCurrentSet, passcode
-// fallback) / Android setUserAuthenticationRequired(true); WHEN_UNLOCKED_THIS_
-// DEVICE_ONLY blocks iCloud/Android backup sync of the DEK.
+// KWRAP-2 + KWRAP-3: auth-required + this-device-only.
+//
+// WHEN_UNLOCKED_THIS_DEVICE_ONLY blocks iCloud / Android backup sync of the DEK.
+//
+// requireAuthentication IS NOT SYMMETRIC ACROSS THE TWO PLATFORMS, AND THE DIFFERENCE BITES.
+//
+// This comment used to say the flag maps to "iOS access-control (biometryCurrentSet, passcode
+// fallback) / Android setUserAuthenticationRequired(true)". The iOS half is right. The Android half
+// left out the part that decides whether the app can be set up at all, and P2's first device run
+// found it by failing:
+//
+//   [vault] enrollPin failed: Call to function 'ExpoSecureStore.setValueWithKeyAsync' has been
+//   rejected.  Caused by: Could not Authenticate the user: No biometrics are currently enrolled
+//
+// expo-secure-store's AuthenticationHelper.assertBiometricsSupport() calls
+// canAuthenticate(BIOMETRIC_STRONG) and throws for five device states -- no hardware, none
+// enrolled, security update required, unsupported, unknown. DEVICE_CREDENTIAL is not in that call,
+// so on Android THERE IS NO PASSCODE FALLBACK: a device lock-screen PIN does not satisfy it. A user
+// who has never enrolled a fingerprint or face cannot create this vault.
+//
+// That is a security-posture decision, not a bug to quietly patch. It was raised as OQ-001 and the
+// Owner RULED it on 2026-08-24:
+//
+//   "Keep requireAuthentication:true. If no supported biometric is enrolled, block vault setup and
+//    guide the user to Android Settings to enroll biometric authentication, then retry. No
+//    unauthenticated DEK fallback is permitted."
+//
+// So this flag STAYS, and the refusal moved to where the user can act on it:
+// `src/security/biometricEnrolment.ts` asks `canAuthenticate`'s own question before enrolment is
+// attempted, and `LockScreen` replaces the PIN form with a screen that names the requirement and
+// opens Settings. **Nothing here is permitted to write the DEK without this flag** — a per-device
+// downgrade would make the vault's protection vary by handset with nothing in the product saying
+// so, which is the one option the ruling names as forbidden. `keyVault.dekAuth.test.ts` holds that line, and was watched to go red with the flag removed.
+//
+// The comment is corrected here so the next reader is not told something the device disproved.
 const DEK_OPTS: SecureStore.SecureStoreOptions = {
   keychainService: KEYCHAIN_SERVICE,
   requireAuthentication: true,
   keychainAccessible: SecureStore.WHEN_UNLOCKED_THIS_DEVICE_ONLY,
-  authenticationPrompt: 'Unlock SmartCard',
+  // OD-2: one source for the product name — see src/config/identity.ts.
+  authenticationPrompt: `Unlock ${APP_NAME}`,
 };
 
 // Non-secret / ciphertext metadata: this-device-only, but no OS auth gate (the
